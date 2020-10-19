@@ -1,0 +1,7 @@
+layout python python3.8
+
+export PIP_INDEX_URL="https://nexus.cian.tech/repository/cian/simple/"
+
+export SIMPLE_SETTINGS="external_offers.settings.local"
+
+export CONSUL_HTTP_ADDR="consul.dev.cian.ru:8500"

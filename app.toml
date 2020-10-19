@@ -1,0 +1,12 @@
+name = "external-offers"
+team = "b2b"
+
+[runtime]
+name = "python"
+version = "3.8"
+
+[[dependency]]
+type = "rabbitmq"
+
+[job.web]
+type = "web"

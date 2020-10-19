@@ -1,1 +1,2 @@
-<Created automatically via Integro>
+# external-offers
+My short description
