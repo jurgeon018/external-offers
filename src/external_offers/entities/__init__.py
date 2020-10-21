@@ -1,0 +1,3 @@
+from external_offers.entities.clients import Client
+from external_offers.entities.offer_status_history import OfferStatusHistory
+from external_offers.entities.offers import Offer

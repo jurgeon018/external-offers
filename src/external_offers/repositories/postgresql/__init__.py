@@ -1,0 +1,2 @@
+from external_offers.repositories.postgresql.clients import get_client_by_operator
+from external_offers.repositories.postgresql.offers import get_offers_in_progress_by_operator

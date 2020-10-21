@@ -1,0 +1,86 @@
+<html>
+
+<head>
+  <style>
+    .offers {
+            margin: 1em;
+    }
+    .offersgrid {
+    }
+    .title {
+      font-weight: bold;
+      padding: 0.5em 0;
+    }
+    .clientinfo {
+      margin: 1em;
+    }
+
+    .offersrow.offersrowheader {
+      border-top: 2px solid #000000;
+
+    }
+    .offercolumn.offercolumnheader {
+          font-weight: bold;
+    }
+    .offersrow {
+      border-top: 0;
+      border-bottom: 2px solid #000000;
+      border-left: 2px solid #000000;
+      border-right: 2px solid #000000;
+      grid-column-start: 1;
+      grid-column-end: 4;
+      grid-row-start: 1;
+      grid-row-end: 3;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr) 0.5fr;
+      border-radius: 2px;
+      padding: 1em;
+
+    }
+  </style>
+  <meta charset="utf-8">
+</head>
+
+<body>
+  {% if (client is defined) and client %}
+  <div class="clientinfo">
+    <div class="title">Клиент</div>
+    <div class="clientid">Идентификатор: {{ client.client_id }}</div>
+    <div class="clientname">Имя: {{ client.client_name }}</div>
+    <div class="clientphone">Телефон: {{ client.client_phone }}</div>
+
+  </div>
+  <div class="offers">
+  {% if (offers is defined) and offers %}
+    <div class="title">Объявления</div>
+  <div class="offersgrid">
+    <div class="offersrow offersrowheader">
+
+      <div class="offercolumn offercolumnheader">Идентификатор</div>
+      <div class="offercolumn offercolumnheader">Создано</div>
+    </div>
+
+    {% for offer in offers %}
+
+    <div class="offersrow">
+
+      <div class=offercolumn>{{ offer.id }}</div>
+      <div class=offercolumn>{{ offer.created_at|date }} {{ offer.created_at|time }}</div>
+      <div class=offercolumn>
+        <form style="display:inline"><button>Удалить</button></form>
+      </div>
+    </div>
+    </div>
+
+    {% endfor %}
+  </div>
+  {% else %}
+  Нет объявлений в работе, получите новые задания
+  {% endif %}
+  {% else %}
+  Нет клиента в работе, получите новые задания
+  {% endif %}
+
+  <body>
+
+</html>
