@@ -3,7 +3,7 @@ from external_offers.templates import get_external_offers_html
 from external_offers.web.handlers.base import PublicHandler
 
 
-class AdminExternalOffersPageHandler(PublicHandler):
+class AdminOffersListPageHandler(PublicHandler):
     # pylint: disable=abstract-method
 
     async def get(self) -> None:

@@ -1,5 +1,5 @@
 async def test_get_admin_external_offers_without_x_real_userid(http):
-    await http.request('GET', '/admin/external_offers/', expected_status=400)
+    await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
 async def test_get_admin_external_offers_operator_with_client_in_progress(
@@ -15,7 +15,7 @@ async def test_get_admin_external_offers_operator_with_client_in_progress(
     # act
     resp = await http.request(
         'GET',
-        '/admin/external_offers/',
+        '/admin/offers-list/',
         headers={
             'X-Real-UserId': operator_with_client
         },
@@ -38,7 +38,7 @@ async def test_get_admin_external_offers_operator_with_client_cancelled(
     # act
     resp = await http.request(
         'GET',
-        '/admin/external_offers/',
+        '/admin/offers-list/',
         headers={
             'X-Real-UserId': operator_with_client
         },
@@ -61,7 +61,7 @@ async def test_admin_operator_without_client(
     # act
     resp = await http.request(
         'GET',
-        '/admin/external_offers/',
+        '/admin/offers-list/',
         headers={
             'X-Real-UserId': operator_without_clients
         },
