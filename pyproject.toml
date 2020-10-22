@@ -28,6 +28,7 @@ click = "^7.0"
 python = "^3.8"
 simple-settings = "^0.19"
 tornado = "^6.0"
+jinja2 = "^2.11.2"
 
 [tool.poetry.dev-dependencies]
 cian-lint = "*"

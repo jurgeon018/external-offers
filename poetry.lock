@@ -881,7 +881,7 @@ reference = "cian"
 name = "jinja2"
 version = "2.11.2"
 description = "A very fast and expressive template engine."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -951,7 +951,7 @@ reference = "cian"
 name = "markupsafe"
 version = "1.1.1"
 description = "Safely add untrusted strings to HTML/XML markup."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
 
@@ -1965,7 +1965,7 @@ reference = "cian"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "5dc81d9047e501702f211d976954352bd3f512796e996aa6077048fa549c16ac"
+content-hash = "25c9963821f51bd20e11f377e707ef50a20690b994cb1f8a7e98075ba8a09e17"
 
 [metadata.files]
 aiohttp = [
