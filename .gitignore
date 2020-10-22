@@ -4,3 +4,4 @@
 .envrc
 .tox/
 __pycache__/
+.vscode

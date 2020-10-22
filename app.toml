@@ -6,6 +6,10 @@ name = "python"
 version = "3.8"
 
 [[dependency]]
+type = "postgres"
+alias = "external_offers"
+
+[[dependency]]
 type = "rabbitmq"
 
 [job.web]

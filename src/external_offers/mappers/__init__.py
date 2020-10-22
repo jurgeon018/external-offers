@@ -1,0 +1,3 @@
+from external_offers.mappers.clients import client_mapper
+from external_offers.mappers.offer_status_history import offer_status_history_mapper
+from external_offers.mappers.offers import offer_mapper
