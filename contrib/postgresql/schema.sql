@@ -41,10 +41,15 @@ CREATE TABLE status_history
     created_at       timestamp with time zone not null
 );
 
-CREATE TABLE parsed_offers
+create table parsed_offers
 (
-    parse_id    VARCHAR UNIQUE           not null,
-    raw_data    jsonb                    not null,
-    -- source_type
-    update_date timestamp with time zone not null
+    id                  varchar unique primary key,
+    user_segment        varchar                  not null,
+    source_object_id    varchar                  not null,
+    source_user_id      varchar                  not null,
+    source_object_model json                     not null,
+    is_calltracking     boolean                  not null,
+    timestamp           timestamp with time zone not null,
+    created_at          timestamp with time zone not null,
+    updated_at          timestamp with time zone not null
 );
