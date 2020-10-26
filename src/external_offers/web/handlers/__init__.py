@@ -1,1 +1,1 @@
-from external_offers.web.handlers.admin import AdminOffersListPageHandler
+from external_offers.web.handlers.admin import AdminOffersListPageHandler, AdminUpdateOffersListPageHandler

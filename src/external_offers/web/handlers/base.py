@@ -28,7 +28,7 @@ class PublicHandler(BasePublicHandler):
 
         if self.request.method != 'OPTIONS' and not user_id:
             return {
-                'message': 'Ожидаются заголовки X-Real-UserId',
+                'success': False,
                 'errors': [{
                     'message': 'Ожидаются заголовки X-Real-UserId',
                     'code': 'authorizationRequired'
