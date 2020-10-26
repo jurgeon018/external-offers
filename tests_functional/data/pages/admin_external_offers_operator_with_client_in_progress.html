@@ -1,94 +1,109 @@
 <html>
-
-<head>
-  <style>
-    .offers {
-            margin: 1em;
-    }
-    .offersgrid {
-    }
-    .title {
-      font-weight: bold;
-      padding: 0.5em 0;
-    }
-    .clientinfo {
-      margin: 1em;
-    }
-
-    .offersrow.offersrowheader {
-      border-top: 2px solid #000000;
-
-    }
-    .offercolumn.offercolumnheader {
-          font-weight: bold;
-    }
-    .offersrow {
-      border-top: 0;
-      border-bottom: 2px solid #000000;
-      border-left: 2px solid #000000;
-      border-right: 2px solid #000000;
-      grid-column-start: 1;
-      grid-column-end: 4;
-      grid-row-start: 1;
-      grid-row-end: 3;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr) 0.5fr;
-      border-radius: 2px;
-      padding: 1em;
-
-    }
-  </style>
-  <meta charset="utf-8">
-</head>
-
-<body>
-  
-  <div class="clientinfo">
-    <div class="title">Клиент</div>
-    <div class="clientid">Идентификатор: 1</div>
-    <div class="clientname">Имя: Александр Александров</div>
-    <div class="clientphone">Телефон: +79812333234</div>
-
-  </div>
-  <div class="offers">
-  
-    <div class="title">Объявления</div>
-  <div class="offersgrid">
-    <div class="offersrow offersrowheader">
-
-      <div class="offercolumn offercolumnheader">Идентификатор</div>
-      <div class="offercolumn offercolumnheader">Создано</div>
-    </div>
-
-    
-
-    <div class="offersrow">
-
-      <div class=offercolumn>1</div>
-      <div class=offercolumn>12 October 04:05</div>
-      <div class=offercolumn>
-        <form style="display:inline"><button>Удалить</button></form>
+   <head>
+      <style>
+         .offers {
+         margin: 1em;
+         }
+         .offers-grid {
+         }
+         .title {
+         font-weight: bold;
+         padding: 0.5em 0;
+         }
+         .client-info {
+         margin: 1em;
+         }
+         .offers-row.offers-row-header {
+         border-top: 2px solid #000000;
+         }
+         .offercolumn.offercolumnheader {
+         font-weight: bold;
+         }
+         .offers-row {
+         border-top: 0;
+         border-bottom: 2px solid #000000;
+         border-left: 2px solid #000000;
+         border-right: 2px solid #000000;
+         grid-column-start: 1;
+         grid-column-end: 4;
+         grid-row-start: 1;
+         grid-row-end: 3;
+         display: grid;
+         grid-template-columns: repeat(2, 1fr) 0.5fr;
+         border-radius: 2px;
+         padding: 1em;
+         }
+         .update-offers-block {
+         padding: 1em;
+         display:  none ;
+         }
+         .update-offers-button {
+         margin: auto;
+         }
+         .update-offers-messages {
+         margin: auto;
+         padding: 1em;
+         }
+      </style>
+      <meta charset="utf-8">
+   </head>
+   <body>
+      <div class="update-offers-block">
+         <button class="update-offers-button" id="updateOffersButton1">Выдать задание</button>
+         <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
-    </div>
-    </div>
-
-    
-
-    <div class="offersrow">
-
-      <div class=offercolumn>2</div>
-      <div class=offercolumn>12 October 04:05</div>
-      <div class=offercolumn>
-        <form style="display:inline"><button>Удалить</button></form>
+      
+      <div class="client-info">
+         <div class="title">Клиент</div>
+         <div class="clientid">Идентификатор: 1</div>
+         <div class="clientname">Имя: Александр Александров</div>
+         <div class="clientphone">Телефон: +79812333234</div>
       </div>
-    </div>
-    </div>
-
-    
-  </div>
-  
-  
-
-  <body>
-
+      <div class="offers">
+         
+         <div class="title">Объявления</div>
+         <div class="offers-grid">
+            <div class="offers-row offers-row-header">
+               <div class="offercolumn offercolumnheader">Идентификатор</div>
+               <div class="offercolumn offercolumnheader">Создано</div>
+            </div>
+          
+            <div class="offers-row">
+               <div class=offercolumn>1</div>
+               <div class=offercolumn>12 October 04:05</div>
+               <div class=offercolumn>
+                  <form style="display:inline"><button>Удалить</button></form>
+               </div>
+            </div>
+         </div>
+         
+            <div class="offers-row">
+               <div class=offercolumn>2</div>
+               <div class=offercolumn>12 October 04:05</div>
+               <div class=offercolumn>
+                  <form style="display:inline"><button>Удалить</button></form>
+               </div>
+            </div>
+         </div>
+         
+      </div>
+      
+      
+      <script type="text/javascript">
+         document.getElementById("updateOffersButton1").onclick = async function () {
+           const response = await fetch('/admin/update-offers-list/', {
+             method: 'POST'
+           });
+           resp = await response.json
+           ()
+           if (resp.success === true) {
+             location.reload(); 
+           } else {
+             errors = resp.errors.map((element) => element.message).join('<br>')
+             document.getElementById("updateOffersMessages1").innerHTML = errors
+           }
+           
+         };
+      </script>
+      <body>
 </html>

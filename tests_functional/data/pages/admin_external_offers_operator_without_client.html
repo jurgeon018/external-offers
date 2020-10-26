@@ -1,51 +1,75 @@
 <html>
-
-<head>
-  <style>
-    .offers {
-            margin: 1em;
-    }
-    .offersgrid {
-    }
-    .title {
-      font-weight: bold;
-      padding: 0.5em 0;
-    }
-    .clientinfo {
-      margin: 1em;
-    }
-
-    .offersrow.offersrowheader {
-      border-top: 2px solid #000000;
-
-    }
-    .offercolumn.offercolumnheader {
-          font-weight: bold;
-    }
-    .offersrow {
-      border-top: 0;
-      border-bottom: 2px solid #000000;
-      border-left: 2px solid #000000;
-      border-right: 2px solid #000000;
-      grid-column-start: 1;
-      grid-column-end: 4;
-      grid-row-start: 1;
-      grid-row-end: 3;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr) 0.5fr;
-      border-radius: 2px;
-      padding: 1em;
-
-    }
-  </style>
-  <meta charset="utf-8">
-</head>
-
-<body>
-  
-  Нет клиента в работе, получите новые задания
-  
-
-  <body>
-
+   <head>
+      <style>
+         .offers {
+         margin: 1em;
+         }
+         .offers-grid {
+         }
+         .title {
+         font-weight: bold;
+         padding: 0.5em 0;
+         }
+         .client-info {
+         margin: 1em;
+         }
+         .offers-row.offers-row-header {
+         border-top: 2px solid #000000;
+         }
+         .offercolumn.offercolumnheader {
+         font-weight: bold;
+         }
+         .offers-row {
+         border-top: 0;
+         border-bottom: 2px solid #000000;
+         border-left: 2px solid #000000;
+         border-right: 2px solid #000000;
+         grid-column-start: 1;
+         grid-column-end: 4;
+         grid-row-start: 1;
+         grid-row-end: 3;
+         display: grid;
+         grid-template-columns: repeat(2, 1fr) 0.5fr;
+         border-radius: 2px;
+         padding: 1em;
+         }
+         .update-offers-block {
+         padding: 1em;
+         display:  grid ;
+         }
+         .update-offers-button {
+         margin: auto;
+         }
+         .update-offers-messages {
+         margin: auto;
+         padding: 1em;
+         }
+      </style>
+      <meta charset="utf-8">
+   </head>
+   <body>
+      <div class="update-offers-block">
+         <button class="update-offers-button" id="updateOffersButton1">Выдать задание</button>
+         <div class="update-offers-messages" id="updateOffersMessages1"></div>
+      </div>
+      
+      Нет клиента в работе, получите новые задания
+      
+      <script type="text/javascript">
+         document.getElementById("updateOffersButton1").onclick = async function () {
+           const response = await fetch('/admin/update-offers-list/', {
+             method: 'POST'
+           });
+           resp = await response.json
+           ()
+           if (resp.success === true) {
+             location.reload(); 
+           } else {
+             errors = resp.errors.map((element) => element.message).join('<br>')
+             document.getElementById("updateOffersMessages1").innerHTML = errors
+           }
+           
+         };
+      </script>
+      <body>
 </html>

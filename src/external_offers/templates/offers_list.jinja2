@@ -35,7 +35,7 @@
          }
          .update-offers-block {
          padding: 1em;
-         display:  grid ;
+         display: {% if (offers is defined) and offers %} none {% else %} grid {% endif %};
          }
          .update-offers-button {
          margin: auto;
@@ -52,9 +52,38 @@
          <button class="update-offers-button" id="updateOffersButton1">Выдать задание</button>
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
-      
+      {% if (client is defined) and client %}
+      <div class="client-info">
+         <div class="title">Клиент</div>
+         <div class="clientid">Идентификатор: {{ client.client_id }}</div>
+         <div class="clientname">Имя: {{ client.client_name }}</div>
+         <div class="clientphone">Телефон: {{ client.client_phone }}</div>
+      </div>
+      <div class="offers">
+         {% if (offers is defined) and offers %}
+         <div class="title">Объявления</div>
+         <div class="offers-grid">
+            <div class="offers-row offers-row-header">
+               <div class="offercolumn offercolumnheader">Идентификатор</div>
+               <div class="offercolumn offercolumnheader">Создано</div>
+            </div>
+          {% for offer in offers %}
+            <div class="offers-row">
+               <div class=offercolumn>{{ offer.id }}</div>
+               <div class=offercolumn>{{ offer.created_at|date }} {{ offer.created_at|time }}</div>
+               <div class=offercolumn>
+                  <form style="display:inline"><button>Удалить</button></form>
+               </div>
+            </div>
+         </div>
+         {% endfor %}
+      </div>
+      {% else %}
+      Нет объявлений в работе, получите новые задания
+      {% endif %}
+      {% else %}
       Нет клиента в работе, получите новые задания
-      
+      {% endif %}
       <script type="text/javascript">
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch('/admin/update-offers-list/', {
