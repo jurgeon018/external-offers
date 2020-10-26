@@ -1,1 +1,1 @@
-from .offers import OfferStatus
+from .offer_status import OfferStatus

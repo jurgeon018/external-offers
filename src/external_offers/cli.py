@@ -2,6 +2,8 @@ import click
 from cian_core.web import Application
 
 from external_offers import setup
+from external_offers.helpers.kafka.base_consumer import register_kafka_consumer
+from external_offers.queue.consumers import save_parsed_offers_callback
 from external_offers.web.urls import urlpatterns
 
 
@@ -17,3 +19,13 @@ def cli() -> None:
 def serve(debug: bool, host: str, port: int) -> None:
     app = Application(urlpatterns, debug=debug)
     app.start(host=host, port=port)
+
+
+# [ML] сохранение объявлений с внешних площадок
+register_kafka_consumer(
+    command=cli.command('save-parsed-offers'),
+    topic='ml-content-copying.change',
+    consumer_group='external-offers.save-external-offers',
+    callback=save_parsed_offers_callback,
+    default_bulk_size=25,
+)

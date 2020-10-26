@@ -12,5 +12,9 @@ alias = "external_offers"
 [[dependency]]
 type = "rabbitmq"
 
+[[dependency]]
+type = "kafka"
+alias = "default"
+
 [job.web]
 type = "web"
