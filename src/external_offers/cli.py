@@ -1,8 +1,8 @@
 import click
+from cian_core.kafka import register_kafka_consumer
 from cian_core.web import Application
 
-from external_offers import setup
-from external_offers.helpers.kafka.base_consumer import register_kafka_consumer
+from external_offers import entities, setup
 from external_offers.queue.consumers import save_parsed_offers_callback
 from external_offers.web.urls import urlpatterns
 
@@ -25,7 +25,8 @@ def serve(debug: bool, host: str, port: int) -> None:
 register_kafka_consumer(
     command=cli.command('save-parsed-offers'),
     topic='ml-content-copying.change',
-    consumer_group='external-offers.save-external-offers',
+    group_id='external-offers.save-external-offers',
     callback=save_parsed_offers_callback,
-    default_bulk_size=25,
+    default_max_bulk_size=25,
+    message_type=entities.ParsedOffer
 )

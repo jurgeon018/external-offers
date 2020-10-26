@@ -1,20 +1,16 @@
 import logging
 from typing import List
 
-from cian_kafka import KafkaConsumerMessage
+from cian_kafka import EntityKafkaConsumerMessage
 
-from external_offers.schemas.parsaed_offers import ParsedOfferSchema
+from external_offers import entities
 from external_offers.services.parsed_offers import save_parsed_offer
 
 
 logger = logging.getLogger(__name__)
 
 
-async def save_parsed_offers_callback(messages: List[KafkaConsumerMessage]):
+async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOffer]]):
     for msg in messages:
-        offer_event, errors = ParsedOfferSchema().loads(msg.value)
-        if errors:
-            logger.warning('Error while parsing offers: %s', msg.value)
-            continue
-
+        offer_event = msg.data
         await save_parsed_offer(offer=offer_event)
