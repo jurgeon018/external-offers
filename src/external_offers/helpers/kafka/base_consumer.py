@@ -2,8 +2,8 @@ import logging
 from typing import Any, Callable, Coroutine, List, Type
 
 import click
+from cian_core.runtime_settings import runtime_settings
 from cian_kafka import KafkaConsumer, KafkaConsumerMessage
-from simple_settings import settings
 from tornado.ioloop import IOLoop
 
 
@@ -33,12 +33,14 @@ def register_kafka_consumer(
         show_default=True
     )
     def result_command(bulk_size: int, bulk_duration: float) -> None:
-        logger.info('Setup kafka consumer connection with params: %s', settings.KAFKA_CONNECTION)
+        kafka_connection = runtime_settings.get('kafka_connection/default')
+        config = {
+            **kafka_connection,
+            'group.id': consumer_group,
+        }
+        logger.info('Setup kafka consumer connection with params: %s', config)
         consumer = consumer_cls(
-            config={
-                'bootstrap.servers': settings.KAFKA_CONNECTION['hosts'],
-                'group.id': consumer_group,
-            },
+            config=config,
             topic=topic,
             max_bulk_size=bulk_size,
             poll_timeout=bulk_duration,

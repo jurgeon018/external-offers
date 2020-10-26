@@ -7,11 +7,6 @@ import pytest
 async def start(pg, runner, global_runtime_settings):
     await pg.execute_scripts((Path('contrib') / 'postgresql' / 'migrations').glob('*.sql'))
 
-    await global_runtime_settings.set({
-        'KAFKA_CONNECTION': {'hosts': '127.0.0.1:9092'},
-        'kafka_connection/default': {'bootstrap.servers': '127.0.0.1:9092'},
-    })
-
 
 @pytest.fixture(name='pg', scope='session')
 async def pg_fixture(postgres_service):
