@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 from external_offers.enums.user_segment import UserSegment
 
@@ -8,8 +9,6 @@ from external_offers.enums.user_segment import UserSegment
 class ParsedOffer:
     id: str
     """Уникальный ключ"""
-    user_segment: UserSegment
-    """Сегмент пользователя"""
     source_object_id: str
     """ID объявления на внешней площадке"""
     source_user_id: str
@@ -20,3 +19,5 @@ class ParsedOffer:
     """Есть ли коллтрекинг у объявления"""
     timestamp: datetime
     """Дата отправки"""
+    user_segment: Optional[UserSegment] = None
+    """Сегмент пользователя"""
