@@ -12,5 +12,13 @@ alias = "external_offers"
 [[dependency]]
 type = "rabbitmq"
 
+[[dependency]]
+type = "kafka"
+alias = "default"
+
 [job.web]
 type = "web"
+
+[job.save-parsed-offers]
+type = "consumer"
+command = "save-parsed-offers"

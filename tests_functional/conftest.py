@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def start(pg):
+async def start(pg, runner, global_runtime_settings):
     await pg.execute_scripts((Path('contrib') / 'postgresql' / 'migrations').glob('*.sql'))
 
 
