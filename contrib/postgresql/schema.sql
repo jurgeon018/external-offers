@@ -44,8 +44,8 @@ CREATE TABLE status_history
 create table parsed_offers
 (
     id                  varchar unique primary key,
-    user_segment        varchar                  not null,
-    source_object_id    varchar                  not null,
+    user_segment        varchar,
+    source_object_id    varchar,
     source_user_id      varchar                  not null,
     source_object_model json                     not null,
     is_calltracking     boolean                  not null,
