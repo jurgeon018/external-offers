@@ -43,6 +43,7 @@ async def test_get_admin_offers_list_operator_with_client_cancelled(
             'X-Real-UserId': operator_with_client
         },
         expected_status=200)
+
     # assert
     assert resp.body.decode('utf-8') == admin_external_offers_operator_with_client_cancelled
 
@@ -67,7 +68,6 @@ async def test_admin_operator_without_client(
         expected_status=200)
 
     # assert
-
     assert resp.body.decode('utf-8') == admin_external_offers_operator_without_client_html
 
 
@@ -181,6 +181,7 @@ async def test_post_second_update_offers_list_operator_without_client_updates_se
     second_operator_without_offers_in_progress = 60024637
     expected_operator_client = 2
     expected_operator_offer = 5
+
     # act
     await http.request(
         'POST',
@@ -206,3 +207,73 @@ async def test_post_second_update_offers_list_operator_without_client_updates_se
     assert expected_operator_offer == await pg.fetchval("SELECT id FROM offers_for_call "
                                                         "WHERE client_id=$1 AND status = 'inProgress'",
                                                         [expected_operator_client])
+
+
+async def test_post_declined_client_no_operator_and_status_declined(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024636
+    operator_client = 2
+
+    # act
+    await http.request(
+        'POST',
+        '/admin/decline-client/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+
+    assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'declined'
+
+
+async def test_post_declined_client_offers_in_progress_set_declined(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024636
+    operator_client = 4
+    offer_expected_declined = 6
+    offer_expected_cancelled = 7
+
+    # act
+    await http.request(
+        'POST',
+        '/admin/decline-client/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_offer_expected_declined = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                    'WHERE id=$1',
+                                                    [offer_expected_declined])
+    row_offer_expected_cancelled = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                     'WHERE id=$1',
+                                                     [offer_expected_cancelled])
+
+
+    assert row_offer_expected_declined['status'] == 'declined'
+    assert row_offer_expected_cancelled['status'] == 'cancelled'

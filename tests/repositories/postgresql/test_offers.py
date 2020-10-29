@@ -16,7 +16,7 @@ async def test_get_offers_in_progress_by_operator():
         ON
             ofc.client_id = c.client_id
         WHERE
-            status = 'inProgress'
+            ofc.status = 'inProgress'
             AND c.operator_user_id = $1
     """
     operator_id = 1
@@ -54,19 +54,17 @@ async def test_exists_offers_in_progress_by_operator():
     # arrange
     query = """
         SELECT
-            EXISTS(
-                SELECT
-                    ofc.*
-                FROM
-                    offers_for_call as ofc
-                INNER JOIN
-                    clients as c
-                ON
-                    ofc.client_id = c.client_id
-                WHERE
-                    status = 'inProgress'
-                    AND c.operator_user_id = $1
-            )
+            1
+        FROM
+            offers_for_call as ofc
+        INNER JOIN
+            clients as c
+        ON
+            ofc.client_id = c.client_id
+        WHERE
+            ofc.status = 'inProgress'
+            AND c.operator_user_id = $1
+        LIMIT 1
     """
     operator_id = 1
     pg.get().fetchval.return_value = future(False) 
@@ -77,3 +75,16 @@ async def test_exists_offers_in_progress_by_operator():
 
     # assert
     pg.get().fetchval.assert_called_with(query, operator_id)
+
+
+async def test_set_offers_declined_by_client():
+    # arrange
+    query = 'UPDATE offers_for_call SET status=$2 WHERE offers_for_call.client_id = $1 AND offers_for_call.status = $3'
+    client_id = 1
+    pg.get().execute.return_value = future(None)
+
+    # act
+    await postgresql.set_offers_declined_by_client(client_id)
+
+    # assert
+    pg.get().execute.assert_called_with(query, client_id, 'declined', 'inProgress')

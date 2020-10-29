@@ -39,6 +39,7 @@ async def test_assign_waiting_client_to_operator():
                 ofc.client_id = c.client_id
             WHERE
                 c.operator_user_id IS NULL
+                AND c.status != 'declined'
                 AND ofc.status = 'waiting'
             ORDER BY
                 ofc.created_at
