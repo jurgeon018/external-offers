@@ -5,7 +5,10 @@ from jinja2 import Environment, PackageLoader
 from external_offers.templates.filters import custom_filters
 
 
-templates = Environment(loader=PackageLoader('external_offers'))
+templates = Environment(
+    loader=PackageLoader('external_offers'),
+    autoescape=True
+)
 templates.filters.update(custom_filters)
 
 
