@@ -44,6 +44,11 @@
          margin: auto;
          padding: 1em;
          }
+
+         .decline-client-block {
+            padding: 1em 0em;
+         }
+
       </style>
       <meta charset="utf-8">
    </head>
@@ -52,12 +57,17 @@
          <button class="update-offers-button" id="updateOffersButton1">Выдать задание</button>
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
+
       
       <div class="client-info">
          <div class="title">Клиент</div>
          <div class="clientid">Идентификатор: 1</div>
          <div class="clientname">Имя: Александр Александров</div>
          <div class="clientphone">Телефон: +79812333234</div>
+         <div class="decline-client-block">
+            <button class="decline-client-button" id="declineClientButton1">Отказ</button>
+            <div class="decline-client-messages" id="declineClientMessages1"></div>
+         </div>
       </div>
       <div class="offers">
          
@@ -102,8 +112,29 @@
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("updateOffersMessages1").innerHTML = errors
            }
-           
          };
+
+         
+         document.getElementById("declineClientButton1").onclick = async function () {
+           const response = await fetch('/admin/decline-client/', {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json'
+                },
+             body: JSON.stringify({
+                'client_id': 1
+                })
+           });
+           resp = await response.json
+           ()
+           if (resp.success === true) {
+             location.reload(); 
+           } else {
+             errors = resp.errors.map((element) => element.message).join('<br>')
+             document.getElementById("declineClientMessages1").innerHTML = errors
+           }
+         };
+         
       </script>
       <body>
 </html>

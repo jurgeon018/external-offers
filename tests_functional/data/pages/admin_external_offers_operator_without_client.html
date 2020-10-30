@@ -44,6 +44,11 @@
          margin: auto;
          padding: 1em;
          }
+
+         .decline-client-block {
+            padding: 1em 0em;
+         }
+
       </style>
       <meta charset="utf-8">
    </head>
@@ -52,6 +57,7 @@
          <button class="update-offers-button" id="updateOffersButton1">Выдать задание</button>
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
+
       
       Нет клиента в работе, получите новые задания
       
@@ -68,8 +74,9 @@
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("updateOffersMessages1").innerHTML = errors
            }
-           
          };
+
+         
       </script>
       <body>
 </html>

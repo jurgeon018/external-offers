@@ -1,7 +1,11 @@
 from cian_core.web import base_urls
 from tornado.web import url
 
-from external_offers.web.handlers import AdminOffersListPageHandler, AdminUpdateOffersListPageHandler
+from external_offers.web.handlers import (
+    AdminDeclineClientHandler,
+    AdminOffersListPageHandler,
+    AdminUpdateOffersListPageHandler,
+)
 
 
 urlpatterns = base_urls.urlpatterns + [
@@ -11,4 +15,7 @@ urlpatterns = base_urls.urlpatterns + [
     url(
         '/admin/update-offers-list/$', AdminUpdateOffersListPageHandler
     ),
+    url(
+        '/admin/decline-client/$', AdminDeclineClientHandler
+    )
 ]
