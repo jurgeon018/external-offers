@@ -13,7 +13,7 @@ INSERT INTO public.clients(
     '+79812333234',
     'testemail@gmail.com',
     60024635,
-    'active'
+    'waiting'
 ), (
     2,
     32131323,
@@ -21,7 +21,7 @@ INSERT INTO public.clients(
     '+79812333235',
     'moyemail@gmail.com',
     NULL,
-    'active'
+    'waiting'
 ), (
     3,
     32131324,
@@ -29,7 +29,7 @@ INSERT INTO public.clients(
     '+79812333236',
     'nemoyemail@gmail.com',
     NULL,
-    'active'
+    'waiting'
 ), (
     4,
     32131325,
@@ -37,7 +37,7 @@ INSERT INTO public.clients(
     '+79812333237',
     'nemoyemail1234@gmail.com',
     60024638,
-    'active'
+    'waiting'
 );
 
 INSERT INTO public.offers_for_call(

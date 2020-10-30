@@ -9,8 +9,12 @@ CREATE TYPE offer_status_type AS enum (
     );
 
 CREATE TYPE client_status_type AS enum (
-    'active',
-    'declined'
+    'waiting',
+    'declined',
+    'inProgress',
+    'callRetry',
+    'callMissed',
+    'accepted'
 );
 
 CREATE TABLE offers_for_call

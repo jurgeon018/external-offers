@@ -161,12 +161,13 @@ async def test_post_first_update_offers_list_operator_without_client_updates_fir
         expected_status=200)
 
     # assert
-    assert operator_without_offers_in_progress == await pg.fetchval('SELECT operator_user_id FROM clients '
-                                                                    'WHERE client_id=$1',
+    assert operator_without_offers_in_progress == await pg.fetchval("""SELECT operator_user_id FROM clients
+                                                                       WHERE client_id=$1
+                                                                       AND status='inProgress'""",
                                                                     [expected_operator_client])
 
-    assert expected_operator_offer == await pg.fetchval("SELECT id FROM offers_for_call "
-                                                        "WHERE client_id=$1 AND status = 'inProgress'",
+    assert expected_operator_offer == await pg.fetchval("""SELECT id FROM offers_for_call
+                                                           WHERE client_id=$1 AND status = 'inProgress'""",
                                                         [expected_operator_client])
 
 
@@ -273,7 +274,6 @@ async def test_post_declined_client_offers_in_progress_set_declined(
     row_offer_expected_cancelled = await pg.fetchrow('SELECT status FROM offers_for_call '
                                                      'WHERE id=$1',
                                                      [offer_expected_cancelled])
-
 
     assert row_offer_expected_declined['status'] == 'declined'
     assert row_offer_expected_cancelled['status'] == 'cancelled'

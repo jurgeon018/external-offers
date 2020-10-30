@@ -39,7 +39,7 @@ async def assign_waiting_client_to_operator(operator_id: int) -> int:
                 ofc.client_id = c.client_id
             WHERE
                 c.operator_user_id IS NULL
-                AND c.status != 'declined'
+                AND c.status = 'waiting'
                 AND ofc.status = 'waiting'
             ORDER BY
                 ofc.created_at
@@ -51,7 +51,8 @@ async def assign_waiting_client_to_operator(operator_id: int) -> int:
         UPDATE
             clients
         SET
-            operator_user_id = $1
+            operator_user_id = $1,
+            status = 'inProgress'
         FROM
             cte1
         WHERE
@@ -68,8 +69,8 @@ async def set_client_to_decline_status(client_id: int) -> None:
         update(
             clients
         ).values(
-            status = ClientStatus.declined.value,
-            operator_user_id = None
+            status=ClientStatus.declined.value,
+            operator_user_id=None
         ).where(
             clients.c.client_id == client_id
         )
