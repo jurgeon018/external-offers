@@ -12,7 +12,7 @@ from external_offers.repositories.postgresql import (
     set_waiting_offers_in_progress_by_client,
 )
 from external_offers.services.parsed_offers import get_parsed_offer
-from external_offers.templates import get_offer_card_html, get_offer_card_html_debug, get_offers_list_html
+from external_offers.templates import get_offer_card_html, get_offers_list_html
 from external_offers.web.handlers.base import PublicHandler
 
 
@@ -80,19 +80,6 @@ class AdminOffersCardPageHandler(PublicHandler):
 
         offer = await get_parsed_offer(parsed_offer_id='123')
         offer_html = get_offer_card_html(
-            parsed_object_model=offer,
-            info_message=settings.SAVE_OFFER_MSG
-        )
-        self.write(offer_html)
-
-
-class AdminOffersCardPageHandlerDebug(PublicHandler):
-    # pylint: disable=abstract-method
-
-    async def get(self) -> None:
-        self.set_header('Content-Type', 'text/html')
-        offer = await get_parsed_offer(parsed_offer_id='123')
-        offer_html = get_offer_card_html_debug(
             parsed_object_model=offer,
             info_message=settings.SAVE_OFFER_MSG
         )

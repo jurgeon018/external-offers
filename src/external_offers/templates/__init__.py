@@ -27,14 +27,3 @@ def get_offer_card_html(parsed_object_model: ParsedObjectModel, info_message: st
         parsed_object_model=parsed_object_model,
         info_message=info_message
     )
-
-
-def get_offer_card_html_debug(
-        parsed_object_model: ParsedObjectModel,
-        info_message: str
-) -> str:
-    template = templates.get_template('admin_debug.jinja2')
-    return template.render(
-        parsed_object_model=parsed_object_model,
-        info_message=info_message
-    )
