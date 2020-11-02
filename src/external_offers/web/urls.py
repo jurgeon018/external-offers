@@ -14,6 +14,7 @@ urlpatterns = base_urls.urlpatterns + [
     url('/admin/update-offers-list/$', handlers.AdminUpdateOffersListPageHandler),
     url('/admin/decline-client/$', handlers.AdminDeclineClientHandler),
     url('/admin/offer-card/$', handlers.AdminOffersCardPageHandler),
+    url('/admin/offer-card/debug/$', handlers.AdminOffersCardPageHandlerDebug),  # TODO: delete
 
     url('/api/admin/v1/save-offer/$', get_handler(
         service=save_offer_public,

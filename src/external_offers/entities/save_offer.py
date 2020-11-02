@@ -7,7 +7,7 @@ from external_offers.enums.save_offer_status import SaveOfferStatus
 @dataclass
 class SaveOfferRequest:
     phone_number: str
-    """Телефоны"""
+    """Телефон"""
     category: str
     """Категория объявления"""
     deal_type: str
