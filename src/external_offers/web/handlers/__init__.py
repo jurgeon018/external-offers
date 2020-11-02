@@ -3,4 +3,7 @@ from external_offers.web.handlers.admin import (
     AdminOffersCardPageHandlerDebug,
     AdminOffersListPageHandler,
     AdminUpdateOffersListPageHandler,
+    AdminDeclineClientHandler,
+    AdminOffersListPageHandler,
+    AdminUpdateOffersListPageHandler,
 )

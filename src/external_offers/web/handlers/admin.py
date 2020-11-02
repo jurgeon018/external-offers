@@ -7,6 +7,8 @@ from external_offers.repositories.postgresql import (
     exists_offers_in_progress_by_operator,
     get_client_by_operator,
     get_offers_in_progress_by_operator,
+    set_client_to_decline_status,
+    set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
 )
 from external_offers.services.parsed_offers import get_parsed_offer
@@ -30,7 +32,6 @@ class AdminOffersListPageHandler(PublicHandler):
 
 
 class AdminUpdateOffersListPageHandler(PublicHandler):
-
     # pylint: disable=abstract-method
 
     async def post(self) -> None:
@@ -51,6 +52,24 @@ class AdminUpdateOffersListPageHandler(PublicHandler):
         await set_waiting_offers_in_progress_by_client(client_id)
 
         self.write(json.dumps({
+                'success': True,
+                'errors': [],
+        }))
+
+
+class AdminDeclineClientHandler(PublicHandler):
+    # pylint: disable=abstract-method
+
+    async def post(self) -> None:
+        self.set_header('Content-Type', 'application/json')
+        params = json.loads(self.request.body)
+
+        await set_client_to_decline_status(params['client_id'])
+        await set_offers_declined_by_client(params['client_id'])
+        self.write(json.dumps({
+                'success': True,
+                'errors': [],
+        }))
             'success': True,
             'errors': [],
         }))

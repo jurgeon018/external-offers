@@ -3,12 +3,26 @@ from cian_web import get_handler
 from external_offers.web.handlers.base import PublicHandler
 from tornado.web import url
 
+from external_offers.web.handlers import (
+    AdminDeclineClientHandler,
+    AdminOffersListPageHandler,
+    AdminUpdateOffersListPageHandler,
+)
 from external_offers import entities
 from external_offers.services.save_offer import save_offer_public
 from external_offers.web import handlers
 
 
 urlpatterns = base_urls.urlpatterns + [
+    url(
+        '/admin/offers-list/$', AdminOffersListPageHandler
+    ),
+    url(
+        '/admin/update-offers-list/$', AdminUpdateOffersListPageHandler
+    ),
+    url(
+        '/admin/decline-client/$', AdminDeclineClientHandler
+    ),
     # admin
     url('/admin/offers-list/$', handlers.AdminOffersListPageHandler),
     url('/admin/update-offers-list/$', handlers.AdminUpdateOffersListPageHandler),

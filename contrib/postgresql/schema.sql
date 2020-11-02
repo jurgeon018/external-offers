@@ -8,6 +8,15 @@ CREATE TYPE offer_status_type AS enum (
     'done'
     );
 
+CREATE TYPE client_status_type AS enum (
+    'waiting',
+    'declined',
+    'inProgress',
+    'callRetry',
+    'callMissed',
+    'accepted'
+);
+
 CREATE TABLE offers_for_call
 (
     id            int                      not null primary key,
@@ -27,7 +36,8 @@ CREATE TABLE clients
     client_name      varchar(50) not null,
     client_phone     varchar(12) not null,
     client_email     varchar(50),
-    operator_user_id bigint
+    operator_user_id bigint,
+    status    client_status_type
 
 );
 

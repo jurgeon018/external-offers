@@ -39,6 +39,7 @@ async def test_assign_waiting_client_to_operator():
                 ofc.client_id = c.client_id
             WHERE
                 c.operator_user_id IS NULL
+                AND c.status = 'waiting'
                 AND ofc.status = 'waiting'
             ORDER BY
                 ofc.created_at
@@ -50,7 +51,8 @@ async def test_assign_waiting_client_to_operator():
         UPDATE
             clients
         SET
-            operator_user_id = $1
+            operator_user_id = $1,
+            status = 'inProgress'
         FROM
             cte1
         WHERE
