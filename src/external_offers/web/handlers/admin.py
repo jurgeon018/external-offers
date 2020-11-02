@@ -70,9 +70,6 @@ class AdminDeclineClientHandler(PublicHandler):
                 'success': True,
                 'errors': [],
         }))
-            'success': True,
-            'errors': [],
-        }))
 
 
 class AdminOffersCardPageHandler(PublicHandler):
