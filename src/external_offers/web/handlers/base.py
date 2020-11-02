@@ -12,6 +12,11 @@ class PublicHandler(BasePublicHandler):
         value = self.request.headers['X-Real-UserId']
         return int(value)
 
+    def get_extra_kwargs(self) -> Dict[str, Any]:
+        return {
+            'user_id': self.realty_user_id,
+        }
+
     async def prepare(self) -> None:
         super().prepare()
 

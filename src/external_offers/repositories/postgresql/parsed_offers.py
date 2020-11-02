@@ -40,3 +40,7 @@ async def save_parsed_offer(*, parsed_offer: ParsedOffer) -> None:
     )
 
     await pg.get().execute(query, *params)
+
+
+async def get_parsed_offer(*, parsed_offer_id: str) -> None:
+    return

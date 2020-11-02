@@ -1,0 +1,363 @@
+<style>
+    .main_style {
+        height: 1000px;
+        background: rgba(255, 255, 255, 1);
+        opacity: 1;
+        position: relative;
+        top: 0px;
+        left: 0px;
+        overflow: hidden;
+    }
+
+    .line_1 {
+        width: 840px;
+        height: 1px;
+        background: rgba(238, 238, 238, 1);
+        opacity: 1;
+        position: relative;
+        top: 17%;
+        left: 300px;
+    }
+
+    .line_2 {
+        width: 840px;
+        height: 1px;
+        background: rgba(238, 238, 238, 1);
+        opacity: 1;
+        position: relative;
+        top: 70%;
+        left: 300px;
+    }
+
+    .ajax-form {
+        top: 70px;
+        left: 300px;
+        position: relative;
+    }
+
+    .select-control, .input-control {
+        width: 300px;
+        position: relative;
+    }
+
+    table, th, td {
+        border: 0;
+        width: 40%;
+        border-spacing: 20px;
+    }
+
+    .text_header {
+        font-family: Arial;
+        font-weight: Bold;
+        font-size: 24px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_info {
+        width: 838px;
+        color: rgba(111, 111, 111, 1);
+        font-family: Arial;
+        font-size: 16px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .btn_div {
+        top: 75%;
+        left: 300px;
+        position: relative;
+    }
+
+    .btn {
+        width: 840px;
+        height: 30px;
+        position: relative;
+    }
+
+    .table_personal {
+        left: 300px;
+        position: relative;
+    }
+
+    .text_personal_obj_name {
+        color: rgba(66, 120, 176, 1);
+        font-family: Arial;
+        font-weight: Bold;
+        font-size: 24px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_personal_phone {
+        color: rgba(0, 0, 0, 1);
+        font-family: Arial;
+        font-weight: Bold;
+        font-size: 24px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_personal_name {
+        color: rgba(0, 0, 0, 1);
+        font-family: Arial;
+        font-size: 16px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_personal_address {
+        color: rgba(0, 0, 0, 1);
+        font-family: Arial;
+        font-size: 16px;
+        opacity: 1;
+        text-align: left;
+    }
+</style>
+
+<div class="main_style">
+    <div class="line_1"></div>
+    <div class="line_2"></div>
+
+    <div class="btn_div">
+        <table style="width:80%; border-spacing: 10px;">
+            <tr>
+                <td><span class="text_info">{{ info_message }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        <input type="checkbox" id="recoveryPassword">
+                        <span>Отправить ссылку на восстановление пароля</span>
+                    </label>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <button id="saveOfferBtn" type="button" class="btn">Сохранить объявление</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="table_personal">
+        <table style="width:80%">
+            <tr>
+                <td class="text_personal_obj_name">{{ parsed_object_model.title }}</td>
+                <td class="text_personal_phone">
+                    {% for phone in parsed_object_model.phones %}
+                        <span>{{ phone }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td class="text_personal_address"><span>{{ parsed_object_model.address }}</span></td>
+                <td class="text_personal_name">{{ parsed_object_model.contact }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <form class="ajax-form">
+        <table style="width: 50%;">
+            <tr>
+                <td><span class="">Тип сделки</span></td>
+                <td>
+                    <select class="select-control" id="getDealType">
+                        <option value="not_selected" selected disabled>Не выбрано</option>
+                        <option value="rent">Аренда</option>
+                        <option value="sale">Продажа</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="">Тип аренды</span></td>
+                <td>
+                    <select class="select-control" id="getLeaseType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="">Длительно</option>
+                        <option value="" disabled>Несколько месяцев</option>
+                        <option value="" disabled>Посуточно</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="">Тип недвижимости</span></td>
+                <td>
+                    <select class="select-control" id="getOfferType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="flat">Жилая</option>
+                        <option value="commerce" disabled>Коммерческая</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="">Объект</span></td>
+                <td>
+                    {#TODO: CD-92673 иф для разных типов сделок#}
+                    <select class="select-control" id="getCategoryType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="">Квартира</option>
+                        <option value="">Комната</option>
+                        <option value="">Доля в квартире</option>
+                        <option value="">Дом/Дача</option>
+                        <option value="">Коттедж</option>
+                        <option value="">Таунхаус</option>
+                        <option value="">Часть дома</option>
+                        <option value="">Участок</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr></tr>
+            <tr>
+                <td><span class="text_header">Адрес</span></td>
+            </tr>
+            <tr>
+                <td><span class="">Адрес</span></td>
+                <td>
+                    <input class="input-control" type="text" id="getAddress">
+                </td>
+            </tr>
+
+            <tr></tr>
+            <tr>
+                <td><span class="text_header">Об объекте</span></td>
+            </tr>
+            <tr>
+                <td><span class="">Тип жилья</span></td>
+                <td>
+                    <select class="select-control" id="getRealtyType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="flat">Квартира</option>
+                        <option value="apartments">Апартаменты</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="">Общая площадь</span></td>
+                <td>
+                    <input type="number" class="input-control" id="getTotalArea">
+                </td>
+            </tr>
+            <tr>
+                <td><span class="">Количество комнат</span></td>
+                <td>
+                    <select class="select-control" id="getRoomsCount">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="room1">1</option>
+                        <option value="room2">2</option>
+                        <option value="room3">3</option>
+                        <option value="room4">4</option>
+                        <option value="room5">5</option>
+                        <option value="room6_plus">6+</option>
+                        <option value="studio">студия</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="">Этаж</span></td>
+                <td>
+                    <input type="number" id="getFloorNumber">
+                    <input type="number" id="getFloorCount">
+                </td>
+
+            </tr>
+
+            <tr></tr>
+            <tr>
+                <td><span class="text_header">Условия сделки</span></td>
+            </tr>
+            <tr>
+                <td><span class="">Цена</span></td>
+                <td>
+                    <input class="input-control" type="number" id="getPrice">
+                </td>
+            </tr>
+            <tr>
+                <td><span class="">Тип продажи</span></td>
+                <td>
+                    <select class="select-control" id="getSaleType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="">Свободная продажа</option>
+                        <option value="">Альтернатива</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <td><span class="text_header">Контакты</span></td>
+            </tr>
+            <tr>
+                <td><span class="">Телефон</span></td>
+                <td>
+                    <input class="input-control" type="number" id="getPhoneNumber">
+                </td>
+            </tr>
+
+        </table>
+    </form>
+
+</div>
+
+<script>
+    jQuery(($) => {
+        const saveOfferBtn = $('#saveOfferBtn');
+
+        <!-- Offer fields -->
+        const getDealType = $('#getDealType');
+        const getLeaseType = $('#getLeaseType');
+        const getOfferType = $('#getOfferType');
+        const getCategoryType = $('#getCategoryType');
+        const getAddress = $('#getAddress');
+        const getRealtyType = $('#getRealtyType');
+        const getTotalArea = $('#getTotalArea');
+        const getRoomsCount = $('#getRoomsCount');
+        const getFloorNumber = $('#getFloorNumber');
+        const getFloorCount = $('#getFloorCount');
+        const getPrice = $('#getPrice');
+        const getSaleType = $('#getSaleType');
+        const getPhoneNumber = $('#getPhoneNumber');
+        const recoveryPassword = $('#recoveryPassword');
+        <!-- Offer end -->
+
+        $('.ajax-form').on('submit', (event) => {
+            event.preventDefault();
+        });
+
+
+        const saveOffer = () => {
+            let obj = {
+                deal_type: getDealType.val(),
+                offer_type: getOfferType.val(),
+                category: getCategoryType.val(),
+                address: getAddress.val(),
+                realty_type: getRealtyType.val(),
+                total_area: parseInt(getTotalArea.val()),
+                rooms_count: parseInt(getRoomsCount.val()),
+                floor_number: parseInt(getFloorNumber.val()),
+                floors_count: parseInt(getFloorCount.val()),
+                price: parseInt(getPrice.val()),
+                sale_type: getSaleType.val(),
+                phone_number: getPhoneNumber.val(),
+                recovery_password: recoveryPassword.prop("checked")
+            }
+
+            $.post("/api/admin/v1/save-offer/", JSON.stringify(obj)
+            ).then(function (data) {
+                switch (data.status) {
+                    case 'ok':
+                        alert('Объявление успешно создано как черновик');
+                        break;
+                }
+            });
+        };
+
+
+        saveOfferBtn.click(() => {
+            saveOffer()
+        });
+
+    });
+</script>
