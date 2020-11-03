@@ -100,7 +100,17 @@
       
       
       <script type="text/javascript">
+         function formDataFromObject(obj) {
+            var form_data = new FormData();
+            for ( var key in obj ) {
+               form_data.append(key, obj[key]);
+            }
+
+            return form_data
+         }
+
          let DEBUG = 'True' === 'True'
+
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
@@ -122,7 +132,7 @@
            }
            const response = await fetch("/api/admin/v1/decline-client/", {
              method: 'POST',
-             body: DEBUG ? JSON.stringify(obj) : obj
+             body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
            });
            resp = await response.json
            ()
