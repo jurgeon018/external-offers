@@ -1,3 +1,6 @@
+import os
+
+import pytest
 from cian_json import json
 
 
@@ -5,6 +8,7 @@ async def test_get_admin_offers_list_without_x_real_userid(http):
     await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
+@pytest.mark.html
 async def test_get_admin_offers_list_operator_with_client_in_progress(
         http,
         pg,
@@ -24,15 +28,19 @@ async def test_get_admin_offers_list_operator_with_client_in_progress(
         },
         expected_status=200)
 
+    if 'UPDATE_HTML_FIXTURES' in os.environ:
+        admin_external_offers_operator_with_client_in_progress_html.write_text(resp.body.decode('utf-8'))
+
     # assert
-    assert resp.body.decode('utf-8') == admin_external_offers_operator_with_client_in_progress_html
+    assert resp.body.decode('utf-8') == admin_external_offers_operator_with_client_in_progress_html.read_text('utf-8')
 
 
+@pytest.mark.html
 async def test_get_admin_offers_list_operator_with_client_cancelled(
         http,
         pg,
         offers_and_clients_fixture,
-        admin_external_offers_operator_with_client_cancelled,
+        admin_external_offers_operator_with_client_cancelled_html,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -47,10 +55,14 @@ async def test_get_admin_offers_list_operator_with_client_cancelled(
         },
         expected_status=200)
 
+    if 'UPDATE_HTML_FIXTURES' in os.environ:
+        admin_external_offers_operator_with_client_cancelled_html.write_text(resp.body.decode('utf-8'))
+
     # assert
-    assert resp.body.decode('utf-8') == admin_external_offers_operator_with_client_cancelled
+    assert resp.body.decode('utf-8') == admin_external_offers_operator_with_client_cancelled_html.read_text('utf-8')
 
 
+@pytest.mark.html
 async def test_admin_operator_without_client(
         pg,
         http,
@@ -70,8 +82,11 @@ async def test_admin_operator_without_client(
         },
         expected_status=200)
 
+    if 'UPDATE_HTML_FIXTURES' in os.environ:
+        admin_external_offers_operator_without_client_html.write_text(resp.body.decode('utf-8'))
+
     # assert
-    assert resp.body.decode('utf-8') == admin_external_offers_operator_without_client_html
+    assert resp.body.decode('utf-8') == admin_external_offers_operator_without_client_html.read_text('utf-8')
 
 
 async def test_post_update_offers_list_operator_with_in_progress_not_success(

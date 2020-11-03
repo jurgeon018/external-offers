@@ -95,6 +95,7 @@
       Нет клиента в работе, получите новые задания
       {% endif %}
       <script type="text/javascript">
+         let DEBUG = 'True' === '{{ debug }}'
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
@@ -111,14 +112,12 @@
 
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
+           let obj =  {
+               'client_id': {{ client.client_id }}
+           }
            const response = await fetch("/api/admin/v1/decline-client/", {
              method: 'POST',
-             headers: {
-                'Content-Type': 'application/json'
-                },
-             body: JSON.stringify({
-                'client_id': {{ client.client_id }}
-                })
+             body: DEBUG ? JSON.stringify(obj) : obj
            });
            resp = await response.json
            ()

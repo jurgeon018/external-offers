@@ -1,6 +1,7 @@
 from typing import Any
 
 from jinja2 import Environment, PackageLoader
+from simple_settings import settings
 
 from external_offers.entities.parsed_offers import ParsedObjectModel
 from external_offers.templates.filters import custom_filters
@@ -17,7 +18,8 @@ def get_offers_list_html(offers: Any, client: Any) -> str:
     template = templates.get_template('offers_list.jinja2')
     return template.render(
         offers=offers,
-        client=client
+        client=client,
+        debug=settings.DEBUG
     )
 
 

@@ -62,6 +62,7 @@
       Нет клиента в работе, получите новые задания
       
       <script type="text/javascript">
+         let DEBUG = 'True' === 'True'
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
