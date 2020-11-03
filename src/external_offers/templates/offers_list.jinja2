@@ -96,7 +96,7 @@
       {% endif %}
       <script type="text/javascript">
          document.getElementById("updateOffersButton1").onclick = async function () {
-           const response = await fetch('/api/admin/v1/update-offers-list/', {
+           const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
            });
            resp = await response.json
@@ -111,7 +111,7 @@
 
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
-           const response = await fetch('/api/admin/v1/decline-client/', {
+           const response = await fetch("/api/admin/v1/decline-client/", {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'

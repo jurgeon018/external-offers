@@ -63,7 +63,7 @@
       
       <script type="text/javascript">
          document.getElementById("updateOffersButton1").onclick = async function () {
-           const response = await fetch('/api/admin/v1/update-offers-list/', {
+           const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
            });
            resp = await response.json
