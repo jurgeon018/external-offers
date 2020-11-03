@@ -86,7 +86,7 @@ async def test_post_update_offers_list_operator_with_in_progress_not_success(
     # act
     resp = await http.request(
         'POST',
-        '/admin/update-offers-list/',
+        '/api/admin/v1/update-offers-list/',
         headers={
             'X-Real-UserId': operator_with_offers_in_progress
         },
@@ -109,7 +109,7 @@ async def test_post_update_offers_list_operator_without_client_success(
     # act
     resp = await http.request(
         'POST',
-        '/admin/update-offers-list/',
+        '/api/admin/v1/update-offers-list/',
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
@@ -132,7 +132,7 @@ async def test_post_update_offers_list_operator_without_client_updates_non_succe
     # act
     resp = await http.request(
         'POST',
-        '/admin/update-offers-list/',
+        '/api/admin/v1/update-offers-list/',
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
@@ -157,7 +157,7 @@ async def test_post_first_update_offers_list_operator_without_client_updates_fir
     # act
     await http.request(
         'POST',
-        '/admin/update-offers-list/',
+        '/api/admin/v1/update-offers-list/',
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
@@ -189,7 +189,7 @@ async def test_post_second_update_offers_list_operator_without_client_updates_se
     # act
     await http.request(
         'POST',
-        '/admin/update-offers-list/',
+        '/api/admin/v1/update-offers-list/',
         headers={
             'X-Real-UserId': first_operator_without_offers_in_progress
         },
@@ -197,7 +197,7 @@ async def test_post_second_update_offers_list_operator_without_client_updates_se
 
     await http.request(
         'POST',
-        '/admin/update-offers-list/',
+        '/api/admin/v1/update-offers-list/',
         headers={
             'X-Real-UserId': second_operator_without_offers_in_progress
         },
@@ -226,7 +226,7 @@ async def test_post_declined_client_no_operator_and_status_declined(
     # act
     await http.request(
         'POST',
-        '/admin/decline-client/',
+        '/api/admin/v1/decline-client/',
         headers={
             'X-Real-UserId': operator
         },
@@ -260,7 +260,7 @@ async def test_post_declined_client_offers_in_progress_set_declined(
     # act
     await http.request(
         'POST',
-        '/admin/decline-client/',
+        '/api/admin/v1/decline-client/',
         headers={
             'X-Real-UserId': operator
         },
