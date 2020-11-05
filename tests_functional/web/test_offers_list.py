@@ -4,12 +4,13 @@ import pytest
 from cian_json import json
 
 
-async def test_get_admin_offers_list_without_x_real_userid(http):
+async def test_get_offers_list__without_x_real_userid__returns_400(http):
+    # act && assert
     await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
 @pytest.mark.html
-async def test_get_admin_offers_list_operator_with_client_in_progress(
+async def test_get_offers_list__operator_with_client_in_progress__returns_offers_in_progress_page(
         http,
         pg,
         admin_external_offers_operator_with_client_in_progress_html,
@@ -36,7 +37,7 @@ async def test_get_admin_offers_list_operator_with_client_in_progress(
 
 
 @pytest.mark.html
-async def test_get_admin_offers_list_operator_with_client_cancelled(
+async def test_get_offers_list__operator_with_client_cancelled__returns_no_offers_page(
         http,
         pg,
         offers_and_clients_fixture,
@@ -63,7 +64,7 @@ async def test_get_admin_offers_list_operator_with_client_cancelled(
 
 
 @pytest.mark.html
-async def test_admin_operator_without_client(
+async def test_get_offers__operator_without_client__returns_no_offers_page(
         pg,
         http,
         admin_external_offers_operator_without_client_html,
@@ -89,7 +90,7 @@ async def test_admin_operator_without_client(
     assert resp.body.decode('utf-8') == admin_external_offers_operator_without_client_html.read_text('utf-8')
 
 
-async def test_post_update_offers_list_operator_with_in_progress_not_success(
+async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
         pg,
         http,
         offers_and_clients_fixture
@@ -112,7 +113,7 @@ async def test_post_update_offers_list_operator_with_in_progress_not_success(
     assert resp.data['errors']
 
 
-async def test_post_update_offers_list_operator_without_client_success(
+async def test_update_offers_list__operator_without_client__returns_success(
         pg,
         http,
         offers_and_clients_fixture
@@ -135,31 +136,7 @@ async def test_post_update_offers_list_operator_without_client_success(
     assert not resp.data['errors']
 
 
-async def test_post_update_offers_list_operator_without_client_updates_non_success(
-        pg,
-        http,
-        offers_and_clients_fixture
-):
-    # arrange
-    await pg.execute_scripts(offers_and_clients_fixture)
-    operator_without_offers_in_progress = 60024636
-
-    # act
-    resp = await http.request(
-        'POST',
-        '/api/admin/v1/update-offers-list/',
-        headers={
-            'X-Real-UserId': operator_without_offers_in_progress
-        },
-        expected_status=200)
-
-    # assert
-
-    assert resp.data['success']
-    assert not resp.data['errors']
-
-
-async def test_post_first_update_offers_list_operator_without_client_updates_first_created(
+async def test_update_offers_list__first_operator_without_client__updates_first_created(
         pg,
         http,
         offers_and_clients_fixture
@@ -189,7 +166,7 @@ async def test_post_first_update_offers_list_operator_without_client_updates_fir
                                                         [expected_operator_client])
 
 
-async def test_post_second_update_offers_list_operator_without_client_updates_second_created(
+async def test_update_offers_list__second_operator_without_client_update__updates_second_created(
         pg,
         http,
         offers_and_clients_fixture
@@ -228,7 +205,7 @@ async def test_post_second_update_offers_list_operator_without_client_updates_se
                                                         [expected_operator_client])
 
 
-async def test_post_declined_client_no_operator_and_status_declined(
+async def test_decline_client__no_operator_and_in_progress__still_no_operator_and_declined(
         pg,
         http,
         offers_and_clients_fixture
@@ -260,7 +237,7 @@ async def test_post_declined_client_no_operator_and_status_declined(
     assert row_client['status'] == 'declined'
 
 
-async def test_post_declined_client_offers_in_progress_set_declined(
+async def test_decline_client__client_with_cancelled_and_in_progress__only_in_progress_set_declined(
         pg,
         http,
         offers_and_clients_fixture
@@ -297,38 +274,70 @@ async def test_post_declined_client_offers_in_progress_set_declined(
     assert row_offer_expected_cancelled['status'] == 'cancelled'
 
 
-async def test_save_offer_without_x_real_userid(http):
-    await http.request('POST', '/api/admin/v1/save-offer/', expected_status=400)
-
-
-async def test_save_offer(http):
+async def test_call_missed_client__no_operator_and_in_progress__still_no_operator_and_call_missed(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
     # arrange
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': '',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': "",
-        'phone_number': '89134488338',
-        'recovery_password': False
-    }
-    user_id = 123123
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024636
+    operator_client = 2
 
     # act
-    response = await http.request(
+    await http.request(
         'POST',
-        '/api/admin/v1/save-offer/',
-        json=request,
+        '/api/admin/v1/call-missed-client/',
         headers={
-            'X-Real-UserId': user_id
-        }
+            'X-Real-UserId': operator
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
     )
 
     # assert
-    assert json.loads(response.body)['status'] == 'ok'
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+
+    assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'callMissed'
+
+
+async def test_call_missed_client__exist_offers_in_progress_and_cancelled__only_offers_in_progress_set_call_missed(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024636
+    operator_client = 4
+    offer_expected_call_missed = 6
+    offer_expected_cancelled = 7
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/call-missed-client/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_offer_expected_call_missed = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                       'WHERE id=$1',
+                                                       [offer_expected_call_missed])
+    row_offer_expected_cancelled = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                     'WHERE id=$1',
+                                                     [offer_expected_cancelled])
+
+    assert row_offer_expected_call_missed['status'] == 'callMissed'
+    assert row_offer_expected_cancelled['status'] == 'cancelled'

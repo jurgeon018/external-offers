@@ -81,4 +81,23 @@ async def set_offers_declined_by_client(client_id: int) -> None:
 
     query, params = asyncpgsa.compile_query(sql)
 
-    return await pg.get().execute(query, *params)
+    await pg.get().execute(query, *params)
+
+
+async def set_offers_call_missed_by_client(client_id: int) -> None:
+    sql = (
+        update(
+            offers_for_call
+        ).values(
+            status=OfferStatus.call_missed.value,
+        ).where(
+            and_(
+                offers_for_call.c.client_id == client_id,
+                offers_for_call.c.status == OfferStatus.in_progress.value
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
