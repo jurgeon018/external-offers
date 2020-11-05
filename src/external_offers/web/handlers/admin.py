@@ -63,9 +63,9 @@ class AdminDeclineClientHandler(PublicHandler):
     async def post(self) -> None:
         self.set_header('Content-Type', 'application/json')
         params = json.loads(self.request.body)
-
-        await set_client_to_decline_status(params['client_id'])
-        await set_offers_declined_by_client(params['client_id'])
+        client_id = int(params['client_id'])
+        await set_client_to_decline_status(client_id)
+        await set_offers_declined_by_client(client_id)
         self.write(json.dumps({
                 'success': True,
                 'errors': [],

@@ -95,8 +95,19 @@
       Нет клиента в работе, получите новые задания
       {% endif %}
       <script type="text/javascript">
+         function formDataFromObject(obj) {
+            var form_data = new FormData();
+            for ( var key in obj ) {
+               form_data.append(key, obj[key]);
+            }
+
+            return form_data
+         }
+
+         let DEBUG = 'True' === '{{ debug }}'
+
          document.getElementById("updateOffersButton1").onclick = async function () {
-           const response = await fetch('/admin/update-offers-list/', {
+           const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
            });
            resp = await response.json
@@ -111,14 +122,12 @@
 
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
-           const response = await fetch('/admin/decline-client/', {
+           let obj =  {
+               'client_id': {{ client.client_id }}
+           }
+           const response = await fetch("/api/admin/v1/decline-client/", {
              method: 'POST',
-             headers: {
-                'Content-Type': 'application/json'
-                },
-             body: JSON.stringify({
-                'client_id': {{ client.client_id }}
-                })
+             body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
            });
            resp = await response.json
            ()

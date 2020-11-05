@@ -31,16 +31,16 @@ def offers_and_clients_fixture(database_fixture_folder):
 @pytest.fixture
 def admin_external_offers_operator_without_client_html(pages_folder):
     return (pages_folder /
-            'admin_external_offers_operator_without_client.html').read_text(encoding='utf-8')
+            'admin_external_offers_operator_without_client.html')
 
 
 @pytest.fixture
 def admin_external_offers_operator_with_client_in_progress_html(pages_folder):
     return (pages_folder /
-            'admin_external_offers_operator_with_client_in_progress.html').read_text(encoding='utf-8')
+            'admin_external_offers_operator_with_client_in_progress.html')
 
 
 @pytest.fixture
-def admin_external_offers_operator_with_client_cancelled(pages_folder):
+def admin_external_offers_operator_with_client_cancelled_html(pages_folder):
     return (pages_folder /
-            'admin_external_offers_operator_with_client_cancelled.html').read_text(encoding='utf-8')
+            'admin_external_offers_operator_with_client_cancelled.html')
