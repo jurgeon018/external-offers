@@ -45,9 +45,20 @@
          padding: 1em;
          }
 
-         .decline-client-block {
-            padding: 1em 0em;
+         .client-buttons {
+
          }
+
+         .decline-client-block {
+            padding: 0.5em 0em;
+            display: inline-block;
+         }
+         
+         .call-missed-client-block {
+            padding: 0.5em 0.5em;
+            display: inline-block;
+         }
+
 
       </style>
       <meta charset="utf-8">
@@ -64,9 +75,15 @@
          <div class="clientid">Идентификатор: 1</div>
          <div class="clientname">Имя: Александр Александров</div>
          <div class="clientphone">Телефон: +79812333234</div>
-         <div class="decline-client-block">
-            <button class="decline-client-button" id="declineClientButton1">Отказ</button>
-            <div class="decline-client-messages" id="declineClientMessages1"></div>
+         <div class="client-buttons">
+            <div class="decline-client-block">
+               <button class="decline-client-button" id="declineClientButton1">Отказ</button>
+               <div class="decline-client-messages" id="declineClientMessages1"></div>
+            </div>
+            <div class="call-missed-client-block">
+               <button class="call-missed-client-button" id="callMissedClientButton1">Недозвон</button>
+               <div class="call-missed-client-messages" id="callMissedClientMessages1"></div>
+            </div>
          </div>
       </div>
       <div class="offers">
@@ -143,6 +160,25 @@
              document.getElementById("declineClientMessages1").innerHTML = errors
            }
          };
+
+         document.getElementById("callMissedClientButton1").onclick = async function () {
+           let obj =  {
+               'client_id': 1
+           }
+           const response = await fetch("/api/admin/v1/call-missed-client/", {
+             method: 'POST',
+             body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+           });
+           resp = await response.json
+           ()
+           if (resp.success === true) {
+             location.reload(); 
+           } else {
+             errors = resp.errors.map((element) => element.message).join('<br>')
+             document.getElementById("callMissedClientMessages1").innerHTML = errors
+           }
+         };
+
          
       </script>
       <body>

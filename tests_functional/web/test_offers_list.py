@@ -297,6 +297,75 @@ async def test_post_declined_client_offers_in_progress_set_declined(
     assert row_offer_expected_cancelled['status'] == 'cancelled'
 
 
+async def test_post_call_missed_client_no_operator_and_status_call_missed(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024636
+    operator_client = 2
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/call-missed-client/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+
+    assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'callMissed'
+
+
+async def test_post_call_missed_client_offers_in_progress_set_call_missed(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024636
+    operator_client = 4
+    offer_expected_call_missed = 6
+    offer_expected_cancelled = 7
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/call-missed-client/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_offer_expected_call_missed = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                    'WHERE id=$1',
+                                                    [offer_expected_call_missed])
+    row_offer_expected_cancelled = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                     'WHERE id=$1',
+                                                     [offer_expected_cancelled])
+
+    assert row_offer_expected_call_missed['status'] == 'callMissed'
+    assert row_offer_expected_cancelled['status'] == 'cancelled'
+
+
 async def test_save_offer_without_x_real_userid(http):
     await http.request('POST', '/api/admin/v1/save-offer/', expected_status=400)
 
