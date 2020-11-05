@@ -78,7 +78,7 @@ async def set_client_to_decline_status(client_id: int) -> None:
 
     query, params = asyncpgsa.compile_query(sql)
 
-    return await pg.get().execute(query, *params)
+    await pg.get().execute(query, *params)
 
 
 async def set_client_to_call_missed_status(client_id: int) -> None:
@@ -95,4 +95,4 @@ async def set_client_to_call_missed_status(client_id: int) -> None:
 
     query, params = asyncpgsa.compile_query(sql)
 
-    return await pg.get().execute(query, *params)
+    await pg.get().execute(query, *params)

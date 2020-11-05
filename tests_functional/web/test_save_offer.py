@@ -1,11 +1,12 @@
 from cian_json import json
 
 
-async def test_save_offer_without_x_real_userid(http):
+async def test_save_offer__without_x_real_userid__returns_400(http):
+    # act && assert
     await http.request('POST', '/api/admin/v1/save-offer/', expected_status=400)
 
 
-async def test_save_offer(http):
+async def test_save_offer__correct_json__status_ok(http):
     # arrange
     request = {
         'deal_type': 'rent',

@@ -81,7 +81,7 @@ async def set_offers_declined_by_client(client_id: int) -> None:
 
     query, params = asyncpgsa.compile_query(sql)
 
-    return await pg.get().execute(query, *params)
+    await pg.get().execute(query, *params)
 
 
 async def set_offers_call_missed_by_client(client_id: int) -> None:
@@ -100,4 +100,4 @@ async def set_offers_call_missed_by_client(client_id: int) -> None:
 
     query, params = asyncpgsa.compile_query(sql)
 
-    return await pg.get().execute(query, *params)
+    await pg.get().execute(query, *params)

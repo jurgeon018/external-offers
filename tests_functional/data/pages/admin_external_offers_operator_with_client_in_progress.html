@@ -132,8 +132,7 @@
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
            });
-           resp = await response.json
-           ()
+           resp = await response.json()
            if (resp.success === true) {
              location.reload(); 
            } else {
@@ -151,8 +150,7 @@
              method: 'POST',
              body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
            });
-           resp = await response.json
-           ()
+           resp = await response.json()
            if (resp.success === true) {
              location.reload(); 
            } else {
@@ -169,8 +167,7 @@
              method: 'POST',
              body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
            });
-           resp = await response.json
-           ()
+           resp = await response.json()
            if (resp.success === true) {
              location.reload(); 
            } else {
