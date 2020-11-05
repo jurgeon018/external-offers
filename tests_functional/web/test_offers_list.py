@@ -356,8 +356,8 @@ async def test_post_call_missed_client_offers_in_progress_set_call_missed(
 
     # assert
     row_offer_expected_call_missed = await pg.fetchrow('SELECT status FROM offers_for_call '
-                                                    'WHERE id=$1',
-                                                    [offer_expected_call_missed])
+                                                       'WHERE id=$1',
+                                                       [offer_expected_call_missed])
     row_offer_expected_cancelled = await pg.fetchrow('SELECT status FROM offers_for_call '
                                                      'WHERE id=$1',
                                                      [offer_expected_cancelled])

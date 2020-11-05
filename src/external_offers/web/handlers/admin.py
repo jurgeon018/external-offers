@@ -7,11 +7,11 @@ from external_offers.repositories.postgresql import (
     exists_offers_in_progress_by_operator,
     get_client_by_operator,
     get_offers_in_progress_by_operator,
+    set_client_to_call_missed_status,
     set_client_to_decline_status,
+    set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
-    set_client_to_call_missed_status,
-    set_offers_call_missed_by_client,
 )
 from external_offers.services.parsed_offers import get_parsed_offer
 from external_offers.templates import get_offer_card_html, get_offers_list_html

@@ -18,7 +18,7 @@ async def test_save_offer(http):
         'floor_number': 1,
         'floors_count': 5,
         'price': 100000,
-        'sale_type': "",
+        'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False
     }
