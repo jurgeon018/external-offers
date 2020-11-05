@@ -22,4 +22,3 @@ async def test_get_parsed_offer_object_model_by_offer_for_call_id():
         '\nWHERE offers_for_call_1.id = $1',
         offer_id
     )
-
