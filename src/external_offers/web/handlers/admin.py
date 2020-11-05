@@ -5,15 +5,16 @@ from simple_settings import settings
 from external_offers.repositories.postgresql import (
     assign_waiting_client_to_operator,
     exists_offers_in_progress_by_operator,
+    exists_offers_in_progress_by_operator_and_offer_id,
     get_client_by_operator,
     get_offers_in_progress_by_operator,
+    get_parsed_offer_object_model_by_offer_for_call_id,
     set_client_to_call_missed_status,
     set_client_to_decline_status,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
 )
-from external_offers.services.parsed_offers import get_parsed_offer
 from external_offers.templates import get_offer_card_html, get_offers_list_html
 from external_offers.web.handlers.base import PublicHandler
 
@@ -22,7 +23,7 @@ class AdminOffersListPageHandler(PublicHandler):
     # pylint: disable=abstract-method
 
     async def get(self) -> None:
-        self.set_header('Content-Type', 'text/html')
+        self.set_header('Content-Type', 'text/html; charset=UTF-8')
 
         client = await get_client_by_operator(self.realty_user_id)
         offers = await get_offers_in_progress_by_operator(self.realty_user_id)
@@ -92,12 +93,27 @@ class AdminCallMissedClientHandler(PublicHandler):
 class AdminOffersCardPageHandler(PublicHandler):
     # pylint: disable=abstract-method
 
-    async def get(self) -> None:
-        self.set_header('Content-Type', 'text/html')
+    async def get(self, offer_id) -> None:
+        self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        exists = await exists_offers_in_progress_by_operator_and_offer_id(
+            operator_id=self.realty_user_id,
+            offer_id=int(offer_id)
+        )
+        if not exists:
+            self.write('Объявление в работе не найдено'.encode('utf-8'))
+            return
 
-        offer = await get_parsed_offer(parsed_offer_id='123')
+        offer_object_model = await get_parsed_offer_object_model_by_offer_for_call_id(
+            offer_id=int(offer_id)
+        )
+
+        if not offer_object_model:
+            self.write('Объявление из внешнего источника не найдено'.encode('utf-8'))
+            return
+
         offer_html = get_offer_card_html(
-            parsed_object_model=offer,
+            parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG
         )
+
         self.write(offer_html)

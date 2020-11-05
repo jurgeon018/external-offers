@@ -1,23 +1,31 @@
 <html>
    <head>
       <style>
-         .offers {
+         .client-info-block {
          margin: 1em;
+         display: {% if (client is defined) and client %} block {% else %} none {% endif %};
          }
-         .offers-grid {
+         .offers-block {
+         margin: 1em;
+         display: {% if (offers is defined) and offers %} block {% else %} none{% endif %};
          }
-         .title {
+         .offers-block-title {
          font-weight: bold;
          padding: 0.5em 0;
-         }
-         .client-info {
-         margin: 1em;
          }
          .offers-row.offers-row-header {
          border-top: 2px solid #000000;
          }
          .offercolumn.offercolumnheader {
          font-weight: bold;
+         }
+         .offercolumn.offer-column-identifier {
+         cursor: pointer;
+         color: black;
+         }
+         .offercolumn.offer-column-identifier:hover {
+         text-decoration:none;
+         text-shadow: 1px 1px 1px #555;
          }
          .offers-row {
          border-top: 0;
@@ -44,37 +52,39 @@
          margin: auto;
          padding: 1em;
          }
-
-         .client-buttons {
-
+         .error-messages-block {
+         display: {% if not (client is defined) or not (client) or not (offers is defined) or not offers %} grid {% else %} none {% endif %};
          }
 
+         .client-error-message {
+         margin: auto;
+         display: {% if (client is defined) and client %} none {% else %} grid {% endif %};
+         }
+         .offers-error-message {
+         margin: auto;
+         display: {% if (client is defined) and (client) and not (offers is defined) and not offers %} grid {% else %} none {% endif %};
+         }
          .decline-client-block {
-            padding: 0.5em 0em;
-            display: inline-block;
+         padding: 0.5em 0em;
+         display: inline-block;
          }
-         
          .call-missed-client-block {
-            padding: 0.5em 0.5em;
-            display: inline-block;
+         padding: 0.5em 0.5em;
+         display: inline-block;
          }
-
-
       </style>
       <meta charset="utf-8">
    </head>
    <body>
       <div class="update-offers-block">
-         <button class="update-offers-button" id="updateOffersButton1">Выдать задание</button>
+         <button class="update-offers-button" id="updateOffersButton1">Получить задания</button>
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
-
-      {% if (client is defined) and client %}
-      <div class="client-info">
-         <div class="title">Клиент</div>
-         <div class="clientid">Идентификатор: {{ client.client_id }}</div>
-         <div class="clientname">Имя: {{ client.client_name }}</div>
-         <div class="clientphone">Телефон: {{ client.client_phone }}</div>
+      <div class="client-info-block">
+         <div id="clientInfoTitle">Клиент</div>
+         <div id="clientInfoClientId">Идентификатор: {{ client.client_id }}</div>
+         <div id="clientInfiClientName">Имя: {{ client.client_name }}</div>
+         <div id="clientInfoClientPhone">Телефон: {{ client.client_phone }}</div>
          <div class="client-buttons">
             <div class="decline-client-block">
                <button class="decline-client-button" id="declineClientButton1">Отказ</button>
@@ -86,43 +96,45 @@
             </div>
          </div>
       </div>
-      <div class="offers">
-         {% if (offers is defined) and offers %}
-         <div class="title">Объявления</div>
+      <div class="offers-block">
+         <div class="offers-block-title">Объявления</div>
          <div class="offers-grid">
             <div class="offers-row offers-row-header">
                <div class="offercolumn offercolumnheader">Идентификатор</div>
                <div class="offercolumn offercolumnheader">Создано</div>
             </div>
-          {% for offer in offers %}
+            {% for offer in offers %}
             <div class="offers-row">
-               <div class=offercolumn>{{ offer.id }}</div>
+               <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">{{ offer.id }}</div>
                <div class=offercolumn>{{ offer.created_at|date }} {{ offer.created_at|time }}</div>
                <div class=offercolumn>
                   <form style="display:inline"><button>Удалить</button></form>
                </div>
             </div>
-         </div>
          {% endfor %}
+               </div>
       </div>
-      {% else %}
-      Нет объявлений в работе, получите новые задания
-      {% endif %}
-      {% else %}
-      Нет клиента в работе, получите новые задания
-      {% endif %}
+
+      <div class="error-messages-block">
+         <div class="offers-error-message">Нет объявлений в работе, получите новые задания</div>
+         <div class="client-error-message">Нет клиента в работе, получите новые задания</div>
+      </div>
       <script type="text/javascript">
+         let DEBUG = 'True' === '{{ debug }}'
+         
          function formDataFromObject(obj) {
             var form_data = new FormData();
             for ( var key in obj ) {
                form_data.append(key, obj[key]);
             }
-
+         
             return form_data
          }
-
-         let DEBUG = 'True' === '{{ debug }}'
-
+         
+         function onClickOfferRowIdentifier(element) {
+            window.location.href = `/admin/offer-card/${element.innerHTML}/`
+         }
+         
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
@@ -131,11 +143,12 @@
            if (resp.success === true) {
              location.reload(); 
            } else {
-             errors = resp.errors.map((element) => element.message).join('<br>')
-             document.getElementById("updateOffersMessages1").innerHTML = errors
+             errors = resp.errors.map((element) => element.message).join('<br>');
+             updateOffersMessages = document.getElementById("updateOffersMessages1");
+             updateOffersMessages.innerHTML = errors;
            }
          };
-
+         
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
            let obj =  {
@@ -145,15 +158,15 @@
              method: 'POST',
              body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
            });
-           resp = await response.json()
+           resp = await response.json();
            if (resp.success === true) {
              location.reload(); 
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
-             document.getElementById("declineClientMessages1").innerHTML = errors
+             document.getElementById("declineClientMessages1").innerHTML = errors;
            }
          };
-
+         
          document.getElementById("callMissedClientButton1").onclick = async function () {
            let obj =  {
                'client_id': {{ client.client_id }}
@@ -170,7 +183,7 @@
              document.getElementById("callMissedClientMessages1").innerHTML = errors
            }
          };
-
+         
          {% endif %}
       </script>
       <body>

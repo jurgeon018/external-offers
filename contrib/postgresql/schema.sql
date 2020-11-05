@@ -20,7 +20,7 @@ CREATE TYPE client_status_type AS enum (
 CREATE TABLE offers_for_call
 (
     id            int                      not null primary key,
-    parsed_id     bigint                   not null,
+    parsed_id     varchar                   not null,
     offer_cian_id bigint,
     client_id     int                      not null,
     status        offer_status_type        not null,

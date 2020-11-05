@@ -154,7 +154,7 @@
             </tr>
             <tr>
                 <td class="text_personal_address"><span>{{ parsed_object_model.address }}</span></td>
-                <td class="text_personal_name">{{ parsed_object_model.contact }}</td>
+                <td class="text_personal_name">{% if parsed_object_model.contact %} {{ parsed_object_model.contact }}{% endif %}</td>
             </tr>
         </table>
     </div>
