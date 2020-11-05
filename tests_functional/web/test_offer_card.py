@@ -1,7 +1,4 @@
-import os
-
 import pytest
-from cian_json import json
 
 
 async def test_get_offer_card__without_x_real_userid__returns_400(http):
