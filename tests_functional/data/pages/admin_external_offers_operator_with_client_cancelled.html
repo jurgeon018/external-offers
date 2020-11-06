@@ -1,23 +1,31 @@
 <html>
    <head>
       <style>
-         .offers {
+         .client-info-block {
          margin: 1em;
+         display:  none ;
          }
-         .offers-grid {
+         .offers-block {
+         margin: 1em;
+         display:  none;
          }
-         .title {
+         .offers-block-title {
          font-weight: bold;
          padding: 0.5em 0;
-         }
-         .client-info {
-         margin: 1em;
          }
          .offers-row.offers-row-header {
          border-top: 2px solid #000000;
          }
          .offercolumn.offercolumnheader {
          font-weight: bold;
+         }
+         .offercolumn.offer-column-identifier {
+         cursor: pointer;
+         color: black;
+         }
+         .offercolumn.offer-column-identifier:hover {
+         text-decoration:none;
+         text-shadow: 1px 1px 1px #555;
          }
          .offers-row {
          border-top: 0;
@@ -44,46 +52,89 @@
          margin: auto;
          padding: 1em;
          }
-
-         .client-buttons {
-
+         .error-messages-block {
+         display:  grid ;
          }
 
+         .client-error-message {
+         margin: auto;
+         display:  grid ;
+         }
+         .offers-error-message {
+         margin: auto;
+         display:  none ;
+         }
          .decline-client-block {
-            padding: 0.5em 0em;
-            display: inline-block;
+         padding: 0.5em 0em;
+         display: inline-block;
          }
-         
          .call-missed-client-block {
-            padding: 0.5em 0.5em;
-            display: inline-block;
+         padding: 0.5em 0.5em;
+         display: inline-block;
          }
-
-
       </style>
       <meta charset="utf-8">
    </head>
    <body>
       <div class="update-offers-block">
-         <button class="update-offers-button" id="updateOffersButton1">Выдать задание</button>
+         <button class="update-offers-button" id="updateOffersButton1">Получить задания</button>
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
+      <div class="client-info-block">
+         <div id="clientInfoTitle">Клиент</div>
+         <div id="clientInfoClientId">Идентификатор: </div>
+         <div id="clientInfiClientName">Имя: </div>
+         <div id="clientInfoClientPhone">Телефон: </div>
+         <div class="client-buttons">
+            <div class="decline-client-block">
+               <button class="decline-client-button" id="declineClientButton1">Отказ</button>
+               <div class="decline-client-messages" id="declineClientMessages1"></div>
+            </div>
+            <div class="call-missed-client-block">
+               <button class="call-missed-client-button" id="callMissedClientButton1">Недозвон</button>
+               <div class="call-missed-client-messages" id="callMissedClientMessages1"></div>
+            </div>
+         </div>
+      </div>
+      <div class="offers-block">
+         <div class="offers-block-title">Объявления</div>
+         <div class="offers-grid">
+            <div class="offers-row offers-row-header">
+               <div class="offercolumn offercolumnheader">Идентификатор</div>
+               <div class="offercolumn offercolumnheader">Создано</div>
+            </div>
+            
+               </div>
+      </div>
 
-      
-      Нет клиента в работе, получите новые задания
-      
+      <div class="error-messages-block">
+         <div class="offers-error-message">Нет объявлений в работе, получите новые задания</div>
+         <div class="client-error-message">Нет клиента в работе, получите новые задания</div>
+      </div>
       <script type="text/javascript">
+         let DEBUG = 'True' === 'True'
+         
          function formDataFromObject(obj) {
             var form_data = new FormData();
             for ( var key in obj ) {
                form_data.append(key, obj[key]);
             }
-
+         
             return form_data
          }
-
-         let DEBUG = 'True' === 'True'
-
+         
+         function onClickOfferRowIdentifier(element) {
+            if (DEBUG) {
+               window.location.href = `/admin/offer-card/${element.innerHTML}/`;
+            } else {
+               // workaround to redirect when on service.cian.ru
+               queryParams = new URLSearchParams(window.location.search)
+               queryParams.set("url", `/admin/offer-card/${element.innerHTML}/`);
+               history.pushState(null, null, "?"+queryParams.toString());
+               location.reload()
+            }
+         }
+         
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
@@ -92,11 +143,12 @@
            if (resp.success === true) {
              location.reload(); 
            } else {
-             errors = resp.errors.map((element) => element.message).join('<br>')
-             document.getElementById("updateOffersMessages1").innerHTML = errors
+             errors = resp.errors.map((element) => element.message).join('<br>');
+             updateOffersMessages = document.getElementById("updateOffersMessages1");
+             updateOffersMessages.innerHTML = errors;
            }
          };
-
+         
          
       </script>
       <body>

@@ -1,11 +1,15 @@
+import json
 from datetime import datetime
+from typing import Optional
 
 import asyncpgsa
 import pytz
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql import select
 
 from external_offers import pg
-from external_offers.entities.parsed_offers import ParsedOffer
+from external_offers.entities.parsed_offers import ParsedObjectModel, ParsedOffer
+from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import parsed_offer_mapper
 from external_offers.repositories.postgresql import tables
 
@@ -40,3 +44,23 @@ async def save_parsed_offer(*, parsed_offer: ParsedOffer) -> None:
     )
 
     await pg.get().execute(query, *params)
+
+
+async def get_parsed_offer_object_model_by_offer_for_call_id(*, offer_id: str) -> Optional[ParsedObjectModel]:
+    po = tables.parsed_offers_table.alias()
+    ofc = tables.offers_for_call.alias()
+
+    query, params = asyncpgsa.compile_query(
+        select([po.c.source_object_model])
+        .select_from(
+            po.join(
+                ofc,
+                po.c.id == ofc.c.parsed_id
+            )
+        )
+        .where(ofc.c.id == offer_id)
+    )
+
+    row = await pg.get().fetchrow(query, *params)
+
+    return parsed_object_model_mapper.map_from(json.loads(row['source_object_model'])) if row else None

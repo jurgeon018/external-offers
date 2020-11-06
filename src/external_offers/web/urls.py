@@ -11,7 +11,7 @@ from external_offers.web.handlers.base import PublicHandler
 urlpatterns = base_urls.urlpatterns + [
     # admin
     url('/admin/offers-list/$', handlers.AdminOffersListPageHandler),
-    url('/admin/offer-card/$', handlers.AdminOffersCardPageHandler),
+    url(r'/admin/offer-card/(?P<offer_id>[\d]+)/$', handlers.AdminOffersCardPageHandler),
     url('/api/admin/v1/update-offers-list/$', handlers.AdminUpdateOffersListPageHandler),
     url('/api/admin/v1/decline-client/$', handlers.AdminDeclineClientHandler),
     url('/api/admin/v1/call-missed-client/$', handlers.AdminCallMissedClientHandler),
