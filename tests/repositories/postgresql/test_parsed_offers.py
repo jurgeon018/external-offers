@@ -4,13 +4,13 @@ from external_offers import pg
 from external_offers.repositories import postgresql
 
 
-async def test_get_parsed_offer_object_model_by_offer_for_call_id():
+async def test_get_parsed_offer_object_model_by_offer_id():
     # arrange
-    offer_id = 1
+    offer_id = '1'
 
     # act
     pg.get().fetchrow.return_value = future(None)
-    await postgresql.get_parsed_offer_object_model_by_offer_for_call_id(
+    await postgresql.get_parsed_offer_object_model_by_offer_id(
         offer_id=offer_id
     )
 

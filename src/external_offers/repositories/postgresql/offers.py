@@ -1,13 +1,29 @@
-from typing import List
+from datetime import datetime
+from typing import List, Optional
 
 import asyncpgsa
 from sqlalchemy import and_, select, update
+from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.enums import OfferStatus
 from external_offers.mappers import offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
+
+
+async def save_offer_for_call(*, offer: Offer) -> None:
+    insert_query = insert(offers_for_call)
+
+    values = offer_mapper.map_to(offer)
+
+    query, params = asyncpgsa.compile_query(
+        insert_query.values(
+            [values]
+        )
+    )
+
+    await pg.get().execute(query, *params)
 
 
 async def get_offers_in_progress_by_operator(operator_id: int) -> List[Offer]:
@@ -30,7 +46,7 @@ async def get_offers_in_progress_by_operator(operator_id: int) -> List[Offer]:
     return [offer_mapper.map_from(row) for row in rows]
 
 
-async def set_waiting_offers_in_progress_by_client(client_id: int) -> None:
+async def set_waiting_offers_in_progress_by_client(client_id: str) -> None:
     query = """
         UPDATE
             offers_for_call
@@ -65,7 +81,7 @@ async def exists_offers_in_progress_by_operator(operator_id: int) -> bool:
     return exists
 
 
-async def exists_offers_in_progress_by_operator_and_offer_id(operator_id: int, offer_id: int) -> bool:
+async def exists_offers_in_progress_by_operator_and_offer_id(operator_id: int, offer_id: str) -> bool:
     query, params = asyncpgsa.compile_query(
         select([1])
         .select_from(
@@ -78,7 +94,7 @@ async def exists_offers_in_progress_by_operator_and_offer_id(operator_id: int, o
             and_(
                 offers_for_call.c.status == OfferStatus.in_progress.value,
                 clients.c.operator_user_id == operator_id,
-                offers_for_call.c.id == int(offer_id)
+                offers_for_call.c.id == offer_id
                 )
         )
         .limit(1)
@@ -89,7 +105,7 @@ async def exists_offers_in_progress_by_operator_and_offer_id(operator_id: int, o
     return bool(exists)
 
 
-async def set_offers_declined_by_client(client_id: int) -> None:
+async def set_offers_declined_by_client(client_id: str) -> None:
     sql = (
         update(
             offers_for_call
@@ -108,7 +124,7 @@ async def set_offers_declined_by_client(client_id: int) -> None:
     await pg.get().execute(query, *params)
 
 
-async def set_offers_call_missed_by_client(client_id: int) -> None:
+async def set_offers_call_missed_by_client(client_id: str) -> None:
     sql = (
         update(
             offers_for_call
@@ -125,3 +141,28 @@ async def set_offers_call_missed_by_client(client_id: int) -> None:
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
+
+
+async def get_offers_by_parsed_id(parsed_id: str) -> Optional[Offer]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call]
+        ).where(
+            offers_for_call.c.parsed_id == parsed_id,
+        ).limit(1)
+    )
+
+    row = await pg.get().fetchrow(query, *params)
+
+    return offer_mapper.map_from(row) if row else None
+
+
+async def get_last_sync_date() -> Optional[datetime]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.synced_at]
+        ).order_by(
+            offers_for_call.c.synced_at.desc()
+        ).limit(1)
+    )
+    return await pg.get().fetchval(query, *params)

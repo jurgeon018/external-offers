@@ -22,3 +22,8 @@ type = "web"
 [job.save-parsed-offers]
 type = "consumer"
 command = "save-parsed-offers"
+
+[job.create-offers-for-call-from-parsed]
+type = "cron"
+command = "create-offers-for-call"
+cron = "0 2 * * *"

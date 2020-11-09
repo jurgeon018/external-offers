@@ -6,7 +6,7 @@ from datetime import datetime
 class OfferStatusHistory:
     id: int
     """Идентификатор элемента истории"""
-    offer_id: int
+    offer_id: str
     """Идентификатор объявления"""
     operator_id: int
     """Оператор, на которого было назначено объявление при переходе"""

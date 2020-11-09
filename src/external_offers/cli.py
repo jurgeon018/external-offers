@@ -1,9 +1,13 @@
+from functools import partial
+
 import click
 from cian_core.kafka import register_kafka_consumer
 from cian_core.web import Application
+from tornado.ioloop import IOLoop
 
 from external_offers import entities, setup
 from external_offers.queue.consumers import save_parsed_offers_callback
+from external_offers.services.offers_creator import create_offers_for_call_from_parsed
 from external_offers.web.urls import urlpatterns
 
 
@@ -21,6 +25,11 @@ def serve(debug: bool, host: str, port: int) -> None:
     app.start(host=host, port=port)
 
 
+@cli.command()
+def create_offers_for_call():
+    IOLoop.current().run_sync(partial(create_offers_for_call_from_parsed))
+
+
 # [ML] сохранение объявлений с внешних площадок
 register_kafka_consumer(
     command=cli.command('save-parsed-offers'),
@@ -28,5 +37,5 @@ register_kafka_consumer(
     group_id='external-offers.save-external-offers',
     callback=save_parsed_offers_callback,
     default_max_bulk_size=25,
-    message_type=entities.ParsedOffer
+    message_type=entities.ParsedOfferMessage
 )

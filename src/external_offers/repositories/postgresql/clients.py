@@ -1,7 +1,8 @@
 from typing import Optional
 
 import asyncpgsa
-from sqlalchemy import update
+from sqlalchemy import select, update
+from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import Client
@@ -64,7 +65,7 @@ async def assign_waiting_client_to_operator(operator_id: int) -> int:
     return await pg.get().fetchval(query, operator_id)
 
 
-async def set_client_to_decline_status(client_id: int) -> None:
+async def set_client_to_decline_status(client_id: str) -> None:
     sql = (
         update(
             clients
@@ -81,7 +82,7 @@ async def set_client_to_decline_status(client_id: int) -> None:
     await pg.get().execute(query, *params)
 
 
-async def set_client_to_call_missed_status(client_id: int) -> None:
+async def set_client_to_call_missed_status(client_id: str) -> None:
     sql = (
         update(
             clients
@@ -96,3 +97,31 @@ async def set_client_to_call_missed_status(client_id: int) -> None:
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
+
+
+async def save_client(client: Client) -> None:
+    insert_query = insert(clients)
+
+    values = client_mapper.map_to(client)
+
+    query, params = asyncpgsa.compile_query(
+        insert_query.values(
+            [values]
+        )
+    )
+
+    await pg.get().execute(query, *params)
+
+
+async def get_client_by_avito_user_id(avito_user_id: str) -> Optional[Client]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients]
+        ).where(
+            clients.c.avito_user_id == avito_user_id,
+        ).limit(1)
+    )
+
+    row = await pg.get().fetchrow(query, *params)
+
+    return client_mapper.map_from(row) if row else None

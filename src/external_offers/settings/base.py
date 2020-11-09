@@ -15,4 +15,9 @@ SAVE_OFFER_MSG: str = (
     'отметьте галочку ниже, и мы отправим сообщение с инструкцией по восстановлению пароля'
 )
 
+OFFER_CREATION_FETCH_LIMIT: int = 500
+OFFER_CREATION_SEGMENTS: List[str] = ['c']
+OFFER_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent']
+OFFER_CREATION_REGIONS: List[int] = []
+
 DEBUG: bool = False

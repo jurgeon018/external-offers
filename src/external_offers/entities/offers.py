@@ -7,18 +7,18 @@ from external_offers.enums import OfferStatus
 
 @dataclass
 class Offer:
-    id: int
+    id: str
     """Идентификатор объявления для публикации"""
-    parsed_id: int
+    parsed_id: str
     """Идентификатор обработанного объявления"""
-    client_id: int
+    client_id: str
     """Идентификатор клиента"""
     status: OfferStatus
     """Статус объявления"""
     created_at: datetime
     """Дата создания объявления"""
-    object_model: Dict
-    """Модель объявления"""
+    synced_at: datetime
+    """Дата последней синхронизации объявления"""
     offer_cian_id: Optional[int] = None
     """Идентификатор объявления на Циане"""
     started_at: Optional[datetime] = None

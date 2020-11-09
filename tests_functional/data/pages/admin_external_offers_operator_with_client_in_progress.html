@@ -168,7 +168,7 @@
          
          document.getElementById("declineClientButton1").onclick = async function () {
            let obj =  {
-               'client_id': 1
+               'client_id': '1'
            }
            const response = await fetch("/api/admin/v1/decline-client/", {
              method: 'POST',
@@ -185,7 +185,7 @@
          
          document.getElementById("callMissedClientButton1").onclick = async function () {
            let obj =  {
-               'client_id': 1
+               'client_id': '1'
            }
            const response = await fetch("/api/admin/v1/call-missed-client/", {
              method: 'POST',
