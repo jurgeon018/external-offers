@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name
+
 from pathlib import Path
 
 import pytest
@@ -31,6 +33,16 @@ def offers_and_clients_fixture(database_fixture_folder):
 @pytest.fixture
 def parsed_offers_fixture(database_fixture_folder):
     return database_fixture_folder / 'parsed_offers.sql'
+
+
+@pytest.fixture
+def parsed_offers_fixture_for_clients_test(database_fixture_folder):
+    return database_fixture_folder / 'parsed_offers_for_clients_test.sql'
+
+
+@pytest.fixture
+def parsed_offers_fixture_for_offers_for_call_test(database_fixture_folder):
+    return database_fixture_folder / 'parsed_offers_for_offers_for_call_test.sql'
 
 
 @pytest.fixture

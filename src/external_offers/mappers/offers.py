@@ -10,5 +10,6 @@ offer_mapper = EntityMapper(
     mappers={
         'created_at': ValueMapper(),
         'started_at': ValueMapper(),
+        'synced_at': ValueMapper()
     }
 )

@@ -1,9 +1,6 @@
-from dataclasses import dataclass
-
 from cian_enum import StrEnum
 
 
-@dataclass
 class ClientStatus(StrEnum):
     waiting = 'waiting'
     """В ожидании"""

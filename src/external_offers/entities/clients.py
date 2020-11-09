@@ -1,17 +1,21 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional
+
+from external_offers.enums import ClientStatus
 
 
 @dataclass
 class Client:
-    client_id: int
+    client_id: str
     """Идентификатор клиента"""
-    avito_user_id: int
+    avito_user_id: str
     """Идентификатор пользователя на Авито"""
-    client_name: str
-    """Имя клиента"""
-    client_phone: str
+    client_phones: List[str]
     """Телефон клиента"""
+    status: ClientStatus
+    """Статус клиента"""
+    client_name: Optional[str] = None
+    """Имя клиента"""
     realty_user_id: Optional[int] = None
     """Идентификатор пользователя на Циане"""
     client_email: Optional[str] = None

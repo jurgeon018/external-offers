@@ -144,8 +144,8 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     operator_without_offers_in_progress = 60024636
-    expected_operator_client = 3
-    expected_operator_offer = 4
+    expected_operator_client = '3'
+    expected_operator_offer = '4'
     # act
     await http.request(
         'POST',
@@ -175,8 +175,8 @@ async def test_update_offers_list__second_operator_without_client_update__update
     await pg.execute_scripts(offers_and_clients_fixture)
     first_operator_without_offers_in_progress = 60024636
     second_operator_without_offers_in_progress = 60024637
-    expected_operator_client = 2
-    expected_operator_offer = 5
+    expected_operator_client = '2'
+    expected_operator_offer = '5'
 
     # act
     await http.request(
@@ -213,7 +213,7 @@ async def test_decline_client__no_operator_and_in_progress__still_no_operator_an
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     operator = 60024636
-    operator_client = 2
+    operator_client = '2'
 
     # act
     await http.request(
@@ -245,9 +245,9 @@ async def test_decline_client__client_with_cancelled_and_in_progress__only_in_pr
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     operator = 60024636
-    operator_client = 4
-    offer_expected_declined = 6
-    offer_expected_cancelled = 7
+    operator_client = '4'
+    offer_expected_declined = '6'
+    offer_expected_cancelled = '7'
 
     # act
     await http.request(
@@ -282,7 +282,7 @@ async def test_call_missed_client__no_operator_and_in_progress__still_no_operato
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     operator = 60024636
-    operator_client = 2
+    operator_client = '2'
 
     # act
     await http.request(
@@ -314,9 +314,9 @@ async def test_call_missed_client__exist_offers_in_progress_and_cancelled__only_
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     operator = 60024636
-    operator_client = 4
-    offer_expected_call_missed = 6
-    offer_expected_cancelled = 7
+    operator_client = '4'
+    offer_expected_call_missed = '6'
+    offer_expected_cancelled = '7'
 
     # act
     await http.request(

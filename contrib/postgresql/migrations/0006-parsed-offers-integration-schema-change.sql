@@ -1,0 +1,11 @@
+ALTER TABLE offers_for_call ADD COLUMN synced_at timestamp with time zone not null;
+ALTER TABLE clients ALTER COLUMN client_id TYPE varchar;
+ALTER TABLE offers_for_call ALTER COLUMN client_id TYPE varchar;
+ALTER TABLE clients ALTER COLUMN avito_user_id TYPE varchar;
+ALTER TABLE offers_for_call ALTER COLUMN id TYPE varchar;
+ALTER TABLE clients ALTER column client_name DROP NOT NULL;
+ALTER TABLE clients DROP COLUMN client_phone;
+ALTER TABLE clients ADD COLUMN client_phones varchar[] NOT NULL;
+ALTER TABLE clients ALTER COLUMN client_email DROP not null;
+ALTER TABLE parsed_offers ADD COLUMN synced BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE parsed_offers ALTER COLUMN source_object_model SET DATA TYPE jsonb USING source_object_model::jsonb;

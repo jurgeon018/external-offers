@@ -83,8 +83,8 @@
       <div class="client-info-block">
          <div id="clientInfoTitle">Клиент</div>
          <div id="clientInfoClientId">Идентификатор: {{ client.client_id }}</div>
-         <div id="clientInfiClientName">Имя: {{ client.client_name }}</div>
-         <div id="clientInfoClientPhone">Телефон: {{ client.client_phone }}</div>
+         {% if (client.client_name) %}<div id="clientInfiClientName">Имя: {{ client.client_name }}</div>{% endif %}
+         <div id="clientInfoClientPhone">Телефон: {{ client.client_phones | join(',') }}</div>
          <div class="client-buttons">
             <div class="decline-client-block">
                <button class="decline-client-button" id="declineClientButton1">Отказ</button>
@@ -160,7 +160,7 @@
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
            let obj =  {
-               'client_id': {{ client.client_id }}
+               'client_id': '{{ client.client_id }}'
            }
            const response = await fetch("/api/admin/v1/decline-client/", {
              method: 'POST',
@@ -177,7 +177,7 @@
          
          document.getElementById("callMissedClientButton1").onclick = async function () {
            let obj =  {
-               'client_id': {{ client.client_id }}
+               'client_id': '{{ client.client_id }}'
            }
            const response = await fetch("/api/admin/v1/call-missed-client/", {
              method: 'POST',

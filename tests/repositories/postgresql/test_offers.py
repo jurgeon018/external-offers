@@ -40,7 +40,7 @@ async def test_set_waiting_offers_in_progress_by_client():
             status = 'waiting'
             AND client_id = $1;
     """
-    client_id = 1
+    client_id = '1'
 
     # act
     pg.get().fetch.return_value = future([])
@@ -67,7 +67,7 @@ async def test_exists_offers_in_progress_by_operator():
         LIMIT 1
     """
     operator_id = 1
-    pg.get().fetchval.return_value = future(False) 
+    pg.get().fetchval.return_value = future(False)
 
     # act
     pg.get().fetch.return_value = future([])
@@ -80,7 +80,7 @@ async def test_exists_offers_in_progress_by_operator():
 async def test_set_offers_declined_by_client():
     # arrange
     query = 'UPDATE offers_for_call SET status=$2 WHERE offers_for_call.client_id = $1 AND offers_for_call.status = $3'
-    client_id = 1
+    client_id = '1'
     pg.get().execute.return_value = future(None)
 
     # act
@@ -93,7 +93,7 @@ async def test_set_offers_declined_by_client():
 async def test_set_offers_set_call_missed_by_client():
     # arrange
     query = 'UPDATE offers_for_call SET status=$2 WHERE offers_for_call.client_id = $1 AND offers_for_call.status = $3'
-    client_id = 1
+    client_id = '1'
     pg.get().execute.return_value = future(None)
 
     # act

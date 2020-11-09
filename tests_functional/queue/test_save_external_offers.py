@@ -41,12 +41,10 @@ async def test_external_offer_callback(pg, kafka_service, runner):
         'source_object_id': '1_1986816313',
         'source_user_id': '27d1a87eb7a7cda52167530e424ca317',
         'source_object_model': (
-            '{"phones": ["87771114422"], '
-            '"category": "flatSale", '
-            '"region": 4628, '
-            '"title": "\\u043d\\u0430\\u0437\\u0432\\u0430\\u043d\\u0438\\u0435", '
-            '"description": "\\u043e\\u043f\\u0438\\u0441\\u0430\\u043d\\u0438\\u0435", '
-            '"address": "\\u0430\\u0434\\u0440\\u0435\\u0441\\u0444"}'
+            '{"title": "название", "phones": ["87771114422"], '
+            '"region": 4628, "address": "адресф", "category": "flatSale", '
+            '"description": "описание"}'
         ),
         'is_calltracking': False,
+        'synced': False
     }
