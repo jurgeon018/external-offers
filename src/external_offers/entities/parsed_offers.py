@@ -24,7 +24,7 @@ class ParsedOfferMessage:
 
 
 @dataclass
-class ParsedOffer():
+class ParsedOffer:
     id: str
     """Уникальный ключ"""
     source_object_id: str

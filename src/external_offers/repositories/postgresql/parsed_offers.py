@@ -49,7 +49,9 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_parsed_offers_for_offer_creation(*, last_sync_date: Optional[datetime]) -> Optional[List[ParsedOffer]]:
+async def set_synced_and_fetch_parsed_offers_chunk(
+    *, last_sync_date: Optional[datetime]
+) -> Optional[List[ParsedOffer]]:
     po = tables.parsed_offers_table.alias()
     options = [
         po.c.source_object_model['phones'] != JSON.NULL,
@@ -57,14 +59,14 @@ async def get_parsed_offers_for_offer_creation(*, last_sync_date: Optional[datet
         not_(po.c.synced),
     ]
 
-    if settings.OFFER_CREATION_CATEGORIES:
-        options.append(po.c.source_object_model['category'].as_string().in_(settings.OFFER_CREATION_CATEGORIES))
+    if settings.OFFER_TASK_CREATION_CATEGORIES:
+        options.append(po.c.source_object_model['category'].as_string().in_(settings.OFFER_TASK_CREATION_CATEGORIES))
 
-    if settings.OFFER_CREATION_SEGMENTS:
-        options.append(po.c.user_segment.in_(settings.OFFER_CREATION_SEGMENTS))
+    if settings.OFFER_TASK_CREATION_SEGMENTS:
+        options.append(po.c.user_segment.in_(settings.OFFER_TASK_CREATION_SEGMENTS))
 
-    if settings.OFFER_CREATION_REGIONS:
-        options.append(po.c.source_object_model['region'].as_integer().in_(settings.OFFER_CREATION_REGIONS))
+    if settings.OFFER_TASK_CREATION_REGIONS:
+        options.append(po.c.source_object_model['region'].as_integer().in_(settings.OFFER_TASK_CREATION_REGIONS))
 
     if last_sync_date:
         options.append(po.c.timestamp > last_sync_date)
@@ -77,7 +79,7 @@ async def get_parsed_offers_for_offer_creation(*, last_sync_date: Optional[datet
             and_(*options)
         )
         .limit(
-            settings.OFFER_CREATION_FETCH_LIMIT
+            settings.OFFER_TASK_CREATION_FETCH_LIMIT
         )
         .cte('selected_non_synced_offers_cte')
     )
