@@ -259,7 +259,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         """,
-        ['5','555bb598767308327e1dffbe7241486c', 'Иван Петров',
+        ['5', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
          ['+79812333292'], 'nemoy@gmail.com', 60024640, 'inProgress']
     )
     await runtime_settings.set({
@@ -300,7 +300,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         """,
-        ['5','555bb598767308327e1dffbe7241486c', 'Иван Петров',
+        ['5', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
          ['+79812333292'], 'nemoy@gmail.com', 60024640, 'declined']
     )
     await runtime_settings.set({
