@@ -1,1 +1,0 @@
-ALTER TABLE parsed_offers ALTER COLUMN source_object_model SET DATA TYPE jsonb USING source_object_model::jsonb;
