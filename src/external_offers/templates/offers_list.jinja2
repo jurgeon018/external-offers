@@ -5,6 +5,12 @@
          margin: 1em;
          display: {% if (client is defined) and client %} block {% else %} none {% endif %};
          }
+
+         .client-info-block-title {
+         font-weight: bold;
+         padding: 0.5em 0;
+         }
+
          .offers-block {
          margin: 1em;
          display: {% if (offers is defined) and offers %} block {% else %} none{% endif %};
@@ -81,7 +87,7 @@
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
       <div class="client-info-block">
-         <div id="clientInfoTitle">Клиент</div>
+         <div class="client-info-block-title">Клиент</div>
          <div id="clientInfoClientId">Идентификатор: {{ client.client_id }}</div>
          {% if (client.client_name) %}<div id="clientInfiClientName">Имя: {{ client.client_name }}</div>{% endif %}
          <div id="clientInfoClientPhone">Телефон: {{ client.client_phones | join(',') }}</div>
@@ -108,7 +114,7 @@
                <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">{{ offer.id }}</div>
                <div class=offercolumn>{{ offer.created_at|date }} {{ offer.created_at|time }}</div>
                <div class=offercolumn>
-                  <form style="display:inline"><button>Удалить</button></form>
+                  <button style="display:inline" onclick="onClickOfferRowDelete('{{ offer.id }}', '{{ client.client_id }}')">Удалить</button>
                </div>
             </div>
          {% endfor %}
@@ -142,7 +148,24 @@
                location.reload()
             }
          }
-         
+
+         async function onClickOfferRowDelete(offer_id, client_id) {
+           let obj =  {
+               'offer_id': offer_id,
+               'client_id': client_id
+           }
+           const response = await fetch("/api/admin/v1/delete-offer/", {
+             method: 'POST',
+             body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+           });
+           resp = await response.json();
+           if (resp.success === true) {
+             location.reload(); 
+           } else {
+              alert('Не удалось удалить задание')
+           }
+         }
+
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'

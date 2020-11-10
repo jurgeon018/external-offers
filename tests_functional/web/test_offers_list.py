@@ -341,3 +341,91 @@ async def test_call_missed_client__exist_offers_in_progress_and_cancelled__only_
 
     assert row_offer_expected_call_missed['status'] == 'callMissed'
     assert row_offer_expected_cancelled['status'] == 'cancelled'
+
+
+async def test_delete_offer__exist_offers_in_progress__only_one_offer_cancelled(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024649
+    operator_client = '5'
+    offer_id = '8'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/delete-offer/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'offer_id': offer_id,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+    row_offer = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE id=$1
+        """,
+        [offer_id]
+    )
+
+    assert row_client['status'] == 'inProgress'
+    assert row_offer['status'] == 'cancelled'
+
+
+async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offers_in_progress(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024649
+    operator_client = '5'
+    first_offer_id = '8'
+    second_offer_id = '9'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/delete-offer/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'offer_id': first_offer_id,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    await http.request(
+        'POST',
+        '/api/admin/v1/delete-offer/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'offer_id': second_offer_id,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+
+    # assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'waiting'

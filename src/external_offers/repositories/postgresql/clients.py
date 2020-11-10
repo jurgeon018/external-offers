@@ -82,6 +82,23 @@ async def set_client_to_decline_status(client_id: str) -> None:
     await pg.get().execute(query, *params)
 
 
+async def set_client_to_waiting_status(client_id: str) -> None:
+    sql = (
+        update(
+            clients
+        ).values(
+            status=ClientStatus.waiting.value,
+            operator_user_id=None
+        ).where(
+            clients.c.client_id == client_id
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
 async def set_client_to_call_missed_status(client_id: str) -> None:
     sql = (
         update(

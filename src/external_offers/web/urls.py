@@ -14,6 +14,7 @@ urlpatterns = base_urls.urlpatterns + [
     url(r'/admin/offer-card/(?P<offer_id>[a-zA-Z0-9-]+)/$', handlers.AdminOffersCardPageHandler),
     url('/api/admin/v1/update-offers-list/$', handlers.AdminUpdateOffersListPageHandler),
     url('/api/admin/v1/decline-client/$', handlers.AdminDeclineClientHandler),
+    url('/api/admin/v1/delete-offer/$', handlers.AdminDeleteOfferClientHandler),
     url('/api/admin/v1/call-missed-client/$', handlers.AdminCallMissedClientHandler),
     url('/api/admin/v1/save-offer/$', get_handler(
         service=save_offer_public,
