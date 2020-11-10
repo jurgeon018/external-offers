@@ -30,7 +30,7 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
         ).on_conflict_do_update(
             index_elements=[tables.parsed_offers_table.c.id],
             where=(
-                    tables.parsed_offers_table.c.timestamp < parsed_offer.timestamp
+                    tables.parsed_offers_table.c.timestamp <= parsed_offer.timestamp
             ),
             set_={
                 'id': insert_query.excluded.id,

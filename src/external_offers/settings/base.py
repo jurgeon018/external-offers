@@ -17,7 +17,7 @@ SAVE_OFFER_MSG: str = (
 
 OFFER_TASK_CREATION_FETCH_LIMIT: int = 500
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
-OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent']
+OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
 OFFER_TASK_CREATION_REGIONS: List[int] = []
 
 DEBUG: bool = False
