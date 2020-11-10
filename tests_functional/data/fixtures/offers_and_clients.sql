@@ -38,6 +38,14 @@ INSERT INTO public.clients(
     'nemoyemail1234@gmail.com',
     60024638,
     'waiting'
+), (
+    '5',
+    '32131325',
+    'Александр Петров',
+    '{+79812333237}',
+    'nemoyemail1234@gmail.com',
+    60024649,
+    'inProgress'
 );
 
 INSERT INTO public.offers_for_call(
@@ -51,7 +59,7 @@ INSERT INTO public.offers_for_call(
 ) VALUES (
     1,
     'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
-    1,
+    '1',
     'inProgress',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
@@ -59,7 +67,7 @@ INSERT INTO public.offers_for_call(
 ), (
     2,
     'f1a91ade-13a2-48d9-a05a-6131af39033e',
-    1,
+    '1',
     'inProgress',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
@@ -67,7 +75,7 @@ INSERT INTO public.offers_for_call(
 ), (
     3,
     'fbd30a97-7bed-4459-8cfd-8ba797ac9054',
-    2,
+    '2',
     'cancelled',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
@@ -75,7 +83,7 @@ INSERT INTO public.offers_for_call(
 ), (
     4,
     '9999d421-b7ba-4ee0-b29f-bc8add87c933',
-    3,
+    '3',
     'waiting',
     '2020-10-10 04:05:06',
     '2020-10-10 04:05:06',
@@ -83,7 +91,7 @@ INSERT INTO public.offers_for_call(
 ), (
     5,
     '33e4d51e-e8d3-499d-9497-4229d6c539ee',
-    2,
+    '2',
     'waiting',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
@@ -91,7 +99,7 @@ INSERT INTO public.offers_for_call(
 ), (
     6,
     'wrong-parsed-id',
-    4,
+    '4',
     'inProgress',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
@@ -99,8 +107,24 @@ INSERT INTO public.offers_for_call(
 ), (
     7,
     '1d6c73b8-3057-47cc-b50a-419052da619f',
-    4,
+    '4',
     'cancelled',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06'
+), (
+    8,
+    '124c73b8-3057-47cc-b50a-419052da619f',
+    '5',
+    'inProgress',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06'
+), (
+    9,
+    '1dddd3b8-3057-47cc-b50a-419052da619f',
+    '5',
+    'inProgress',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06'

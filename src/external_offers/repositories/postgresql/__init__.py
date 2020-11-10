@@ -5,14 +5,17 @@ from external_offers.repositories.postgresql.clients import (
     save_client,
     set_client_to_call_missed_status,
     set_client_to_decline_status,
+    set_client_to_waiting_status,
 )
 from external_offers.repositories.postgresql.offers import (
+    exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_offers_in_progress_by_operator_and_offer_id,
     get_last_sync_date,
     get_offers_by_parsed_id,
     get_offers_in_progress_by_operator,
     save_offer_for_call,
+    set_offer_cancelled_by_offer_id,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,

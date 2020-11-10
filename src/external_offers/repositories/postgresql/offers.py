@@ -105,6 +105,29 @@ async def exists_offers_in_progress_by_operator_and_offer_id(operator_id: int, o
     return bool(exists)
 
 
+async def exists_offers_in_progress_by_client(client_id: str) -> bool:
+    query, params = asyncpgsa.compile_query(
+        select([1])
+        .select_from(
+            offers_for_call.join(
+                clients,
+                offers_for_call.c.client_id == clients.c.client_id
+            )
+        )
+        .where(
+            and_(
+                offers_for_call.c.status == OfferStatus.in_progress.value,
+                clients.c.client_id == client_id,
+                )
+        )
+        .limit(1)
+    )
+
+    exists = await pg.get().fetchval(query, *params)
+
+    return bool(exists)
+
+
 async def set_offers_declined_by_client(client_id: str) -> None:
     sql = (
         update(
@@ -166,3 +189,21 @@ async def get_last_sync_date() -> Optional[datetime]:
         ).limit(1)
     )
     return await pg.get().fetchval(query, *params)
+
+
+async def set_offer_cancelled_by_offer_id(offer_id: str) -> None:
+    sql = (
+        update(
+            offers_for_call
+        ).values(
+            status=OfferStatus.cancelled.value,
+        ).where(
+            and_(
+                offers_for_call.c.id == offer_id,
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)

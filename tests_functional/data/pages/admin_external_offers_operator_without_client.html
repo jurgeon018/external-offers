@@ -5,6 +5,12 @@
          margin: 1em;
          display:  none ;
          }
+
+         .client-info-block-title {
+         font-weight: bold;
+         padding: 0.5em 0;
+         }
+
          .offers-block {
          margin: 1em;
          display:  none;
@@ -81,7 +87,7 @@
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
       <div class="client-info-block">
-         <div id="clientInfoTitle">Клиент</div>
+         <div class="client-info-block-title">Клиент</div>
          <div id="clientInfoClientId">Идентификатор: </div>
          
          <div id="clientInfoClientPhone">Телефон: </div>
@@ -134,7 +140,24 @@
                location.reload()
             }
          }
-         
+
+         async function onClickOfferRowDelete(offer_id, client_id) {
+           let obj =  {
+               'offer_id': offer_id,
+               'client_id': client_id
+           }
+           const response = await fetch("/api/admin/v1/delete-offer/", {
+             method: 'POST',
+             body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+           });
+           resp = await response.json();
+           if (resp.success === true) {
+             location.reload(); 
+           } else {
+              alert('Не удалось удалить задание')
+           }
+         }
+
          document.getElementById("updateOffersButton1").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'

@@ -4,6 +4,7 @@ from simple_settings import settings
 
 from external_offers.repositories.postgresql import (
     assign_waiting_client_to_operator,
+    exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_offers_in_progress_by_operator_and_offer_id,
     get_client_by_operator,
@@ -11,6 +12,8 @@ from external_offers.repositories.postgresql import (
     get_parsed_offer_object_model_by_offer_id,
     set_client_to_call_missed_status,
     set_client_to_decline_status,
+    set_client_to_waiting_status,
+    set_offer_cancelled_by_offer_id,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
@@ -66,12 +69,36 @@ class AdminDeclineClientHandler(PublicHandler):
         self.set_header('Content-Type', 'application/json')
         params = json.loads(self.request.body)
         client_id = params['client_id']
+
         await set_client_to_decline_status(client_id)
         await set_offers_declined_by_client(client_id)
+
         self.write(json.dumps({
                 'success': True,
                 'errors': [],
         }))
+
+
+class AdminDeleteOfferClientHandler(PublicHandler):
+    # pylint: disable=abstract-method
+
+    async def post(self) -> None:
+        self.set_header('Content-Type', 'application/json')
+        params = json.loads(self.request.body)
+        offer_id = params['offer_id']
+        client_id = params['client_id']
+
+        await set_offer_cancelled_by_offer_id(offer_id)
+        exists = await exists_offers_in_progress_by_client(client_id)
+
+        if not exists:
+            await set_client_to_waiting_status(client_id)
+
+        self.write(json.dumps({
+                'success': True,
+                'errors': [],
+        }))
+
 
 
 class AdminCallMissedClientHandler(PublicHandler):
@@ -81,8 +108,10 @@ class AdminCallMissedClientHandler(PublicHandler):
         self.set_header('Content-Type', 'application/json')
         params = json.loads(self.request.body)
         client_id = params['client_id']
+
         await set_client_to_call_missed_status(client_id)
         await set_offers_call_missed_by_client(client_id)
+
         self.write(json.dumps({
                 'success': True,
                 'errors': [],
