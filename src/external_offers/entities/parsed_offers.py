@@ -106,7 +106,6 @@ class ParsedObjectModel:
             Category.flat_rent,
             Category.flat_sale,
             Category.flat_share_sale,
-            Category.flat_share_rent,
         ]
 
     @property
@@ -115,7 +114,6 @@ class ParsedObjectModel:
             Category.flat_rent,
             Category.flat_sale,
             Category.flat_share_sale,
-            Category.flat_share_rent,
             Category.room_rent,
             Category.room_sale,
         ]
