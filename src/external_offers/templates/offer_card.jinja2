@@ -239,22 +239,22 @@
     let DEBUG = 'True' === '{{ debug }}'
     const saveOffer = () => {
         let obj = {
-            deal_type: getDealType.val(),
-            offer_type: getOfferType.val(),
+            dealType: getDealType.val(),
+            offerType: getOfferType.val(),
             category: getCategoryType.val(),
             address: getAddress.val(),
-            realty_type: getRealtyType.val(),
-            total_area: parseInt(getTotalArea.val()),
-            rooms_count: parseInt(getRoomsCount.val()),
-            floor_number: parseInt(getFloorNumber.val()),
-            floors_count: parseInt(getFloorCount.val()),
+            realtyType: getRealtyType.val(),
+            totalArea: parseInt(getTotalArea.val()),
+            roomsCount: parseInt(getRoomsCount.val()),
+            floorNumber: parseInt(getFloorNumber.val()),
+            floorsCount: parseInt(getFloorCount.val()),
             price: parseInt(getPrice.val()),
-            sale_type: getSaleType.val(),
-            phone_number: getPhoneNumber.val(),
-            recovery_password: recoveryPassword.prop("checked")
+            saleType: getSaleType.val(),
+            phoneNumber: getPhoneNumber.val(),
+            recoveryPassword: recoveryPassword.prop("checked")
         }
 
-        $.post("/api/admin/v1/save-offer/", obj
+        $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
         ).then(function (data) {
             switch (data.status) {
                 case 'ok':
