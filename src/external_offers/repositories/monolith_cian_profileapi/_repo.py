@@ -20,5 +20,4 @@ promocode_apply = _api.make_client(
     handle_http_exceptions=True,
     request_schema=entities.ApplyParameters,
     response_schema=str,
-    default_timeout=10
 )

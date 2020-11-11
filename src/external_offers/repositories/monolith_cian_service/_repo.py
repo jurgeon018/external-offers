@@ -21,8 +21,4 @@ api_promocodes_create_promocode_group = _api.make_client(
     handle_http_exceptions=True,
     request_schema=entities.PromoCodeGroupDetailModel,
     response_schema=entities.CreatePromocodeGroupResponse,
-    default_headers={
-        'X-PassKey': '87C8573A-BD08-4A54-BF33-DBBD2AF78551'
-    },
-    default_timeout=10
 )

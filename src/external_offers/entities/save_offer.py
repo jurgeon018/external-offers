@@ -4,7 +4,6 @@ from typing import Optional
 from external_offers.enums import SaveOfferCategory
 from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 
 
 @dataclass

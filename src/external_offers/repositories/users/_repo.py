@@ -20,5 +20,4 @@ v1_register_user_by_phone = _api.make_client(
     handle_http_exceptions=True,
     request_schema=entities.RegisterUserByPhoneRequest,
     response_schema=entities.RegisterUserByPhoneResponse,
-    default_timeout=5,
 )

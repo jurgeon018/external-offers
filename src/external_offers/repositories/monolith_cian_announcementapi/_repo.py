@@ -20,7 +20,6 @@ v1_geo_geocode = _api.make_client(
     handle_http_exceptions=True,
     request_schema=entities.V1GeoGeocode,
     response_schema=entities.GeoCodeAnnouncementResponse,
-    default_timeout=10
 )
 v2_announcements_draft = _api.make_client(
     path='/v2/announcements/draft/',
@@ -28,5 +27,4 @@ v2_announcements_draft = _api.make_client(
     handle_http_exceptions=True,
     request_schema=entities.PublicationModel,
     response_schema=entities.AddDraftResult,
-    default_timeout=10,
 )
