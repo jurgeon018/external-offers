@@ -61,3 +61,28 @@ def admin_external_offers_operator_with_client_in_progress_html(pages_folder):
 def admin_external_offers_operator_with_client_cancelled_html(pages_folder):
     return (pages_folder /
             'admin_external_offers_operator_with_client_cancelled.html')
+
+
+@pytest.fixture(scope='session')
+async def users_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('users')
+
+
+@pytest.fixture(scope='session')
+async def users_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('users')
+
+
+@pytest.fixture(scope='session')
+async def monolith_cian_bill_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('monolith-cian-bill')
+
+
+@pytest.fixture(scope='session')
+async def monolith_cian_service_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('monolith-cian-service')
+
+
+@pytest.fixture(scope='session')
+async def monolith_cian_announcementapi_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('monolith-cian-announcementapi')

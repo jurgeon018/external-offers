@@ -3,12 +3,15 @@ from typing import Optional
 
 from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 
 
 @dataclass
 class SaveOfferRequest:
+    offer_id: str
+    """Идентификатор задания"""
     phone_number: str
-    """Телефоны"""
+    """Телефон"""
     category: str
     """Категория объявления"""
     deal_type: DealType
@@ -39,3 +42,5 @@ class SaveOfferRequest:
 class SaveOfferResponse:
     status: SaveOfferStatus
     """Статус сохрарнения объявления"""
+    message: Optional[str] = ''
+    """Информационное сообщение для отображения пользователю"""

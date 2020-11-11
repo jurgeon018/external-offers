@@ -140,7 +140,8 @@ class AdminOffersCardPageHandler(PublicHandler):
 
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
-            info_message=settings.SAVE_OFFER_MSG
+            info_message=settings.SAVE_OFFER_MSG,
+            offer_id=offer_id
         )
 
         self.write(offer_html)

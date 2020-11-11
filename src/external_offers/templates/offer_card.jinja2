@@ -192,20 +192,20 @@
 
                     <select class="select-control" id="getCategoryType">
                         <option value="" selected disabled>Не выбрано</option>
-                        <option value=""
+                        <option value="flat"
                                 {% if parsed_object_model.category.is_flat_sale
                                 or parsed_object_model.category.is_flat_rent %}
                                 selected {% endif %}>Квартира
                         </option>
-                        <option value=""
+                        <option value="room"
                                 {% if parsed_object_model.category.is_room_sale
                                 or parsed_object_model.category.is_room_rent %}
                                 selected {% endif %}>Комната
                         </option>
-                        <option value="" {% if parsed_object_model.category.is_flat_share_sale %} selected {% endif %}>Доля
+                        <option value="flat_share" {% if parsed_object_model.category.is_flat_share_sale %} selected {% endif %}>Доля
                             в квартире
                         </option>
-                        <option value="" {% if parsed_object_model.category.is_bed_rent %} selected {% endif %}>
+                        <option value="bed" {% if parsed_object_model.category.is_bed_rent %} selected {% endif %}>
                             Койко-место (только аренда)
                         </option>
                         <option value="" disabled>Дом/Дача</option>
@@ -316,8 +316,7 @@
             <tr>
                 <td><span class="">Телефон</span></td>
                 <td>
-                    <input class="input-control" placeholder="Реальный телефон владельца"
-                           value="{{ parsed_object_model.phones[0] }}" type="number"
+                    <input class="input-control" placeholder="Реальный телефон владельца" type="string"
                            id="getPhoneNumber">
                 </td>
             </tr>
@@ -361,13 +360,14 @@
                 address: getAddress.val(),
                 realty_type: getRealtyType.val(),
                 total_area: parseInt(getTotalArea.val()),
-                rooms_count: parseInt(getRoomsCount.val()),
+                rooms_count: getRoomsCount.val(),
                 floor_number: parseInt(getFloorNumber.val()),
                 floors_count: parseInt(getFloorCount.val()),
                 price: parseInt(getPrice.val()),
                 sale_type: getSaleType.val(),
                 phone_number: getPhoneNumber.val(),
-                recovery_password: recoveryPassword.prop("checked")
+                recovery_password: recoveryPassword.prop("checked"),
+                offer_id: '{{ offer_id }}'
             }
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
@@ -375,6 +375,9 @@
                 switch (data.status) {
                     case 'ok':
                         alert('Объявление успешно создано как черновик');
+                        break;
+                    default:
+                        alert(data.message);
                         break;
                 }
             });

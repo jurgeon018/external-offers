@@ -16,6 +16,7 @@ from external_offers.repositories.postgresql.offers import (
     get_offers_in_progress_by_operator,
     save_offer_for_call,
     set_offer_cancelled_by_offer_id,
+    set_offer_draft_by_offer_id,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,

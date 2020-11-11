@@ -166,6 +166,25 @@ async def set_offers_call_missed_by_client(client_id: str) -> None:
     await pg.get().execute(query, *params)
 
 
+async def set_offer_draft_by_offer_id(offer_id: str) -> None:
+    sql = (
+        update(
+            offers_for_call
+        ).values(
+            status=OfferStatus.draft.value,
+        ).where(
+            and_(
+                offers_for_call.c.id == offer_id,
+                offers_for_call.c.status == OfferStatus.in_progress.value
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
 async def get_offers_by_parsed_id(parsed_id: str) -> Optional[Offer]:
     query, params = asyncpgsa.compile_query(
         select(

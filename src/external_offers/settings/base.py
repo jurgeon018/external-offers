@@ -20,4 +20,8 @@ OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
 OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
 OFFER_TASK_CREATION_REGIONS: List[int] = []
 
+SMS_REGISTRATION_TEMPLATE = 'Ваш ID на ЦИАН {0}. Пароль {1}'
+
+PROMOCODE_GROUP_NAME = 'packageForAvitoImmigrant_test'
+
 DEBUG: bool = False
