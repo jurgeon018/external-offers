@@ -254,7 +254,7 @@
             recovery_password: recoveryPassword.prop("checked")
         }
 
-        $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
+        $.post("/api/admin/v1/save-offer/", obj
         ).then(function (data) {
             switch (data.status) {
                 case 'ok':
