@@ -1,46 +1,36 @@
 from datetime import datetime, timedelta
+from typing import Dict, Tuple
 from uuid import uuid4
 
 import pytz
-from cian_http.exceptions import BadRequestException, ApiClientException
+from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
-from external_offers.entities.save_offer import SaveOfferRequest, SaveOfferResponse
-from external_offers.enums import BillingPolygon
+from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRequest, SaveOfferResponse
+from external_offers.enums import BillingPolygon, SaveOfferCategory
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
-    AddDraftResult,
     BargainTerms,
+    Building,
     GeoCodeAnnouncementResponse,
     ObjectModel,
     Phone,
     PublicationModel,
     V1GeoGeocode,
 )
-from external_offers.repositories.monolith_cian_announcementapi.entities.details import GeoType
 from external_offers.repositories.monolith_cian_announcementapi.entities.address_info import Type
 from external_offers.repositories.monolith_cian_announcementapi.entities.bargain_terms import Currency
+from external_offers.repositories.monolith_cian_announcementapi.entities.details import GeoType
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
     FlatType,
     PropertyType,
-    Status,
     SwaggerGeo,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.publication_model import Platform
 from external_offers.repositories.monolith_cian_announcementapi.entities.swagger_geo import AddressInfo, Coordinates
-from external_offers.repositories.monolith_cian_bill._repo import v1_service_packages_buy_subscription_package
-from external_offers.repositories.monolith_cian_bill.entities import (
-    AddServicePackageResponse,
-    BuySubscriptionPackageRequest,
-    ServicePackageItem,
-)
-from external_offers.repositories.monolith_cian_bill.entities.buy_subscription_package_request import (
-    ServicePackageStrategyType,
-)
-from external_offers.repositories.monolith_cian_bill.entities.service_package_item import ServiceTypes
 from external_offers.repositories.monolith_cian_profileapi import promocode_apply
 from external_offers.repositories.monolith_cian_profileapi.entities import ApplyParameters
 from external_offers.repositories.monolith_cian_service import api_promocodes_create_promocode_group
@@ -71,11 +61,7 @@ from external_offers.repositories.users import v1_register_user_by_phone
 from external_offers.repositories.users.entities import RegisterUserByPhoneRequest, RegisterUserByPhoneResponse
 
 
-property_type_mapping = {
-
-}
-
-geo_type_to_type_mapping = {
+geo_type_to_type_mapping: Dict[GeoType, Type] = {
     GeoType.house: Type.house,
     GeoType.country: Type.country,
     GeoType.district: Type.district,
@@ -85,14 +71,61 @@ geo_type_to_type_mapping = {
     GeoType.location: Type.location
 }
 
+offer_type_to_object_type: Dict[OfferType, ObjectTypeId] = {
+    OfferType.commercial: ObjectTypeId.commercial,
+    OfferType.flat: ObjectTypeId.flat,
+    OfferType.suburban: ObjectTypeId.suburbian,
+    OfferType.newobject: ObjectTypeId.flat
+}
+
+category_mapping_key = Tuple[SaveOfferCategory, DealType, OfferType]
+save_offer_category_deal_type_and_offer_type_to_category: Dict[category_mapping_key, Category] = {
+   (SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.flat_rent,
+   (SaveOfferCategory.flat, DealType.sale, OfferType.flat): Category.flat_sale,
+   (SaveOfferCategory.bed, DealType.sale, OfferType.flat): Category.flat_share_sale,
+   (SaveOfferCategory.bed, DealType.rent, OfferType.flat): Category.bed_rent,
+   (SaveOfferCategory.share, DealType.sale, OfferType.flat): Category.flat_share_sale,
+   (SaveOfferCategory.share, DealType.rent, OfferType.flat): Category.room_rent,
+   (SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.room_rent,
+   (SaveOfferCategory.room, DealType.sale, OfferType.flat): Category.room_sale,
+}
+
+deal_type_to_operation_type_id = {
+    DealType.sale: OperationTypeId.sale,
+    DealType.rent: OperationTypeId.rent
+}
+
+
+deal_type_to_operation_types = {
+    DealType.sale: OperationTypes.sale,
+    DealType.rent: OperationTypes.rent
+}
+
+
+rooms_count_to_num: Dict[str, int] = {
+    'room1': 1,
+    'room2': 2,
+    'room3': 3,
+    'room4': 4,
+    'room5': 5,
+    'room6_plus': 6,
+    'studio': 1
+}
+
+
 async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveOfferResponse:
     """ Сохранить объявление как черновик в ЦИАН. """
-    request.phone_number =  transform_phone_number_to_canonical_format(request.phone_number)
+    request.phone_number = transform_phone_number_to_canonical_format(request.phone_number)
+    category = save_offer_category_deal_type_and_offer_type_to_category[
+        (request.category,
+         request.deal_type,
+         request.offer_type)
+    ]
     try:
         register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
             RegisterUserByPhoneRequest(
-                phone='+79819547472',
-                sms_template=None
+                phone=request.phone_number,
+                sms_template=settings.SMS_REGISTRATION_TEMPLATE
             )
         )
     except ApiClientException:
@@ -101,12 +134,11 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             message='Не удалось создать учетную запись по номеру телефона'
         )
 
-
     try:
         geocode_response: GeoCodeAnnouncementResponse = await v1_geo_geocode(
             V1GeoGeocode(
                 request=request.address,
-                category=Category.flat_rent
+                category=category
             )
         )
     except ApiClientException:
@@ -116,22 +148,25 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
     try:
-        add_draft_response: AddDraftResult = await v2_announcements_draft(PublicationModel(
+        await v2_announcements_draft(PublicationModel(
             model=ObjectModel(
                 bargain_terms=BargainTerms(
-                    price = request.price,
+                    price=request.price,
                     currency=Currency.rur
+                ),
+                building=Building(
+                    floors_count=request.floors_count
                 ),
                 total_area=request.total_area,
                 property_type=PropertyType.building,
-                rooms_count=6,
+                rooms_count=rooms_count_to_num.get(request.rooms_count, None),
                 floor_number=request.floor_number,
-                category=Category.flat_sale,
+                category=category,
                 user_id=register_response.user_data.id,
                 phones=[
                     Phone(
-                        number='9819547472',
-                        country_code='+7'
+                        number=request.phone_number[2:],
+                        country_code=request.phone_number[:2]
                     )
                 ],
                 geo=SwaggerGeo(
@@ -150,13 +185,13 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 ),
                 name='Наименование',
                 title='Черновик объявления',
-                description='Описание черновика объявления!',
+                description='Описание черновика объявления',
                 object_guid=str(uuid4()).upper(),
                 flat_type=FlatType.rooms,
-                is_enabled_call_tracking=False, # если этот параметр не слать, шарп 500ит
-                row_version=0 # если этот параметр не слать, шарп 500ит
+                is_enabled_call_tracking=False,     # если этот параметр не слать, шарп 500ит
+                row_version=0       # если этот параметр не слать, шарп 500ит
             ),
-            platform=Platform.web_site # если этот параметр не слать, шарп 500ит
+            platform=Platform.web_site      # если этот параметр не слать, шарп 500ит
         ))
     except ApiClientException:
         return SaveOfferResponse(
@@ -183,16 +218,15 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     type=StartegyType.publication,
                     items=[ServicePackageStrategyItemModel(
                         operation_types=[
-                            OperationTypes.rent,
-                            OperationTypes.sale
+                            deal_type_to_operation_types[request.deal_type]
                         ],
                         polygon_ids=[
-                            BillingPolygon.Moscow.value
+                            BillingPolygon.Moscow.value,
                         ],
                         duration_in_days=DurationInDays.seven,
                         debit_count=1,
-                        operation_type_id=OperationTypeId.sale,
-                        object_type_id=ObjectTypeId.any
+                        operation_type_id=deal_type_to_operation_type_id[request.deal_type],
+                        object_type_id=offer_type_to_object_type[request.offer_type]
                     )]
                 )
             )
@@ -204,7 +238,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
     try:
-        apply_response = await promocode_apply(
+        await promocode_apply(
             ApplyParameters(
                 cian_user_id=register_response.user_data.id,
                 promo_code=promocode_response.promocodes[0].promocode
@@ -212,23 +246,9 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
     except ApiClientException:
         return SaveOfferResponse(
             status=SaveOfferStatus.promo_activation_failed,
-            message='Не удалось применить промокод на бесплатные публикации'
+            message='Не удалось применить промокод на бесплатную публикацию'
         )
 
     await set_offer_draft_by_offer_id(offer_id=request.offer_id)
 
     return SaveOfferResponse(status=SaveOfferStatus.ok)
-
-
-# {
-#         "id": 1,
-#         "type": "location"
-#       },
-#       {
-#         "id": 3210,
-#         "type": "street"
-#       },
-#       {
-#         "id": 61776,
-#         "type": "house"
-#       }

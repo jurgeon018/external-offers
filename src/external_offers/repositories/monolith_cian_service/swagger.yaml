@@ -1,0 +1,225 @@
+definitions:
+  System.Web.Mvc.SelectListGroup:
+    properties:
+      disabled: {type: boolean}
+      name: {type: string}
+    type: object
+  System.Web.Mvc.SelectListItem:
+    properties:
+      disabled: {type: boolean}
+      group: {$ref: '#/definitions/System.Web.Mvc.SelectListGroup'}
+      selected: {type: boolean}
+      text: {type: string}
+      value: {type: string}
+    type: object
+  Web.Admin.App.PromoCode.Models.AuctionPointsStrategyModel:
+    description: Бонусные деньги.
+    properties:
+      endDate: {description: Cрок действия бонуса, format: date-time, type: string}
+      feeValue: {description: Величина денежного вознагражения, format: double, type: number}
+    required: [feeValue, endDate]
+    type: object
+  Web.Admin.App.PromoCode.Models.BonusOnPaymentStrategyModel:
+    description: Бонус на пополнение.
+    properties:
+      calculationType:
+        description: Способ начисления
+        enum: [FixedAmount, PaymentPercent]
+        type: string
+        x-FixedAmount: Фиксированная сумма
+        x-PaymentPercent: Процент от платежа
+      fixedAmount: {description: Фиксированная сумма, format: double, type: number}
+      maxAmount: {description: Максимальный бонус, format: double, type: number}
+      minPayment: {description: Минимальный платёж, format: double, type: number}
+      paymentPercent: {description: Процент от платежа, format: double, type: number}
+      unlimitedUsage: {description: Бесконечное число раз, type: boolean}
+      usagesCount: {description: Сколько раз можно применить, format: int32, type: integer}
+    required: [calculationType]
+    type: object
+  Web.Admin.App.PromoCode.Models.CreatePromocodeGroupResponse:
+    description: Результат создания группы промокодов.
+    properties:
+      id: {description: Id группы промокодов., format: int32, type: integer}
+      promocodes:
+        description: Список промокодов группы.
+        items: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.CreatePromocodeGroupResponse.PromocodeResponse'}
+        type: array
+    required: [id, promocodes]
+    type: object
+  Web.Admin.App.PromoCode.Models.CreatePromocodeGroupResponse.PromocodeResponse:
+    description: Промокод.
+    properties:
+      cianUserId: {description: 'Cian id пользователя, к которому привязан промокод.',
+        format: int64, type: integer}
+      promocode: {description: Промокод., type: string}
+      userId: {description: К какому пользователю привязан. Не заполняется если промокод
+          доступен любому пользователю., format: int64, type: integer}
+    required: [promocode]
+    type: object
+  Web.Admin.App.PromoCode.Models.DiscauntByTariffStrategyModel:
+    description: Скидка на активацию тарифа.
+    properties:
+      newMinActivationAmount: {description: Необходимая сумма, format: double, type: number}
+      packageId: {description: Ключ пакета который будет применен пользователю, format: int32,
+        type: integer}
+    required: [newMinActivationAmount]
+    type: object
+  Web.Admin.App.PromoCode.Models.MoneyStrategyModel:
+    description: Бонусные деньги.
+    properties:
+      comment: {description: 'Произвольный комментарий, который будет записан в лог
+          операций после активации промокода.', type: string}
+      endDate: {description: Cрок действия бонуса, format: date-time, type: string}
+      feeValue: {description: Величина денежного вознагражения, format: double, type: number}
+    type: object
+  Web.Admin.App.PromoCode.Models.PromoCodeGroupDetailModel:
+    properties:
+      auctionPointsStrategy: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.AuctionPointsStrategyModel',
+        description: Модель для баллов на аукцион}
+      bonusOnPaymentStrategy: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.BonusOnPaymentStrategyModel',
+        description: Модель для промокода на бонус на пополнение}
+      discauntByTariffStrategy: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.DiscauntByTariffStrategyModel',
+        description: Модель для скидки на активацию тарифа}
+      moneyStrategy: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.MoneyStrategyModel',
+        description: Модель для бонусных кодов на деньги}
+      promoCodeGroupModel: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.PromoCodeGroupModel',
+        description: Модель группы промокодов}
+      servicePackageStrategy: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.ServicePackageStrategyModel',
+        description: Модель для пакетов продвижения}
+    type: object
+  Web.Admin.App.PromoCode.Models.PromoCodeGroupModel:
+    description: Модель группы промокодов.
+    properties:
+      availableFrom: {description: Доступна с, format: date-time, type: string}
+      availableTo: {description: Доступна по, format: date-time, type: string}
+      cianUserIds: {description: 'Список пользоватей, для которых нужно сгенерировать
+          промокоды.', type: string}
+      forSpecificUserIds: {description: Для конкретных пользователей., type: boolean}
+      name: {description: Название группы, type: string}
+      promoCodesCount: {description: Количество сгенерированных промокодов, format: int32,
+        type: integer}
+      source:
+        description: Источник
+        enum: [Other, CertificateForPartner, CertificateForConference, CertificateForWebinar,
+          Newcontact, TangoTelecom, CurrentClients, LeftClients]
+        type: string
+        x-CertificateForConference: Сертификат на мероприятие/конференцию
+        x-CertificateForPartner: Сертификат партнеру
+        x-CertificateForWebinar: Сертификат на вебинар
+        x-CurrentClients: Текущие клиенты Cian.ru
+        x-LeftClients: Ушедшие клиенты Cian.ru
+        x-Newcontact: Контакт центр Ньюконтакт
+        x-Other: Другой
+        x-TangoTelecom: Контакт центр Танго Телеком
+      type:
+        description: Тип промо группы
+        enum: [Money, DiscauntByTariff, ServicePackage, BonusOnPayment, AuctionPoints]
+        type: string
+        x-AuctionPoints: Баллы на аукцион
+        x-BonusOnPayment: Бонус за пополнение кошелька
+        x-DiscauntByTariff: Скидка на тариф
+        x-Money: Бонусные деньги
+        x-ServicePackage: Пакеты размещений
+      userMinRegisterDate: {description: Минимальная дата регистрации пользователя.,
+        format: date-time, type: string}
+    required: [name, type, availableTo, source, forSpecificUserIds]
+    type: object
+  Web.Admin.App.PromoCode.Models.ServicePackageStrategyItemModel:
+    properties:
+      auctionPoints: {description: Количество баллов на аукцион, format: double, type: number}
+      debitCount: {description: Количество платных слотов., format: int32, type: integer}
+      durationInDays:
+        enum: [seven, fourteen, thirty, sixty, ninety, oneHundredEighty, threeHundredSixty]
+        type: string
+        x-fourteen: 14 дней.
+        x-ninety: 90 дней.
+        x-oneHundredEighty: 180 дней.
+        x-seven: 7 дней.
+        x-sixty: 60 дней.
+        x-thirty: 30 дней.
+        x-threeHundredSixty: 360 дней.
+      highlightCount: {description: Количество слотов на выделение цветом., format: int32,
+        type: integer}
+      objectTypeId:
+        description: Тип недвижимости
+        enum: [any, flat, commercial, suburbian]
+        type: string
+        x-any: Любой.
+        x-commercial: Коммерческая.
+        x-flat: Жилая.
+        x-suburbian: Загородная.
+      operationTypeId:
+        description: Тип сделки.
+        enum: [sale, rent]
+        type: string
+        x-rent: Аренда.
+        x-sale: Продажа.
+      operationTypeSourceList:
+        description: Все возможные типы сделки
+        items: {$ref: '#/definitions/System.Web.Mvc.SelectListItem'}
+        type: array
+      operationTypes:
+        description: "Типы сделки\r\n(аренда, продажа)"
+        items:
+          enum: [sale, rent]
+          type: string
+          x-rent: Аренда.
+          x-sale: Продажа.
+        type: array
+      polygonIds:
+        description: Регионы.
+        items: {format: int32, type: integer}
+        type: array
+      premiumCount: {description: Количество премиум слотов., format: int32, type: integer}
+      premiumHighlightCount: {description: Количество слотов Премиум + Выделение цветом.,
+        format: int32, type: integer}
+      top3Count: {description: Количество Топ слотов., format: int32, type: integer}
+    required: [polygonIds, objectTypeId, durationInDays]
+    type: object
+  Web.Admin.App.PromoCode.Models.ServicePackageStrategyModel:
+    description: Пакет по объёму.
+    properties:
+      activationPrice: {description: 'Стоимость активации промокода.<br />null, если
+          бесплатно.', format: double, type: number}
+      activationsCount: {description: 'Количество активаций.<br />null, если бесконечно.',
+        format: int32, type: integer}
+      autoActivateForManualAnnouncements: {description: Автоматическое применение
+          к ручным объявлениям, type: boolean}
+      isPaid: {description: 'true, если платный.', type: boolean}
+      items:
+        description: Список пакетов для активации.
+        items: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.ServicePackageStrategyItemModel'}
+        type: array
+      type:
+        description: Тип пакета
+        enum: [slot, publication]
+        type: string
+        x-publication: Публикации - ограниченное количество публикаций объявлений
+          за счет пакета
+        x-slot: Слоты - переиспользуемые слоты в рамках срока действия пакета
+    required: [isPaid, items]
+    type: object
+host: master.monolith-cian-service.dev3.cian.ru
+info: {title: monolith-cian-service, version: v1}
+paths:
+  /api/promocodes/create-promocode-group:
+    post:
+      consumes: [application/json, text/json, application/x-www-form-urlencoded]
+      operationId: PromoCodeApi_CreatePromoCodeGroupAsync
+      parameters:
+      - in: body
+        name: model
+        required: true
+        schema: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.PromoCodeGroupDetailModel'}
+      produces: [application/json, text/json]
+      responses:
+        '200':
+          description: OK
+          schema: {$ref: '#/definitions/Web.Admin.App.PromoCode.Models.CreatePromocodeGroupResponse'}
+      summary: Апи создания групп промокодов.
+      tags: [PromoCodeApi]
+schemes: [http]
+swagger: '2.0'
+x-cian-mq:
+  exchanges: {}
+  spec-version: '1.0'

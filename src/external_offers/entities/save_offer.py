@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from external_offers.enums import SaveOfferCategory
 from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
@@ -12,7 +13,7 @@ class SaveOfferRequest:
     """Идентификатор задания"""
     phone_number: str
     """Телефон"""
-    category: str
+    category: SaveOfferCategory
     """Категория объявления"""
     deal_type: DealType
     """Тип сделки"""
@@ -30,7 +31,7 @@ class SaveOfferRequest:
     """Этаж объекта"""
     floors_count: Optional[int] = None
     """Общая этажность"""
-    rooms_count: Optional[int] = None
+    rooms_count: Optional[str] = None
     """Количество комнат"""
     sale_type: Optional[str] = None
     """Тип продажи"""

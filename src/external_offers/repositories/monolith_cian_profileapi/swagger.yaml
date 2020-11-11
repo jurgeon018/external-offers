@@ -1,0 +1,30 @@
+definitions:
+  Web.ProfileApi.App.PromoCode.Models.ApplyParameters:
+    properties:
+      cianUserId: {description: Ключ пользователя, format: int64, type: integer}
+      promoCode: {description: Промокод, type: string}
+    type: object
+host: master.monolith-cian-profileapi.dev3.cian.ru
+info: {title: monolith-cian-profileapi, version: v1}
+paths:
+  /promocode/apply/:
+    post:
+      consumes: [application/json, text/json, application/x-www-form-urlencoded]
+      operationId: PromoCode_Apply
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema: {$ref: '#/definitions/Web.ProfileApi.App.PromoCode.Models.ApplyParameters'}
+      produces: [application/json, text/json]
+      responses:
+        '200':
+          description: OK
+          schema: {type: string}
+      summary: Применяет промокод пользователю
+      tags: [PromoCode]
+schemes: [http]
+swagger: '2.0'
+x-cian-mq:
+  exchanges: {}
+  spec-version: '1.0'

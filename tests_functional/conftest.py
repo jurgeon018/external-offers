@@ -69,16 +69,6 @@ async def users_mock(http_mock_service):
 
 
 @pytest.fixture(scope='session')
-async def users_mock(http_mock_service):
-    yield await http_mock_service.make_microservice_mock('users')
-
-
-@pytest.fixture(scope='session')
-async def monolith_cian_bill_mock(http_mock_service):
-    yield await http_mock_service.make_microservice_mock('monolith-cian-bill')
-
-
-@pytest.fixture(scope='session')
 async def monolith_cian_service_mock(http_mock_service):
     yield await http_mock_service.make_microservice_mock('monolith-cian-service')
 
@@ -86,3 +76,8 @@ async def monolith_cian_service_mock(http_mock_service):
 @pytest.fixture(scope='session')
 async def monolith_cian_announcementapi_mock(http_mock_service):
     yield await http_mock_service.make_microservice_mock('monolith-cian-announcementapi')
+
+
+@pytest.fixture(scope='session')
+async def monolith_cian_profileapi_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('monolith-cian-profileapi')
