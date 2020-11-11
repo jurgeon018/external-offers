@@ -210,7 +210,6 @@
 
         </table>
     </form>
-
 </div>
 
 
@@ -238,22 +237,38 @@
     function getNumberOrNull(obj) {
         return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
     }
+    function getValueOrNull(obj) {
+        return obj === ''  ? "null" : obj
+    }
 
     let DEBUG = 'True' === '{{ debug }}'
     const saveOffer = () => {
+        if (getPrice.val() === ""){
+            alert('Цена обязательный параметр!')
+        }
+        if (getTotalArea.val() === ""){
+            alert('Общая площадь обязательный параметр!')
+        }
+        if (getPhoneNumber.val() === ""){
+            alert('Телефон обязательный параметр!')
+        }
+        if (getAddress.val() === ""){
+            alert('Адрес обязательный параметр!')
+        }
+
         let obj = {
             dealType: getDealType.val(),
             offerType: getOfferType.val(),
             category: getCategoryType.val(),
             address: getAddress.val(),
-            realtyType: getRealtyType.val(),
             totalArea: parseInt(getTotalArea.val()),
-            roomsCount: getRoomsCount.val(),
+            price: parseInt(getPrice.val()),
+            phoneNumber: getPhoneNumber.val(),
             floorNumber: getNumberOrNull(getFloorNumber.val()),
             floorsCount: getNumberOrNull(getFloorCount.val()),
-            price: parseInt(getPrice.val()),
-            saleType: getSaleType.val(),
-            phoneNumber: getPhoneNumber.val(),
+            roomsCount: getValueOrNull(getRoomsCount.val()),
+            realtyType: getValueOrNull(getRealtyType.val()),
+            saleType: getValueOrNull(getSaleType.val()),
             recoveryPassword: recoveryPassword.prop("checked")
         }
 
