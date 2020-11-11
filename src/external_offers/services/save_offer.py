@@ -7,7 +7,7 @@ from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
 from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRequest, SaveOfferResponse
-from external_offers.enums import BillingPolygon, SaveOfferCategory
+from external_offers.enums import SaveOfferCategory
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
@@ -220,9 +220,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         operation_types=[
                             deal_type_to_operation_types[request.deal_type]
                         ],
-                        polygon_ids=[
-                            BillingPolygon.Moscow.value,
-                        ],
+                        polygon_ids=settings.PROMOCODE_POLYGONS,
                         duration_in_days=DurationInDays.seven,
                         debit_count=1,
                         operation_type_id=deal_type_to_operation_type_id[request.deal_type],

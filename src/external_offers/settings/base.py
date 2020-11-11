@@ -23,5 +23,6 @@ OFFER_TASK_CREATION_REGIONS: List[int] = []
 SMS_REGISTRATION_TEMPLATE = 'Ваш ID на ЦИАН {0}. Пароль {1}'
 
 PROMOCODE_GROUP_NAME = 'packageForAvitoImmigrant_test'
+PROMOCODE_POLYGONS = [2000,]
 
 DEBUG: bool = False
