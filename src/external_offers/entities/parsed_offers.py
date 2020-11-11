@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 
+from external_offers.enums.object_model import Category
 from external_offers.enums.user_segment import UserSegment
+from external_offers.helpers.offer_category import get_types
 
 
 @dataclass
@@ -47,12 +49,10 @@ class ParsedOffer:
 class ParsedObjectModel:
     phones: List[str]
     """Телефоны"""
-    category: str
+    category: Category
     """Категория объявления"""
     title: str
     """Имя объялвения"""
-    description: str
-    """Описание объявления"""
     address: str
     """Адрес объявления"""
     region: int
@@ -87,3 +87,33 @@ class ParsedObjectModel:
     """Долгота"""
     living_area: Optional[int] = None
     """Жилая площадь"""
+    description: Optional[str] = None
+    """Описание объявления"""
+
+    @property
+    def is_rent(self) -> bool:
+        _, deal_type = get_types(self.category)
+        return deal_type.is_rent
+
+    @property
+    def is_sale(self) -> bool:
+        _, deal_type = get_types(self.category)
+        return deal_type.is_sale
+
+    @property
+    def is_allow_rooms(self) -> bool:
+        return self.category in [
+            Category.flat_rent,
+            Category.flat_sale,
+            Category.flat_share_sale,
+        ]
+
+    @property
+    def is_allow_realty_type(self) -> bool:
+        return self.category in [
+            Category.flat_rent,
+            Category.flat_sale,
+            Category.flat_share_sale,
+            Category.room_rent,
+            Category.room_sale,
+        ]

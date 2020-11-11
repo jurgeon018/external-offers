@@ -100,7 +100,6 @@ class AdminDeleteOfferClientHandler(PublicHandler):
         }))
 
 
-
 class AdminCallMissedClientHandler(PublicHandler):
     # pylint: disable=abstract-method
 

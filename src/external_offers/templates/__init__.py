@@ -27,5 +27,6 @@ def get_offer_card_html(parsed_object_model: ParsedObjectModel, info_message: st
     template = templates.get_template('offer_card.jinja2')
     return template.render(
         parsed_object_model=parsed_object_model,
-        info_message=info_message
+        info_message=info_message,
+        debug=settings.DEBUG
     )

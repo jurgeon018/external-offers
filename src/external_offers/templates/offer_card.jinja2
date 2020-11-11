@@ -128,7 +128,7 @@
             <tr>
                 <td>
                     <label>
-                        <input type="checkbox" id="recoveryPassword">
+                        <input type="checkbox" disabled id="recoveryPassword">
                         <span>Отправить ссылку на восстановление пароля</span>
                     </label>
                 </td>
@@ -145,7 +145,8 @@
     <div class="table_personal">
         <table style="width:80%">
             <tr>
-                <td class="text_personal_obj_name">{{ parsed_object_model.title }}</td>
+                <td class="text_personal_obj_name"><a
+                        href="{{ parsed_object_model.url }}">{{ parsed_object_model.title }}</a></td>
                 <td class="text_personal_phone">
                     {% for phone in parsed_object_model.phones %}
                         <span>{{ phone }}</span>
@@ -154,7 +155,8 @@
             </tr>
             <tr>
                 <td class="text_personal_address"><span>{{ parsed_object_model.address }}</span></td>
-                <td class="text_personal_name">{% if parsed_object_model.contact %} {{ parsed_object_model.contact }}{% endif %}</td>
+                <td class="text_personal_name">{% if parsed_object_model.contact %}
+                    {{ parsed_object_model.contact }}{% endif %}</td>
             </tr>
         </table>
     </div>
@@ -165,47 +167,52 @@
                 <td><span class="">Тип сделки</span></td>
                 <td>
                     <select class="select-control" id="getDealType">
-                        <option value="not_selected" selected disabled>Не выбрано</option>
-                        <option value="rent">Аренда</option>
-                        <option value="sale">Продажа</option>
+                        <option value="not_selected" disabled>Не выбрано</option>
+                        <option value="rent" {% if parsed_object_model.is_rent %}selected{% endif %}>Аренда</option>
+                        <option value="sale" {% if parsed_object_model.is_sale %}selected{% endif %}>Продажа</option>
                     </select>
                 </td>
             </tr>
-            <tr>
-                <td><span class="">Тип аренды</span></td>
-                <td>
-                    <select class="select-control" id="getLeaseType">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="">Длительно</option>
-                        <option value="" disabled>Несколько месяцев</option>
-                        <option value="" disabled>Посуточно</option>
-                    </select>
-                </td>
-            </tr>
+
             <tr>
                 <td><span class="">Тип недвижимости</span></td>
                 <td>
                     <select class="select-control" id="getOfferType">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="flat">Жилая</option>
+                        <option value="" disabled>Не выбрано</option>
+                        <option value="flat" selected>Жилая</option>
                         <option value="commerce" disabled>Коммерческая</option>
+                        <option value="suburban" disabled>Загородная</option>
+                        <option value="newobject" disabled>Новостройки</option>
                     </select>
                 </td>
             </tr>
             <tr>
                 <td><span class="">Объект</span></td>
                 <td>
-                    {#TODO: CD-92673 иф для разных типов сделок#}
+
                     <select class="select-control" id="getCategoryType">
                         <option value="" selected disabled>Не выбрано</option>
-                        <option value="">Квартира</option>
-                        <option value="">Комната</option>
-                        <option value="">Доля в квартире</option>
-                        <option value="">Дом/Дача</option>
-                        <option value="">Коттедж</option>
-                        <option value="">Таунхаус</option>
-                        <option value="">Часть дома</option>
-                        <option value="">Участок</option>
+                        <option value=""
+                                {% if parsed_object_model.category.is_flat_sale
+                                or parsed_object_model.category.is_flat_rent %}
+                                selected {% endif %}>Квартира
+                        </option>
+                        <option value=""
+                                {% if parsed_object_model.category.is_room_sale
+                                or parsed_object_model.category.is_room_rent %}
+                                selected {% endif %}>Комната
+                        </option>
+                        <option value="" {% if parsed_object_model.category.is_flat_share_sale %} selected {% endif %}>Доля
+                            в квартире
+                        </option>
+                        <option value="" {% if parsed_object_model.category.is_bed_rent %} selected {% endif %}>
+                            Койко-место (только аренда)
+                        </option>
+                        <option value="" disabled>Дом/Дача</option>
+                        <option value="" disabled>Коттедж</option>
+                        <option value="" disabled>Таунхаус</option>
+                        <option value="" disabled>Часть дома</option>
+                        <option value="" disabled>Участок</option>
                     </select>
                 </td>
             </tr>
@@ -217,7 +224,8 @@
             <tr>
                 <td><span class="">Адрес</span></td>
                 <td>
-                    <input class="input-control" placeholder="Адрес объекта" type="text" id="getAddress">
+                    <input class="input-control" placeholder="Адрес объекта" value="{{ parsed_object_model.address }}"
+                           type="text" id="getAddress">
                 </td>
             </tr>
 
@@ -225,42 +233,53 @@
             <tr>
                 <td><span class="text_header">Об объекте</span></td>
             </tr>
-            <tr>
-                <td><span class="">Тип жилья</span></td>
-                <td>
-                    <select class="select-control" id="getRealtyType">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="flat">Квартира</option>
-                        <option value="apartments">Апартаменты</option>
-                    </select>
-                </td>
-            </tr>
+
+            {% if parsed_object_model.is_allow_realty_type %}
+                <tr>
+                    <td><span class="">Тип жилья</span></td>
+                    <td>
+                        <select class="select-control" id="getRealtyType">
+                            <option value="" selected disabled>Не выбрано</option>
+                            <option value="flat">Квартира</option>
+                            <option value="apartments">Апартаменты</option>
+                        </select>
+                    </td>
+                </tr>
+            {% endif %}
+
             <tr>
                 <td><span class="">Общая площадь</span></td>
                 <td>
-                    <input type="number" placeholder="Площать объекта в м2" class="input-control" id="getTotalArea">
+                    <input type="number" value="{{ parsed_object_model.total_area }}" placeholder="Площать объекта в м2"
+                           class="input-control" id="getTotalArea">
                 </td>
             </tr>
+
+            {% if parsed_object_model.is_allow_rooms %}
+                <tr>
+                    <td><span class="">Количество комнат</span></td>
+                    <td>
+                        <select class="select-control" id="getRoomsCount">
+                            <option value="" selected disabled>Не выбрано</option>
+                            <option value="room1">1</option>
+                            <option value="room2">2</option>
+                            <option value="room3">3</option>
+                            <option value="room4">4</option>
+                            <option value="room5">5</option>
+                            <option value="room6_plus">6+</option>
+                            <option value="studio">студия</option>
+                        </select>
+                    </td>
+                </tr>
+            {% endif %}
+
             <tr>
-                <td><span class="">Количество комнат</span></td>
+                <td><span class="">Этаж (необязательно)</span></td>
                 <td>
-                    <select class="select-control" id="getRoomsCount">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="room1">1</option>
-                        <option value="room2">2</option>
-                        <option value="room3">3</option>
-                        <option value="room4">4</option>
-                        <option value="room5">5</option>
-                        <option value="room6_plus">6+</option>
-                        <option value="studio">студия</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td><span class="">Этаж</span></td>
-                <td>
-                    <input type="number" class="input-control" placeholder="Этаж объекта" id="getFloorNumber">
-                    <input type="number" class="input-control" placeholder="Общее количество этажей в доме"
+                    <input type="number" class="input-control" value="{{ parsed_object_model.floor_number }}"
+                           placeholder="Этаж объекта" id="getFloorNumber">
+                    <input type="number" class="input-control" value="{{ parsed_object_model.floors_count }}"
+                           placeholder="Общее количество этажей в доме"
                            id="getFloorCount">
                 </td>
 
@@ -273,19 +292,23 @@
             <tr>
                 <td><span class="">Цена</span></td>
                 <td>
-                    <input class="input-control" placeholder="Цена объекта в рублях" type="number" id="getPrice">
+                    <input class="input-control" placeholder="Цена объекта в рублях"
+                           value="{{ parsed_object_model.price }}" type="number" id="getPrice">
                 </td>
             </tr>
-            <tr>
-                <td><span class="">Тип продажи</span></td>
-                <td>
-                    <select class="select-control" id="getSaleType">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="">Свободная продажа</option>
-                        <option value="">Альтернатива</option>
-                    </select>
-                </td>
-            </tr>
+
+            {% if parsed_object_model.is_sale %}
+                <tr>
+                    <td><span class="">Тип продажи</span></td>
+                    <td>
+                        <select class="select-control" id="getSaleType">
+                            <option value="" selected disabled>Не выбрано</option>
+                            <option value="">Свободная продажа</option>
+                            <option value="">Альтернатива</option>
+                        </select>
+                    </td>
+                </tr>
+            {% endif %}
 
             <tr>
                 <td><span class="text_header">Контакты</span></td>
@@ -293,7 +316,8 @@
             <tr>
                 <td><span class="">Телефон</span></td>
                 <td>
-                    <input class="input-control" placeholder="Реальный телефон владельца" type="number"
+                    <input class="input-control" placeholder="Реальный телефон владельца"
+                           value="{{ parsed_object_model.phones[0] }}" type="number"
                            id="getPhoneNumber">
                 </td>
             </tr>
@@ -309,7 +333,6 @@
 
         <!-- Offer fields -->
         const getDealType = $('#getDealType');
-        const getLeaseType = $('#getLeaseType');
         const getOfferType = $('#getOfferType');
         const getCategoryType = $('#getCategoryType');
         const getAddress = $('#getAddress');
@@ -329,6 +352,7 @@
         });
 
 
+        let DEBUG = 'True' === '{{ debug }}'
         const saveOffer = () => {
             let obj = {
                 deal_type: getDealType.val(),
@@ -346,7 +370,7 @@
                 recovery_password: recoveryPassword.prop("checked")
             }
 
-            $.post("/api/admin/v1/save-offer/", JSON.stringify(obj)
+            $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
                 switch (data.status) {
                     case 'ok':
@@ -362,4 +386,11 @@
         });
 
     });
+
+    <!-- Remove Refer header -->
+    let meta = document.createElement('meta');
+    meta.name = "referrer";
+    meta.content = "no-referrer";
+    document.getElementsByTagName('head')[0].appendChild(meta);
+    <!-- Remove Refer header end -->
 </script>
