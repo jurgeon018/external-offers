@@ -1,120 +1,3 @@
-<style>
-    .main_style {
-        height: 1000px;
-        background: rgba(255, 255, 255, 1);
-        opacity: 1;
-        position: relative;
-        top: 0px;
-        left: 0px;
-        overflow: hidden;
-    }
-
-    .line_1 {
-        width: 840px;
-        height: 1px;
-        background: rgba(238, 238, 238, 1);
-        opacity: 1;
-        position: relative;
-        top: 17%;
-        left: 300px;
-    }
-
-    .line_2 {
-        width: 840px;
-        height: 1px;
-        background: rgba(238, 238, 238, 1);
-        opacity: 1;
-        position: relative;
-        top: 70%;
-        left: 300px;
-    }
-
-    .ajax-form {
-        top: 70px;
-        left: 300px;
-        position: relative;
-    }
-
-    .select-control, .input-control {
-        width: 300px;
-        position: relative;
-    }
-
-    table, th, td {
-        border: 0;
-        width: 40%;
-        border-spacing: 20px;
-    }
-
-    .text_header {
-        font-family: Arial;
-        font-weight: Bold;
-        font-size: 24px;
-        opacity: 1;
-        text-align: left;
-    }
-
-    .text_info {
-        width: 838px;
-        color: rgba(111, 111, 111, 1);
-        font-family: Arial;
-        font-size: 16px;
-        opacity: 1;
-        text-align: left;
-    }
-
-    .btn_div {
-        top: 75%;
-        left: 300px;
-        position: relative;
-    }
-
-    .btn {
-        width: 840px;
-        height: 30px;
-        position: relative;
-    }
-
-    .table_personal {
-        left: 300px;
-        position: relative;
-    }
-
-    .text_personal_obj_name {
-        color: rgba(66, 120, 176, 1);
-        font-family: Arial;
-        font-weight: Bold;
-        font-size: 24px;
-        opacity: 1;
-        text-align: left;
-    }
-
-    .text_personal_phone {
-        color: rgba(0, 0, 0, 1);
-        font-family: Arial;
-        font-weight: Bold;
-        font-size: 24px;
-        opacity: 1;
-        text-align: left;
-    }
-
-    .text_personal_name {
-        color: rgba(0, 0, 0, 1);
-        font-family: Arial;
-        font-size: 16px;
-        opacity: 1;
-        text-align: left;
-    }
-
-    .text_personal_address {
-        color: rgba(0, 0, 0, 1);
-        font-family: Arial;
-        font-size: 16px;
-        opacity: 1;
-        text-align: left;
-    }
-</style>
-
 <div class="main_style">
     <div class="line_1"></div>
     <div class="line_2"></div>
@@ -202,7 +85,8 @@
                                 or parsed_object_model.category.is_room_rent %}
                                 selected {% endif %}>Комната
                         </option>
-                        <option value="" {% if parsed_object_model.category.is_flat_share_sale %} selected {% endif %}>Доля
+                        <option value="" {% if parsed_object_model.category.is_flat_share_sale %} selected {% endif %}>
+                            Доля
                             в квартире
                         </option>
                         <option value="" {% if parsed_object_model.category.is_bed_rent %} selected {% endif %}>
@@ -394,3 +278,120 @@
     document.getElementsByTagName('head')[0].appendChild(meta);
     <!-- Remove Refer header end -->
 </script>
+
+<style>
+    .main_style {
+        height: 1000px;
+        background: rgba(255, 255, 255, 1);
+        opacity: 1;
+        position: relative;
+        top: 0px;
+        left: 0px;
+        overflow: hidden;
+    }
+
+    .line_1 {
+        width: 840px;
+        height: 1px;
+        background: rgba(238, 238, 238, 1);
+        opacity: 1;
+        position: relative;
+        top: 17%;
+        left: 300px;
+    }
+
+    .line_2 {
+        width: 840px;
+        height: 1px;
+        background: rgba(238, 238, 238, 1);
+        opacity: 1;
+        position: relative;
+        top: 70%;
+        left: 300px;
+    }
+
+    .ajax-form {
+        top: 70px;
+        left: 300px;
+        position: relative;
+    }
+
+    .select-control, .input-control {
+        width: 300px;
+        position: relative;
+    }
+
+    table, th, td {
+        border: 0;
+        width: 40%;
+        border-spacing: 20px;
+    }
+
+    .text_header {
+        font-family: Arial;
+        font-weight: Bold;
+        font-size: 24px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_info {
+        width: 838px;
+        color: rgba(111, 111, 111, 1);
+        font-family: Arial;
+        font-size: 16px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .btn_div {
+        top: 75%;
+        left: 300px;
+        position: relative;
+    }
+
+    .btn {
+        width: 840px;
+        height: 30px;
+        position: relative;
+    }
+
+    .table_personal {
+        left: 300px;
+        position: relative;
+    }
+
+    .text_personal_obj_name {
+        color: rgba(66, 120, 176, 1);
+        font-family: Arial;
+        font-weight: Bold;
+        font-size: 24px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_personal_phone {
+        color: rgba(0, 0, 0, 1);
+        font-family: Arial;
+        font-weight: Bold;
+        font-size: 24px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_personal_name {
+        color: rgba(0, 0, 0, 1);
+        font-family: Arial;
+        font-size: 16px;
+        opacity: 1;
+        text-align: left;
+    }
+
+    .text_personal_address {
+        color: rgba(0, 0, 0, 1);
+        font-family: Arial;
+        font-size: 16px;
+        opacity: 1;
+        text-align: left;
+    }
+</style>
