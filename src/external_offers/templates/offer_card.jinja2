@@ -236,7 +236,7 @@
     });
 
     function getNumberOrNull(obj) {
-        return isNaN(parseInt(obj)) ? null : parseInt(obj)
+        return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
     }
 
     let DEBUG = 'True' === '{{ debug }}'
