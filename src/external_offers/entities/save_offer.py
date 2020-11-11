@@ -27,7 +27,7 @@ class SaveOfferRequest:
     """Этаж объекта"""
     floors_count: Optional[int] = None
     """Общая этажность"""
-    rooms_count: Optional[int] = None
+    rooms_count: Optional[str] = None
     """Количество комнат"""
     sale_type: Optional[str] = None
     """Тип продажи"""
