@@ -1,6 +1,6 @@
 <div class="container">
     <div class="row">
-        <div class="main_style">
+        <div class="col-xs-12">
             <div class="line_1"></div>
             <div class="line_2"></div>
 
@@ -222,67 +222,66 @@
 
 
 <script>
-    jQuery(($) => {
-        const saveOfferBtn = $('#saveOfferBtn');
-        const getDealType = $('#getDealType');
-        const getOfferType = $('#getOfferType');
-        const getCategoryType = $('#getCategoryType');
-        const getAddress = $('#getAddress');
-        const getRealtyType = $('#getRealtyType');
-        const getTotalArea = $('#getTotalArea');
-        const getRoomsCount = $('#getRoomsCount');
-        const getFloorNumber = $('#getFloorNumber');
-        const getFloorCount = $('#getFloorCount');
-        const getPrice = $('#getPrice');
-        const getSaleType = $('#getSaleType');
-        const getPhoneNumber = $('#getPhoneNumber');
-        const recoveryPassword = $('#recoveryPassword');
-        <!-- Offer end -->
+  jQuery(($) => {
+    const saveOfferBtn = $('#saveOfferBtn');
+    const getDealType = $('#getDealType');
+    const getOfferType = $('#getOfferType');
+    const getCategoryType = $('#getCategoryType');
+    const getAddress = $('#getAddress');
+    const getRealtyType = $('#getRealtyType');
+    const getTotalArea = $('#getTotalArea');
+    const getRoomsCount = $('#getRoomsCount');
+    const getFloorNumber = $('#getFloorNumber');
+    const getFloorCount = $('#getFloorCount');
+    const getPrice = $('#getPrice');
+    const getSaleType = $('#getSaleType');
+    const getPhoneNumber = $('#getPhoneNumber');
+    const recoveryPassword = $('#recoveryPassword');
 
-        $('.ajax-form').on('submit', (event) => {
-            event.preventDefault();
-        });
-
-
-        let DEBUG = 'True' === '{{ debug }}'
-        const saveOffer = () => {
-            let obj = {
-                deal_type: getDealType.val(),
-                offer_type: getOfferType.val(),
-                category: getCategoryType.val(),
-                address: getAddress.val(),
-                realty_type: getRealtyType.val(),
-                total_area: parseInt(getTotalArea.val()),
-                rooms_count: parseInt(getRoomsCount.val()),
-                floor_number: parseInt(getFloorNumber.val()),
-                floors_count: parseInt(getFloorCount.val()),
-                price: parseInt(getPrice.val()),
-                sale_type: getSaleType.val(),
-                phone_number: getPhoneNumber.val(),
-                recovery_password: recoveryPassword.prop("checked")
-            }
-
-            $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
-            ).then(function (data) {
-                switch (data.status) {
-                    case 'ok':
-                        alert('Объявление успешно создано как черновик');
-                        break;
-                }
-            });
-        };
-
-
-        saveOfferBtn.click(() => {
-            saveOffer()
-        });
-
+    $('.ajax-form').on('submit', (event) => {
+        event.preventDefault();
     });
 
-    let meta = document.createElement('meta');
-    meta.name = "referrer";
-    meta.content = "no-referrer";
-    document.getElementsByTagName('head')[0].appendChild(meta);
+
+    let DEBUG = 'True' === '{{ debug }}'
+    const saveOffer = () => {
+        let obj = {
+            deal_type: getDealType.val(),
+            offer_type: getOfferType.val(),
+            category: getCategoryType.val(),
+            address: getAddress.val(),
+            realty_type: getRealtyType.val(),
+            total_area: parseInt(getTotalArea.val()),
+            rooms_count: parseInt(getRoomsCount.val()),
+            floor_number: parseInt(getFloorNumber.val()),
+            floors_count: parseInt(getFloorCount.val()),
+            price: parseInt(getPrice.val()),
+            sale_type: getSaleType.val(),
+            phone_number: getPhoneNumber.val(),
+            recovery_password: recoveryPassword.prop("checked")
+        }
+
+        $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
+        ).then(function (data) {
+            switch (data.status) {
+                case 'ok':
+                    alert('Объявление успешно создано как черновик');
+                    break;
+            }
+        });
+    };
+
+
+    saveOfferBtn.click(() => {
+        saveOffer()
+    });
+
+});
+
+let meta = document.createElement('meta');
+meta.name = "referrer";
+meta.content = "no-referrer";
+document.getElementsByTagName('head')[0].appendChild(meta);
 </script>
 
 <style>
