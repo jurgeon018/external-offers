@@ -13,8 +13,6 @@ from typing import List, Optional
 
 from cian_enum import NoFormat, StrEnum
 
-from .select_list_item import SelectListItem
-
 
 class DurationInDays(StrEnum):
     __value_format__ = NoFormat
@@ -46,14 +44,6 @@ class ObjectTypeId(StrEnum):
     """Загородная."""
 
 
-class OperationTypeId(StrEnum):
-    __value_format__ = NoFormat
-    sale = 'sale'
-    """Продажа."""
-    rent = 'rent'
-    """Аренда."""
-
-
 class OperationTypes(StrEnum):
     __value_format__ = NoFormat
     sale = 'sale'
@@ -67,6 +57,8 @@ class ServicePackageStrategyItemModel:
     duration_in_days: DurationInDays
     object_type_id: ObjectTypeId
     """Тип недвижимости"""
+    operation_types: List[OperationTypes]
+    'Типы сделки\r\n(аренда, продажа)'
     polygon_ids: List[int]
     """Регионы."""
     auction_points: Optional[float] = None
@@ -75,12 +67,6 @@ class ServicePackageStrategyItemModel:
     """Количество платных слотов."""
     highlight_count: Optional[int] = None
     """Количество слотов на выделение цветом."""
-    operation_type_id: Optional[OperationTypeId] = None
-    """Тип сделки."""
-    operation_type_source_list: Optional[List[SelectListItem]] = None
-    """Все возможные типы сделки"""
-    operation_types: Optional[List[OperationTypes]] = None
-    'Типы сделки\r\n(аренда, продажа)'
     premium_count: Optional[int] = None
     """Количество премиум слотов."""
     premium_highlight_count: Optional[int] = None

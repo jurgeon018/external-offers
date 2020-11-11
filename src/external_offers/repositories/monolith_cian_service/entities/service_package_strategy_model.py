@@ -32,11 +32,11 @@ class ServicePackageStrategyModel:
     """true, если платный."""
     items: List[ServicePackageStrategyItemModel]
     """Список пакетов для активации."""
+    type: Type
+    """Тип пакета"""
     activation_price: Optional[float] = None
     """Стоимость активации промокода.<br />null, если бесплатно."""
     activations_count: Optional[int] = None
     """Количество активаций.<br />null, если бесконечно."""
     auto_activate_for_manual_announcements: Optional[bool] = None
     """Автоматическое применение к ручным объявлениям"""
-    type: Optional[Type] = None
-    """Тип пакета"""

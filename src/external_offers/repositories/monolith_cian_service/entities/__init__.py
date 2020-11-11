@@ -16,8 +16,6 @@ from .create_promocode_group_response import CreatePromocodeGroupResponse
 from .discaunt_by_tariff_strategy_model import DiscauntByTariffStrategyModel
 from .money_strategy_model import MoneyStrategyModel
 from .promo_code_group_model import PromoCodeGroupModel
-from .select_list_group import SelectListGroup
-from .select_list_item import SelectListItem
 from .service_package_strategy_item_model import ServicePackageStrategyItemModel
 from .service_package_strategy_model import ServicePackageStrategyModel
 from .promo_code_group_detail_model import PromoCodeGroupDetailModel

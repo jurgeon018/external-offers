@@ -9,7 +9,6 @@ cian-codegen version: 1.7.1
 
 """
 from cian_http.api_client import Api
-from simple_settings import settings
 
 from . import entities
 

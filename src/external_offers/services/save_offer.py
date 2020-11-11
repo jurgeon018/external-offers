@@ -47,7 +47,6 @@ from external_offers.repositories.monolith_cian_service.entities.promo_code_grou
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_item_model import (
     DurationInDays,
     ObjectTypeId,
-    OperationTypeId,
     OperationTypes,
 )
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_model import (
@@ -88,11 +87,6 @@ save_offer_category_deal_type_and_offer_type_to_category: Dict[category_mapping_
    (SaveOfferCategory.share, DealType.rent, OfferType.flat): Category.room_rent,
    (SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.room_rent,
    (SaveOfferCategory.room, DealType.sale, OfferType.flat): Category.room_sale,
-}
-
-deal_type_to_operation_type_id = {
-    DealType.sale: OperationTypeId.sale,
-    DealType.rent: OperationTypeId.rent
 }
 
 
@@ -223,7 +217,6 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         polygon_ids=settings.PROMOCODE_POLYGONS,
                         duration_in_days=DurationInDays.seven,
                         debit_count=1,
-                        operation_type_id=deal_type_to_operation_type_id[request.deal_type],
                         object_type_id=offer_type_to_object_type[request.offer_type]
                     )]
                 )

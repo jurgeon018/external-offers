@@ -1,17 +1,4 @@
 definitions:
-  System.Web.Mvc.SelectListGroup:
-    properties:
-      disabled: {type: boolean}
-      name: {type: string}
-    type: object
-  System.Web.Mvc.SelectListItem:
-    properties:
-      disabled: {type: boolean}
-      group: {$ref: '#/definitions/System.Web.Mvc.SelectListGroup'}
-      selected: {type: boolean}
-      text: {type: string}
-      value: {type: string}
-    type: object
   Web.Admin.App.PromoCode.Models.AuctionPointsStrategyModel:
     description: Бонусные деньги.
     properties:
@@ -148,16 +135,6 @@ definitions:
         x-commercial: Коммерческая.
         x-flat: Жилая.
         x-suburbian: Загородная.
-      operationTypeId:
-        description: Тип сделки.
-        enum: [sale, rent]
-        type: string
-        x-rent: Аренда.
-        x-sale: Продажа.
-      operationTypeSourceList:
-        description: Все возможные типы сделки
-        items: {$ref: '#/definitions/System.Web.Mvc.SelectListItem'}
-        type: array
       operationTypes:
         description: "Типы сделки\r\n(аренда, продажа)"
         items:
@@ -174,7 +151,7 @@ definitions:
       premiumHighlightCount: {description: Количество слотов Премиум + Выделение цветом.,
         format: int32, type: integer}
       top3Count: {description: Количество Топ слотов., format: int32, type: integer}
-    required: [polygonIds, objectTypeId, durationInDays]
+    required: [polygonIds, operationTypes, objectTypeId, durationInDays]
     type: object
   Web.Admin.App.PromoCode.Models.ServicePackageStrategyModel:
     description: Пакет по объёму.
@@ -197,7 +174,7 @@ definitions:
         x-publication: Публикации - ограниченное количество публикаций объявлений
           за счет пакета
         x-slot: Слоты - переиспользуемые слоты в рамках срока действия пакета
-    required: [isPaid, items]
+    required: [isPaid, type, items]
     type: object
 host: master.monolith-cian-service.dev3.cian.ru
 info: {title: monolith-cian-service, version: v1}
