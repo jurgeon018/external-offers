@@ -244,16 +244,20 @@
     let DEBUG = 'True' === '{{ debug }}'
     const saveOffer = () => {
         if (getPrice.val() === ""){
-            alert('Цена обязательный параметр!')
+            alert('Цена обязательный параметр!');
+            return
         }
-        if (getTotalArea.val() === ""){
-            alert('Общая площадь обязательный параметр!')
+        else if (getTotalArea.val() === ""){
+            alert('Общая площадь обязательный параметр!');
+            return
         }
-        if (getPhoneNumber.val() === ""){
-            alert('Телефон обязательный параметр!')
+        else if (getPhoneNumber.val() === ""){
+            alert('Телефон обязательный параметр!');
+            return
         }
-        if (getAddress.val() === ""){
-            alert('Адрес обязательный параметр!')
+        else if (getAddress.val() === ""){
+            alert('Адрес обязательный параметр!');
+            return
         }
 
         let obj = {
