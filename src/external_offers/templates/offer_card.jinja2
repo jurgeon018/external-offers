@@ -135,7 +135,7 @@
             <tr>
                 <td><span class="">Общая площадь</span></td>
                 <td>
-                    <input type="number" value="{{ parsed_object_model.total_area }}"
+                    <input type="number" required value="{{ parsed_object_model.total_area }}"
                            placeholder="Площать объекта в м2"
                            class="input-control" id="getTotalArea">
                 </td>
@@ -178,7 +178,7 @@
             <tr>
                 <td><span class="">Цена</span></td>
                 <td>
-                    <input class="input-control" placeholder="Цена объекта в рублях"
+                    <input class="input-control" required placeholder="Цена объекта в рублях"
                            value="{{ parsed_object_model.price }}" type="number" id="getPrice">
                 </td>
             </tr>
@@ -202,7 +202,7 @@
             <tr>
                 <td><span class="">Телефон</span></td>
                 <td>
-                    <input class="input-control" placeholder="Реальный телефон владельца"
+                    <input class="input-control" required placeholder="Реальный телефон владельца"
                            value="{{ parsed_object_model.phones[0] }}" type="number"
                            id="getPhoneNumber">
                 </td>
@@ -235,6 +235,9 @@
         event.preventDefault();
     });
 
+    function getNumberOrNull(obj) {
+        return isNaN(parseInt(obj)) ? null : parseInt(obj)
+    }
 
     let DEBUG = 'True' === '{{ debug }}'
     const saveOffer = () => {
@@ -246,15 +249,15 @@
             realtyType: getRealtyType.val(),
             totalArea: parseInt(getTotalArea.val()),
             roomsCount: getRoomsCount.val(),
-            floorNumber: parseInt(getFloorNumber.val()),
-            floorsCount: parseInt(getFloorCount.val()),
+            floorNumber: getNumberOrNull(getFloorNumber.val()),
+            floorsCount: getNumberOrNull(getFloorCount.val()),
             price: parseInt(getPrice.val()),
             saleType: getSaleType.val(),
             phoneNumber: getPhoneNumber.val(),
             recoveryPassword: recoveryPassword.prop("checked")
         }
 
-        $.post("/api/admin/v1/save-offer/", obj
+        $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
         ).then(function (data) {
             switch (data.status) {
                 case 'ok':
