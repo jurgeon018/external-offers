@@ -41,6 +41,7 @@ class SaveOfferRequest:
     realty_type: Optional[str] = None
     """Тип жилья"""
 
+
 @dataclass
 class SaveOfferResponse:
     status: SaveOfferStatus
