@@ -159,7 +159,7 @@ def create_publication_model(
             ),
             name='Наименование',
             title='Черновик объявления',
-            description='Описание черновика объявления',
+            description=request.description,
             object_guid=str(uuid4()).upper(),
             flat_type=FlatType.rooms,
             is_enabled_call_tracking=False,     # если этот параметр не слать, шарп 500ит

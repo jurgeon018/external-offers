@@ -26,6 +26,8 @@ class SaveOfferRequest:
     """Цена"""
     total_area: int
     """Общая площадь"""
+    description: str
+    """Описание объявления"""
     recovery_password: bool
     """Восстановить ли пароль"""
     floor_number: Optional[int] = None
@@ -38,7 +40,6 @@ class SaveOfferRequest:
     """Тип продажи"""
     realty_type: Optional[str] = None
     """Тип жилья"""
-
 
 @dataclass
 class SaveOfferResponse:
