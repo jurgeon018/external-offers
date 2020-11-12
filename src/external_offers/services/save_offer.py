@@ -86,22 +86,20 @@ offer_type_to_object_type: Dict[OfferType, ObjectTypeId] = {
 
 category_mapping_key = Tuple[SaveOfferCategory, DealType, OfferType]
 save_offer_category_deal_type_and_offer_type_to_category: Dict[category_mapping_key, Category] = {
-   (SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.flat_rent,
-   (SaveOfferCategory.flat, DealType.sale, OfferType.flat): Category.flat_sale,
-   (SaveOfferCategory.bed, DealType.sale, OfferType.flat): Category.flat_share_sale,
-   (SaveOfferCategory.bed, DealType.rent, OfferType.flat): Category.bed_rent,
-   (SaveOfferCategory.share, DealType.sale, OfferType.flat): Category.flat_share_sale,
-   (SaveOfferCategory.share, DealType.rent, OfferType.flat): Category.room_rent,
-   (SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.room_rent,
-   (SaveOfferCategory.room, DealType.sale, OfferType.flat): Category.room_sale,
+    (SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.flat_rent,
+    (SaveOfferCategory.flat, DealType.sale, OfferType.flat): Category.flat_sale,
+    (SaveOfferCategory.bed, DealType.sale, OfferType.flat): Category.flat_share_sale,
+    (SaveOfferCategory.bed, DealType.rent, OfferType.flat): Category.bed_rent,
+    (SaveOfferCategory.share, DealType.sale, OfferType.flat): Category.flat_share_sale,
+    (SaveOfferCategory.share, DealType.rent, OfferType.flat): Category.room_rent,
+    (SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.room_rent,
+    (SaveOfferCategory.room, DealType.sale, OfferType.flat): Category.room_sale,
 }
-
 
 deal_type_to_operation_types = {
     DealType.sale: OperationTypes.sale,
     DealType.rent: OperationTypes.rent
 }
-
 
 rooms_count_to_num: Dict[str, int] = {
     'room1': 1,
@@ -115,11 +113,11 @@ rooms_count_to_num: Dict[str, int] = {
 
 
 def create_publication_model(
-    request: SaveOfferRequest,
-    realty_user_id: int,
-    geocode_response: GeoCodeAnnouncementResponse,
-    phone_number: str,
-    category: Category,
+        request: SaveOfferRequest,
+        realty_user_id: int,
+        geocode_response: GeoCodeAnnouncementResponse,
+        phone_number: str,
+        category: Category,
 
 ):
     return PublicationModel(
@@ -159,19 +157,19 @@ def create_publication_model(
             ),
             name='Наименование',
             title='Черновик объявления',
-            description='Описание черновика объявления',
+            description=request.description,
             object_guid=str(uuid4()).upper(),
             flat_type=FlatType.rooms,
-            is_enabled_call_tracking=False,     # если этот параметр не слать, шарп 500ит
-            row_version=0       # если этот параметр не слать, шарп 500ит
+            is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
+            row_version=0  # если этот параметр не слать, шарп 500ит
         ),
-        platform=Platform.web_site      # если этот параметр не слать, шарп 500ит
+        platform=Platform.web_site  # если этот параметр не слать, шарп 500ит
     )
 
 
 def create_promocode_detail_model(
-    request: SaveOfferRequest,
-    realty_user_id: int
+        request: SaveOfferRequest,
+        realty_user_id: int
 ):
     now = datetime.now(tz=pytz.utc)
 

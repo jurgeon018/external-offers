@@ -26,6 +26,8 @@ class SaveOfferRequest:
     """Цена"""
     total_area: int
     """Общая площадь"""
+    description: str
+    """Описание объявления"""
     recovery_password: bool
     """Восстановить ли пароль"""
     floor_number: Optional[int] = None

@@ -8,11 +8,11 @@ async def test_save_offer__without_x_real_userid__returns_400(http):
 
 
 async def test_save_offer__correct_json__status_ok(
-    http,
-    users_mock,
-    monolith_cian_service_mock,
-    monolith_cian_announcementapi_mock,
-    monolith_cian_profileapi_mock
+        http,
+        users_mock,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_profileapi_mock
 ):
     # arrange
     request = {
@@ -30,7 +30,8 @@ async def test_save_offer__correct_json__status_ok(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': '7'
+        'clientId': '7',
+        'description': 'Test'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -109,11 +110,11 @@ async def test_save_offer__correct_json__status_ok(
 
 
 async def test_save_offer__register_user_by_phone_called_success__realty_user_id_saved(
-    http,
-    pg,
-    users_mock,
-    monolith_cian_announcementapi_mock,
-    offers_and_clients_fixture
+        http,
+        pg,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+        offers_and_clients_fixture
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -136,7 +137,8 @@ async def test_save_offer__register_user_by_phone_called_success__realty_user_id
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': client_id
+        'clientId': client_id,
+        'description': 'Test'
     }
     await users_mock.add_stub(
         method='POST',
@@ -176,11 +178,11 @@ async def test_save_offer__register_user_by_phone_called_success__realty_user_id
 
 
 async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_called(
-    http,
-    pg,
-    users_mock,
-    monolith_cian_announcementapi_mock,
-    offers_and_clients_fixture
+        http,
+        pg,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+        offers_and_clients_fixture
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -203,7 +205,8 @@ async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_cal
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': client_id
+        'clientId': client_id,
+        'description': 'Test'
     }
     await pg.execute('UPDATE clients SET realty_user_id=$1 WHERE client_id=$2', [realty_user_id, client_id])
 
@@ -244,12 +247,12 @@ async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_cal
 
 
 async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
-    http,
-    pg,
-    users_mock,
-    monolith_cian_announcementapi_mock,
-    monolith_cian_service_mock,
-    offers_and_clients_fixture
+        http,
+        pg,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_service_mock,
+        offers_and_clients_fixture
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -274,7 +277,8 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': offer_id,
-        'clientId': client_id
+        'clientId': client_id,
+        'description': 'Test'
     }
     await users_mock.add_stub(
         method='POST',
@@ -338,12 +342,12 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
 
 
 async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
-    http,
-    pg,
-    users_mock,
-    monolith_cian_announcementapi_mock,
-    offers_and_clients_fixture,
-    monolith_cian_service_mock
+        http,
+        pg,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+        offers_and_clients_fixture,
+        monolith_cian_service_mock
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -368,7 +372,8 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': offer_id,
-        'clientId': client_id
+        'clientId': client_id,
+        'description': 'Test'
     }
 
     await users_mock.add_stub(
@@ -434,12 +439,12 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
 
 
 async def test_save_offer__correct_json__offer_status_changed_to_draft(
-    http,
-    pg,
-    users_mock,
-    monolith_cian_service_mock,
-    monolith_cian_announcementapi_mock,
-    monolith_cian_profileapi_mock
+        http,
+        pg,
+        users_mock,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_profileapi_mock
 ):
     # arrange
     await pg.execute(
@@ -478,7 +483,8 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '1',
-        'clientId': '7'
+        'clientId': '7',
+        'description': 'Test'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -557,8 +563,8 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
 
 
 async def test_save_offer__create_user_by_phone_failed__status_registration_failed(
-    http,
-    users_mock,
+        http,
+        users_mock,
 ):
     # arrange
     request = {
@@ -576,7 +582,8 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': '7'
+        'clientId': '7',
+        'description': 'Test'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -602,9 +609,9 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
 
 
 async def test_save_offer__geocode_failed__status_geocode_failed(
-    http,
-    users_mock,
-    monolith_cian_announcementapi_mock,
+        http,
+        users_mock,
+        monolith_cian_announcementapi_mock,
 ):
     # arrange
     request = {
@@ -622,7 +629,8 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': '7'
+        'clientId': '7',
+        'description': 'Test'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -662,10 +670,10 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
 
 
 async def test_save_offer__create_promo_failed__status_promo_creation_failed(
-    http,
-    users_mock,
-    monolith_cian_service_mock,
-    monolith_cian_announcementapi_mock,
+        http,
+        users_mock,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
 ):
     request = {
         'deal_type': 'rent',
@@ -682,7 +690,8 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': '7'
+        'clientId': '7',
+        'description': 'Test'
     }
     user_id = 123123
 
@@ -747,11 +756,11 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
 
 
 async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
-    http,
-    users_mock,
-    monolith_cian_service_mock,
-    monolith_cian_announcementapi_mock,
-    monolith_cian_profileapi_mock
+        http,
+        users_mock,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_profileapi_mock
 ):
     # arrange
     request = {
@@ -769,7 +778,8 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': '7'
+        'clientId': '7',
+        'description': 'Test'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -848,9 +858,9 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
 
 
 async def test_save_offer__announcements_draft_failed__status_draft_failed(
-    http,
-    users_mock,
-    monolith_cian_announcementapi_mock,
+        http,
+        users_mock,
+        monolith_cian_announcementapi_mock,
 ):
     # arrange
     request = {
@@ -868,7 +878,8 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         'phone_number': '89134488338',
         'recovery_password': False,
         'offerId': '3567',
-        'clientId': '7'
+        'clientId': '7',
+        'description': 'Test'
     }
     user_id = 123123
     await users_mock.add_stub(

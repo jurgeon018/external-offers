@@ -202,9 +202,18 @@
             <tr>
                 <td><span class="">Телефон</span></td>
                 <td>
-                    <input class="input-control" placeholder="Реальный телефон владельца" value="{{ parsed_object_model.phones[0] }}"
-                    type="string"
+                    <input class="input-control" placeholder="Реальный телефон владельца"
+                           value="{{ parsed_object_model.phones[0] }}"
+                           type="string"
                            id="getPhoneNumber">
+                </td>
+            </tr>
+            <tr>
+                <td><span class=""> Описание объялвения</span></td>
+                <td>
+                    <textarea class="input-control"
+                              placeholder="Описание объялвения"
+                              id="getDescription"></textarea>
                 </td>
             </tr>
 
@@ -214,51 +223,53 @@
 
 
 <script>
-  jQuery(($) => {
-    const saveOfferBtn = $('#saveOfferBtn');
-    const getDealType = $('#getDealType');
-    const getOfferType = $('#getOfferType');
-    const getCategoryType = $('#getCategoryType');
-    const getAddress = $('#getAddress');
-    const getRealtyType = $('#getRealtyType');
-    const getTotalArea = $('#getTotalArea');
-    const getRoomsCount = $('#getRoomsCount');
-    const getFloorNumber = $('#getFloorNumber');
-    const getFloorCount = $('#getFloorCount');
-    const getPrice = $('#getPrice');
-    const getSaleType = $('#getSaleType');
-    const getPhoneNumber = $('#getPhoneNumber');
-    const recoveryPassword = $('#recoveryPassword');
+    jQuery(($) => {
+        const saveOfferBtn = $('#saveOfferBtn');
+        const getDealType = $('#getDealType');
+        const getOfferType = $('#getOfferType');
+        const getCategoryType = $('#getCategoryType');
+        const getAddress = $('#getAddress');
+        const getRealtyType = $('#getRealtyType');
+        const getTotalArea = $('#getTotalArea');
+        const getRoomsCount = $('#getRoomsCount');
+        const getFloorNumber = $('#getFloorNumber');
+        const getFloorCount = $('#getFloorCount');
+        const getPrice = $('#getPrice');
+        const getSaleType = $('#getSaleType');
+        const getPhoneNumber = $('#getPhoneNumber');
+        const recoveryPassword = $('#recoveryPassword');
+        const getDescription = $('#getDescription');
 
-    $('.ajax-form').on('submit', (event) => {
-        event.preventDefault();
-    });
+        $('.ajax-form').on('submit', (event) => {
+            event.preventDefault();
+        });
 
-    function getNumberOrNull(obj) {
-        return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
-    }
-    function getValueOrNull(obj) {
-        return obj === ''  ? "null" : obj
-    }
+        function getNumberOrNull(obj) {
+            return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
+        }
 
-    let DEBUG = 'True' === '{{ debug }}'
-    const saveOffer = () => {
-        if (getPrice.val() === ""){
-            alert('Цена обязательный параметр!');
-            return
+        function getValueOrNull(obj) {
+            return obj === '' ? "null" : obj
         }
-        else if (getTotalArea.val() === ""){
-            alert('Общая площадь обязательный параметр!');
-            return
-        }
-        else if (getPhoneNumber.val() === ""){
-            alert('Телефон обязательный параметр!');
-            return
-        }
-        else if (getAddress.val() === ""){
-            alert('Адрес обязательный параметр!');
-            return
-        }
+
+        let DEBUG = 'True' === '{{ debug }}'
+        const saveOffer = () => {
+            if (getPrice.val() === "") {
+                alert('Цена обязательный параметр!');
+                return
+            } else if (getTotalArea.val() === "") {
+                alert('Общая площадь обязательный параметр!');
+                return
+            } else if (getPhoneNumber.val() === "") {
+                alert('Телефон обязательный параметр!');
+                return
+            } else if (getAddress.val() === "") {
+                alert('Адрес обязательный параметр!');
+                return
+            } else if (getDescription.val() === "") {
+                alert('Описание объялвения обязательный параметр!');
+                return
+            }
 
         let obj = {
             dealType: getDealType.val(),
@@ -268,6 +279,7 @@
             totalArea: parseInt(getTotalArea.val()),
             price: parseInt(getPrice.val()),
             phoneNumber: getPhoneNumber.val(),
+            description: getDescription.val(),
             floorNumber: getNumberOrNull(getFloorNumber.val()),
             floorsCount: getNumberOrNull(getFloorCount.val()),
             roomsCount: getValueOrNull(getRoomsCount.val()),
@@ -279,30 +291,30 @@
 
         }
 
-        $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
-        ).then(function (data) {
-            switch (data.status) {
-                case 'ok':
-                    alert('Объявление успешно создано как черновик');
-                    break;
-                default:
-                    alert(data.message);
-                    break;
-            }
+            $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
+            ).then(function (data) {
+                switch (data.status) {
+                    case 'ok':
+                        alert('Объявление успешно создано как черновик');
+                        break;
+                    default:
+                        alert(data.message);
+                        break;
+                }
+            });
+        };
+
+
+        saveOfferBtn.click(() => {
+            saveOffer()
         });
-    };
 
-
-    saveOfferBtn.click(() => {
-        saveOffer()
     });
 
-});
-
-let meta = document.createElement('meta');
-meta.name = "referrer";
-meta.content = "no-referrer";
-document.getElementsByTagName('head')[0].appendChild(meta);
+    let meta = document.createElement('meta');
+    meta.name = "referrer";
+    meta.content = "no-referrer";
+    document.getElementsByTagName('head')[0].appendChild(meta);
 </script>
 
 <style>
@@ -315,6 +327,7 @@ document.getElementsByTagName('head')[0].appendChild(meta);
         left: 0px;
         overflow: hidden;
     }
+
     .ajax-form {
         top: 70px;
         left: 300px;
@@ -322,7 +335,7 @@ document.getElementsByTagName('head')[0].appendChild(meta);
     }
 
     .select-control, .input-control {
-        width: 300px;
+        width: 400px;
         position: relative;
     }
 
