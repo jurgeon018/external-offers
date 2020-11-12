@@ -271,24 +271,25 @@
                 return
             }
 
-            let obj = {
-                dealType: getDealType.val(),
-                offerType: getOfferType.val(),
-                category: getCategoryType.val(),
-                address: getAddress.val(),
-                totalArea: parseInt(getTotalArea.val()),
-                price: parseInt(getPrice.val()),
-                phoneNumber: getPhoneNumber.val(),
-                description: getDescription.val(),
-                floorNumber: getNumberOrNull(getFloorNumber.val()),
-                floorsCount: getNumberOrNull(getFloorCount.val()),
-                roomsCount: getValueOrNull(getRoomsCount.val()),
-                realtyType: getValueOrNull(getRealtyType.val()),
-                saleType: getValueOrNull(getSaleType.val()),
-                recoveryPassword: recoveryPassword.prop("checked"),
-                offer_id: '{{ offer_id }}',
-                client_id: '{{ client_id }}',
-            }
+        let obj = {
+            dealType: getDealType.val(),
+            offerType: getOfferType.val(),
+            category: getCategoryType.val(),
+            address: getAddress.val(),
+            totalArea: parseInt(getTotalArea.val()),
+            price: parseInt(getPrice.val()),
+            phoneNumber: getPhoneNumber.val(),
+            description: getDescription.val(),
+            floorNumber: getNumberOrNull(getFloorNumber.val()),
+            floorsCount: getNumberOrNull(getFloorCount.val()),
+            roomsCount: getValueOrNull(getRoomsCount.val()),
+            realtyType: getValueOrNull(getRealtyType.val()),
+            saleType: getValueOrNull(getSaleType.val()),
+            recoveryPassword: recoveryPassword.prop("checked"),
+            offerId: '{{ offer_id }}',
+            clientId: '{{ client_id }}'
+
+        }
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
