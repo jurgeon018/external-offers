@@ -8,6 +8,7 @@ from external_offers.repositories.postgresql import (
     exists_offers_in_progress_by_operator,
     exists_offers_in_progress_by_operator_and_offer_id,
     get_client_by_operator,
+    get_client_id_by_offer_id,
     get_offers_in_progress_by_operator,
     get_parsed_offer_object_model_by_offer_id,
     set_client_to_call_missed_status,
@@ -134,13 +135,19 @@ class AdminOffersCardPageHandler(PublicHandler):
             offer_id=offer_id
         )
 
+        client_id = await get_client_id_by_offer_id(
+            offer_id=offer_id
+        )
+
         if not offer_object_model:
             self.write('Объявление из внешнего источника не найдено'.encode('utf-8'))
             return
 
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
-            info_message=settings.SAVE_OFFER_MSG
+            info_message=settings.SAVE_OFFER_MSG,
+            offer_id=offer_id,
+            client_id=client_id,
         )
 
         self.write(offer_html)

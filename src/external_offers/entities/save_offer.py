@@ -1,15 +1,20 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from external_offers.enums import SaveOfferCategory
 from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
 
 
 @dataclass
 class SaveOfferRequest:
+    offer_id: str
+    """Идентификатор задания"""
+    client_id: str
+    """Идентификатор задания"""
     phone_number: str
-    """Телефоны"""
-    category: str
+    """Телефон"""
+    category: SaveOfferCategory
     """Категория объявления"""
     deal_type: DealType
     """Тип сделки"""
@@ -39,3 +44,5 @@ class SaveOfferRequest:
 class SaveOfferResponse:
     status: SaveOfferStatus
     """Статус сохрарнения объявления"""
+    message: Optional[str] = ''
+    """Информационное сообщение для отображения пользователю"""

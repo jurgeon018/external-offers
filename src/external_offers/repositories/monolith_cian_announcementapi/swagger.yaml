@@ -1,0 +1,1906 @@
+definitions:
+  RealtyApi.Models.Announcements.Swagger.AddressInfoSchema:
+    description: Адрес
+    properties:
+      fullName: {description: Полное название, type: string}
+      id: {description: ID гео-привязки, format: int32, type: integer}
+      isFormingAddress: {description: Участвует в образовании адреса, type: boolean}
+      locationTypeId: {description: ID типа субъекта, format: int32, type: integer}
+      name: {description: Название, type: string}
+      shortName: {description: Короткое название, type: string}
+      type:
+        description: Тип гео-привязки
+        enum: [country, district, house, location, road, street, underground]
+        type: string
+        x-country: Страна
+        x-district: Район
+        x-house: Дом
+        x-location: Местоположение
+        x-road: Шоссе
+        x-street: Улица
+        x-underground: Метро
+    type: object
+  RealtyApi.Models.Announcements.Swagger.AgentBonusSchema:
+    description: Бонус агенту.
+    properties:
+      currency:
+        description: Валюта. Указывается при фиксированном типе оплаты
+        enum: [eur, rur, usd]
+        type: string
+        x-eur: Евро
+        x-rur: Рубль
+        x-usd: Доллар
+      paymentType:
+        description: Тип оплаты
+        enum: [percent, fixed]
+        type: string
+        x-fixed: Фиксированный
+        x-percent: Процент
+      value: {description: Значение, format: double, type: number}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.AuctionSchema:
+    description: Аукцион
+    properties:
+      bet: {description: Ставка на объявление в аукционе, format: double, type: number}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.BargainTermsSchema:
+    properties:
+      actionId: {description: "Значение string.<br />\r\nВы можете добавить акцию,\
+          \ которая идет в вашем ЖК. Для этого вам необходимо обратиться к вашему\
+          \ курирующему менеджеру.\r\nId акции не ставится произвольно, вам его высылает\
+          \ менеджер.", type: string}
+      agentBonus: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.AgentBonusSchema',
+        description: Бонус агенту}
+      agentFee: {description: 'Комиссия от другого агента, %%. По умолчанию 100%.',
+        format: int64, type: integer}
+      bargainAllowed: {description: Возможен торг, type: boolean}
+      bargainConditions: {description: Условия торга, type: string}
+      bargainPrice: {description: Цена с учетом торга, format: double, type: number}
+      clientFee: {description: 'Комиссия от прямого клиента, %%. По умолчанию 100%.',
+        format: int64, type: integer}
+      contractType:
+        description: Тип договора
+        enum: [leaseAssignment, sale]
+        type: string
+        x-leaseAssignment: Переуступка прав аренды
+        x-sale: Продажа
+      currency:
+        description: Валюта
+        enum: [eur, rur, usd]
+        type: string
+        x-eur: Евро
+        x-rur: Рубль
+        x-usd: Доллар
+      deposit: {description: Залог собственнику, format: int64, type: integer}
+      hasGracePeriod: {description: Арендные каникулы, type: boolean}
+      includedOptions:
+        description: Включено в ставку
+        items:
+          enum: [operationalCosts, utilityCharges]
+          type: string
+          x-operationalCosts: Операционные расходы
+          x-utilityCharges: Коммунальные услуги
+        type: array
+      leaseTermType:
+        description: Срок аренды
+        enum: [fewMonths, longTerm]
+        type: string
+        x-fewMonths: На несколько месяцев
+        x-longTerm: Длительный
+      leaseType:
+        description: Тип аренды
+        enum: [direct, jointVenture, sublease]
+        type: string
+        x-direct: Прямая аренда
+        x-jointVenture: Договор совместной деятельности
+        x-sublease: Субаренда
+      minLeaseTerm: {description: 'Минимальный срок аренды, мес', format: int64, type: integer}
+      mortgageAllowed: {description: Ипотека, type: boolean}
+      paymentPeriod:
+        description: Период оплаты
+        enum: [annual, monthly]
+        type: string
+        x-annual: За год
+        x-monthly: За месяц
+      prepayMonths: {description: 'Предоплата, от 1 до 12 месяцев', format: int32,
+        type: integer}
+      price: {description: Цена, format: double, type: number}
+      priceForWorkplace: {description: Цена за рабочее место в коворкинге., format: int32,
+        type: integer}
+      priceType:
+        description: Тип цены
+        enum: [all, squareMeter, sotka, hectare]
+        type: string
+        x-all: Цена за все
+        x-hectare: Гектар
+        x-sotka: Сотка
+        x-squareMeter: Цена за квадратный метр
+      saleType:
+        description: Тип продажи
+        enum: [alternative, dupt, dzhsk, free, fz214, investment, pdkp]
+        type: string
+        x-alternative: Альтернатива
+        x-dupt: Договор уступки права требования
+        x-dzhsk: Договор ЖСК
+        x-free: Свободная продажа
+        x-fz214: 214-ФЗ
+        x-investment: Договор инвестирования
+        x-pdkp: Предварительный договор купли-продажи
+      securityDeposit: {description: Обеспечительный платеж, format: int64, type: integer}
+      tenantsType:
+        description: Состав съемщиков
+        enum: [any, family, female, male]
+        type: string
+        x-any: Любой
+        x-family: Семья
+        x-female: Женщина
+        x-male: Мужчина
+      utilitiesTerms: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.UtilitiesTermsSchema',
+        description: Коммунальные услуги}
+      vatIncluded: {description: НДС включен, type: boolean}
+      vatPrice: {format: double, type: number}
+      vatType:
+        enum: [included, notIncluded, vatIncluded, vatNotIncluded, usn]
+        type: string
+        x-included: НДС включен
+        x-notIncluded: НДС не включен
+        x-usn: УСН (упрощенная система налогообложения)
+        x-vatIncluded: НДС включен
+        x-vatNotIncluded: НДС не включен
+    required: [price]
+    type: object
+  RealtyApi.Models.Announcements.Swagger.BookingSchema:
+    description: Бронирование.
+    properties:
+      cost: {description: Стоимость бронирования., format: int32, type: integer}
+      status:
+        description: Статус бронирования.
+        enum: [free, inReserve]
+        type: string
+        x-free: Свободна.
+        x-inReserve: В резерве.
+    type: object
+  RealtyApi.Models.Announcements.Swagger.BuildingSchema:
+    description: Здание
+    properties:
+      accessType:
+        description: Вход
+        enum: [free, passSystem]
+        type: string
+        x-free: Свободный
+        x-passSystem: Пропускная система
+      buildYear: {description: Год постройки, format: int64, type: integer}
+      cargoLiftsCount: {description: Количество грузовых лифтов, format: int64, type: integer}
+      ceilingHeight: {description: 'Высота потолков, м', format: double, type: number}
+      classType:
+        description: Класс
+        enum: [a, aPlus, b, bMinus, bPlus, c, cPlus, d]
+        type: string
+        x-a: A
+        x-aPlus: A+
+        x-b: B
+        x-bMinus: B-
+        x-bPlus: B+
+        x-c: C
+        x-cPlus: C+
+        x-d: D
+      columnGrid: {description: Сетка колонн, type: string}
+      conditionRatingType:
+        description: Состояние
+        enum: [excellent, good, satisfactory]
+        type: string
+        x-excellent: Отличное
+        x-good: Хорошее
+        x-satisfactory: Удовлетворительное
+      conditioningType:
+        description: Кондиционирование
+        enum: [central, local, 'no']
+        type: string
+        x-central: Центральное
+        x-local: Местное
+        x-no: Нет
+      cranageTypes:
+        description: Крановое оборудование
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CranageTypeSchema'}
+        type: array
+      deadline: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.DeadlineSchema',
+        description: Срок сдачи}
+      developer: {description: Застройщик, type: string}
+      extinguishingSystemType:
+        description: Система пожаротушения
+        enum: [alarm, gas, hydrant, 'no', powder, sprinkler]
+        type: string
+        x-alarm: Сигнализация
+        x-gas: Газовая
+        x-hydrant: Гидрантная
+        x-no: Нет
+        x-powder: Порошковая
+        x-sprinkler: Спринклерная
+      extinguishingSystemTypes:
+        description: Системы пожаротушения
+        items:
+          enum: [alarm, gas, hydrant, 'no', powder, sprinkler]
+          type: string
+          x-alarm: Сигнализация
+          x-gas: Газовая
+          x-hydrant: Гидрантная
+          x-no: Нет
+          x-powder: Порошковая
+          x-sprinkler: Спринклерная
+        type: array
+      floorsCount: {description: Количество этажей в здании, format: int64, type: integer}
+      gatesType:
+        description: Тип ворот
+        enum: [atZero, dockType, onRamp]
+        type: string
+        x-atZero: На нулевой отметке
+        x-dockType: Докового типа
+        x-onRamp: На пандусе
+      hasGarbageChute: {description: Мусоропровод, type: boolean}
+      heatingType:
+        description: Отопление
+        enum: [autonomous, boiler, central, fireplace, 'no', other, stove, centralGas,
+          centralCoal, electric, autonomousGas, diesel, solidFuelBoiler]
+        type: string
+        x-autonomous: Автономное
+        x-autonomousGas: Автономное газовое
+        x-boiler: Котел
+        x-central: Центральное
+        x-centralCoal: центральное угольное
+        x-centralGas: центральное газовое
+        x-diesel: Дизельное
+        x-electric: Электрическое
+        x-fireplace: Камин
+        x-no: Нет
+        x-other: Другое
+        x-solidFuelBoiler: Твердотопливный котел
+        x-stove: Печь
+      houseLineType:
+        description: Линия домов
+        enum: [first, other, second]
+        type: string
+        x-first: Первая
+        x-other: Иная
+        x-second: Вторая
+      infrastructure: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CommercialBuildingInfrastructureSchema',
+        description: Инфраструктура}
+      liftTypes:
+        description: Лифт
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.LiftTypeSchema'}
+        type: array
+      managementCompany: {description: Управляющая компания, type: string}
+      materialType:
+        description: Тип дома
+        enum: [block, boards, brick, monolith, monolithBrick, old, panel, stalin,
+          wood, wireframe, aerocreteBlock, gasSilicateBlock, foamConcreteBlock]
+        type: string
+        x-aerocreteBlock: Газобетонный блок
+        x-block: Блочный
+        x-boards: Щитовой
+        x-brick: Кирпичный
+        x-foamConcreteBlock: Пенобетонный блок
+        x-gasSilicateBlock: Газосиликатный блок
+        x-monolith: Монолитный
+        x-monolithBrick: Монолитно-кирпичный
+        x-old: Старый фонд
+        x-panel: Панельный
+        x-stalin: Сталинский
+        x-wireframe: Каркасный
+        x-wood: Деревянный
+      name: {description: Название, type: string}
+      openingHours: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.OpeningHoursSchema',
+        description: Часы работы}
+      parking: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.ParkingSchema',
+        description: Парковка}
+      passengerLiftsCount: {description: Количество пассажирских лифтов, format: int64,
+        type: integer}
+      series: {description: Серия дома, type: string}
+      shoppingCenterScaleType:
+        description: Масштаб торгового центра
+        enum: [district, microdistrict, okrug, regional, superOkrug, superRegional]
+        type: string
+        x-district: Районный
+        x-microdistrict: Микрорайонный
+        x-okrug: Окружной
+        x-regional: Региональный
+        x-superOkrug: Суперокружной
+        x-superRegional: Суперрегиональный
+      statusType:
+        description: Категория
+        enum: [newBuilding, operational, project, secondary, underConstruction]
+        type: string
+        x-newBuilding: Новостройка/Строящееся
+        x-operational: Действующее
+        x-project: Проект
+        x-secondary: Вторичный рынок
+        x-underConstruction: Строящееся
+      tenants: {description: Арендаторы, type: string}
+      totalArea: {description: 'Общая площадь, м²', format: double, type: number}
+      type:
+        description: Тип
+        enum: [administrativeBuilding, businessCenter, businessCenter2, businessPark,
+          businessQuarter, free, industrialComplex, industrialPark, industrialSite,
+          industrialWarehouseComplex, logisticsCenter, logisticsComplex, mansion,
+          manufactureBuilding, manufacturingFacility, modular, multifunctionalComplex,
+          officeAndHotelComplex, officeAndResidentialComplex, officeAndWarehouse,
+          officeAndWarehouseComplex, officeBuilding, officeIndustrialComplex, old,
+          other, outlet, propertyComplex, residentialComplex, residentialFund, residentialHouse,
+          shoppingAndBusinessComplex, shoppingAndCommunityCenter, shoppingAndEntertainmentCenter,
+          shoppingCenter, specializedShoppingCenter, standaloneBuilding, technopark,
+          tradingOfficeComplex, uninhabitedFund, warehouse, warehouseComplex, officeQuarter,
+          officeCenter, businessQuarter2, businessHouse, tradingHouse, officeComplex,
+          tradeAndExhibitionComplex, shoppingComplex, shoppingAndWarehouseComplex,
+          logisticsPark]
+        type: string
+        x-administrativeBuilding: Административное здание
+        x-businessCenter: Бизнес-центр
+        x-businessCenter2: Деловой центр
+        x-businessHouse: Деловой дом
+        x-businessPark: Бизнес-парк
+        x-businessQuarter: Бизнес-квартал
+        x-businessQuarter2: Деловой квартал
+        x-free: Объект свободного назначения
+        x-industrialComplex: Производственный комплекс
+        x-industrialPark: Индустриальный парк
+        x-industrialSite: Промплощадка
+        x-industrialWarehouseComplex: Производственно-складской комплекс
+        x-logisticsCenter: Логистический центр
+        x-logisticsComplex: Логистический комплекс
+        x-logisticsPark: Логистический парк
+        x-mansion: Особняк
+        x-manufactureBuilding: Производственное здание
+        x-manufacturingFacility: Производственный цех
+        x-modular: Модульное здание
+        x-multifunctionalComplex: Многофункциональный комплекс
+        x-officeAndHotelComplex: Офисно-гостиничный комплекс
+        x-officeAndResidentialComplex: Офисно-жилой комплекс
+        x-officeAndWarehouse: Офисно-складское здание
+        x-officeAndWarehouseComplex: Офисно-складской комплекс
+        x-officeBuilding: Офисное здание
+        x-officeCenter: Офисный центр
+        x-officeComplex: Офисный комплекс
+        x-officeIndustrialComplex: Офисно-производственный комплекс
+        x-officeQuarter: Офисный квартал
+        x-old: Старый фонд
+        x-other: Другое
+        x-outlet: Аутлет
+        x-propertyComplex: Имущественный комплекс
+        x-residentialComplex: Жилой комплекс
+        x-residentialFund: Жилой фонд
+        x-residentialHouse: Жилой дом
+        x-shoppingAndBusinessComplex: Торгово-деловой комплекс
+        x-shoppingAndCommunityCenter: Торгово-общественный центр
+        x-shoppingAndEntertainmentCenter: Торгово-развлекательный центр
+        x-shoppingAndWarehouseComplex: Торгово-складской комплекс
+        x-shoppingCenter: Торговый центр
+        x-shoppingComplex: Торговый комплекс
+        x-specializedShoppingCenter: Специализированный торговый центр
+        x-standaloneBuilding: Отдельно стоящее здание
+        x-technopark: Технопарк
+        x-tradeAndExhibitionComplex: Торгово-выставочный комплекс
+        x-tradingHouse: Торговый дом
+        x-tradingOfficeComplex: Торгово-офисный комплекс
+        x-uninhabitedFund: Нежилой фонд
+        x-warehouse: Склад
+        x-warehouseComplex: Складской комплекс
+      ventilationType:
+        description: Вентиляция
+        enum: [forced, natural, 'no']
+        type: string
+        x-forced: Приточная
+        x-natural: Естественная
+        x-no: Нет
+      workingDaysType:
+        description: Рабочие дни
+        enum: [everyday, weekdays, weekends]
+        type: string
+        x-everyday: Ежедневно
+        x-weekdays: Будни
+        x-weekends: Выходные
+    type: object
+  RealtyApi.Models.Announcements.Swagger.BusinessShoppingCenterSchema:
+    description: ТЦ/БЦ
+    properties:
+      id: {description: ID ТЦ/БЦ, format: int32, type: integer}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CalculatedUndergroundsSchema:
+    description: Автоматически рассчитанное время в пути до станции метро
+    properties:
+      distance: {description: 'Расстояние до метро, метры', format: int32, type: integer}
+      id: {description: Id метро, format: int32, type: integer}
+      time: {description: 'Время в пути в минутах до метро, мин', format: int32, type: integer}
+      transportType:
+        description: Способ передвижения до метро
+        enum: [transport, walk]
+        type: string
+        x-transport: На транспорте
+        x-walk: Пешком
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CommercialBuildingInfrastructureSchema:
+    description: Инфраструктура
+    properties:
+      hasAquapark: {description: Аквапарк, type: boolean}
+      hasAtm: {description: Банкомат, type: boolean}
+      hasAutomaticGates: {description: Автоматические ворота, type: boolean}
+      hasBabySitting: {description: Беби-ситинг, type: boolean}
+      hasBankDepartment: {description: Отделение банка, type: boolean}
+      hasBasement: {description: Подвал/погреб, type: boolean}
+      hasBeautyShop: {description: Салон красоты, type: boolean}
+      hasBowling: {description: Боулинг, type: boolean}
+      hasBuffet: {description: Буфет, type: boolean}
+      hasCafe: {description: Кафе, type: boolean}
+      hasCanteen: {description: Столовая, type: boolean}
+      hasCarService: {description: Автосервис, type: boolean}
+      hasCarWash: {description: Автомойка, type: boolean}
+      hasCentralReception: {description: Центральная рецепция, type: boolean}
+      hasCinema: {description: Кинотеатр, type: boolean}
+      hasClothesStudio: {description: Ателье одежды, type: boolean}
+      hasConferenceRoom: {description: Конференц-зал, type: boolean}
+      hasEntryByPass: {description: Въезд по пропускам, type: boolean}
+      hasExhibitionAndWarehouseComplex: {description: Выставочно-складской комплекс,
+        type: boolean}
+      hasFitnessCentre: {description: Фитнес-центр, type: boolean}
+      hasFoodCourt: {description: Фуд-корт, type: boolean}
+      hasGameRoom: {description: Игровая комната, type: boolean}
+      hasHotel: {description: Гостиница, type: boolean}
+      hasHourSecurity: {description: Круглосуточная охрана, type: boolean}
+      hasInspectionPit: {description: Смотровая яма, type: boolean}
+      hasMedicalCenter: {description: Медицинский центр, type: boolean}
+      hasMinimarket: {description: Минимаркет, type: boolean}
+      hasNotaryOffice: {description: Нотариальная контора, type: boolean}
+      hasOfficeSpace: {description: Офисные помещения, type: boolean}
+      hasPark: {description: Парк, type: boolean}
+      hasPharmacy: {description: Аптека, type: boolean}
+      hasPool: {description: Бассейн, type: boolean}
+      hasRestaurant: {description: Ресторан, type: boolean}
+      hasRink: {description: Каток, type: boolean}
+      hasShoppingArea: {description: Торговая зона, type: boolean}
+      hasSlotMachines: {description: Игровые автоматы, type: boolean}
+      hasStudio: {description: Фотосалон, type: boolean}
+      hasSupermarket: {description: Супермаркет, type: boolean}
+      hasTire: {description: Шиномонтаж, type: boolean}
+      hasVideoSurveillance: {description: Видеонаблюдение, type: boolean}
+      hasWarehouse: {description: Складские помещения, type: boolean}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CommercialSpecialtySchema:
+    description: Назначение
+    properties:
+      additionalTypes:
+        description: Дополнительные виды
+        items: {type: string}
+        type: array
+      types:
+        description: Возможное назначение (<a href="https://www.cian.ru/xml_import/commercial-possible-appointments.xml"
+          target="_blank">ссылка на справочник</a>)
+        items: {type: string}
+        type: array
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CoordinatesSchema:
+    properties:
+      lat: {description: Широта, format: double, type: number}
+      lng: {description: Долгота, format: double, type: number}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CoworkingSchema:
+    description: Коворкинг
+    properties:
+      accessType:
+        description: Доступ
+        enum: [weekdays, daily]
+        type: string
+        x-daily: Ежедневно
+        x-weekdays: С понедельника по пятницу
+      amenities:
+        description: Удобства
+        items:
+          enum: [wifi, bikeParking, internet, restZone, cafe, cleaning, kitchen, furniture,
+            security, parking, meetingRoom, printer, reception, modern, gym, phoneBooth,
+            techSupport, events, fax, flipchart, fruits, tea, lockers, legalAddress,
+            microphone, soundAbsorbingPanels, projector]
+          type: string
+        type: array
+      id: {description: ID коворкинга в базе мкс coworking, format: int32, type: integer}
+      isRoundTheClock: {description: Работает круглосуточно, type: boolean}
+      name: {description: Название коворкинга., type: string}
+      workTime: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.WorkTimeSchema',
+        description: Рабочее время}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CplModerationSchema:
+    description: Информация о CPL модерации
+    properties:
+      firstName: {description: Имя (для физ. лица), type: string}
+      inn: {description: ИНН (для юр. лица), type: string}
+      lastName: {description: Фамилия (для физ. лица), type: string}
+      personType:
+        description: Тип лица
+        enum: [natural, legal]
+        type: string
+        x-legal: Юридическое лицо
+        x-natural: Физическое лицо
+      secondName: {description: Отчество (для физ. лица), type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CranageTypeSchema:
+    description: Крановое оборудование
+    properties:
+      count: {description: Количество, format: int64, type: integer}
+      loadCapacity: {description: Грузоподъёмность, format: int64, type: integer}
+      type:
+        description: Тип кранового оборудования
+        enum: [beam, gantry, overhead, railway]
+        type: string
+        x-beam: Кран-балка
+        x-gantry: Козловой кран
+        x-overhead: Мостовой кран
+        x-railway: Ж/д кран
+    type: object
+  RealtyApi.Models.Announcements.Swagger.DeadlineSchema:
+    properties:
+      isComplete: {description: Дом сдан, type: boolean}
+      quarter:
+        description: Квартал
+        enum: [first, second, third, fourth]
+        type: string
+        x-first: Первый
+        x-fourth: Четвертый
+        x-second: Второй
+        x-third: Третий
+      year: {description: Срок сдачи, format: int64, type: integer}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.DeveloperSchema:
+    description: Застройщик
+    properties:
+      id: {description: ID застройщика, format: int64, type: integer}
+      name: {description: Название, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.DistrictInfoSchema:
+    properties:
+      id: {description: ID района, format: int64, type: integer}
+      locationId: {description: ID гео-привязки, format: int64, type: integer}
+      name: {description: Название, type: string}
+      parentId: {description: ID родительского района, format: int64, type: integer}
+      type:
+        description: Тип района
+        enum: [okrug, raion, mikroraion, poselenie]
+        type: string
+        x-mikroraion: Микрорайон
+        x-okrug: Административный округ
+        x-poselenie: Административный округ
+        x-raion: Район
+    type: object
+  RealtyApi.Models.Announcements.Swagger.DrainageSchema:
+    description: Канализация
+    properties:
+      capacity: {description: 'Объём, м³/сутки', format: int64, type: integer}
+      locationType:
+        description: Локация канализации
+        enum: ['no', border, location]
+        type: string
+        x-border: По границе участка
+        x-location: На участке
+        x-no: Нет
+      possibleToConnect: {description: Возможно подключить, type: boolean}
+      type:
+        description: Тип канализации
+        enum: [autonomous, central, septicTank, storm, treatmentFacilities]
+        type: string
+        x-autonomous: Автономная
+        x-central: Центральная
+        x-septicTank: Септик
+        x-storm: Ливневая
+        x-treatmentFacilities: Очистные сооружения
+    type: object
+  RealtyApi.Models.Announcements.Swagger.ElectricitySchema:
+    description: Электричество
+    properties:
+      locationType:
+        description: Локация электроснабжения
+        enum: ['no', border, location]
+        type: string
+        x-border: По границе участка
+        x-location: На участке
+        x-no: Нет
+      possibleToConnect: {description: Возможно подключить, type: boolean}
+      power: {description: 'Мощность, кВТ', format: int64, type: integer}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.FlagsSchema:
+    description: Флаги объявления.
+    properties:
+      draftReason:
+        description: Причина перевода объявления в черновик
+        enum: [calltracking, premoderation, user, import, mobile, moderator, moderatorFromImport,
+          restoreAfterBlocked, fixedOffences, readyForPackageBalancing, readyForUploadDelete,
+          deferredPublication, offencesChecked]
+        type: string
+        x-calltracking: Ожидание подмены номера
+        x-deferredPublication: Отправлено в черновик перед отложенной публикацией
+        x-fixedOffences: Отправлено в черновик после устранения жалоб
+        x-import: Отправлено в черновик импортом
+        x-mobile: Отправлено в черновик пользователем через мобильное приложение
+        x-moderator: Отправлено в черновик модератором
+        x-moderatorFromImport: Отправлено в черновик модератором через импорт
+        x-offencesChecked: Проставлен признак "Проверено на ВН"
+        x-premoderation: Премодерация объявления
+        x-readyForPackageBalancing: Отправлено в черновик перед балансировкой
+        x-readyForUploadDelete: Отправлено в черновик перед удалением
+        x-restoreAfterBlocked: Отправлено в черновик после блокировки
+        x-user: Отправлено в черновик пользователем
+      isArchived: {description: Объявление архивировано., type: boolean}
+      isDealRent: {description: Объявление из сделки в аренде., type: boolean}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.FlatSchema:
+    properties:
+      booking: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.BookingSchema',
+        description: Бронирование квартиры}
+      flatNumber: {description: Номер на площадке, format: int32, type: integer}
+      flatType: {description: Тип квартиры, type: string}
+      sectionNumber: {description: Номер секции, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.GarageSchema:
+    description: Гараж
+    properties:
+      garageType:
+        description: Тип гаража
+        enum: [builtIn, capital, samostroy, shell]
+        type: string
+        x-builtIn: Встроенный
+        x-capital: Капитальный
+        x-samostroy: Самострой
+        x-shell: Ракушка
+      material:
+        description: Тип бокса
+        enum: [brick, metal]
+        type: string
+        x-brick: Кирпичный
+        x-metal: Металлический
+      status:
+        description: Статус
+        enum: [byProxy, cooperative, ownership]
+        type: string
+        x-byProxy: По доверенности
+        x-cooperative: Кооператив
+        x-ownership: Собственность
+      type:
+        description: Тип
+        enum: [box, garage, parkingPlace]
+        type: string
+        x-box: Бокс
+        x-garage: Гараж
+        x-parkingPlace: Машиноместо
+    type: object
+  RealtyApi.Models.Announcements.Swagger.GasSchema:
+    description: Газоснабжение
+    properties:
+      capacity: {description: 'Ёмкость, м³/час', format: int64, type: integer}
+      locationType:
+        description: Локация газоснабжения
+        enum: ['no', border, location]
+        type: string
+        x-border: По границе участка
+        x-location: На участке
+        x-no: Нет
+      possibleToConnect: {description: Возможно подключить, type: boolean}
+      pressureType:
+        description: Давление
+        enum: [high, middle, low]
+        type: string
+        x-high: Высокое
+        x-low: Низкое
+        x-middle: Среднее
+    type: object
+  RealtyApi.Models.Announcements.Swagger.GeoSchema:
+    properties:
+      address:
+        description: Адресный элемент
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.AddressInfoSchema'}
+        type: array
+      buildingAddress: {description: Строительный адрес, type: string}
+      calculatedUndergrounds:
+        description: Автоматически рассчитанное время в пути до метро
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CalculatedUndergroundsSchema'}
+        type: array
+      coordinates: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CoordinatesSchema',
+        description: Координаты точки (пользовательского пина на карте)}
+      countryId: {description: ID страны, format: int32, type: integer}
+      district:
+        description: Район
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.DistrictInfoSchema'}
+        type: array
+      highways:
+        description: Шоссе
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.HighwayInfoSchema'}
+        type: array
+      jk: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.JKSchema',
+        description: ЖК}
+      locationPath: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.LocationPathSchema',
+        description: LocationPath}
+      publishCoordinates: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CoordinatesSchema',
+        description: 'Координаты, в которых опубликовано объявление.'}
+      railways:
+        description: Жд станции
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.RailwayInfoSchema'}
+        type: array
+      undergrounds:
+        description: Метро
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.UndergroundInfoSchema'}
+        type: array
+      userInput: {description: 'Адресная строка, введенная пользователем', type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.HighwayInfoSchema:
+    properties:
+      distance: {description: 'Расстояние до города, км', format: double, type: number}
+      id: {description: '<a href="http://www.cian.ru/highways.xml" target="_blank">ID
+          шоссе</a>', format: int32, type: integer}
+      isDefault: {description: Признак основного шоссе (если указано несколько), type: boolean}
+      name: {description: Название, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.HomeOwnerSchema:
+    description: Информация о собственнике
+    properties:
+      cadastralNumber: {description: Кадастровый номер, type: string}
+      firstName: {description: Имя собственника, type: string}
+      flatNumber: {description: Номер квартиры, type: string}
+      houseNumber: {description: Номер дома, type: string}
+      lastName: {description: Фамилия собственника, type: string}
+      secondName: {description: Отчетство собственника, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.JKHouseSchema:
+    properties:
+      flat: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.FlatSchema',
+        description: Квартира}
+      id: {description: "ID<br />\r\nОбязательное поле для объявлений продажи квартир\
+          \ в новостройке для пользователей на тарифе Застройщик.\r\nПолный список\
+          \ идентификаторов можно получить, обратившись к нам через <a href=\"https://www.cian.ru/contacts/\"\
+          >форму обратной связи</a>.", format: int64, type: integer}
+      name: {description: Название, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.JKSchema:
+    description: ЖК
+    properties:
+      developer: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.DeveloperSchema',
+        description: Gets or Sets Developer}
+      house: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.JKHouseSchema',
+        description: Корпус}
+      id: {description: "ID ЖК в базе CIAN<br />\r\nОбязательное поле для объявлений\
+          \ продажи квартир в новостройке.<br />\r\nИдентификатор можно получить из\
+          \ url карточки ЖК:<br /><img src=\"https://files.cian.ru/files/images/xml_import/doc_jkschema_id.png\"\
+          \ width=\"415px\" /><br />\r\nПолный список идентификаторов можно получить,\
+          \ обратившись к нам через <a href=\"https://www.cian.ru/contacts/\">форму\
+          \ обратной связи</a>.", format: int32, type: integer}
+      name: {description: Название ЖК, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.KPSchema:
+    description: КП
+    properties:
+      id: {description: "ID коттеджного посёлка в базе CIAN<br />\r\nИдентификатор\
+          \ можно получить из url карточки коттеджного посёлка:<br /><img src=\"https://files.cian.ru/files/images/xml_import/doc_kpschema_id.png\"\
+          \ width=\"415px\" />", format: int32, type: integer}
+      isResale: {description: Признак вторичной недвижимости в КП, type: boolean}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.LandSchema:
+    properties:
+      area: {description: Площадь участка, format: double, type: number}
+      areaUnitType:
+        description: Единица измерения
+        enum: [hectare, sotka]
+        type: string
+        x-hectare: Гектар
+        x-sotka: Сотка
+      possibleToChangeStatus: {description: Возможно изменить статус, type: boolean}
+      status:
+        description: Категория земли
+        enum: [farm, privateFarm, forAgriculturalPurposes, forestArea, gardening,
+          gardeningNonProfitPartnership, individualHousingConstruction, industrialLand,
+          industryTransportCommunications, investmentProject, ofProtectedCategories,
+          reserve, suburbanNonProfitPartnership, suburbanNonProfitSettlementsPartnership,
+          waterArea, settlements]
+        type: string
+        x-farm: Фермерское хозяйство
+        x-forAgriculturalPurposes: Участок сельскохозяйственного назначения
+        x-forestArea: Участок лесного фонда
+        x-gardening: Садоводство
+        x-gardeningNonProfitPartnership: Садовое некоммерческое товарищество
+        x-individualHousingConstruction: Индивидуальное жилищное строительство
+        x-industrialLand: Земля промышленного назначения
+        x-industryTransportCommunications: Участок промышленности, транспорта, связи
+          и иного не сельхоз. назначения
+        x-investmentProject: Инвестпроект
+        x-ofProtectedCategories: Особо охраняемых категорий
+        x-privateFarm: Личное подсобное хозяйство
+        x-reserve: Участок запаса
+        x-settlements: Поселений
+        x-suburbanNonProfitPartnership: Дачное некоммерческое партнерство
+        x-suburbanNonProfitSettlementsPartnership: Дачное некоммерческое партнерство
+          поселений
+        x-waterArea: Участок водного фонда
+      type:
+        description: Тип участка
+        enum: [owned, rent]
+        type: string
+        x-owned: В собственности
+        x-rent: В аренде
+    type: object
+  RealtyApi.Models.Announcements.Swagger.LiftTypeSchema:
+    description: Лифты
+    properties:
+      additionalType: {description: Дополнительный тип, type: string}
+      count: {description: Количество, format: int64, type: integer}
+      loadCapacity: {description: Грузоподъёмность, format: double, type: number}
+      type:
+        description: Тип лифта
+        enum: [cargo, escalator, lift, passenger, telpher, travelator]
+        type: string
+        x-cargo: Грузовой
+        x-escalator: Эскалатор
+        x-lift: Лифт
+        x-passenger: Пассажирский
+        x-telpher: Тельфер
+        x-travelator: Траволатор
+    type: object
+  RealtyApi.Models.Announcements.Swagger.LocationPathSchema:
+    description: LocationPath
+    properties:
+      childToParent:
+        description: Список локаций отсортированный от более детализированного к региону
+        items: {format: int32, type: integer}
+        type: array
+      countryId: {description: ID страны, format: int32, type: integer}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.MonthlyIncomeSchema:
+    description: Прибыль
+    properties:
+      currency:
+        description: Валюта
+        enum: [eur, rur, usd]
+        type: string
+        x-eur: Евро
+        x-rur: Рубль
+        x-usd: Доллар
+      income: {description: Прибыль, format: double, type: number}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.ObjectModel:
+    description: Модель объявления.
+    properties:
+      accessType:
+        description: Доступ
+        enum: [free, passSystem]
+        type: string
+        x-free: Свободный
+        x-passSystem: Пропускная система
+      additionalPhoneLinesAllowed: {description: Доп. линии, type: boolean}
+      allRoomsArea: {description: "Площадь комнат, м².\r\n+ для обозначения смежных\
+          \ комнат, - для раздельных комнат.\r\n            \r\nПоле RoomDefinitions\
+          \ имеет приоритет - если оно задано, поле AllRoomsArea будет переопределено.",
+        type: string}
+      archivedDate: {description: Дата переноса объявления в архив., format: date-time,
+        type: string}
+      areaParts:
+        description: Сдача частей в аренду
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.RentByPartsSchema'}
+        type: array
+      auction: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.AuctionSchema'}
+      availableFrom: {description: Дата освобождения, type: string}
+      balconiesCount: {description: Количество балконов, format: int64, type: integer}
+      bargainTerms: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.BargainTermsSchema',
+        description: Условия сделки}
+      bedroomsCount: {description: Количество спален, format: int64, type: integer}
+      bedsCount: {description: Количество спальных мест, format: int64, type: integer}
+      building: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.BuildingSchema',
+        description: Информация о здании}
+      businessShoppingCenter: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.BusinessShoppingCenterSchema',
+        description: 'ТЦ/БЦ, <a href="https://www.cian.ru/cian-api/site/v1/business-shopping-centers-export/to-client-excel/">Скачать
+          список ID</a>'}
+      cadastralNumber: {description: Кадастровый номер, type: string}
+      callTrackingProvider:
+        description: Тип подключенного calltracking'а
+        enum: [beeline, MTT, mts, qa]
+        type: string
+        x-MTT: ''
+        x-beeline: ''
+        x-mts: ''
+        x-qa: ''
+      canParts: {description: Можно частями, type: boolean}
+      category:
+        description: Категория объявления
+        enum: [bedRent, buildingRent, buildingSale, businessRent, businessSale, carServiceRent,
+          carServiceSale, commercialLandRent, commercialLandSale, cottageRent, cottageSale,
+          dailyBedRent, dailyFlatRent, dailyHouseRent, dailyRoomRent, domesticServicesRent,
+          domesticServicesSale, flatRent, flatSale, flatShareSale, freeAppointmentObjectRent,
+          freeAppointmentObjectSale, garageRent, garageSale, houseRent, houseSale,
+          houseShareRent, houseShareSale, industryRent, industrySale, landSale, newBuildingFlatSale,
+          officeRent, officeSale, publicCateringRent, publicCateringSale, roomRent,
+          roomSale, shoppingAreaRent, shoppingAreaSale, townhouseRent, townhouseSale,
+          warehouseRent, warehouseSale]
+        type: string
+        x-bedRent: Койко-место
+        x-buildingRent: Здание
+        x-buildingSale: Здание
+        x-businessRent: Готовый бизнес
+        x-businessSale: Готовый бизнес
+        x-carServiceRent: Аренда автосервис
+        x-carServiceSale: Продажа автосервиса
+        x-commercialLandRent: Коммерческая земля
+        x-commercialLandSale: Коммерческая земля
+        x-cottageRent: Коттедж
+        x-cottageSale: Коттедж
+        x-dailyBedRent: Посуточная аренда койко-места
+        x-dailyFlatRent: Посуточная аренда квартиры
+        x-dailyHouseRent: Посуточная аренда дома, дачи, коттеджа
+        x-dailyRoomRent: Посуточная аренда комнаты
+        x-domesticServicesRent: Аренда помещения под бытовые услуги
+        x-domesticServicesSale: Продажа помещения под бытовые услуги
+        x-flatRent: Квартира
+        x-flatSale: Квартира
+        x-flatShareSale: Доля в квартире
+        x-freeAppointmentObjectRent: Помещение свободного назначения
+        x-freeAppointmentObjectSale: Помещение свободного назначения
+        x-garageRent: Гараж
+        x-garageSale: Гараж
+        x-houseRent: Дом/дача
+        x-houseSale: Дом/дача
+        x-houseShareRent: Часть дома
+        x-houseShareSale: Часть дома
+        x-industryRent: Производство
+        x-industrySale: Производство
+        x-landSale: Участок
+        x-newBuildingFlatSale: Квартира в новостройке
+        x-officeRent: Офис
+        x-officeSale: Офис
+        x-publicCateringRent: Аренда общепита
+        x-publicCateringSale: Продажа общепита
+        x-roomRent: Комната
+        x-roomSale: Комната
+        x-shoppingAreaRent: Торговая площадь
+        x-shoppingAreaSale: Торговая площадь
+        x-townhouseRent: Таунхаус
+        x-townhouseSale: Таунхаус
+        x-warehouseRent: Склад
+        x-warehouseSale: Склад
+      childrenAllowed: {description: Можно с детьми, type: boolean}
+      cianId: {description: ID объявления на ЦИАНе, format: int64, type: integer}
+      cianUserId: {description: ID пользователя в ЦИАНе, format: int64, type: integer}
+      combinedWcsCount: {description: Количество совместных санузлов, format: int64,
+        type: integer}
+      conditionRatingType:
+        description: Состояние
+        enum: [excellent, good, satisfactory]
+        type: string
+        x-excellent: Отличное
+        x-good: Хорошее
+        x-satisfactory: Удовлетворительное
+      conditionType:
+        description: Состояние
+        enum: [cosmeticRepairsRequired, design, finishing, majorRepairsRequired, office,
+          typical]
+        type: string
+        x-cosmeticRepairsRequired: Требуется косметический ремонт
+        x-design: Дизайнерский ремонт
+        x-finishing: Под чистовую отделку
+        x-majorRepairsRequired: Требуется капитальный ремонт
+        x-office: Офисная отделка
+        x-typical: Типовой ремонт
+      coworking: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CoworkingSchema',
+        description: Коворкинг}
+      coworkingOfferType:
+        description: Тип коворкинга
+        enum: [office, fixedWorkplace, flexibleWorkplace, conferenceHall, meetingRoom]
+        type: string
+        x-conferenceHall: Конференц-зал
+        x-fixedWorkplace: Закрепленное рабочее место
+        x-flexibleWorkplace: Незакрепленное рабочее место
+        x-meetingRoom: Переговорная комната
+        x-office: Офис
+      cplModeration: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CplModerationSchema',
+        description: "Данные для CPL модерации.<br />\r\nЗаполняются данными дольщика\
+          \ из ДДУ<br />\r\nДля физ. лица необходимо указать ФИО, для юр. лица ИНН.<br\
+          \ />\r\nПоля являются обязательными в следующих регионах: Москва, Московская\
+          \ область, Санкт-Петербург, Ленинградская область."}
+      creationDate: {description: Дата создания объявления, format: date-time, type: string}
+      decoration:
+        description: Отделка
+        enum: [fine, rough, without]
+        type: string
+        x-fine: Чистовая
+        x-rough: Черновая
+        x-without: Без отделки
+      description: {description: Текст объявления, type: string}
+      drainage: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.DrainageSchema',
+        description: Канализация}
+      drainageCapacity: {description: 'Объем, м³/сутки', format: int64, type: integer}
+      drainageType:
+        description: Тип канализации
+        enum: [central, septicTank, storm, treatmentFacilities]
+        type: string
+        x-central: Центральная
+        x-septicTank: Септик
+        x-storm: Ливневая
+        x-treatmentFacilities: Очистные сооружения
+      drivewayType:
+        description: Подъездные пути
+        enum: ['no', asphalt, ground]
+        type: string
+        x-asphalt: Асфальтированная дорога
+        x-ground: Грунтовая дорога
+        x-no: Нет
+      editDate: {description: Дата редактирования объявления., format: date-time,
+        type: string}
+      electricity: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.ElectricitySchema',
+        description: Электроснабжение}
+      electricityPower: {description: 'Мощность, кВТ', format: int64, type: integer}
+      electricityType:
+        description: Тип электроснабжения
+        enum: [border, main, transformerVault]
+        type: string
+        x-border: По границе участка
+        x-main: Магистральное
+        x-transformerVault: Трансформаторная будка
+      emlsId: {description: Emls Id объявления, type: string}
+      estateType:
+        description: Недвижимость
+        enum: [owned, rent]
+        type: string
+        x-owned: В собственности
+        x-rent: В аренде
+      feedboxMultiOfferKey: {description: Ключ мультиобъявления из Feedbox., type: string}
+      flags: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.FlagsSchema',
+        description: Флаги объявления.}
+      flatType:
+        description: Тип квартиры
+        enum: [openPlan, rooms, studio]
+        type: string
+        x-openPlan: Свободная планировка
+        x-rooms: Комнаты
+        x-studio: Студия
+      floorMaterialType:
+        description: Материал пола
+        enum: [polymeric, concrete, linoleum, asphalt, tile, selfLeveling, reinforcedConcrete,
+          wood, laminate]
+        type: string
+        x-asphalt: Асфальт
+        x-concrete: Бетон
+        x-laminate: Ламинат
+        x-linoleum: Линолеум
+        x-polymeric: Полимерный
+        x-reinforcedConcrete: Железобетон
+        x-selfLeveling: Наливной
+        x-tile: Плитка
+        x-wood: Деревянный
+      floorNumber: {description: Этаж, format: int64, type: integer}
+      furniturePresence:
+        description: Мебель
+        enum: ['no', optional, 'yes']
+        type: string
+        x-no: Нет
+        x-optional: По желанию
+        x-yes: Есть
+      garage: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.GarageSchema',
+        description: Тип гаража}
+      gas: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.GasSchema',
+        description: Газоснабжение}
+      gasCapacity: {description: 'Емкость, м³/час', format: int64, type: integer}
+      gasPressure: {description: 'Давление, Мпа', format: int64, type: integer}
+      gasType:
+        description: Тип газоснабжения
+        enum: [border, main]
+        type: string
+        x-border: По границе участка
+        x-main: Магистральное
+      geo: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.GeoSchema',
+        description: Gets or Sets Geo}
+      hasBathhouse: {description: Есть баня, type: boolean}
+      hasBathtub: {description: Есть ванна, type: boolean}
+      hasConditioner: {description: Есть кондиционер, type: boolean}
+      hasDishwasher: {description: Есть посудомоечная машина, type: boolean}
+      hasDrainage: {description: Есть канализация, type: boolean}
+      hasElectricity: {description: Есть электричество, type: boolean}
+      hasEncumbrances: {description: Есть обременение, type: boolean}
+      hasEquipment: {description: Есть оборудование, type: boolean}
+      hasExtinguishingSystem: {description: Есть система пожаротушения, type: boolean}
+      hasFridge: {description: Есть холодильник, type: boolean}
+      hasFurniture: {description: Есть мебель в комнатах, type: boolean}
+      hasGarage: {description: Есть гараж, type: boolean}
+      hasGas: {description: Есть газ, type: boolean}
+      hasHeating: {description: Есть отопление, type: boolean}
+      hasInternet: {description: Есть интернет, type: boolean}
+      hasInvestmentProject: {description: Есть инвестпроект, type: boolean}
+      hasKitchenFurniture: {description: Есть мебель на кухне, type: boolean}
+      hasLift: {description: Есть лифт, type: boolean}
+      hasLight: {description: Есть свет, type: boolean}
+      hasParking: {description: Есть парковка, type: boolean}
+      hasPhone: {description: Есть телефон, type: boolean}
+      hasPool: {description: Есть бассейн, type: boolean}
+      hasRamp: {description: Пандус, type: boolean}
+      hasSafeCustody: {description: Ответственное хранение, type: boolean}
+      hasSecurity: {description: Есть охрана, type: boolean}
+      hasShopWindows: {description: Витринные окна, type: boolean}
+      hasShower: {description: Есть душевая кабина, type: boolean}
+      hasTransportServices: {description: Транспортные услуги, type: boolean}
+      hasTv: {description: Есть телевизор, type: boolean}
+      hasWasher: {description: Есть стиральная машина, type: boolean}
+      hasWater: {description: Есть водоснабжение, type: boolean}
+      homeOwner: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.HomeOwnerSchema',
+        description: Информация о собственнике}
+      id: {description: ID объявления в Realty, format: int32, type: integer}
+      inputType:
+        description: Вход
+        enum: [commonFromStreet, commonFromYard, separateFromStreet, separateFromYard]
+        type: string
+        x-commonFromStreet: Общий с улицы
+        x-commonFromYard: Общий со двора
+        x-separateFromStreet: Отдельный с улицы
+        x-separateFromYard: Отдельный со двора
+      isApartments: {description: Апартаменты, type: boolean}
+      isByCommercialOwner: {description: Объявление опубликовано собственником коммерческой,
+        type: boolean}
+      isByHomeOwner: {description: Собственник объявления, type: boolean}
+      isCustoms: {description: Таможня, type: boolean}
+      isEnabledCallTracking: {description: 'Флаг, показывающий включен ли calltracking',
+        type: boolean}
+      isInHiddenBase: {description: Размещение в закрытой базе, type: boolean}
+      isLegalAddressProvided: {description: Юридический адрес, type: boolean}
+      isOccupied: {description: Помещение занято, type: boolean}
+      isPenthouse: {description: Пентхаус, type: boolean}
+      isRentByParts: {description: Сдается ли в аренду частями, type: boolean}
+      isSecret: {description: Объявление в закрытую базу только для специалистов,
+        type: boolean}
+      kitchenArea: {description: 'Площадь кухни, м²', format: double, type: number}
+      kp: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.KPSchema',
+        description: Коттеджный поселок}
+      land: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.LandSchema',
+        description: Информация об участке}
+      layout:
+        description: Планировка
+        enum: [cabinet, mixed, openSpace, corridorplan]
+        type: string
+        x-cabinet: Кабинетная
+        x-corridorplan: Коридорная
+        x-mixed: Смешанная
+        x-openSpace: Открытая
+      layoutPhoto: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PhotoSchema',
+        description: " Планировка.<br />\r\n LayoutPhoto - изображение планировки,\
+          \ если указан isDefault = true, то всегда идет первым. Если указан isDefault\
+          \ = false, фото планировки будет вторым, а первым установится фото со значением\
+          \ isDefault = true тэга Photos. Фото с установленным IsDefault = true всегда\
+          \ перемещается на первое место, а остальные фотографии отображаются в соответствии\
+          \ с порядком, указанным в объявлении. IsDefault = true может быть установлен\
+          \ только для одного Photo или LayoutPhoto.\r\n<a href=\"https://www.cian.ru/help/quality/qualityrules/\"\
+          >Требования к изображениям.</a>"}
+      livingArea: {description: 'Жилая площадь, м²', format: double, type: number}
+      loggiasCount: {description: Количество лоджий, format: int64, type: integer}
+      maxArea: {description: Площадь до, format: double, type: number}
+      minArea: {description: Площадь от, format: double, type: number}
+      monthlyIncome: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.MonthlyIncomeSchema',
+        description: Месячная прибыль}
+      name: {description: Наименование, type: string}
+      objectGuid: {description: Временный ID объявления (GUID), type: string}
+      permittedUseType:
+        description: Вид разрешённого использования
+        enum: [agricultural, individualHousingConstruction, lowriseHousing, highriseBuildings,
+          publicUseOfCapitalConstruction, businessManagement, shoppingCenters, hotelAmenities,
+          serviceVehicles, leisure, industry, warehouses, commonUseArea]
+        type: string
+        x-agricultural: Cельскохозяйственное использование
+        x-businessManagement: Деловое управление
+        x-commonUseArea: Общее пользование территории
+        x-highriseBuildings: Высотная застройка
+        x-hotelAmenities: Гостиничное обслуживание
+        x-individualHousingConstruction: Индивидуальное жилищное строительство (ИЖС)
+        x-industry: Промышленность
+        x-leisure: Отдых (рекреация)
+        x-lowriseHousing: Малоэтажное жилищное строительство (МЖС)
+        x-publicUseOfCapitalConstruction: Общественное использование объектов капитального
+          строительства
+        x-serviceVehicles: Обслуживание автотранспорта
+        x-shoppingCenters: Торговые центры
+        x-warehouses: Склады
+      petsAllowed: {description: Можно с животными, type: boolean}
+      phoneLinesCount: {description: Кол-во телефонных линий, format: int64, type: integer}
+      phones:
+        description: Телефон
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PhoneSchema'}
+        type: array
+      photos:
+        description: Фотографии объекта
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PhotoSchema'}
+        type: array
+      placementType:
+        description: Тип помещения
+        enum: [shoppingMall, streetRetail]
+        type: string
+        x-shoppingMall: Помещение в торговом комплексе
+        x-streetRetail: Street retail
+      platform: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PlatformSchema',
+        description: Источник последних изменений}
+      possibleToChangePermittedUseType: {description: Возможно изменить вид разрешённого
+          использования, type: boolean}
+      projectDeclarationUrl: {description: Проектная декларация, type: string}
+      propertyType:
+        description: Тип недвижимости
+        enum: [building, freeAppointment, garage, industry, land, office, shoppingArea,
+          warehouse]
+        type: string
+        x-building: здание
+        x-freeAppointment: помещение свободного назначения
+        x-garage: гараж
+        x-industry: производство
+        x-land: земля
+        x-office: офис
+        x-shoppingArea: торговая площадь
+        x-warehouse: склад
+      publishTerms: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PublishTermsSchema',
+        description: "Условия размещения объявления <br />\r\nСрок размещения платного\
+          \ в аренде жилой - 7 дней, продаже жилой - 30 дней.<br />\r\nСрок размещения\
+          \ платного в аренде коммерческой - 30 дней, продаже коммерческой - 30 дней.<br\
+          \ />\r\nПремиум и Топ размещение - посуточно.<br />\r\nСрок действия Выделенние\
+          \ цветом такой же, как и у размещения на которое вы его добавляете (платное\
+          \ или премиум)"}
+      publishedUserId: {description: ID пользователя в Realty от имени которого оно
+          отображается, format: int64, type: integer}
+      rentByPartsDescription: {description: Описание сдачи части в аренду, type: string}
+      repairType:
+        description: Тип ремонта
+        enum: [cosmetic, design, euro, 'no']
+        type: string
+        x-cosmetic: Косметический
+        x-design: Дизайнерский
+        x-euro: Евроремонт
+        x-no: Без ремонта
+      roomArea: {description: 'Площадь комнаты (комната, койко-место)', format: double,
+        type: number}
+      roomType:
+        description: Тип комнаты (комната)
+        enum: [both, combined, separate]
+        type: string
+        x-both: Оба варианта
+        x-combined: Совмещенная
+        x-separate: Изолированная
+      roomsArea: {description: 'Площадь комнат, м²', format: double, type: number}
+      roomsCount: {description: Количество комнат всего, format: int64, type: integer}
+      roomsForSaleCount: {description: Количество комнат в продажу/аренду, format: int64,
+        type: integer}
+      rowVersion: {description: Версия объявления., format: int64, type: integer}
+      separateWcsCount: {description: Количество раздельных санузлов, format: int64,
+        type: integer}
+      settlementName: {description: Название коттеджного поселка, type: string}
+      shareAmount: {description: Размер доли в доме, type: string}
+      source:
+        description: Источник объявления
+        enum: [website, upload, mobileApp]
+        type: string
+        x-mobileApp: Мобильное приложение
+        x-upload: Выгрузки
+        x-website: Ручная подача
+      specialty: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CommercialSpecialtySchema',
+        description: Возможное назначение}
+      status:
+        description: Статус объявления
+        enum: [Draft, Published, Deactivated, Refused, Deleted, Sold, Moderate, RemovedByModerator,
+          Blocked]
+        type: string
+        x-Blocked: 20 - объявление снято с публикации по причине применения санкции
+          "приостановки публикации"
+        x-Deactivated: 14 - Деактивировано (ранее было скрыто Hidden)
+        x-Deleted: 16 - Удалён
+        x-Draft: 11 - Черновик
+        x-Moderate: "18 - Требует модерации\r\nДанный статус исчез - оставим для совместимости"
+        x-Published: 12 - Опубликовано
+        x-Refused: 15 - Отклонено модератором
+        x-RemovedByModerator: 19 - Удалено модератором
+        x-Sold: 17 - Продано/Сдано
+      storeInHiddenBase: {description: Размещение в закрытой базе, type: boolean}
+      taxNumber: {description: Номер налоговой, format: int32, type: integer}
+      title: {description: Заголовок объявления. Отображается только для объявлений
+          Премиум и ТОП. Максимальная длина - 33 символа. Минимальная - 8 символов
+          без знаков препинания и пробелов., type: string}
+      totalArea: {description: 'Общая площадь, м²', format: double, type: number}
+      userId: {description: ID пользователя в Realty, format: int64, type: integer}
+      version: {description: Версия модели. Используется для миграции данных., format: int32,
+        type: integer}
+      videos:
+        description: Видео
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.VideoSchema'}
+        type: array
+      water: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.WaterSchema',
+        description: Водоснабжение}
+      waterCapacity: {description: 'Объем, м³/сутки', format: int64, type: integer}
+      waterPipesCount: {description: Количество мокрых точек (водопровод), format: int32,
+        type: integer}
+      waterType:
+        description: Тип водоснабжения
+        enum: [central, pumpingStation, waterIntakeFacility, waterTower]
+        type: string
+        x-central: Центральное
+        x-pumpingStation: Водонапорная станция
+        x-waterIntakeFacility: Водозаборный узел
+        x-waterTower: Водонапорная башня
+      wcLocationType:
+        description: Расположение санузла
+        enum: [indoors, outdoors]
+        type: string
+        x-indoors: В доме
+        x-outdoors: На улице
+      wcType:
+        description: Тип санузла (комната)
+        enum: [combined, separate]
+        type: string
+        x-combined: Совмещенный
+        x-separate: Раздельный
+      windowsViewType:
+        description: Куда выходят окна
+        enum: [street, yard, yardAndStreet]
+        type: string
+        x-street: На улицу
+        x-yard: Во двор
+        x-yardAndStreet: На улицу и двор
+      workplaceCount: {description: Количество рабочих мест, format: int32, type: integer}
+    required: [phones, category, bargainTerms]
+    type: object
+  RealtyApi.Models.Announcements.Swagger.OpeningHoursSchema:
+    description: Часы работы
+    properties:
+      from: {description: От, type: string}
+      to: {description: До, type: string}
+      type:
+        description: От/до или круглосуточно
+        enum: [roundTheClock, specific]
+        type: string
+        x-roundTheClock: Круглосуточно
+        x-specific: От/до
+    type: object
+  RealtyApi.Models.Announcements.Swagger.ParkingSchema:
+    description: Парковка
+    properties:
+      currency:
+        description: Валюта
+        enum: [eur, rur, usd]
+        type: string
+        x-eur: Евро
+        x-rur: Рубль
+        x-usd: Доллар
+      isAvailable: {description: Доступна, type: boolean}
+      isFree: {description: Бесплатная, type: boolean}
+      locationType:
+        description: Расположение парковки
+        enum: [external, internal]
+        type: string
+        x-external: За территорией объекта
+        x-internal: На территории объекта
+      placesCount: {description: Количество мест, format: int64, type: integer}
+      priceEntry: {description: Стоимость въезда, format: double, type: number}
+      priceMonthly: {description: Стоимость в месяц за место, format: double, type: number}
+      purposeType:
+        description: Назначение парковки
+        enum: [cargo, passenger]
+        type: string
+        x-cargo: Для грузового транспорта
+        x-passenger: Для легковесного транспорта
+      type:
+        description: Тип парковки
+        enum: [ground, multilevel, roof, underground, open]
+        type: string
+        x-ground: Наземная
+        x-multilevel: Многоуровневая
+        x-open: Открытая
+        x-roof: На крыше
+        x-underground: Подземная
+    type: object
+  RealtyApi.Models.Announcements.Swagger.PhoneSchema:
+    properties:
+      countryCode: {description: Код страны, type: string}
+      number: {description: Номер, type: string}
+      sourcePhone: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.SourcePhoneSchema',
+        description: Исходный номер телефона}
+    required: [countryCode, number]
+    type: object
+  RealtyApi.Models.Announcements.Swagger.PhotoSchema:
+    properties:
+      coordinates: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CoordinatesSchema',
+        description: Координаты снимка.}
+      fullUrl: {description: URL исходного изображения, type: string}
+      id: {description: ID фотографии, format: int64, type: integer}
+      isCianLayout: {description: Является ли фото планировкой Циан, type: boolean}
+      isDefault: {description: Является ли фото по-умолчанию, type: boolean}
+      miniUrl: {description: URL превью, type: string}
+      rotateDegree: {description: Угол поворота, format: int64, type: integer}
+      source:
+        description: Источник фото.
+        enum: [camera, gallery]
+        type: string
+        x-camera: Снимок с камеры.
+        x-gallery: Выбрано из галереи.
+      thumbnail2Url: {description: URL превью для мобильных приложений, type: string}
+      thumbnailUrl: {description: URL превью, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.PlatformSchema:
+    properties:
+      type:
+        enum: [webSite, android, ios, upload, app, qaAutotests]
+        type: string
+        x-android: ''
+        x-app: ''
+        x-ios: ''
+        x-qaAutotests: ''
+        x-upload: ''
+        x-webSite: ''
+      version: {type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.PublishTermSchema:
+    description: Условия размещения
+    properties:
+      days: {description: Количество дней, format: int64, type: integer}
+      dynamicPrice: {description: 'Стоимость услуги, которая может меняться пользователем',
+        format: double, type: number}
+      excludedServices:
+        description: Условия размещения, которые нельзя применять к объявлению
+        items:
+          enum: [highlight, premium, top3]
+          type: string
+          x-highlight: <a href="http://www.cian.ru/promo/adv/#color" target="_blank">Выделение
+            цветом</a>
+          x-premium: <a href="http://www.cian.ru/promo/adv/#premium" target="_blank">Премиум-объявление</a>
+          x-top3: <a href="http://www.cian.ru/promo/adv/#top3" target="_blank">Топ</a>
+        type: array
+      ignoreServicePackages: {description: Не использовать пакет размещений при публикации
+          объявления, type: boolean}
+      services:
+        description: Список размещений
+        items:
+          enum: [free, highlight, paid, premium, top3, calltracking, auction]
+          type: string
+          x-auction: Аукцион
+          x-calltracking: Защита номера
+          x-free: Бесплатное
+          x-highlight: <a href="http://www.cian.ru/promo/adv/#color" target="_blank">Выделение
+            цветом</a>
+          x-paid: Платное
+          x-premium: <a href="http://www.cian.ru/promo/adv/#premium" target="_blank">Премиум-объявление</a>
+          x-top3: <a href="http://www.cian.ru/promo/adv/#top3" target="_blank">Топ</a>
+        type: array
+      tariffIdentificator: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.TariffIdentificatorSchema',
+        description: Идентификатор записи в тарифной сетке.}
+      type:
+        description: Тип тарификации
+        enum: [dailyLimited, dailyTermless, periodical]
+        type: string
+        x-dailyLimited: Ограниченная по дням публикация, подневная тарификация
+        x-dailyTermless: Бессрочная публикация, подневная тарификация
+        x-periodical: Тарификация за весь период
+    type: object
+  RealtyApi.Models.Announcements.Swagger.PublishTermsSchema:
+    description: "Условия размещения объявления\r\nСрок размещения платного в аренде\
+      \ жилой 7 дней, продаже жилой 30 дней.\r\nСрок размещения платного в аренде\
+      \ коммерческой 30 дней, продаже коммерческой 30 дней.\r\nПремиум и Топ размещение\
+      \ - посуточно.\r\nСрок действия Выделенние цветом такой же, как и у размещения\
+      \ на которое вы его добавляете (платное или премиум)"
+    properties:
+      autoprolong: {description: Автопродление включено, type: boolean}
+      infinitePublishPeriod: {description: "Если true, то будет использован бесконечный\
+          \ период публикации.\r\nТолько для выгрузок, при ручной подаче игнорируем.",
+        type: boolean}
+      skipBilling: {description: "Пропускает биллинг объявления.\r\nТолько для выгрузок,\
+          \ при ручной подаче игнорируем.", type: boolean}
+      skipMinimalPriceCheck: {description: "Пропустить проверку минимальной цены.\r\
+          \nТолько для выгрузок, при ручной подаче игнорируем.", type: boolean}
+      terms:
+        description: Условия размещения
+        items: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PublishTermSchema'}
+        type: array
+    type: object
+  RealtyApi.Models.Announcements.Swagger.RailwayInfoSchema:
+    description: Жд станция
+    properties:
+      directionIds:
+        description: Список id направлений, к которым относится станция
+        items: {format: int32, type: integer}
+        type: array
+      distance: {description: 'Расстояние до станции, км', format: double, type: number}
+      id: {description: Id жд станции, format: int32, type: integer}
+      name: {description: Название, type: string}
+      time: {description: 'Время в пути, мин', format: int32, type: integer}
+      travelType:
+        description: Способ передвижения
+        enum: [byCar, byFoot]
+        type: string
+        x-byCar: На автомобиле
+        x-byFoot: Пешком
+    type: object
+  RealtyApi.Models.Announcements.Swagger.RentByPartsSchema:
+    description: Класс для представления части помещения в аренду
+    properties:
+      area: {description: Площадь части, format: double, type: number}
+      price: {description: Стоимость части, format: double, type: number}
+      vatPrice: {description: Налог на стоимость части, format: double, type: number}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.SourcePhoneSchema:
+    properties:
+      countryCode: {description: Код страны, type: string}
+      number: {description: Номер, type: string}
+    required: [countryCode, number]
+    type: object
+  RealtyApi.Models.Announcements.Swagger.TariffIdentificatorSchema:
+    description: Идентификатор записи в тарифной сетке.
+    properties:
+      tariffGridType:
+        enum: [packageTariff, servicePackageGroup, servicePackage, dynamicPricing]
+        type: string
+        x-dynamicPricing: Произвольное ценообразование
+        x-packageTariff: Тарифная сетка на основе пакетов и таблицы Tariff
+        x-servicePackage: Покупка по пакету
+        x-servicePackageGroup: "Покупка по слоту\r\nTariffAction для таких теперь\
+          \ создается, но не списывается"
+      tariffId: {format: int32, type: integer}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.UndergroundInfoSchema:
+    properties:
+      cianId: {description: ID линии метро на ЦИАНе, format: int64, type: integer}
+      id: {description: '<a href="http://www.cian.ru/metros-moscow.xml" target="_blank">ID
+          метро в Москве</a> (Int32)<br /><a href="http://www.cian.ru/metros-petersburg.xml"
+          target="_blank">ID метро в Санкт-Петербурге</a> (Int32)<br /><a href="http://www.cian.ru/metros-samara.xml"
+          target="_blank">ID метро в Самаре</a> (Int32)<br /><a href="http://www.cian.ru/metros-nn.xml"
+          target="_blank">ID метро в Нижнем Новгороде</a> (Int32)<br /><a href="http://www.cian.ru/metros-novosibirsk.xml"
+          target="_blank">ID метро в Новосибирске</a> (Int32)<br /><a href="http://www.cian.ru/metros-kazan.xml"
+          target="_blank">ID метро в Казани</a> (Int32)<br /><a href="http://www.cian.ru/metros-ekaterinburg.xml"
+          target="_blank">ID метро в Екатеринбурге</a>', format: int32, type: integer}
+      isDefault: {description: Признак основной станции метро (если указано несколько),
+        type: boolean}
+      lineColor: {description: 'Цвет линии метро, hex', type: string}
+      lineId: {description: ID линии метро, format: int64, type: integer}
+      name: {description: Название, type: string}
+      time: {description: 'Время в пути в минутах до метро, мин', format: int32, type: integer}
+      transportType:
+        description: Способ передвижения до метро
+        enum: [transport, walk]
+        type: string
+        x-transport: На транспорте
+        x-walk: Пешком
+    type: object
+  RealtyApi.Models.Announcements.Swagger.UtilitiesTermsSchema:
+    description: Коммунальные платежи
+    properties:
+      flowMetersNotIncludedInPrice: {description: Счетчики оплачиваются отдельно,
+        type: boolean}
+      includedInPrice: {description: Включены в стоимость, type: boolean}
+      price: {description: Сумма платежей, format: double, type: number}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.VideoSchema:
+    description: Видео
+    properties:
+      duration: {description: Длительность в секундах, format: int32, type: integer}
+      id: {description: Id видео, type: string}
+      insertedDate: {description: Дата вставки видео в объявления, format: date-time,
+        type: string}
+      type:
+        description: Тип видео
+        enum: [youtube]
+        type: string
+        x-youtube: ''
+      uploadDate: {description: Дата загрузки видео на хостинг, format: date-time,
+        type: string}
+      url: {description: Ссылка на видео, type: string}
+    type: object
+  RealtyApi.Models.Announcements.Swagger.WaterSchema:
+    description: Водоснабжение
+    properties:
+      capacity: {description: 'Объём, м³/сутки', format: int64, type: integer}
+      locationType:
+        description: Локация водоснабжения
+        enum: ['no', border, location]
+        type: string
+        x-border: По границе участка
+        x-location: На участке
+        x-no: Нет
+      possibleToConnect: {description: Возможно подключить, type: boolean}
+      type:
+        description: Тип водоснабжения
+        enum: [autonomous, central, pumpingStation, waterIntakeFacility, waterTower]
+        type: string
+        x-autonomous: Автономное
+        x-central: Центральное
+        x-pumpingStation: Водонапорная станция
+        x-waterIntakeFacility: Водозаборный узел
+        x-waterTower: Водонапорная башня
+    type: object
+  RealtyApi.Models.Announcements.Swagger.WorkTimeSchema:
+    description: Рабочие часы.
+    properties:
+      timeFrom: {description: Работает с, type: string}
+      timeTo: {description: Работает до, type: string}
+    required: [timeFrom, timeTo]
+    type: object
+  Rocks.BrokenRules.BrokenRule:
+    properties:
+      code: {readOnly: true, type: string}
+      key: {readOnly: true, type: string}
+      message: {readOnly: true, type: string}
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.AddDraftResult:
+    properties:
+      realtyObjectId: {format: int32, type: integer}
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.DealRent.DealRentData:
+    description: Данные по сделке в аренде, передаваемые при сохранении объявления
+    properties:
+      applyDealRent: {description: Пользователь согласился на подключение услуги "Сделка",
+        type: boolean}
+      applyDealRentSource:
+        description: Откуда было произведено согласие на подключение услуги "Сделка"
+        enum: [addForm, afterAddForm]
+        type: string
+        x-addForm: Форма подачи
+        x-afterAddForm: После формы подачи
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.Geo.Details:
+    description: Содержит в себе массив объектов, каждый из которых описывает часть
+      адреса (то что разделено запятыми).
+    properties:
+      fullName: {description: "Полное название адресного элемента. \r\nТ.е. вместе\
+          \ с указанием типа объекта, например, площадь Ленина, деревня Ново).", type: string}
+      geoType:
+        description: Тип адресного элемента (страна, локация, улица, дом).
+        enum: [Country, Location, Street, Road, District, Underground, House]
+        type: string
+        x-Country: Страна
+        x-District: Район
+        x-House: Дом
+        x-Location: Локация
+        x-Road: Шоссе
+        x-Street: Улица
+        x-Underground: Метро
+      hasMetro: {description: Есть метро., type: boolean}
+      hasRoad: {description: Есть шоссе., type: boolean}
+      id: {description: Идентификатор в нашей базе., format: int32, type: integer}
+      isLocality: {description: Если населенный пункт., type: boolean}
+      locationTypeId: {description: 'Идентификатор типа локации (микрорайн, деревня,
+          город и пр.)', format: int32, type: integer}
+      name: {description: Короткое название адресного элемента., type: string}
+      streetRequired: {description: Если улица обязательна., type: boolean}
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.Geo.Geo:
+    description: Координаты
+    properties:
+      lat: {description: Широта., format: double, type: number}
+      lng: {description: Долгота., format: double, type: number}
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.Geo.GeoCodeAnnouncementResponse:
+    properties:
+      accuracyError:
+        description: Ошибка неточности адреса
+        enum: [streetRequired, houseRequired]
+        type: string
+        x-houseRequired: Требуется дом
+        x-streetRequired: Требуется улица
+      billingRegionId: {description: Идентификатор региона тарифной сетки., format: int32,
+        type: integer}
+      countryId: {description: ID страны, format: int32, type: integer}
+      details:
+        description: Содержит в себе массив объектов, каждый из которых описывает
+          часть адреса (то что разделено запятыми).
+        items: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.Geo.Details'}
+        type: array
+      geo: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.Geo.Geo',
+        description: 'Информация по Гео (широта, долгота).'}
+      isParsed: {description: Если удалось распарсить адрес., type: boolean}
+      locationPath:
+        description: "Идентификаторы всех локаций, от родительского до самого точного\r\
+          \nИспользуется в биллинге"
+        items: {format: int32, type: integer}
+        type: array
+      text: {description: Результат яндекса после геокодинга., type: string}
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.PublicationModel:
+    description: Модель публикации объявления
+    properties:
+      dealRentData: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.DealRent.DealRentData',
+        description: 'Данные по сделке в аренде, указываемые при публикации объявления'}
+      model: {$ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.ObjectModel',
+        description: Модель объявления}
+      platform:
+        description: Платформа публикации
+        enum: [webSite, android, ios, upload, app, qaAutotests]
+        type: string
+        x-android: ''
+        x-app: ''
+        x-ios: ''
+        x-qaAutotests: ''
+        x-upload: ''
+        x-webSite: ''
+      userData: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.UserPublicationData.UserData',
+        description: 'Данные о пользователе, указываемые при публикации объявления'}
+      version: {description: Версия платформы, type: string}
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.UserPublicationData.SelfEmployed:
+    description: Данные о статусе самозанятости пользователя
+    properties:
+      inn: {description: "ИНН пользователя <br />\r\nЕсли пришло null - значит пользователь\
+          \ стёр свой ИНН", type: string}
+    type: object
+  Web.AnnouncementApi.App.Announcements.Models.UserPublicationData.UserData:
+    description: Данные о пользователе, передаваемые при публикации объявления
+    properties:
+      selfEmployedData: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.UserPublicationData.SelfEmployed',
+        description: Данные о статусе самозанятости пользователя}
+    type: object
+  Web.Core.Helpers.BrokenRulesExample:
+    description: "Класс для корректного вывода в swagger справочной информации о формате\
+      \ ответов API при\r\nвозникновении ошибок"
+    example:
+      errors:
+      - {Code: announcement_with_no_phones, Message: 'Не указан ни один номер телефона
+          для объявления. '}
+      message: 'Не указан ни один номер телефона для объявления. '
+    properties:
+      errors:
+        description: список объектов с информацие о каждой ошибке
+        items: {$ref: '#/definitions/Rocks.BrokenRules.BrokenRule'}
+        type: array
+      message: {description: обобщённый список всех сообщений ошибок, type: string}
+    type: object
+host: master.monolith-cian-announcementapi.dev3.cian.ru
+info: {title: monolith-cian-announcementapi, version: v1}
+paths:
+  /v1/geo/geocode/:
+    get:
+      consumes: []
+      operationId: Geo_GeoCodeAsync
+      parameters:
+      - {description: Текс запроса, in: query, name: request, required: true, type: string}
+      - description: Категория
+        enum: [bedRent, buildingRent, buildingSale, businessRent, businessSale, carServiceRent,
+          carServiceSale, commercialLandRent, commercialLandSale, cottageRent, cottageSale,
+          dailyBedRent, dailyFlatRent, dailyHouseRent, dailyRoomRent, domesticServicesRent,
+          domesticServicesSale, flatRent, flatSale, flatShareSale, freeAppointmentObjectRent,
+          freeAppointmentObjectSale, garageRent, garageSale, houseRent, houseSale,
+          houseShareRent, houseShareSale, industryRent, industrySale, landSale, newBuildingFlatSale,
+          officeRent, officeSale, publicCateringRent, publicCateringSale, roomRent,
+          roomSale, shoppingAreaRent, shoppingAreaSale, townhouseRent, townhouseSale,
+          warehouseRent, warehouseSale]
+        in: query
+        name: category
+        required: true
+        type: string
+        x-bedRent: Койко-место
+        x-buildingRent: Здание
+        x-buildingSale: Здание
+        x-businessRent: Готовый бизнес
+        x-businessSale: Готовый бизнес
+        x-carServiceRent: Аренда автосервис
+        x-carServiceSale: Продажа автосервиса
+        x-commercialLandRent: Коммерческая земля
+        x-commercialLandSale: Коммерческая земля
+        x-cottageRent: Коттедж
+        x-cottageSale: Коттедж
+        x-dailyBedRent: Посуточная аренда койко-места
+        x-dailyFlatRent: Посуточная аренда квартиры
+        x-dailyHouseRent: Посуточная аренда дома, дачи, коттеджа
+        x-dailyRoomRent: Посуточная аренда комнаты
+        x-domesticServicesRent: Аренда помещения под бытовые услуги
+        x-domesticServicesSale: Продажа помещения под бытовые услуги
+        x-flatRent: Квартира
+        x-flatSale: Квартира
+        x-flatShareSale: Доля в квартире
+        x-freeAppointmentObjectRent: Помещение свободного назначения
+        x-freeAppointmentObjectSale: Помещение свободного назначения
+        x-garageRent: Гараж
+        x-garageSale: Гараж
+        x-houseRent: Дом/дача
+        x-houseSale: Дом/дача
+        x-houseShareRent: Часть дома
+        x-houseShareSale: Часть дома
+        x-industryRent: Производство
+        x-industrySale: Производство
+        x-landSale: Участок
+        x-newBuildingFlatSale: Квартира в новостройке
+        x-officeRent: Офис
+        x-officeSale: Офис
+        x-publicCateringRent: Аренда общепита
+        x-publicCateringSale: Продажа общепита
+        x-roomRent: Комната
+        x-roomSale: Комната
+        x-shoppingAreaRent: Торговая площадь
+        x-shoppingAreaSale: Торговая площадь
+        x-townhouseRent: Таунхаус
+        x-townhouseSale: Таунхаус
+        x-warehouseRent: Склад
+        x-warehouseSale: Склад
+      - description: Источник
+        enum: [Unknown, MachineLearning, AddressSearchFilterService, CheckYandexDefiniteAddress,
+          TryInsert, ApiGeoSearchAddress, Import, ImportGetGeoCodedResultByQuery,
+          MapAddress, ImportEbdTransformationEntry, ImportGetYandexGeoRoute, ImportYrlTransformationEntry,
+          BiEmlsFillOrders, Moderation, ProcessGeoCheckItemCommand, Rebinding, TryAddAddressesAtRebind,
+          Settler, TryAddAddressesAtEmlsJkImport, EmlsJkImport, GeoCodeCached, Site,
+          UnloadPage, GeoApiGeocode, SiteAdmin, RefreshCache, MobileApi, Rebind, Sandbox,
+          AnnouncementParser, AddForm, Valuation]
+        in: query
+        name: source
+        required: false
+        type: string
+        x-AddForm: Форма подачи
+        x-AddressSearchFilterService: "Используется только в AddressSearchFilterService,\
+          \ а тот в свою очередь\r\nпохоже, что нигде не используется. \r\nКандидат\
+          \ на выпиливание."
+        x-AnnouncementParser: "Не найдено ссылок в монолите, так же не видно такой\
+          \ метрики в графане,\r\nвозможно дергается редко сторонними сервисами.\r\
+          \nКандидат на выпиливание"
+        x-ApiGeoSearchAddress: "Возможно нигде не используется, в монолите нет на\
+          \ него ссылок,\r\nтак же в графане нет такой метрики. \r\nКандидат на выпиливание."
+        x-BiEmlsFillOrders: Используется таском по заполнению Emls OrderFacts (факт
+          оплаты), при получении локации
+        x-CheckYandexDefiniteAddress: Используется при добивании адреса данными из
+          наших справочников
+        x-EmlsJkImport: Выгрузка EMLS из xml
+        x-GeoApiGeocode: "Использовалось для всех анонимных источников, теперь\r\n\
+          для этого будет служить Unknown"
+        x-GeoCodeCached: "Используется в методе для заглушки JS метода ymaps.geocode\r\
+          \nЧтобы не грузить Яндекс большим количеством запросов, кешируем их у себя\r\
+          \napi/geo/geocode-cached/"
+        x-Import: Используется при импорте IUploadImportService
+        x-ImportEbdTransformationEntry: "Не найдено ссылок в монолите, так же не видно\
+          \ такой метрики в графане,\r\nвозможно дергается редко сторонними сервисами.\r\
+          \nКандидат на выпиливание"
+        x-ImportGetGeoCodedResultByQuery: Используется при импорте для поиска наиболее
+          подходящего адреса
+        x-ImportGetYandexGeoRoute: "Используется для получения GeoRoute при импорте\
+          \ \r\nAvito / Cian / NewObjects"
+        x-ImportYrlTransformationEntry: Используется при импорте фидов YandexRealty,
+          при трансформации гео-данных
+        x-MachineLearning: Запрос от ML, нужно выяснить в каких случаях они запрашивают
+          GeocodeApi
+        x-MapAddress: "Используется для маппинга адреса на справочники в нашей системе\
+          \ на сайте cian\r\napi/geo/map-address/\r\nТакже используется при импорте\
+          \ фидов CianNewFeed"
+        x-MobileApi: "Используется мобильным Api при геокодирование расположения объекта\r\
+          \nhttps://cianru.atlassian.net/wiki/pages/viewpage.action?pageId=17399972\r\
+          \nv1/geo/geocode_location/"
+        x-Moderation: Используется при привязке адреса к нашим справочникам гео-модератором
+        x-ProcessGeoCheckItemCommand: Используется сервисом по обработке гео-элементов
+          на проверку
+        x-Rebind: "Используется сервисом по перепривязке гео у объектов\r\nIRebindByGeoService"
+        x-Rebinding: Используется сервисом по перепривязке объявлений
+        x-RefreshCache: Указывается при обновлении кеша Яндекса гео-модератором
+        x-Sandbox: Указывается при вызове из Sandbox
+        x-Settler: "Не найдено ссылок в монолите, так же не видно такой метрики в\
+          \ графане,\r\nвозможно дергается редко сторонними сервисами.\r\nКандидат\
+          \ на выпиливание"
+        x-Site: "Указывается при поиске по адресу на сайте cian\r\napi/geo/geocoded/\
+          \ и api/geo/get-address/"
+        x-SiteAdmin: "Используется service.cian при получении нашего адреса, который\
+          \ может быть перепривязан\r\nIGeoAutocompleteService метод GeoCode"
+        x-TryAddAddressesAtEmlsJkImport: Выгрузка EMLS из xml при попытке добавить
+          адрес
+        x-TryAddAddressesAtRebind: "Используется сервисом по перепривязке гео у объектов\
+          \ при попытке добавить адрес\r\nIRebindByGeoService"
+        x-TryInsert: Указывается при попытке добавить в нашу БД улицы, локации, дома
+        x-Unknown: Не определено, проставляется по умолчанию, если source = null
+        x-UnloadPage: "Не найдено ссылок в монолите, так же не видно такой метрики\
+          \ в графане,\r\nвозможно дергается редко сторонними сервисами.\r\nКандидат\
+          \ на выпиливание"
+        x-Valuation: Оценка недвижимости
+      produces: [application/json, text/json]
+      responses:
+        '200':
+          description: OK
+          schema: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.Geo.GeoCodeAnnouncementResponse'}
+      summary: Возвращает геокодирование с информацией о ошибках
+      tags: [Geo]
+  /v2/announcements/draft/:
+    post:
+      consumes: [application/json, text/json, application/x-www-form-urlencoded]
+      operationId: Announcements_AddDraftV2Async
+      parameters:
+      - in: body
+        name: publicationModel
+        required: true
+        schema: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.PublicationModel'}
+      produces: [application/json, text/json]
+      responses:
+        '200':
+          description: OK
+          schema: {$ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.AddDraftResult'}
+        '400':
+          description: Сообщение об ошибке при невалидных параметрах
+          schema: {$ref: '#/definitions/Web.Core.Helpers.BrokenRulesExample'}
+      summary: "Сохранение черновика\r\nметод закрыт по ключу"
+      tags: [Announcements]
+schemes: [http]
+swagger: '2.0'
+x-cian-mq:
+  exchanges: {}
+  spec-version: '1.0'

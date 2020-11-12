@@ -23,10 +23,17 @@ def get_offers_list_html(offers: Any, client: Any) -> str:
     )
 
 
-def get_offer_card_html(parsed_object_model: ParsedObjectModel, info_message: str) -> str:
+def get_offer_card_html(
+    parsed_object_model: ParsedObjectModel,
+    info_message: str,
+    offer_id: str,
+    client_id: str
+) -> str:
     template = templates.get_template('offer_card.jinja2')
     return template.render(
         parsed_object_model=parsed_object_model,
         info_message=info_message,
-        debug=settings.DEBUG
+        debug=settings.DEBUG,
+        offer_id=offer_id,
+        client_id=client_id
     )

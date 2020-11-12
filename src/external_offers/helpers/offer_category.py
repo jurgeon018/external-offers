@@ -64,5 +64,6 @@ CATEGORY_OFFER_TYPE_DEAL_TYPE = {
 }
 
 
+
 def get_types(category: Category) -> Tuple[OfferType, DealType]:
     return CATEGORY_OFFER_TYPE_DEAL_TYPE[category]
