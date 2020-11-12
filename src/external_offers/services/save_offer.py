@@ -192,7 +192,8 @@ def create_promocode_detail_model(
             type=StartegyType.publication,
             items=[ServicePackageStrategyItemModel(
                 operation_types=[
-                    deal_type_to_operation_types[request.deal_type]
+                    OperationTypes.sale,
+                    OperationTypes.rent
                 ],
                 polygon_ids=settings.PROMOCODE_POLYGONS,
                 duration_in_days=DurationInDays.seven,
