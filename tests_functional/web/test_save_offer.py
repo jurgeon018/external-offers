@@ -29,8 +29,8 @@ async def test_save_offer__correct_json__status_ok(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': '7'
+        'offerId': '3567',
+        'clientId': '7'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -135,8 +135,8 @@ async def test_save_offer__register_user_by_phone_called_success__realty_user_id
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': client_id
+        'offerId': '3567',
+        'clientId': client_id
     }
     await users_mock.add_stub(
         method='POST',
@@ -202,8 +202,8 @@ async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_cal
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': client_id
+        'offerId': '3567',
+        'clientId': client_id
     }
     await pg.execute('UPDATE clients SET realty_user_id=$1 WHERE client_id=$2', [realty_user_id, client_id])
 
@@ -273,8 +273,8 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': offer_id,
-        'client_id': client_id
+        'offerId': offer_id,
+        'clientId': client_id
     }
     await users_mock.add_stub(
         method='POST',
@@ -367,8 +367,8 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': offer_id,
-        'client_id': client_id
+        'offerId': offer_id,
+        'clientId': client_id
     }
 
     await users_mock.add_stub(
@@ -477,8 +477,8 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '1',
-        'client_id': '7'
+        'offerId': '1',
+        'clientId': '7'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -575,8 +575,8 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': '7'
+        'offerId': '3567',
+        'clientId': '7'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -621,8 +621,8 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': '7'
+        'offerId': '3567',
+        'clientId': '7'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -681,8 +681,8 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': '7'
+        'offerId': '3567',
+        'clientId': '7'
     }
     user_id = 123123
 
@@ -768,8 +768,8 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': '7'
+        'offerId': '3567',
+        'clientId': '7'
     }
     user_id = 123123
     await users_mock.add_stub(
@@ -867,8 +867,8 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         'sale_type': '',
         'phone_number': '89134488338',
         'recovery_password': False,
-        'offer_id': '3567',
-        'client_id': '7'
+        'offerId': '3567',
+        'clientId': '7'
     }
     user_id = 123123
     await users_mock.add_stub(
