@@ -10,6 +10,8 @@ from external_offers.enums.save_offer_status import SaveOfferStatus
 class SaveOfferRequest:
     offer_id: str
     """Идентификатор задания"""
+    client_id: str
+    """Идентификатор задания"""
     phone_number: str
     """Телефон"""
     category: SaveOfferCategory

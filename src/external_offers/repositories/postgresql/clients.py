@@ -8,7 +8,7 @@ from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus
 from external_offers.mappers import client_mapper
-from external_offers.repositories.postgresql.tables import clients
+from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
 
 async def get_client_by_operator(operator_id: int) -> Optional[Client]:
@@ -142,3 +142,41 @@ async def get_client_by_avito_user_id(avito_user_id: str) -> Optional[Client]:
     row = await pg.get().fetchrow(query, *params)
 
     return client_mapper.map_from(row) if row else None
+
+
+async def get_client_id_by_offer_id(offer_id: str) -> str:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.client_id]
+        ).where(
+            offers_for_call.c.id == offer_id,
+        ).limit(1)
+    )
+
+    return await pg.get().fetchval(query, *params)
+
+
+async def get_realty_user_id_by_client_id(client_id: str) -> Optional[int]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.realty_user_id]
+        ).where(
+            clients.c.client_id == client_id,
+        ).limit(1)
+    )
+
+    return await pg.get().fetchval(query, *params)
+
+
+async def set_realty_user_id_by_client_id(realty_user_id: int, client_id: str):
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            realty_user_id=realty_user_id
+        ).where(
+            clients.c.client_id == client_id,
+        )
+    )
+
+    await pg.get().execute(query, *params)

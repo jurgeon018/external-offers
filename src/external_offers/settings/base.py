@@ -20,7 +20,7 @@ OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
 OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
 OFFER_TASK_CREATION_REGIONS: List[int] = []
 
-SMS_REGISTRATION_TEMPLATE = 'Ваш ID на ЦИАН {0}. Пароль {1}'
+SMS_REGISTRATION_TEMPLATE = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
 
 PROMOCODE_GROUP_NAME = 'packageForAvitoImmigrant_test'
 PROMOCODE_POLYGONS = [2000, ]

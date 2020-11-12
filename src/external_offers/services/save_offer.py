@@ -12,6 +12,7 @@ from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
+    AddDraftResult,
     BargainTerms,
     Building,
     GeoCodeAnnouncementResponse,
@@ -55,7 +56,13 @@ from external_offers.repositories.monolith_cian_service.entities.service_package
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_model import (
     Type as StartegyType,
 )
-from external_offers.repositories.postgresql import set_offer_draft_by_offer_id
+from external_offers.repositories.postgresql import (
+    get_offer_cian_id_by_offer_id,
+    get_realty_user_id_by_client_id,
+    set_offer_cian_id_by_offer_id,
+    set_offer_draft_by_offer_id,
+    set_realty_user_id_by_client_id,
+)
 from external_offers.repositories.users import v1_register_user_by_phone
 from external_offers.repositories.users.entities import RegisterUserByPhoneRequest, RegisterUserByPhoneResponse
 
@@ -107,21 +114,119 @@ rooms_count_to_num: Dict[str, int] = {
 }
 
 
+def create_publication_model(
+    request: SaveOfferRequest,
+    realty_user_id: int,
+    geocode_response: GeoCodeAnnouncementResponse,
+    phone_number: str,
+    category: Category,
+
+):
+    return PublicationModel(
+        model=ObjectModel(
+            bargain_terms=BargainTerms(
+                price=request.price,
+                currency=Currency.rur
+            ),
+            building=Building(
+                floors_count=request.floors_count
+            ),
+            total_area=request.total_area,
+            property_type=PropertyType.building,
+            rooms_count=rooms_count_to_num.get(request.rooms_count, None),
+            floor_number=request.floor_number,
+            category=category,
+            user_id=realty_user_id,
+            phones=[
+                Phone(
+                    number=phone_number[2:],
+                    country_code=phone_number[:2]
+                )
+            ],
+            geo=SwaggerGeo(
+                country_id=geocode_response.country_id,
+                coordinates=Coordinates(
+                    lat=geocode_response.geo.lat,
+                    lng=geocode_response.geo.lng
+                ),
+                user_input=request.address,
+                address=[
+                    AddressInfo(
+                        id=detail.id,
+                        type=geo_type_to_type_mapping[detail.geo_type]
+                    ) for detail in geocode_response.details
+                ]
+            ),
+            name='Наименование',
+            title='Черновик объявления',
+            description='Описание черновика объявления',
+            object_guid=str(uuid4()).upper(),
+            flat_type=FlatType.rooms,
+            is_enabled_call_tracking=False,     # если этот параметр не слать, шарп 500ит
+            row_version=0       # если этот параметр не слать, шарп 500ит
+        ),
+        platform=Platform.web_site      # если этот параметр не слать, шарп 500ит
+    )
+
+
+def create_promocode_detail_model(
+    request: SaveOfferRequest,
+    realty_user_id: int
+):
+    now = datetime.now(tz=pytz.utc)
+
+    return PromoCodeGroupDetailModel(
+        promo_code_group_model=PromoCodeGroupModel(
+            name=settings.PROMOCODE_GROUP_NAME,
+            source=Source.other,
+            type=PromoType.service_package,
+            for_specific_user_ids=True,
+            available_to=(now + timedelta(days=1)),
+            promo_codes_count=1,
+            cian_user_ids=str(realty_user_id)
+        ),
+        service_package_strategy=ServicePackageStrategyModel(
+            is_paid=False,
+            auto_activate_for_manual_announcements=False,
+            activations_count=1,
+            type=StartegyType.publication,
+            items=[ServicePackageStrategyItemModel(
+                operation_types=[
+                    deal_type_to_operation_types[request.deal_type]
+                ],
+                polygon_ids=settings.PROMOCODE_POLYGONS,
+                duration_in_days=DurationInDays.seven,
+                debit_count=1,
+                object_type_id=offer_type_to_object_type[request.offer_type]
+            )]
+        )
+    )
+
+
 async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveOfferResponse:
     """ Сохранить объявление как черновик в ЦИАН. """
-    request.phone_number = transform_phone_number_to_canonical_format(request.phone_number)
+    phone_number = transform_phone_number_to_canonical_format(request.phone_number)
     category = save_offer_category_deal_type_and_offer_type_to_category[
         (request.category,
          request.deal_type,
          request.offer_type)
     ]
     try:
-        register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
-            RegisterUserByPhoneRequest(
-                phone=request.phone_number,
-                sms_template=settings.SMS_REGISTRATION_TEMPLATE
-            )
+        realty_user_id = await get_realty_user_id_by_client_id(
+            client_id=request.client_id
         )
+        if not realty_user_id:
+            register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
+                RegisterUserByPhoneRequest(
+                    phone=phone_number,
+                    sms_template=settings.SMS_REGISTRATION_TEMPLATE
+                )
+            )
+            realty_user_id = register_response.user_data.id
+            await set_realty_user_id_by_client_id(
+                realty_user_id=realty_user_id,
+                client_id=request.client_id
+            )
     except ApiClientException:
         return SaveOfferResponse(
             status=SaveOfferStatus.registration_failed,
@@ -142,84 +247,33 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
     try:
-        await v2_announcements_draft(PublicationModel(
-            model=ObjectModel(
-                bargain_terms=BargainTerms(
-                    price=request.price,
-                    currency=Currency.rur
-                ),
-                building=Building(
-                    floors_count=request.floors_count
-                ),
-                total_area=request.total_area,
-                property_type=PropertyType.building,
-                rooms_count=rooms_count_to_num.get(request.rooms_count, None),
-                floor_number=request.floor_number,
-                category=category,
-                user_id=register_response.user_data.id,
-                phones=[
-                    Phone(
-                        number=request.phone_number[2:],
-                        country_code=request.phone_number[:2]
-                    )
-                ],
-                geo=SwaggerGeo(
-                    country_id=geocode_response.country_id,
-                    coordinates=Coordinates(
-                        lat=geocode_response.geo.lat,
-                        lng=geocode_response.geo.lng
-                    ),
-                    user_input=request.address,
-                    address=[
-                        AddressInfo(
-                            id=detail.id,
-                            type=geo_type_to_type_mapping[detail.geo_type]
-                        ) for detail in geocode_response.details
-                    ]
-                ),
-                name='Наименование',
-                title='Черновик объявления',
-                description='Описание черновика объявления',
-                object_guid=str(uuid4()).upper(),
-                flat_type=FlatType.rooms,
-                is_enabled_call_tracking=False,     # если этот параметр не слать, шарп 500ит
-                row_version=0       # если этот параметр не слать, шарп 500ит
-            ),
-            platform=Platform.web_site      # если этот параметр не слать, шарп 500ит
-        ))
+        offer_cian_id = await get_offer_cian_id_by_offer_id(
+            offer_id=request.offer_id
+        )
+        if not offer_cian_id:
+            add_draft_result: AddDraftResult = await v2_announcements_draft(create_publication_model(
+                request=request,
+                realty_user_id=realty_user_id,
+                geocode_response=geocode_response,
+                phone_number=phone_number,
+                category=category
+            ))
+
+            await set_offer_cian_id_by_offer_id(
+                offer_cian_id=add_draft_result.realty_object_id,
+                offer_id=request.offer_id
+            )
     except ApiClientException:
         return SaveOfferResponse(
             status=SaveOfferStatus.draft_failed,
             message='Не удалось создать черновик объявления'
         )
-    now = datetime.now(tz=pytz.utc)
+
     try:
         promocode_response: CreatePromocodeGroupResponse = await api_promocodes_create_promocode_group(
-            PromoCodeGroupDetailModel(
-                promo_code_group_model=PromoCodeGroupModel(
-                    name=settings.PROMOCODE_GROUP_NAME,
-                    source=Source.other,
-                    type=PromoType.service_package,
-                    for_specific_user_ids=True,
-                    available_to=(now + timedelta(days=1)),
-                    promo_codes_count=1,
-                    cian_user_ids=str(register_response.user_data.id)
-                ),
-                service_package_strategy=ServicePackageStrategyModel(
-                    is_paid=False,
-                    auto_activate_for_manual_announcements=False,
-                    activations_count=1,
-                    type=StartegyType.publication,
-                    items=[ServicePackageStrategyItemModel(
-                        operation_types=[
-                            deal_type_to_operation_types[request.deal_type]
-                        ],
-                        polygon_ids=settings.PROMOCODE_POLYGONS,
-                        duration_in_days=DurationInDays.seven,
-                        debit_count=1,
-                        object_type_id=offer_type_to_object_type[request.offer_type]
-                    )]
-                )
+            create_promocode_detail_model(
+                request=request,
+                realty_user_id=realty_user_id
             )
         )
     except ApiClientException:
@@ -231,7 +285,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
     try:
         await promocode_apply(
             ApplyParameters(
-                cian_user_id=register_response.user_data.id,
+                cian_user_id=realty_user_id,
                 promo_code=promocode_response.promocodes[0].promocode
             ))
     except ApiClientException:

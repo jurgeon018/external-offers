@@ -367,7 +367,8 @@
                 sale_type: getSaleType.val(),
                 phone_number: getPhoneNumber.val(),
                 recovery_password: recoveryPassword.prop("checked"),
-                offer_id: '{{ offer_id }}'
+                offer_id: '{{ offer_id }}',
+                client_id: '{{ client_id }}'
             }
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
