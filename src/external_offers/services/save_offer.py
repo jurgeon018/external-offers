@@ -297,4 +297,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
     await set_offer_draft_by_offer_id(offer_id=request.offer_id)
 
-    return SaveOfferResponse(status=SaveOfferStatus.ok)
+    return SaveOfferResponse(
+        status=SaveOfferStatus.ok,
+        message='Объявление успешно создано'
+    )
