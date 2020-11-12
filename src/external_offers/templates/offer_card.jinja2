@@ -243,6 +243,11 @@
         $('.ajax-form').on('submit', (event) => {
             event.preventDefault();
         });
+        
+        // fix for service.cian.ru
+        window.onpopstate = function(event) {
+            location.reload();
+        };
 
         function getNumberOrNull(obj) {
             return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
