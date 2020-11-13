@@ -25,4 +25,6 @@ SMS_REGISTRATION_TEMPLATE = 'Создана учетная запись на Ц�
 PROMOCODE_GROUP_NAME = 'packageForAvitoImmigrant_test'
 PROMOCODE_POLYGONS = [2000, ]
 
+REGIONS_WITH_PAID_PUBLICATION = [1, 2, 4588, 4593]
+
 DEBUG: bool = False

@@ -1,12 +1,12 @@
 from typing import Optional
 
 import asyncpgsa
-from sqlalchemy import select, update
+from sqlalchemy import and_, exists, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import Client
-from external_offers.enums import ClientStatus
+from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.mappers import client_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
@@ -176,6 +176,33 @@ async def set_realty_user_id_by_client_id(realty_user_id: int, client_id: str):
             realty_user_id=realty_user_id
         ).where(
             clients.c.client_id == client_id,
+        )
+    )
+
+    await pg.get().execute(query, *params)
+
+
+async def set_client_waiting_and_no_operator_if_no_offers_in_progress(client_id: str):
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            status=ClientStatus.waiting.value,
+            operator_user_id=None
+        ).where(
+            and_(
+                clients.c.client_id == client_id,
+                ~exists(
+                    select(
+                        [1]
+                    ).where(
+                        and_(
+                            offers_for_call.c.client_id == client_id,
+                            offers_for_call.c.status == OfferStatus.in_progress.value
+                        )
+                    )
+                )
+            )
         )
     )
 
