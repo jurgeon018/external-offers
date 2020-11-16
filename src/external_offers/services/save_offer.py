@@ -59,6 +59,7 @@ from external_offers.repositories.monolith_cian_service.entities.service_package
 from external_offers.repositories.postgresql import (
     get_offer_cian_id_by_offer_id,
     get_realty_user_id_by_client_id,
+    set_client_waiting_and_no_operator_if_no_offers_in_progress,
     set_offer_cian_id_by_offer_id,
     set_offer_draft_by_offer_id,
     set_realty_user_id_by_client_id,
@@ -268,32 +269,35 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             message='Не удалось создать черновик объявления'
         )
 
-    try:
-        promocode_response: CreatePromocodeGroupResponse = await api_promocodes_create_promocode_group(
-            create_promocode_detail_model(
-                request=request,
-                realty_user_id=realty_user_id
+    # В конце location_path лежит идентификатор региона, используем его
+    if geocode_response.location_path[-1] in settings.REGIONS_WITH_PAID_PUBLICATION:
+        try:
+            promocode_response: CreatePromocodeGroupResponse = await api_promocodes_create_promocode_group(
+                create_promocode_detail_model(
+                    request=request,
+                    realty_user_id=realty_user_id
+                )
             )
-        )
-    except ApiClientException:
-        return SaveOfferResponse(
-            status=SaveOfferStatus.promo_creation_failed,
-            message='Не удалось создать промокод на бесплатную публикацию'
-        )
+        except ApiClientException:
+            return SaveOfferResponse(
+                status=SaveOfferStatus.promo_creation_failed,
+                message='Не удалось создать промокод на бесплатную публикацию'
+            )
 
-    try:
-        await promocode_apply(
-            ApplyParameters(
-                cian_user_id=realty_user_id,
-                promo_code=promocode_response.promocodes[0].promocode
-            ))
-    except ApiClientException:
-        return SaveOfferResponse(
-            status=SaveOfferStatus.promo_activation_failed,
-            message='Не удалось применить промокод на бесплатную публикацию'
-        )
+        try:
+            await promocode_apply(
+                ApplyParameters(
+                    cian_user_id=realty_user_id,
+                    promo_code=promocode_response.promocodes[0].promocode
+                ))
+        except ApiClientException:
+            return SaveOfferResponse(
+                status=SaveOfferStatus.promo_activation_failed,
+                message='Не удалось применить промокод на бесплатную публикацию'
+            )
 
     await set_offer_draft_by_offer_id(offer_id=request.offer_id)
+    await set_client_waiting_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
 
     return SaveOfferResponse(
         status=SaveOfferStatus.ok,

@@ -8,6 +8,7 @@ from external_offers.repositories.postgresql.clients import (
     set_client_to_call_missed_status,
     set_client_to_decline_status,
     set_client_to_waiting_status,
+    set_client_waiting_and_no_operator_if_no_offers_in_progress,
     set_realty_user_id_by_client_id,
 )
 from external_offers.repositories.postgresql.offers import (
