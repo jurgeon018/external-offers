@@ -63,5 +63,7 @@ create table parsed_offers
     is_calltracking     boolean                  not null,
     timestamp           timestamp with time zone not null,
     created_at          timestamp with time zone not null,
-    updated_at          timestamp with time zone not null
+    updated_at          timestamp with time zone not null,
+    synced              boolean                  not null,
+    user_synced         boolean                  not null
 );
