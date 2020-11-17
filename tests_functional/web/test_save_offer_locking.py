@@ -65,19 +65,20 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
     # act
     responses = await gather(
         http.request(
-        'POST',
-        '/api/admin/v1/save-offer/',
-        json=request,
-        headers={
-            'X-Real-UserId': user_id
-        }
-        ), http.request(
-        'POST',
-        '/api/admin/v1/save-offer/',
-        json=request,
-        headers={
-            'X-Real-UserId': user_id
-        }
+            'POST',
+            '/api/admin/v1/save-offer/',
+            json=request,
+            headers={
+                'X-Real-UserId': user_id
+            }
+        ),
+        http.request(
+            'POST',
+            '/api/admin/v1/save-offer/',
+            json=request,
+            headers={
+                'X-Real-UserId': user_id
+            }
         )
     )
 

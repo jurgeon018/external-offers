@@ -12,6 +12,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -39,6 +40,7 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -54,7 +56,7 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
     assert row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer_for_call(
+async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer(
     pg,
     runtime_settings,
     runner,
@@ -65,8 +67,8 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
-        'OFFER_TASK_CREATION_REGIONS': [4580]
-
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -92,8 +94,8 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
-        'OFFER_TASK_CREATION_REGIONS': [4530]
-
+        'OFFER_TASK_CREATION_REGIONS': [4530],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -119,6 +121,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -145,6 +148,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['suburbanSale'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -171,6 +175,7 @@ async def test_create_offers__exist_parsed_offer_without_phones___doesnt_create_
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -197,6 +202,7 @@ async def test_create_offers__exist_parsed_offer_with_calltracking___doesnt_crea
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -223,6 +229,7 @@ async def test_create_offers__exist_parsed_offer_synced___doesnt_create_offer(
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -265,6 +272,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -306,6 +314,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -332,6 +341,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
 
     # act
@@ -345,3 +355,93 @@ async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_
         """
     )
     assert row is None
+
+
+async def test_create_offers__exist_suitable_parsed_offer_with_suitable_minimum_user_offers__creates_offers(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 3,
+    })
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+    await asyncio.sleep(1)
+
+    # assert
+    rows = await pg.fetch(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id IN ('1d6c73b8-3057-47cc-b50a-419052da619f',
+                                                          '2d6c73b8-3057-47cc-b50a-419052da619f',
+                                                          '3d6c73b8-3057-47cc-b50a-419052da619f')
+        """
+    )
+
+    assert len(rows) == 3
+
+
+async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_user_offers__doesnt_create_offers(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 4,
+    })
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+    await asyncio.sleep(1)
+
+    # assert
+    row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
+        """
+    )
+    assert row is None
+
+
+async def test_create_offers__exist_suitable_parsed_offer_with_minimum_user_offers_and_limit_lower__creates_offers(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 3,
+        'OFFER_TASK_CREATION_FETCH_LIMIT': 2
+    })
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+    await asyncio.sleep(1)
+
+    # assert
+    rows = await pg.fetch(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id IN ('1d6c73b8-3057-47cc-b50a-419052da619f',
+                                                          '2d6c73b8-3057-47cc-b50a-419052da619f',
+                                                          '3d6c73b8-3057-47cc-b50a-419052da619f')
+        """
+    )
+    assert len(rows) == 3

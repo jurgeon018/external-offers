@@ -540,7 +540,6 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
         ),
     )
 
-
     await monolith_cian_profileapi_mock.add_stub(
         method='POST',
         path='/promocode/apply/',
