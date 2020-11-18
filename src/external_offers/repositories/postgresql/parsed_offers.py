@@ -7,7 +7,7 @@ from cian_json import json
 from simple_settings import settings
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, not_, select, update
+from sqlalchemy.sql import and_, column, func, not_, or_, over, select, update
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import ParsedObjectModel, ParsedOffer, ParsedOfferMessage
@@ -39,6 +39,7 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
                 'source_user_id': insert_query.excluded.source_user_id,
                 'source_object_model': insert_query.excluded.source_object_model,
                 'synced': False,
+                'user_synced': False,
                 'is_calltracking': insert_query.excluded.is_calltracking,
                 'updated_at': insert_query.excluded.updated_at,
                 'timestamp': insert_query.excluded.timestamp,
@@ -59,6 +60,8 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         not_(po.c.synced),
     ]
 
+    options_over_cte = []
+
     if settings.OFFER_TASK_CREATION_CATEGORIES:
         options.append(po.c.source_object_model['category'].as_string().in_(settings.OFFER_TASK_CREATION_CATEGORIES))
 
@@ -68,12 +71,24 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     if settings.OFFER_TASK_CREATION_REGIONS:
         options.append(po.c.source_object_model['region'].as_integer().in_(settings.OFFER_TASK_CREATION_REGIONS))
 
+    if settings.OFFER_TASK_CREATION_MINIMUM_OFFERS:
+        #  Отсекаем объявления по минимальному количеству у пользователя,
+        #  если эти объявления не влезли в предыдущие итерации из-за лимита,
+        #  то принимаем их
+        options_over_cte.append(or_(
+            column('user_offers_count') >= settings.OFFER_TASK_CREATION_MINIMUM_OFFERS,
+            column('user_synced').is_(True)
+        ))
+
     if last_sync_date:
         options.append(po.c.timestamp > last_sync_date)
 
     selected_non_synced_offers_cte = (
         select(
-            [po]
+            [
+                po,
+                over(func.count(), partition_by=po.c.source_user_id).label('user_offers_count')
+            ]
         )
         .where(
             and_(*options)
@@ -91,13 +106,28 @@ async def set_synced_and_fetch_parsed_offers_chunk(
                 select(
                     [selected_non_synced_offers_cte.c.id]
                 )
+                .where(
+                    and_(*options_over_cte)
+                )
             )
         )
         .values(synced=True)
         .returning(tables.parsed_offers_table)
     )
-
     rows = await pg.get().fetch(query, *params)
+
+    query, params = asyncpgsa.compile_query(
+        update(tables.parsed_offers_table)
+        .where(
+            tables.parsed_offers_table.c.source_user_id.in_(
+                [row['source_user_id'] for row in rows]
+            )
+        )
+        .values(user_synced=True)
+    )
+
+    await pg.get().execute(query, *params)
+
     return [parsed_offer_mapper.map_from(row) for row in rows]
 
 

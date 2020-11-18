@@ -19,12 +19,13 @@ OFFER_TASK_CREATION_FETCH_LIMIT: int = 500
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
 OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
 OFFER_TASK_CREATION_REGIONS: List[int] = []
+OFFER_TASK_CREATION_MINIMUM_OFFERS: int = 3
 
-SMS_REGISTRATION_TEMPLATE = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
+SMS_REGISTRATION_TEMPLATE: str = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
 
-PROMOCODE_GROUP_NAME = 'packageForAvitoImmigrant_test'
-PROMOCODE_POLYGONS = [2000, ]
+PROMOCODE_GROUP_NAME: str = 'packageForAvitoImmigrant_test'
+PROMOCODE_POLYGONS: List[int] = [2000, ]
 
-REGIONS_WITH_PAID_PUBLICATION = [1, 2, 4588, 4593]
+REGIONS_WITH_PAID_PUBLICATION: List[int] = [1, 2, 4588, 4593]
 
 DEBUG: bool = False

@@ -14,3 +14,5 @@ class SaveOfferStatus(StrEnum):
     """Ошибка при применении промокода на публикации"""
     draft_failed = 'draft_failed'
     """Ошибка при создании черновика"""
+    already_processing = 'already_processing'
+    """Объявление уже в обработке"""

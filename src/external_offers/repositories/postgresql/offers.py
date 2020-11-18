@@ -254,3 +254,47 @@ async def set_offer_cian_id_by_offer_id(offer_cian_id: int, offer_id: str) -> No
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
+
+
+async def get_offer_promocode_by_offer_id(offer_id: str) -> Optional[str]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.promocode]
+        ).where(
+            offers_for_call.c.id == offer_id
+        )
+    )
+
+    return await pg.get().fetchval(query, *params)
+
+
+async def set_offer_promocode_by_offer_id(promocode: str, offer_id: str) -> None:
+    sql = (
+        update(
+            offers_for_call
+        ).values(
+            promocode=promocode,
+        ).where(
+            offers_for_call.c.id == offer_id,
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
+async def try_to_lock_offer_and_return_result(offer_id: str) -> bool:
+    query = """
+        SELECT
+            *
+        FROM
+            offers_for_call as ofc
+        WHERE
+            ofc.id = $1
+        FOR UPDATE SKIP LOCKED
+    """
+
+    row = await pg.get().fetchrow(query, offer_id)
+
+    return bool(row)

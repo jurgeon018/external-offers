@@ -17,15 +17,18 @@ from external_offers.repositories.postgresql.offers import (
     exists_offers_in_progress_by_operator_and_offer_id,
     get_last_sync_date,
     get_offer_cian_id_by_offer_id,
+    get_offer_promocode_by_offer_id,
     get_offers_by_parsed_id,
     get_offers_in_progress_by_operator,
     save_offer_for_call,
     set_offer_cancelled_by_offer_id,
     set_offer_cian_id_by_offer_id,
     set_offer_draft_by_offer_id,
+    set_offer_promocode_by_offer_id,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
+    try_to_lock_offer_and_return_result,
 )
 from external_offers.repositories.postgresql.parsed_offers import (
     get_parsed_offer_object_model_by_offer_id,

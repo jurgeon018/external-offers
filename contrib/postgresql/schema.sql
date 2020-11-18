@@ -26,7 +26,8 @@ CREATE TABLE offers_for_call
     status        offer_status_type         not null,
     created_at    timestamp with time zone  not null,
     synced_at     timestamp with time zone  not null,
-    started_at    timestamp with time zone
+    started_at    timestamp with time zone,
+    promocode     varchar
 );
 
 CREATE TABLE clients
@@ -62,5 +63,7 @@ create table parsed_offers
     is_calltracking     boolean                  not null,
     timestamp           timestamp with time zone not null,
     created_at          timestamp with time zone not null,
-    updated_at          timestamp with time zone not null
+    updated_at          timestamp with time zone not null,
+    synced              boolean                  not null,
+    user_synced         boolean                  not null
 );
