@@ -21,5 +21,7 @@ class Offer:
     """Дата последней синхронизации объявления"""
     offer_cian_id: Optional[int] = None
     """Идентификатор объявления на Циане"""
+    promocode: Optional[str] = None
+    """Промокод для бесплатной публикации"""
     started_at: Optional[datetime] = None
     """Дата попадания объявления в работу"""
