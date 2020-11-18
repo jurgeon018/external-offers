@@ -43,7 +43,7 @@
          grid-row-start: 1;
          grid-row-end: 3;
          display: grid;
-         grid-template-columns: repeat(2, 1fr) 0.5fr;
+         grid-template-columns: 0.5fr 0.5fr 1fr 0.30fr 0.25fr 0.25fr;
          border-radius: 2px;
          padding: 1em;
          }
@@ -107,12 +107,18 @@
          <div class="offers-grid">
             <div class="offers-row offers-row-header">
                <div class="offercolumn offercolumnheader">Идентификатор</div>
+               <div class="offercolumn offercolumnheader">Название</div>
+               <div class="offercolumn offercolumnheader">Адрес</div>
                <div class="offercolumn offercolumnheader">Создано</div>
+               <div class="offercolumn offercolumnheader">Статус</div>
             </div>
             {% for offer in offers %}
             <div class="offers-row">
                <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">{{ offer.id }}</div>
+               <div class="offercolumn offer-column-title">{{ offer.title }}</div>
+               <div class="offercolumn offer-column-address">{{ offer.address }}</div>
                <div class=offercolumn>{{ offer.created_at|date }} {{ offer.created_at|time }}</div>
+               <div class="offercolumn offer-column-status">{{ offer.status.value }}</div>
                <div class=offercolumn>
                   <button style="display:inline" onclick="onClickOfferRowDelete('{{ offer.id }}', '{{ client.client_id }}')">Удалить</button>
                </div>

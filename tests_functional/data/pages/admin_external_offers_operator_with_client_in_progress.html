@@ -13,7 +13,7 @@
 
          .offers-block {
          margin: 1em;
-         display:  block ;
+         display:  none;
          }
          .offers-block-title {
          font-weight: bold;
@@ -43,13 +43,13 @@
          grid-row-start: 1;
          grid-row-end: 3;
          display: grid;
-         grid-template-columns: repeat(2, 1fr) 0.5fr;
+         grid-template-columns: 0.5fr 0.5fr 1fr 0.30fr 0.25fr 0.25fr;
          border-radius: 2px;
          padding: 1em;
          }
          .update-offers-block {
          padding: 1em;
-         display:  none ;
+         display:  grid ;
          }
          .update-offers-button {
          margin: auto;
@@ -59,7 +59,7 @@
          padding: 1em;
          }
          .error-messages-block {
-         display:  none ;
+         display:  grid ;
          }
 
          .client-error-message {
@@ -107,25 +107,12 @@
          <div class="offers-grid">
             <div class="offers-row offers-row-header">
                <div class="offercolumn offercolumnheader">Идентификатор</div>
+               <div class="offercolumn offercolumnheader">Название</div>
+               <div class="offercolumn offercolumnheader">Адрес</div>
                <div class="offercolumn offercolumnheader">Создано</div>
+               <div class="offercolumn offercolumnheader">Статус</div>
             </div>
             
-            <div class="offers-row">
-               <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">1</div>
-               <div class=offercolumn>12 October 04:05</div>
-               <div class=offercolumn>
-                  <button style="display:inline" onclick="onClickOfferRowDelete('1', '1')">Удалить</button>
-               </div>
-            </div>
-         
-            <div class="offers-row">
-               <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">2</div>
-               <div class=offercolumn>12 October 04:05</div>
-               <div class=offercolumn>
-                  <button style="display:inline" onclick="onClickOfferRowDelete('2', '1')">Удалить</button>
-               </div>
-            </div>
-         
                </div>
       </div>
 
