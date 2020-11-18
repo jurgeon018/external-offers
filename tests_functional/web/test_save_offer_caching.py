@@ -27,7 +27,6 @@ async def test_save_offer__register_user_by_phone_called_success__realty_user_id
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'recovery_password': False,
         'offerId': '1',
         'clientId': client_id,
         'description': 'Test'
@@ -95,7 +94,6 @@ async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_cal
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'recovery_password': False,
         'offerId': '1',
         'clientId': client_id,
         'description': 'Test'
@@ -167,7 +165,6 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'recovery_password': False,
         'offerId': offer_id,
         'clientId': client_id,
         'description': 'Test'
@@ -263,7 +260,6 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'recovery_password': False,
         'offerId': offer_id,
         'clientId': client_id,
         'description': 'Test'
@@ -363,7 +359,6 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'recovery_password': False,
         'offerId': offer_id,
         'clientId': client_id,
         'description': 'Test'
@@ -478,7 +473,6 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'recovery_password': False,
         'offerId': offer_id,
         'clientId': client_id,
         'description': 'Test'

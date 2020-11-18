@@ -4,15 +4,8 @@
             <tr>
                 <td><span class="text_info">{{ info_message }}</span>
                 </td>
-            </tr>
-            <tr>
                 <td>
-                    <label>
-                        <input type="checkbox" disabled id="recoveryPassword">
-                        <span>Отправить ссылку на восстановление пароля</span>
-                    </label>
                 </td>
-                <td></td>
             </tr>
             <tr>
                 <td>
@@ -209,10 +202,10 @@
                 </td>
             </tr>
             <tr>
-                <td><span class=""> Описание объялвения</span></td>
+                <td><span class=""> Описание объявления</span></td>
                 <td>
                     <textarea class="input-control"
-                              placeholder="Описание объялвения"
+                              placeholder="Описание объявления"
                               id="getDescription"></textarea>
                 </td>
             </tr>
@@ -237,7 +230,6 @@
         const getPrice = $('#getPrice');
         const getSaleType = $('#getSaleType');
         const getPhoneNumber = $('#getPhoneNumber');
-        const recoveryPassword = $('#recoveryPassword');
         const getDescription = $('#getDescription');
 
         $('.ajax-form').on('submit', (event) => {
@@ -290,7 +282,6 @@
             roomsCount: getValueOrNull(getRoomsCount.val()),
             realtyType: getValueOrNull(getRealtyType.val()),
             saleType: getValueOrNull(getSaleType.val()),
-            recoveryPassword: recoveryPassword.prop("checked"),
             offerId: '{{ offer_id }}',
             clientId: '{{ client_id }}'
 
@@ -368,7 +359,7 @@
     }
 
     .btn_div {
-        top: 80%;
+        top: 70%;
         left: 300px;
         position: relative;
     }

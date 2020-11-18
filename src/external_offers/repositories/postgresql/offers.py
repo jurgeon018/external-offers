@@ -6,9 +6,9 @@ from sqlalchemy import and_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
-from external_offers.entities import Offer
+from external_offers.entities import EnrichedOffer, Offer
 from external_offers.enums import OfferStatus
-from external_offers.mappers import offer_mapper
+from external_offers.mappers import enriched_offer_mapper, offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
 
@@ -44,6 +44,32 @@ async def get_offers_in_progress_by_operator(operator_id: int) -> List[Offer]:
     rows = await pg.get().fetch(query, operator_id)
 
     return [offer_mapper.map_from(row) for row in rows]
+
+
+async def get_enriched_offers_in_progress_by_operator(operator_id: int) -> List[EnrichedOffer]:
+    query = """
+        SELECT
+            ofc.*,
+            po.source_object_model->>'title' as title,
+            po.source_object_model->>'address' as address
+        FROM
+            offers_for_call as ofc
+        INNER JOIN
+            clients as c
+        ON
+            ofc.client_id = c.client_id
+        INNER JOIN
+            parsed_offers as po
+        ON
+            ofc.parsed_id = po.id
+        WHERE
+            ofc.status = 'inProgress'
+            AND c.operator_user_id = $1
+    """
+
+    rows = await pg.get().fetch(query, operator_id)
+
+    return [enriched_offer_mapper.map_from(row) for row in rows]
 
 
 async def set_waiting_offers_in_progress_by_client(client_id: str) -> None:

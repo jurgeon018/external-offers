@@ -31,7 +31,6 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'recovery_password': False,
         'offerId': '1',
         'clientId': client_id,
         'description': 'Test'
