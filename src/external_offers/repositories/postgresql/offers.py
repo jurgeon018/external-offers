@@ -287,7 +287,7 @@ async def set_offer_promocode_by_offer_id(promocode: str, offer_id: str) -> None
 async def try_to_lock_offer_and_return_result(offer_id: str) -> bool:
     query = """
         SELECT
-            1
+            *
         FROM
             offers_for_call as ofc
         WHERE
@@ -295,6 +295,6 @@ async def try_to_lock_offer_and_return_result(offer_id: str) -> bool:
         FOR UPDATE SKIP LOCKED
     """
 
-    result = await pg.get().fetchval(query, offer_id)
+    row = await pg.get().fetchrow(query, offer_id)
 
-    return bool(result)
+    return bool(row)

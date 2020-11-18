@@ -77,7 +77,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         #  то принимаем их
         options_over_cte.append(or_(
             column('user_offers_count') >= settings.OFFER_TASK_CREATION_MINIMUM_OFFERS,
-            po.c.user_synced
+            column('user_synced').is_(True)
         ))
 
     if last_sync_date:
@@ -114,7 +114,6 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .values(synced=True)
         .returning(tables.parsed_offers_table)
     )
-
     rows = await pg.get().fetch(query, *params)
 
     query, params = asyncpgsa.compile_query(
