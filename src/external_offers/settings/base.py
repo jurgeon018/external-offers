@@ -15,11 +15,12 @@ SAVE_OFFER_MSG: str = (
     'он сможет войти в него по номеру телефона'
 )
 
-OFFER_TASK_CREATION_FETCH_LIMIT: int = 500
+OFFER_TASK_CREATION_USER_FETCH_LIMIT: int = 1000
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
 OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
 OFFER_TASK_CREATION_REGIONS: List[int] = []
-OFFER_TASK_CREATION_MINIMUM_OFFERS: int = 3
+OFFER_TASK_CREATION_MINIMUM_OFFERS: int = 1
+OFFER_TASK_CREATION_MAXIMUM_OFFERS: int = 5
 
 SMS_REGISTRATION_TEMPLATE: str = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
 
