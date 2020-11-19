@@ -13,6 +13,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -41,6 +42,7 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -69,6 +71,7 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -96,6 +99,7 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4530],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -122,6 +126,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -149,6 +154,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['suburbanSale'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -176,6 +182,7 @@ async def test_create_offers__exist_parsed_offer_without_phones___doesnt_create_
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -203,6 +210,7 @@ async def test_create_offers__exist_parsed_offer_with_calltracking___doesnt_crea
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -273,6 +281,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -315,6 +324,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -342,6 +352,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -370,6 +381,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_suitable_minimum_
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 3,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -401,6 +413,7 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_use
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 4,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
 
     # act
@@ -416,7 +429,7 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_use
     assert row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_with_minimum_user_offers_and_limit_lower__creates_offers(
+async def test_create_offers__exist_nonsuitable_parsed_offer_with_maximum_exceeded__doesnt_create_offers(
     pg,
     runtime_settings,
     runner,
@@ -428,8 +441,8 @@ async def test_create_offers__exist_suitable_parsed_offer_with_minimum_user_offe
         'OFFER_TASK_CREATION_SEGMENTS': ['b'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
-        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 3,
-        'OFFER_TASK_CREATION_FETCH_LIMIT': 2
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 1,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 2,
     })
 
     # act
@@ -437,11 +450,9 @@ async def test_create_offers__exist_suitable_parsed_offer_with_minimum_user_offe
     await asyncio.sleep(1)
 
     # assert
-    rows = await pg.fetch(
+    row = await pg.fetchrow(
         """
-        SELECT * FROM offers_for_call WHERE parsed_id IN ('1d6c73b8-3057-47cc-b50a-419052da619f',
-                                                          '2d6c73b8-3057-47cc-b50a-419052da619f',
-                                                          '3d6c73b8-3057-47cc-b50a-419052da619f')
+        SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    assert len(rows) == 3
+    assert row is None
