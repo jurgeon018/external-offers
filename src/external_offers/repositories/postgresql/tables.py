@@ -20,7 +20,6 @@ parsed_offers_table = sa.Table(
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )
 
-
 clients = sa.Table(
     'clients',
     metadata,
@@ -34,7 +33,6 @@ clients = sa.Table(
     sa.Column('operator_user_id', sa.BIGINT),
 )
 
-
 offers_for_call = sa.Table(
     'offers_for_call',
     metadata,
@@ -47,4 +45,14 @@ offers_for_call = sa.Table(
     sa.Column('synced_at', sa.TIMESTAMP, nullable=False),
     sa.Column('started_at', sa.TIMESTAMP),
     sa.Column('promocode', sa.VARCHAR),
+)
+
+event_log = sa.Table(
+    'event_log',
+    metadata,
+    sa.Column('id', sa.BIGINT, autoincrement=True, primary_key=True),
+    sa.Column('offer_id', sa.VARCHAR),
+    sa.Column('operator_user_id', sa.BIGINT),
+    sa.Column('status', sa.VARCHAR, nullable=False),
+    sa.Column('created_at', sa.TIMESTAMP, nullable=False),
 )

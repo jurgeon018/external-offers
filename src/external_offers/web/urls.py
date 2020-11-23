@@ -3,6 +3,7 @@ from cian_web import get_handler
 from tornado.web import url
 
 from external_offers import entities
+from external_offers.services import admin
 from external_offers.services.save_offer import save_offer_public
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
@@ -12,10 +13,35 @@ urlpatterns = base_urls.urlpatterns + [
     # admin
     url('/admin/offers-list/$', handlers.AdminOffersListPageHandler),
     url(r'/admin/offer-card/(?P<offer_id>[a-zA-Z0-9-]+)/$', handlers.AdminOffersCardPageHandler),
-    url('/api/admin/v1/update-offers-list/$', handlers.AdminUpdateOffersListPageHandler),
-    url('/api/admin/v1/decline-client/$', handlers.AdminDeclineClientHandler),
-    url('/api/admin/v1/delete-offer/$', handlers.AdminDeleteOfferClientHandler),
-    url('/api/admin/v1/call-missed-client/$', handlers.AdminCallMissedClientHandler),
+
+    # admin actions
+    url('/api/admin/v1/update-offers-list/$', get_handler(
+        service=admin.update_offers_list,
+        method='POST',
+        response_schema=entities.AdminResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/decline-client/$', get_handler(
+        service=admin.set_decline_status_for_client,
+        method='POST',
+        request_schema=entities.AdminDeclineClientRequest,
+        response_schema=entities.AdminResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/delete-offer/$', get_handler(
+        service=admin.delete_offer,
+        method='POST',
+        request_schema=entities.AdminDeleteOfferRequest,
+        response_schema=entities.AdminResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/call-missed-client/$', get_handler(
+        service=admin.set_call_missed_status_for_client,
+        method='POST',
+        request_schema=entities.AdminCallMissedClientRequest,
+        response_schema=entities.AdminResponse,
+        base_handler_cls=PublicHandler,
+    )),
     url('/api/admin/v1/save-offer/$', get_handler(
         service=save_offer_public,
         method='POST',

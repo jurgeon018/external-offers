@@ -11,6 +11,7 @@ from external_offers.repositories.postgresql.clients import (
     set_client_waiting_and_no_operator_if_no_offers_in_progress,
     set_realty_user_id_by_client_id,
 )
+from external_offers.repositories.postgresql.event_log import save_event_log_for_offers
 from external_offers.repositories.postgresql.offers import (
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
