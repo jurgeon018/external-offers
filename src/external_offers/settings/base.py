@@ -12,14 +12,15 @@ CHECK_SERVICES: List[str] = []
 SAVE_OFFER_MSG: str = (
     'Клиенту будет создан личный кабинет и отправлены данные для регистрации. '
     'Если у клиента уже есть личный кабинет на Циане, но он не помнит пароль, '
-    'отметьте галочку ниже, и мы отправим сообщение с инструкцией по восстановлению пароля'
+    'он сможет войти в него по номеру телефона'
 )
 
-OFFER_TASK_CREATION_FETCH_LIMIT: int = 500
+OFFER_TASK_CREATION_USER_FETCH_LIMIT: int = 1000
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
 OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
 OFFER_TASK_CREATION_REGIONS: List[int] = []
-OFFER_TASK_CREATION_MINIMUM_OFFERS: int = 3
+OFFER_TASK_CREATION_MINIMUM_OFFERS: int = 1
+OFFER_TASK_CREATION_MAXIMUM_OFFERS: int = 5
 
 SMS_REGISTRATION_TEMPLATE: str = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
 

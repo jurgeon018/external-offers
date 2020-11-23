@@ -4,6 +4,7 @@ from external_offers.repositories.postgresql import (
     exists_offers_in_progress_by_operator_and_offer_id,
     get_client_by_operator,
     get_client_id_by_offer_id,
+    get_enriched_offers_in_progress_by_operator,
     get_offers_in_progress_by_operator,
     get_parsed_offer_object_model_by_offer_id,
 )
@@ -17,7 +18,7 @@ class AdminOffersListPageHandler(PublicHandler):
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
         client = await get_client_by_operator(self.realty_user_id)
-        offers = await get_offers_in_progress_by_operator(self.realty_user_id)
+        offers = await get_enriched_offers_in_progress_by_operator(self.realty_user_id)
 
         self.write(get_offers_list_html(
             offers=offers,

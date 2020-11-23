@@ -7,7 +7,7 @@ from cian_json import json
 from simple_settings import settings
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, column, func, not_, or_, over, select, update
+from sqlalchemy.sql import and_, column, distinct, func, not_, or_, over, select, update
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import ParsedObjectModel, ParsedOffer, ParsedOfferMessage
@@ -72,16 +72,31 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         options.append(po.c.source_object_model['region'].as_integer().in_(settings.OFFER_TASK_CREATION_REGIONS))
 
     if settings.OFFER_TASK_CREATION_MINIMUM_OFFERS:
-        #  Отсекаем объявления по минимальному количеству у пользователя,
-        #  если эти объявления не влезли в предыдущие итерации из-за лимита,
-        #  то принимаем их
         options_over_cte.append(or_(
             column('user_offers_count') >= settings.OFFER_TASK_CREATION_MINIMUM_OFFERS,
-            column('user_synced').is_(True)
+        ))
+
+    if settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS:
+        options_over_cte.append(or_(
+            column('user_offers_count') <= settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS,
         ))
 
     if last_sync_date:
         options.append(po.c.timestamp > last_sync_date)
+
+    selected_users_non_synced_cte = (
+        select(
+            [distinct(po.c.source_user_id)]
+        )
+        .where(
+            not_(po.c.user_synced)
+        )
+        .limit(
+            settings.OFFER_TASK_CREATION_USER_FETCH_LIMIT
+        )
+    )
+
+    options.append(po.c.source_user_id.in_(selected_users_non_synced_cte))
 
     selected_non_synced_offers_cte = (
         select(
@@ -93,13 +108,14 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .where(
             and_(*options)
         )
-        .limit(
-            settings.OFFER_TASK_CREATION_FETCH_LIMIT
-        )
         .cte('selected_non_synced_offers_cte')
     )
 
-    query, params = asyncpgsa.compile_query(
+    exist_not_synced_users_query, exist_not_synced_users_params = asyncpgsa.compile_query(
+        select([1]).select_from(selected_users_non_synced_cte.alias())
+    )
+
+    fetch_offers_query, fetch_offers_params = asyncpgsa.compile_query(
         update(tables.parsed_offers_table)
         .where(
             tables.parsed_offers_table.c.id.in_(
@@ -114,19 +130,25 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .values(synced=True)
         .returning(tables.parsed_offers_table)
     )
-    rows = await pg.get().fetch(query, *params)
 
-    query, params = asyncpgsa.compile_query(
+    set_users_synced_query, set_users_synced_params = asyncpgsa.compile_query(
         update(tables.parsed_offers_table)
         .where(
             tables.parsed_offers_table.c.source_user_id.in_(
-                [row['source_user_id'] for row in rows]
+                selected_users_non_synced_cte
             )
         )
         .values(user_synced=True)
     )
 
-    await pg.get().execute(query, *params)
+    exist_not_synced_users = True
+    rows: List[dict] = []
+    while exist_not_synced_users and not rows:
+        # Чтобы избежать ситуации, когда в выборку пользователей не попал ни один нужный
+        # Проходимся по ним, пока не закочатся пользователи или пока не найдем подходящие объявления
+        rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
+        await pg.get().execute(set_users_synced_query, *set_users_synced_params)
+        exist_not_synced_users = await pg.get().fetch(exist_not_synced_users_query, *exist_not_synced_users_params)
 
     return [parsed_offer_mapper.map_from(row) for row in rows]
 
