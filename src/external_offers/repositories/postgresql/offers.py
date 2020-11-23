@@ -72,20 +72,6 @@ async def get_enriched_offers_in_progress_by_operator(operator_id: int) -> List[
     return [enriched_offer_mapper.map_from(row) for row in rows]
 
 
-async def set_waiting_offers_in_progress_by_client(client_id: str) -> None:
-    query = """
-        UPDATE
-            offers_for_call
-        SET
-            status='inProgress'
-        WHERE
-            status = 'waiting'
-            AND client_id = $1;
-    """
-
-    await pg.get().execute(query, client_id)
-
-
 async def exists_offers_in_progress_by_operator(operator_id: int) -> bool:
     query = """
         SELECT
