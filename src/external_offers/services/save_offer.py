@@ -8,7 +8,7 @@ from simple_settings import settings
 
 from external_offers import pg
 from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRequest, SaveOfferResponse
-from external_offers.enums import SaveOfferCategory
+from external_offers.enums import OfferStatus, SaveOfferCategory
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
@@ -61,6 +61,7 @@ from external_offers.repositories.postgresql import (
     get_offer_cian_id_by_offer_id,
     get_offer_promocode_by_offer_id,
     get_realty_user_id_by_client_id,
+    save_event_log_for_offers,
     set_client_waiting_and_no_operator_if_no_offers_in_progress,
     set_offer_cian_id_by_offer_id,
     set_offer_draft_by_offer_id,
@@ -211,7 +212,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
     """ Сохранить объявление как черновик в ЦИАН. """
     async with pg.get().transaction():
         if not await try_to_lock_offer_and_return_result(
-            offer_id=request.offer_id
+                offer_id=request.offer_id
         ):
             return SaveOfferResponse(
                 status=SaveOfferStatus.already_processing,
@@ -318,6 +319,11 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 )
 
         await set_offer_draft_by_offer_id(offer_id=request.offer_id)
+        await save_event_log_for_offers(
+            offers_ids=[request.offer_id],
+            operator_user_id=user_id,
+            status=OfferStatus.draft.value
+        )
         await set_client_waiting_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
 
         return SaveOfferResponse(

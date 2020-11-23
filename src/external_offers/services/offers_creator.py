@@ -21,10 +21,13 @@ logger = logging.getLogger(__name__)
 
 
 async def create_offers_for_call_from_parsed():
+    """ Создать задания из таблицы `parsed_offers` """
+
     last_sync_date = await get_last_sync_date()
 
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(last_sync_date=last_sync_date):
         logger.info('Fetched %d parsed offers', len(parsed_offers))
+
         for parsed_offer in parsed_offers:
             existing_offer = await get_offers_by_parsed_id(parsed_offer.id)
 

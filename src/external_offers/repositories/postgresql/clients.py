@@ -27,7 +27,7 @@ async def get_client_by_operator(operator_id: int) -> Optional[Client]:
     return client_mapper.map_from(row) if row else None
 
 
-async def assign_waiting_client_to_operator(operator_id: int) -> int:
+async def assign_waiting_client_to_operator(operator_id: int) -> str:
     query = """
         WITH cte1 as (
             SELECT

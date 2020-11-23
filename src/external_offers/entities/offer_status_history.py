@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 
 @dataclass
@@ -10,9 +11,9 @@ class OfferStatusHistory:
     """Идентификатор объявления"""
     operator_id: int
     """Оператор, на которого было назначено объявление при переходе"""
-    previous_status: str
-    """Предыдущий статус объявления"""
-    status: str
-    """Статус объявления"""
     created_at: datetime
     """Дата создания нового статуса"""
+    status: str
+    """Статус объявления"""
+    previous_status: Optional[str] = None
+    """Предыдущий статус объявления"""

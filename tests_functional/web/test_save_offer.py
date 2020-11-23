@@ -131,6 +131,10 @@ async def test_save_offer__correct_json__status_ok(
     # assert
     assert json.loads(response.body)['status'] == 'ok'
 
+    offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [user_id])
+    assert offers_event_log[0]['status'] == 'draft'
+    assert offers_event_log[0]['offer_id'] == '1'
+
 
 async def test_save_offer__correct_json__offer_status_changed_to_draft(
         pg,
