@@ -27,7 +27,7 @@ async def test_external_offer_callback(pg, kafka_service, runner):
 
     # act
     await runner.start_background_python_command('save-parsed-offers')
-    await asyncio.sleep(5)
+    await asyncio.sleep(10)
 
     # assert
     row = await pg.fetchrow('SELECT * FROM parsed_offers LIMIT 1')
