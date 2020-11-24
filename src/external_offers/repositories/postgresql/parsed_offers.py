@@ -28,7 +28,7 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
         insert_query.values(
             [values]
         ).on_conflict_do_update(
-            index_elements=[tables.parsed_offers_table.c.id],
+            index_elements=[tables.parsed_offers_table.c.source_object_id],
             where=(
                     tables.parsed_offers_table.c.timestamp <= parsed_offer.timestamp
             ),
@@ -145,7 +145,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     rows: List[dict] = []
     while exist_not_synced_users and not rows:
         # Чтобы избежать ситуации, когда в выборку пользователей не попал ни один нужный
-        # Проходимся по ним, пока не закочатся пользователи или пока не найдем подходящие объявления
+        # Проходимся по ним, пока не закончатся пользователи или пока не найдем подходящие объявления
         rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
         await pg.get().execute(set_users_synced_query, *set_users_synced_params)
         exist_not_synced_users = await pg.get().fetch(exist_not_synced_users_query, *exist_not_synced_users_params)

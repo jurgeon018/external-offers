@@ -9,7 +9,7 @@ parsed_offers_table = sa.Table(
     metadata,
     sa.Column('id', sa.VARCHAR, unique=True, primary_key=True),
     sa.Column('user_segment', sa.VARCHAR),
-    sa.Column('source_object_id', sa.VARCHAR, nullable=False),
+    sa.Column('source_object_id', sa.VARCHAR, unique=True, nullable=False),
     sa.Column('source_user_id', sa.VARCHAR),
     sa.Column('source_object_model', JSONB(none_as_null=True), nullable=False),
     sa.Column('is_calltracking', sa.BOOLEAN, nullable=False),

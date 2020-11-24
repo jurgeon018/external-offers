@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, Tuple
 from uuid import uuid4
@@ -117,6 +118,8 @@ rooms_count_to_num: Dict[str, int] = {
     'studio': 1
 }
 
+
+logger = logging.getLogger(__name__)
 
 def create_publication_model(
         request: SaveOfferRequest,
@@ -242,7 +245,13 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     realty_user_id=realty_user_id,
                     client_id=request.client_id
                 )
-        except ApiClientException:
+        except ApiClientException as exc:
+            logger.warning(
+                'Ошибка при создании учетной записи для объявления %s: %s',
+                request.offer_id,
+                exc.message
+            )
+
             return SaveOfferResponse(
                 status=SaveOfferStatus.registration_failed,
                 message='Не удалось создать учетную запись по номеру телефона'
@@ -255,7 +264,14 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     category=category
                 )
             )
-        except ApiClientException:
+        except ApiClientException as exc:
+            logger.warning(
+                'Ошибка при обработке переданного адреса "%s" для объявления %s: %s',
+                request.address,
+                request.offer_id,
+                exc.message
+            )
+
             return SaveOfferResponse(
                 status=SaveOfferStatus.geocode_failed,
                 message='Не удалось обработать переданный в объявлении адрес'
@@ -278,7 +294,13 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     offer_cian_id=add_draft_result.realty_object_id,
                     offer_id=request.offer_id
                 )
-        except ApiClientException:
+        except ApiClientException as exc:
+            logger.warning(
+                'Ошибка при создании черновика для объявления %s: %s',
+                request.offer_id,
+                exc.message
+            )
+
             return SaveOfferResponse(
                 status=SaveOfferStatus.draft_failed,
                 message='Не удалось создать черновик объявления'
@@ -300,7 +322,13 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         promocode=promocode,
                         offer_id=request.offer_id
                     )
-            except ApiClientException:
+            except ApiClientException as exc:
+                logger.warning(
+                    'Ошибка при создании промокода на бесплатную публикацию для объявления %s: %s',
+                    request.offer_id,
+                    exc.message
+                )
+
                 return SaveOfferResponse(
                     status=SaveOfferStatus.promo_creation_failed,
                     message='Не удалось создать промокод на бесплатную публикацию'
@@ -312,7 +340,12 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         cian_user_id=realty_user_id,
                         promo_code=promocode
                     ))
-            except ApiClientException:
+            except ApiClientException as exc:
+                logger.warning(
+                    'Ошибка при применении промокода на бесплатную публикацию для объявления %s: %s',
+                    request.offer_id,
+                    exc.message
+                )
                 return SaveOfferResponse(
                     status=SaveOfferStatus.promo_activation_failed,
                     message='Не удалось применить промокод на бесплатную публикацию'

@@ -2,6 +2,7 @@ from simple_settings import settings
 
 from external_offers.repositories.postgresql import (
     exists_offers_in_progress_by_operator_and_offer_id,
+    exists_waiting_client,
     get_client_by_operator,
     get_client_id_by_offer_id,
     get_enriched_offers_in_progress_by_operator,
@@ -24,7 +25,7 @@ class AdminOffersListPageHandler(PublicHandler):
             offers=offers,
             client=client
         ))
-
+        
 
 class AdminOffersCardPageHandler(PublicHandler):
     # pylint: disable=abstract-method

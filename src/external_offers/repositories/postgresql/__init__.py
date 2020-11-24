@@ -1,5 +1,6 @@
 from external_offers.repositories.postgresql.clients import (
     assign_waiting_client_to_operator,
+    exists_waiting_client,
     get_client_by_avito_user_id,
     get_client_by_operator,
     get_client_id_by_offer_id,
