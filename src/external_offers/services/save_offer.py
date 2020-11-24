@@ -63,7 +63,7 @@ from external_offers.repositories.postgresql import (
     get_offer_promocode_by_offer_id,
     get_realty_user_id_by_client_id,
     save_event_log_for_offers,
-    set_client_waiting_and_no_operator_if_no_offers_in_progress,
+    set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_offer_cian_id_by_offer_id,
     set_offer_draft_by_offer_id,
     set_offer_promocode_by_offer_id,
@@ -357,7 +357,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             operator_user_id=user_id,
             status=OfferStatus.draft.value
         )
-        await set_client_waiting_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
+        await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
 
         return SaveOfferResponse(
             status=SaveOfferStatus.ok,

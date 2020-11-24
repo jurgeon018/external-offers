@@ -340,6 +340,49 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
     assert row is None
 
 
+async def test_create_offers__exist_suitable_parsed_offer_with_accepted_client___doesnt_create_offer(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test
+):
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['5', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', 60024640, 'accepted']
+    )
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+    })
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+    await asyncio.sleep(1)
+
+    # assert
+    row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = '894ff03a-573c-4bac-8599-28f17e68a0d8'
+        """
+    )
+    assert row is None
+
+
 async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_last_sync_date___doesnt_create_offer(
     pg,
     runtime_settings,

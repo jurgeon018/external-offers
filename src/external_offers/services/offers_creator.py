@@ -36,7 +36,7 @@ async def create_offers_for_call_from_parsed():
 
             client = await get_client_by_avito_user_id(parsed_offer.source_user_id)
             if client:
-                if client.status.is_declined:
+                if client.status.is_declined or client.status.is_accepted:
                     continue
             else:
                 source_object_model = json.loads(parsed_offer.source_object_model)
