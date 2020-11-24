@@ -11,6 +11,7 @@ from external_offers.repositories.postgresql import (
     assign_waiting_client_to_operator,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
+    exists_waiting_client,
     save_event_log_for_offers,
     set_client_to_call_missed_status,
     set_client_to_decline_status,
@@ -24,6 +25,18 @@ from external_offers.repositories.postgresql import (
 
 async def update_offers_list(user_id: int) -> AdminResponse:
     """ Обновить лист объявлений в админке """
+    exists_client = await exists_waiting_client()
+
+    if not exists_client:
+        return AdminResponse(
+            success=False,
+            errors=[AdminError(
+                message='Отсутствуют доступные задания',
+                code='waitingClientMissing'
+            )])
+
+
+
     exists = await exists_offers_in_progress_by_operator(user_id)
     if exists:
         return AdminResponse(

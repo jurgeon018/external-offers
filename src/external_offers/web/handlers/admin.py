@@ -25,7 +25,7 @@ class AdminOffersListPageHandler(PublicHandler):
             offers=offers,
             client=client
         ))
-        
+
 
 class AdminOffersCardPageHandler(PublicHandler):
     # pylint: disable=abstract-method
