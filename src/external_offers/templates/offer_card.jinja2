@@ -253,11 +253,15 @@
             location.reload();
         };
 
-        function getNumberOrNull(obj) {
+        function getNumberOrStrNull(obj) {
             return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
         }
 
-        function getValueOrNull(obj) {
+        function getNumberOrNull(obj) {
+            return isNaN(parseInt(obj)) ? null : parseInt(obj)
+        }
+
+        function getValueOrStrNull(obj) {
             return obj === '' ? "null" : obj
         }
 
@@ -289,13 +293,13 @@
             price: parseInt(getPrice.val()),
             phoneNumber: getPhoneNumber.val(),
             description: getDescription.val(),
-            floorNumber: getNumberOrNull(getFloorNumber.val()),
-            floorsCount: getNumberOrNull(getFloorCount.val()),
-            roomsCount: getValueOrNull(getRoomsCount.val()),
-            realtyType: getValueOrNull(getRealtyType.val()),
-            saleType: getValueOrNull(getSaleType.val()),
-            deposit: parseInt(getDeposit.val()),
-            prepayMonths: parseInt(getPrepayMonths.val()),
+            floorNumber: getNumberOrStrNull(getFloorNumber.val()),
+            floorsCount: getNumberOrStrNull(getFloorCount.val()),
+            roomsCount: getValueOrStrNull(getRoomsCount.val()),
+            realtyType: getValueOrStrNull(getRealtyType.val()),
+            saleType: getValueOrStrNull(getSaleType.val()),
+            deposit: getNumberOrNull(getDeposit.val()),
+            prepayMonths: getNumberOrNull(getPrepayMonths.val()),
             offerId: '{{ offer_id }}',
             clientId: '{{ client_id }}'
 
