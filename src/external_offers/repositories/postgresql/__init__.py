@@ -1,14 +1,15 @@
 from external_offers.repositories.postgresql.clients import (
     assign_waiting_client_to_operator,
+    exists_waiting_client,
     get_client_by_avito_user_id,
     get_client_by_operator,
     get_client_id_by_offer_id,
     get_realty_user_id_by_client_id,
     save_client,
+    set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_client_to_call_missed_status,
     set_client_to_decline_status,
     set_client_to_waiting_status,
-    set_client_waiting_and_no_operator_if_no_offers_in_progress,
     set_realty_user_id_by_client_id,
 )
 from external_offers.repositories.postgresql.event_log import save_event_log_for_offers

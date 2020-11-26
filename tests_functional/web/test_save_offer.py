@@ -742,7 +742,7 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
     assert json.loads(response.body)['status'] == 'draftFailed'
 
 
-async def test_save_offer__no_offers_in_progress_left__client_status_waiting(
+async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         http,
         pg,
         users_mock,
@@ -851,7 +851,7 @@ async def test_save_offer__no_offers_in_progress_left__client_status_waiting(
 
     # assert
     status = await pg.fetchval('SELECT status FROM clients WHERE client_id=$1', client_id)
-    assert status == 'waiting'
+    assert status == 'accepted'
 
 
 async def test_save_offer__offers_in_progress_left__client_status_in_progress(

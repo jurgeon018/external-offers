@@ -65,6 +65,25 @@ async def assign_waiting_client_to_operator(operator_id: int) -> str:
     return await pg.get().fetchval(query, operator_id)
 
 
+async def exists_waiting_client() -> bool:
+    query, params = asyncpgsa.compile_query(
+        select([1])
+        .select_from(
+            clients
+        )
+        .where(
+            and_(
+                clients.c.status == ClientStatus.waiting.value,
+            )
+        )
+        .limit(1)
+    )
+
+    exists_client = await pg.get().fetchval(query, *params)
+
+    return bool(exists_client)
+
+
 async def set_client_to_decline_status(client_id: str) -> None:
     sql = (
         update(
@@ -182,12 +201,12 @@ async def set_realty_user_id_by_client_id(realty_user_id: int, client_id: str):
     await pg.get().execute(query, *params)
 
 
-async def set_client_waiting_and_no_operator_if_no_offers_in_progress(client_id: str):
+async def set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id: str):
     query, params = asyncpgsa.compile_query(
         update(
             clients
         ).values(
-            status=ClientStatus.waiting.value,
+            status=ClientStatus.accepted.value,
             operator_user_id=None
         ).where(
             and_(

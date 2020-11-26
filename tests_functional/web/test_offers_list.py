@@ -458,8 +458,36 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
                                    [operator_client])
     offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
 
-    assert row_client['status'] == 'waiting'
     assert offers_event_log[0]['offer_id'] == '8'
     assert offers_event_log[0]['status'] == 'cancelled'
     assert offers_event_log[1]['offer_id'] == '9'
     assert offers_event_log[1]['status'] == 'cancelled'
+    assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'waiting'
+
+
+async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute("""UPDATE offers_for_call SET status='inProgress'""")
+    await pg.execute("""UPDATE clients SET status='inProgress'""")
+    operator = 70024649
+
+    # act
+    resp = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        expected_status=200
+    )
+
+    # assert
+    assert not resp.data['success']
+    assert resp.data['errors']
+    assert resp.data['errors'][0]['code'] == 'waitingClientMissing'
