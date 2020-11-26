@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import EnrichedOffer, Offer
-from external_offers.enums import OfferStatus
+from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.mappers import enriched_offer_mapper, offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
@@ -358,7 +358,7 @@ async def clear_waiting_offers_and_clients_with_off_limit_number_of_offers():
             ]
         )
         .where(
-            offers_for_call.c.status == 'waiting',
+            offers_for_call.c.status == ClientStatus.waiting.value,
         )
         .cte('offers_counts_cte')
     )
