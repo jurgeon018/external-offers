@@ -117,3 +117,17 @@ class ParsedObjectModel:
             Category.room_rent,
             Category.room_sale,
         ]
+
+
+@dataclass
+class ParsedOfferForCreation:
+    id: str
+    """Уникальный ключ"""
+    contact: str
+    """Контактное лицо"""
+    timestamp: datetime
+    """Дата отправки"""
+    source_user_id: str
+    """ID пользователя на внешней площадке"""
+    phones: str
+    """Номера телефонов в виде JSON списка"""

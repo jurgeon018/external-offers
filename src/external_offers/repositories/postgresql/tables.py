@@ -14,7 +14,6 @@ parsed_offers_table = sa.Table(
     sa.Column('source_object_model', JSONB(none_as_null=True), nullable=False),
     sa.Column('is_calltracking', sa.BOOLEAN, nullable=False),
     sa.Column('synced', sa.BOOLEAN, nullable=False),
-    sa.Column('user_synced', sa.BOOLEAN, nullable=False),
     sa.Column('timestamp', sa.TIMESTAMP, nullable=False),
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),

@@ -4,6 +4,7 @@ from typing import Dict, Tuple
 from uuid import uuid4
 
 import pytz
+from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
@@ -24,7 +25,11 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     V1GeoGeocode,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.address_info import Type
-from external_offers.repositories.monolith_cian_announcementapi.entities.bargain_terms import Currency
+from external_offers.repositories.monolith_cian_announcementapi.entities.bargain_terms import (
+    Currency,
+    SaleType,
+    UtilitiesTerms,
+)
 from external_offers.repositories.monolith_cian_announcementapi.entities.details import GeoType
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
@@ -115,9 +120,31 @@ rooms_count_to_num: Dict[str, int] = {
     'room4': 4,
     'room5': 5,
     'room6_plus': 6,
+    'open_plan': 1,
     'studio': 1
 }
 
+rooms_count_to_flat_type: Dict[str, FlatType] = {
+    'room1': FlatType.rooms,
+    'room2': FlatType.rooms,
+    'room3': FlatType.rooms,
+    'room4': FlatType.rooms,
+    'room5': FlatType.rooms,
+    'room6_plus': FlatType.rooms,
+    'open_plan': FlatType.open_plan,
+    'studio': FlatType.studio
+
+}
+
+realty_type_to_is_aparments: Dict[str, bool] = {
+    'apartments': True,
+    'flat': False
+}
+
+save_offer_sale_type_to_sale_type = {
+    'free': SaleType.free,
+    'alternative': SaleType.alternative
+}
 
 logger = logging.getLogger(__name__)
 
@@ -133,12 +160,21 @@ def create_publication_model(
         model=ObjectModel(
             bargain_terms=BargainTerms(
                 price=request.price,
-                currency=Currency.rur
+                currency=Currency.rur,
+                deposit=request.deposit,
+                prepay_months=request.prepay_months if request.prepay_months != 0 else None,
+                sale_type=save_offer_sale_type_to_sale_type.get(request.sale_type, None),
+                utilities_terms=[
+                    UtilitiesTerms(
+                        included_in_price=True
+                    )
+                ]
             ),
             building=Building(
                 floors_count=request.floors_count
             ),
             total_area=request.total_area,
+            is_apartments=realty_type_to_is_aparments.get(request.realty_type, None),
             property_type=PropertyType.building,
             rooms_count=rooms_count_to_num.get(request.rooms_count, None),
             floor_number=request.floor_number,
@@ -165,10 +201,9 @@ def create_publication_model(
                 ]
             ),
             name='Наименование',
-            title='Черновик объявления',
             description=request.description,
             object_guid=str(uuid4()).upper(),
-            flat_type=FlatType.rooms,
+            flat_type=rooms_count_to_flat_type.get(request.rooms_count, None),
             is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
             row_version=0  # если этот параметр не слать, шарп 500ит
         ),
@@ -245,7 +280,15 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     realty_user_id=realty_user_id,
                     client_id=request.client_id
                 )
+
+                if register_response.has_many_accounts:
+                    logger.warning(
+                        'Не удалось однозначно определить аккаунт для пользователя %s, выбран %d',
+                        request.client_id,
+                        realty_user_id
+                    )
         except ApiClientException as exc:
+            statsd.incr('save_offer.error.registration')
             logger.warning(
                 'Ошибка при создании учетной записи для объявления %s: %s',
                 request.offer_id,
@@ -265,6 +308,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 )
             )
         except ApiClientException as exc:
+            statsd.incr('save_offer.error.geocode')
             logger.warning(
                 'Ошибка при обработке переданного адреса "%s" для объявления %s: %s',
                 request.address,
@@ -295,6 +339,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     offer_id=request.offer_id
                 )
         except ApiClientException as exc:
+            statsd.incr('save_offer.error.draft_create')
             logger.warning(
                 'Ошибка при создании черновика для объявления %s: %s',
                 request.offer_id,
@@ -323,6 +368,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         offer_id=request.offer_id
                     )
             except ApiClientException as exc:
+                statsd.incr('save_offer.error.promo_create')
                 logger.warning(
                     'Ошибка при создании промокода на бесплатную публикацию для объявления %s: %s',
                     request.offer_id,
@@ -341,6 +387,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         promo_code=promocode
                     ))
             except ApiClientException as exc:
+                statsd.incr('save_offer.error.promo_apply')
                 logger.warning(
                     'Ошибка при применении промокода на бесплатную публикацию для объявления %s: %s',
                     request.offer_id,
@@ -358,7 +405,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             status=OfferStatus.draft.value
         )
         await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
-
+        statsd.incr('save_offer.success')
         return SaveOfferResponse(
             status=SaveOfferStatus.ok,
             message='Объявление успешно создано'

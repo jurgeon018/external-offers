@@ -38,6 +38,10 @@ class SaveOfferRequest:
     """Тип продажи"""
     realty_type: Optional[str] = None
     """Тип жилья"""
+    deposit: Optional[int] = None
+    """Залог"""
+    prepay_months: Optional[int] = None
+    """Предполата за сколько месяцев (до 12)"""
 
 
 @dataclass

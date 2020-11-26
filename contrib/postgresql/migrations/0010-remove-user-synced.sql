@@ -1,0 +1,1 @@
+ALTER TABLE parsed_offers DROP COLUMN user_synced;

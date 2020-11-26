@@ -47,5 +47,4 @@ async def test_external_offer_callback(pg, kafka_service, runner):
         ),
         'is_calltracking': False,
         'synced': False,
-        'user_synced': False
     }

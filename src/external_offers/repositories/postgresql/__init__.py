@@ -14,15 +14,17 @@ from external_offers.repositories.postgresql.clients import (
 )
 from external_offers.repositories.postgresql.event_log import save_event_log_for_offers
 from external_offers.repositories.postgresql.offers import (
+    clear_waiting_offers_and_clients_with_off_limit_number_of_offers,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_offers_in_progress_by_operator_and_offer_id,
     get_enriched_offers_in_progress_by_operator,
     get_last_sync_date,
+    get_offer_by_parsed_id,
     get_offer_cian_id_by_offer_id,
     get_offer_promocode_by_offer_id,
-    get_offers_by_parsed_id,
     get_offers_in_progress_by_operator,
+    get_offers_parsed_ids_by_parsed_ids,
     save_offer_for_call,
     set_offer_cancelled_by_offer_id,
     set_offer_cian_id_by_offer_id,
