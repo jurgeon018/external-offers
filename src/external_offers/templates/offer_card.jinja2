@@ -257,10 +257,6 @@
             return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
         }
 
-        function getNumberOrNull(obj) {
-            return isNaN(parseInt(obj)) ? null : parseInt(obj)
-        }
-
         function getValueOrStrNull(obj) {
             return obj === '' ? "null" : obj
         }
@@ -298,12 +294,17 @@
             roomsCount: getValueOrStrNull(getRoomsCount.val()),
             realtyType: getValueOrStrNull(getRealtyType.val()),
             saleType: getValueOrStrNull(getSaleType.val()),
-            deposit: getNumberOrNull(getDeposit.val()),
-            prepayMonths: getNumberOrNull(getPrepayMonths.val()),
             offerId: '{{ offer_id }}',
             clientId: '{{ client_id }}'
 
         }
+        {% if parsed_object_model.is_rent %}
+            let obj_rent = {
+                deposit: getNumberOrStrNull(getDeposit.val()),
+                prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
+            }
+            obj = {...obj, ...obj_rent};
+        {% endif %}
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
