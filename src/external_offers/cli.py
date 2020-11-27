@@ -7,7 +7,7 @@ from tornado.ioloop import IOLoop
 
 from external_offers import entities, setup
 from external_offers.queue.consumers import save_parsed_offers_callback
-from external_offers.services.offers_creator import create_offers_for_call_from_parsed
+from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
 from external_offers.web.urls import urlpatterns
 
 
@@ -27,9 +27,9 @@ def serve(debug: bool, host: str, port: int) -> None:
 
 @cli.command()
 def create_offers_for_call():
-    """ Наполнить таблицы offers_for_call и clients на основе parsed_offers"""
+    """ Синхронизировать таблицы offers_for_call и clients на основе parsed_offers"""
 
-    IOLoop.current().run_sync(partial(create_offers_for_call_from_parsed))
+    IOLoop.current().run_sync(partial(sync_offers_for_call_with_parsed))
 
 
 # [ML] сохранение объявлений с внешних площадок

@@ -2,12 +2,13 @@ from datetime import datetime
 from typing import List, Optional
 
 import asyncpgsa
-from sqlalchemy import and_, select, update
+from simple_settings import settings
+from sqlalchemy import and_, delete, func, or_, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import EnrichedOffer, Offer
-from external_offers.enums import OfferStatus
+from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.mappers import enriched_offer_mapper, offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
@@ -236,7 +237,7 @@ async def set_offer_cancelled_by_offer_id(offer_id: str) -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_offers_by_parsed_id(parsed_id: str) -> Optional[Offer]:
+async def get_offer_by_parsed_id(parsed_id: str) -> Optional[Offer]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
@@ -248,6 +249,20 @@ async def get_offers_by_parsed_id(parsed_id: str) -> Optional[Offer]:
     row = await pg.get().fetchrow(query, *params)
 
     return offer_mapper.map_from(row) if row else None
+
+
+async def get_offers_parsed_ids_by_parsed_ids(parsed_ids: str) -> Optional[List[str]]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.parsed_id]
+        ).where(
+            offers_for_call.c.parsed_id.in_(parsed_ids),
+        )
+    )
+
+    rows = await pg.get().fetch(query, *params)
+
+    return rows
 
 
 async def get_last_sync_date() -> Optional[datetime]:
@@ -331,3 +346,50 @@ async def try_to_lock_offer_and_return_result(offer_id: str) -> bool:
     row = await pg.get().fetchrow(query, offer_id)
 
     return bool(row)
+
+
+async def clear_waiting_offers_and_clients_with_off_limit_number_of_offers():
+    offers_counts_cte = (
+        select(
+            [
+                offers_for_call.c.id,
+                offers_for_call.c.client_id,
+                over(func.count(), partition_by=offers_for_call.c.client_id).label('waiting_offers_count')
+            ]
+        )
+        .where(
+            offers_for_call.c.status == ClientStatus.waiting.value,
+        )
+        .cte('offers_counts_cte')
+    )
+
+    offers_query, offers_params = asyncpgsa.compile_query(
+        delete(
+            offers_for_call
+        ).where(
+            and_(
+                offers_for_call.c.id == offers_counts_cte.c.id,
+                or_(
+                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
+                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
+                )
+            )
+        )
+    )
+
+    client_query, client_params = asyncpgsa.compile_query(
+        delete(
+            clients
+        ).where(
+            and_(
+                clients.c.client_id == offers_counts_cte.c.client_id,
+                or_(
+                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
+                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
+                )
+            )
+        )
+    )
+
+    await pg.get().execute(offers_query, *offers_params)
+    await pg.get().execute(client_query, *client_params)

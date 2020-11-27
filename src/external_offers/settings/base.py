@@ -15,7 +15,7 @@ SAVE_OFFER_MSG: str = (
     'он сможет войти в него по номеру телефона'
 )
 
-OFFER_TASK_CREATION_USER_FETCH_LIMIT: int = 1000
+OFFER_TASK_CREATION_OFFER_FETCH_LIMIT: int = 1000
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
 OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
 OFFER_TASK_CREATION_REGIONS: List[int] = []

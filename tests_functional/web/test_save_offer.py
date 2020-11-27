@@ -1200,3 +1200,88 @@ async def test_save_offer__offer_with_free_region__promo_apis_not_called(
     # assert
     assert len(await service_stub.get_requests()) == 0
     assert len(await profileapi_stub.get_requests()) == 0
+
+
+async def test_save_offer__has_many_accounts_returned__logged_warning(
+        pg,
+        http,
+        logs,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+):
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '1',
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+
+    request = {
+        'deal_type': 'rent',
+        'offer_type': 'flat',
+        'category': 'room',
+        'address': 'ул. просторная 6, квартира 200',
+        'realty_type': 'apartments',
+        'total_area': 120,
+        'rooms_count': None,
+        'floor_number': 1,
+        'floors_count': 5,
+        'price': 100000,
+        'sale_type': '',
+        'phone_number': '89134488338',
+        'offerId': '1',
+        'clientId': '7',
+        'description': 'Test'
+    }
+    user_id = 123123
+    client_realty_id = 77
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': True,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': client_realty_id
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            status=400
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=request,
+        headers={
+            'X-Real-UserId': user_id
+        }
+    )
+
+    # assert
+    assert any([f'Не удалось однозначно определить аккаунт для пользователя 7, выбран {client_realty_id}' in line
+                for line in logs.get_lines()])

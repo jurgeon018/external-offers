@@ -127,6 +127,7 @@
                     <option value="room4">4</option>
                     <option value="room5">5</option>
                     <option value="room6_plus">6+</option>
+                    <option value="open_plan">свободная планировка</option>
                     <option value="studio">студия</option>
                 </select>
             </div>
@@ -155,6 +156,26 @@
                     value="{{ parsed_object_model.price }}" type="number" id="getPrice">
             </div>
 
+            {% if parsed_object_model.is_rent %}
+            <div class="offerDepositTitle">
+                    <span class="">Залог</span>
+            </div>
+            <div class="offerDepositInput">
+                <input class="input-control" required placeholder="Залог собственнику"
+                    type="number" id="getDeposit">
+            </div>
+            {% endif %}
+
+            {% if parsed_object_model.is_rent %}
+            <div class="offerPrepayMonthsTitle">
+                    <span class="">Предоплата</span>
+            </div>
+            <div class="offerPrepayMonthsInput">
+                <input class="input-control" required placeholder="Предоплата (от 1 до 12 месяцев)"
+                    type="number" id="getPrepayMonths">
+            </div>
+            {% endif %}
+
             {% if parsed_object_model.is_sale %}
             <div class="offerSaleTypeTitle">
                     <span class="">Тип продажи</span>
@@ -162,8 +183,8 @@
             <div class="offerSaleTypeSelect">
                 <select class="select-control" id="getSaleType">
                     <option value="" selected disabled>Не выбрано</option>
-                    <option value="">Свободная продажа</option>
-                    <option value="">Альтернатива</option>
+                    <option value="free">Свободная продажа</option>
+                    <option value="alternative">Альтернатива</option>
                 </select>
             </div>
             {% endif %}
@@ -219,6 +240,9 @@
         const getSaleType = $('#getSaleType');
         const getPhoneNumber = $('#getPhoneNumber');
         const getDescription = $('#getDescription');
+        const getDeposit = $('#getDeposit');
+        const getPrepayMonths = $('#getPrepayMonths');
+
 
         $('.ajax-form').on('submit', (event) => {
             event.preventDefault();
@@ -229,11 +253,11 @@
             location.reload();
         };
 
-        function getNumberOrNull(obj) {
+        function getNumberOrStrNull(obj) {
             return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
         }
 
-        function getValueOrNull(obj) {
+        function getValueOrStrNull(obj) {
             return obj === '' ? "null" : obj
         }
 
@@ -252,7 +276,7 @@
                 alert('Адрес обязательный параметр!');
                 return
             } else if (getDescription.val() === "") {
-                alert('Описание объялвения обязательный параметр!');
+                alert('Описание объявления обязательный параметр!');
                 return
             }
 
@@ -265,15 +289,22 @@
             price: parseInt(getPrice.val()),
             phoneNumber: getPhoneNumber.val(),
             description: getDescription.val(),
-            floorNumber: getNumberOrNull(getFloorNumber.val()),
-            floorsCount: getNumberOrNull(getFloorCount.val()),
-            roomsCount: getValueOrNull(getRoomsCount.val()),
-            realtyType: getValueOrNull(getRealtyType.val()),
-            saleType: getValueOrNull(getSaleType.val()),
+            floorNumber: getNumberOrStrNull(getFloorNumber.val()),
+            floorsCount: getNumberOrStrNull(getFloorCount.val()),
+            roomsCount: getValueOrStrNull(getRoomsCount.val()),
+            realtyType: getValueOrStrNull(getRealtyType.val()),
+            saleType: getValueOrStrNull(getSaleType.val()),
             offerId: '{{ offer_id }}',
             clientId: '{{ client_id }}'
 
         }
+        {% if parsed_object_model.is_rent %}
+            let obj_rent = {
+                deposit: getNumberOrStrNull(getDeposit.val()),
+                prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
+            }
+            obj = {...obj, ...obj_rent};
+        {% endif %}
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {

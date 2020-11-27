@@ -65,5 +65,4 @@ create table parsed_offers
     created_at          timestamp with time zone not null,
     updated_at          timestamp with time zone not null,
     synced              boolean                  not null,
-    user_synced         boolean                  not null
 );
