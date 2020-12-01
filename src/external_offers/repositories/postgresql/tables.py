@@ -24,7 +24,7 @@ clients = sa.Table(
     metadata,
     sa.Column('client_id', sa.VARCHAR, unique=True, primary_key=True),
     sa.Column('avito_user_id', sa.VARCHAR, nullable=False),
-    sa.Column('realty_user_id', sa.BIGINT),
+    sa.Column('cian_user_id', sa.BIGINT),
     sa.Column('client_name', sa.VARCHAR, nullable=True),
     sa.Column('client_phones', sa.ARRAY(sa.VARCHAR), nullable=False),
     sa.Column('client_email', sa.VARCHAR),

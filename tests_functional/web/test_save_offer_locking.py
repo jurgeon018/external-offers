@@ -15,7 +15,7 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
-    realty_user_id = 77777
+    cian_user_id = 77777
     client_id = '5'
 
     request = {
@@ -47,7 +47,7 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': realty_user_id
+                    'id': cian_user_id
                 }
             },
             wait=1000

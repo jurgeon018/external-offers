@@ -16,7 +16,7 @@ class Client:
     """Статус клиента"""
     client_name: Optional[str] = None
     """Имя клиента"""
-    realty_user_id: Optional[int] = None
+    cian_user_id: Optional[int] = None
     """Идентификатор пользователя на Циане"""
     client_email: Optional[str] = None
     """Почтовый ящик клиента, к которому привязана учетная запись Циана"""

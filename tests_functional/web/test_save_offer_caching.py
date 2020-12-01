@@ -1,7 +1,7 @@
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-async def test_save_offer__register_user_by_phone_called_success__realty_user_id_saved(
+async def test_save_offer__register_user_by_phone_called_success__cian_user_id_saved(
         http,
         pg,
         users_mock,
@@ -11,7 +11,7 @@ async def test_save_offer__register_user_by_phone_called_success__realty_user_id
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
-    realty_user_id = 77777
+    cian_user_id = 77777
     client_id = '5'
 
     request = {
@@ -40,7 +40,7 @@ async def test_save_offer__register_user_by_phone_called_success__realty_user_id
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': realty_user_id
+                    'id': cian_user_id
                 }
             }
         ),
@@ -64,11 +64,11 @@ async def test_save_offer__register_user_by_phone_called_success__realty_user_id
     )
 
     # assert
-    saved_realty_user_id = await pg.fetchval('SELECT realty_user_id FROM clients WHERE client_id=$1', client_id)
-    assert saved_realty_user_id == realty_user_id
+    saved_cian_user_id = await pg.fetchval('SELECT cian_user_id FROM clients WHERE client_id=$1', client_id)
+    assert saved_cian_user_id == cian_user_id
 
 
-async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_called(
+async def test_save_offer__cian_user_id_exists__register_user_by_phone_not_called(
         http,
         pg,
         users_mock,
@@ -78,7 +78,7 @@ async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_cal
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
-    realty_user_id = 77777
+    cian_user_id = 77777
     client_id = '5'
 
     request = {
@@ -98,7 +98,7 @@ async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_cal
         'clientId': client_id,
         'description': 'Test'
     }
-    await pg.execute('UPDATE clients SET realty_user_id=$1 WHERE client_id=$2', [realty_user_id, client_id])
+    await pg.execute('UPDATE clients SET cian_user_id=$1 WHERE client_id=$2', [cian_user_id, client_id])
 
     register_mock = await users_mock.add_stub(
         method='POST',
@@ -109,7 +109,7 @@ async def test_save_offer__realty_user_id_exists__register_user_by_phone_not_cal
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': realty_user_id
+                    'id': cian_user_id
                 }
             }
         ),
@@ -147,7 +147,7 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
-    realty_user_id = 77777
+    cian_user_id = 77777
     offer_cian_id = 7777
     client_id = '5'
     offer_id = '8'
@@ -178,7 +178,7 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': realty_user_id
+                    'id': cian_user_id
                 }
             }
         ),
@@ -242,7 +242,7 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
-    realty_user_id = 77777
+    cian_user_id = 77777
     offer_cian_id = 7777
     client_id = '5'
     offer_id = '8'
@@ -274,7 +274,7 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': realty_user_id
+                    'id': cian_user_id
                 }
             }
         ),
@@ -340,7 +340,7 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
-    realty_user_id = 77777
+    cian_user_id = 77777
     offer_cian_id = 7777
     client_id = '5'
     offer_id = '8'
@@ -372,7 +372,7 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': realty_user_id
+                    'id': cian_user_id
                 }
             }
         ),
@@ -452,7 +452,7 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
-    realty_user_id = 77777
+    cian_user_id = 77777
     offer_cian_id = 7777
     client_id = '5'
     offer_id = '8'
@@ -487,7 +487,7 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': realty_user_id
+                    'id': cian_user_id
                 }
             }
         ),
