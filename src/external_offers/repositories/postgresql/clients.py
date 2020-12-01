@@ -175,10 +175,10 @@ async def get_client_id_by_offer_id(offer_id: str) -> str:
     return await pg.get().fetchval(query, *params)
 
 
-async def get_realty_user_id_by_client_id(client_id: str) -> Optional[int]:
+async def get_cian_user_id_by_client_id(client_id: str) -> Optional[int]:
     query, params = asyncpgsa.compile_query(
         select(
-            [clients.c.realty_user_id]
+            [clients.c.cian_user_id]
         ).where(
             clients.c.client_id == client_id,
         ).limit(1)
@@ -187,12 +187,12 @@ async def get_realty_user_id_by_client_id(client_id: str) -> Optional[int]:
     return await pg.get().fetchval(query, *params)
 
 
-async def set_realty_user_id_by_client_id(realty_user_id: int, client_id: str):
+async def set_cian_user_id_by_client_id(cian_user_id: int, client_id: str):
     query, params = asyncpgsa.compile_query(
         update(
             clients
         ).values(
-            realty_user_id=realty_user_id
+            cian_user_id=cian_user_id
         ).where(
             clients.c.client_id == client_id,
         )

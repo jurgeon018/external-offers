@@ -410,6 +410,97 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
     assert json.loads(response.body)['status'] == 'geocodeFailed'
 
 
+async def test_save_offer__geocode_timeout__logged_timeout(
+        pg,
+        http,
+        logs,
+        runtime_settings,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+):
+    # arrange
+    await runtime_settings.set({
+        'MONOLITH_CIAN_ANNOUNCEMENTAPI_TIMEOUT': 1
+    })
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '1',
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+    address = 'ул. просторная 6, квартира 200'
+    offer_id = '1'
+    request = {
+        'deal_type': 'rent',
+        'offer_type': 'flat',
+        'category': 'room',
+        'address': address,
+        'realty_type': 'apartments',
+        'total_area': 120,
+        'rooms_count': None,
+        'floor_number': 1,
+        'floors_count': 5,
+        'price': 100000,
+        'sale_type': '',
+        'phone_number': '89134488338',
+        'offerId': offer_id,
+        'clientId': '7',
+        'description': 'Test'
+    }
+    user_id = 123123
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': 7777777
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            status=400,
+            wait=1500
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=request,
+        headers={
+            'X-Real-UserId': user_id
+        }
+    )
+
+    # assert
+    assert any([f'Таймаут при обработке переданного адреса "{address}" для объявления {offer_id}' in line
+                for line in logs.get_lines()])
+
+
 async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         pg,
         http,
@@ -740,6 +831,113 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
 
     # assert
     assert json.loads(response.body)['status'] == 'draftFailed'
+
+
+async def test_save_offer__announcements_draft_timeout__logged_timeout(
+        pg,
+        http,
+        logs,
+        runtime_settings,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+):
+    # arrange
+    await runtime_settings.set({
+        'MONOLITH_CIAN_ANNOUNCEMENTAPI_TIMEOUT': 1
+    })
+
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '1',
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+
+    offer_id = '1'
+    request = {
+        'deal_type': 'rent',
+        'offer_type': 'flat',
+        'category': 'room',
+        'address': 'ул. просторная 6, квартира 200',
+        'realty_type': 'apartments',
+        'total_area': 120,
+        'rooms_count': None,
+        'floor_number': 1,
+        'floors_count': 5,
+        'price': 100000,
+        'sale_type': '',
+        'phone_number': '89134488338',
+        'offerId': offer_id,
+        'clientId': '7',
+        'description': 'Test'
+    }
+    user_id = 123123
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': 7777777
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            body={
+                'country_id': 1233,
+                'location_path': [1],
+                'geo': {
+                    'lat': 12.0,
+                    'lng': 13.0
+                },
+                'details': []
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='POST',
+        path='/v2/announcements/draft/',
+        response=MockResponse(
+            status=400,
+            wait=1500
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=request,
+        headers={
+            'X-Real-UserId': user_id
+        }
+    )
+
+    # assert
+    assert any([f'Таймаут при создании черновика для объявления {offer_id}' in line
+                for line in logs.get_lines()])
 
 
 async def test_save_offer__no_offers_in_progress_left__client_status_accepted(

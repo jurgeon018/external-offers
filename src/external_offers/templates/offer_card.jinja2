@@ -2,7 +2,7 @@
     <div class="header-block">
         <div class="client-info">
                 <div class="client-info-offer-title">
-                    <a href="{{ parsed_object_model.url }}">{{ parsed_object_model.title }}</a>
+                    <a rel="noopener noreferrer" target="_blank" href="{{ parsed_object_model.url }}">{{ parsed_object_model.title }}</a>
                 </div>
                 <div class="client-info-offer-phones">
                     {% for phone in parsed_object_model.phones %}

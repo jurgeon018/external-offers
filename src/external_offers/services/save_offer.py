@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytz
 from cian_core.statsd import statsd
-from cian_http.exceptions import ApiClientException
+from cian_http.exceptions import ApiClientException, BadRequestException, TimeoutException
 from simple_settings import settings
 
 from external_offers import pg
@@ -64,15 +64,15 @@ from external_offers.repositories.monolith_cian_service.entities.service_package
     Type as StartegyType,
 )
 from external_offers.repositories.postgresql import (
+    get_cian_user_id_by_client_id,
     get_offer_cian_id_by_offer_id,
     get_offer_promocode_by_offer_id,
-    get_realty_user_id_by_client_id,
     save_event_log_for_offers,
+    set_cian_user_id_by_client_id,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_offer_cian_id_by_offer_id,
     set_offer_draft_by_offer_id,
     set_offer_promocode_by_offer_id,
-    set_realty_user_id_by_client_id,
     try_to_lock_offer_and_return_result,
 )
 from external_offers.repositories.users import v1_register_user_by_phone
@@ -150,7 +150,7 @@ logger = logging.getLogger(__name__)
 
 def create_publication_model(
         request: SaveOfferRequest,
-        realty_user_id: int,
+        cian_user_id: int,
         geocode_response: GeoCodeAnnouncementResponse,
         phone_number: str,
         category: Category,
@@ -179,7 +179,7 @@ def create_publication_model(
             rooms_count=rooms_count_to_num.get(request.rooms_count, None),
             floor_number=request.floor_number,
             category=category,
-            user_id=realty_user_id,
+            cian_user_id=cian_user_id,
             phones=[
                 Phone(
                     number=phone_number[2:],
@@ -213,7 +213,7 @@ def create_publication_model(
 
 def create_promocode_detail_model(
         request: SaveOfferRequest,
-        realty_user_id: int
+        cian_user_id: int
 ):
     now = datetime.now(tz=pytz.utc)
 
@@ -225,7 +225,7 @@ def create_promocode_detail_model(
             for_specific_user_ids=True,
             available_to=(now + timedelta(days=1)),
             promo_codes_count=1,
-            cian_user_ids=str(realty_user_id)
+            cian_user_ids=str(cian_user_id)
         ),
         service_package_strategy=ServicePackageStrategyModel(
             is_paid=False,
@@ -244,6 +244,11 @@ def create_promocode_detail_model(
             )]
         )
     )
+
+
+def statsd_incr_if_not_test_user(metric: str, user_id: int):
+    if user_id not in settings.TEST_OPERATOR_IDS:
+        statsd.incr(metric)
 
 
 async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveOfferResponse:
@@ -265,19 +270,19 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         ]
 
         try:
-            realty_user_id = await get_realty_user_id_by_client_id(
+            cian_user_id = await get_cian_user_id_by_client_id(
                 client_id=request.client_id
             )
-            if not realty_user_id:
+            if not cian_user_id:
                 register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
                     RegisterUserByPhoneRequest(
                         phone=phone_number,
                         sms_template=settings.SMS_REGISTRATION_TEMPLATE
                     )
                 )
-                realty_user_id = register_response.user_data.id
-                await set_realty_user_id_by_client_id(
-                    realty_user_id=realty_user_id,
+                cian_user_id = register_response.user_data.id
+                await set_cian_user_id_by_client_id(
+                    cian_user_id=cian_user_id,
                     client_id=request.client_id
                 )
 
@@ -285,10 +290,13 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     logger.warning(
                         'Не удалось однозначно определить аккаунт для пользователя %s, выбран %d',
                         request.client_id,
-                        realty_user_id
+                        cian_user_id
                     )
         except ApiClientException as exc:
-            statsd.incr('save_offer.error.registration')
+            statsd_incr_if_not_test_user(
+                metric='save_offer.error.registration',
+                user_id=user_id
+            )
             logger.warning(
                 'Ошибка при создании учетной записи для объявления %s: %s',
                 request.offer_id,
@@ -307,8 +315,11 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     category=category
                 )
             )
-        except ApiClientException as exc:
-            statsd.incr('save_offer.error.geocode')
+        except BadRequestException as exc:
+            statsd_incr_if_not_test_user(
+                metric='save_offer.error.geocode.badrequest',
+                user_id=user_id
+            )
             logger.warning(
                 'Ошибка при обработке переданного адреса "%s" для объявления %s: %s',
                 request.address,
@@ -318,8 +329,24 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
             return SaveOfferResponse(
                 status=SaveOfferStatus.geocode_failed,
-                message='Не удалось обработать переданный в объявлении адрес'
+                message=f'Не удалось обработать переданный в объявлении адрес. {exc.message}'
             )
+        except TimeoutException as exc:
+            statsd_incr_if_not_test_user(
+                metric='save_offer.error.geocode',
+                user_id=user_id
+            )
+            logger.warning(
+                'Таймаут при обработке переданного адреса "%s" для объявления %s',
+                request.address,
+                request.offer_id
+            )
+
+            return SaveOfferResponse(
+                status=SaveOfferStatus.geocode_failed,
+                message='Не удалось обработать переданный в объявлении адрес за лимит времени. Попробуйте ещё раз'
+            )
+
 
         try:
             offer_cian_id = await get_offer_cian_id_by_offer_id(
@@ -328,7 +355,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             if not offer_cian_id:
                 add_draft_result: AddDraftResult = await v2_announcements_draft(create_publication_model(
                     request=request,
-                    realty_user_id=realty_user_id,
+                    cian_user_id=cian_user_id,
                     geocode_response=geocode_response,
                     phone_number=phone_number,
                     category=category
@@ -338,8 +365,11 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     offer_cian_id=add_draft_result.realty_object_id,
                     offer_id=request.offer_id
                 )
-        except ApiClientException as exc:
-            statsd.incr('save_offer.error.draft_create')
+        except BadRequestException as exc:
+            statsd_incr_if_not_test_user(
+                metric='save_offer.error.draft_create.badrequest',
+                user_id=user_id
+            )
             logger.warning(
                 'Ошибка при создании черновика для объявления %s: %s',
                 request.offer_id,
@@ -348,7 +378,21 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
             return SaveOfferResponse(
                 status=SaveOfferStatus.draft_failed,
-                message='Не удалось создать черновик объявления'
+                message=f'Не удалось создать черновик объявления. {exc.message}'
+            )
+        except TimeoutException as exc:
+            statsd_incr_if_not_test_user(
+                metric='save_offer.error.draft_create.timeout',
+                user_id=user_id
+            )
+            logger.warning(
+                'Таймаут при создании черновика для объявления %s',
+                request.offer_id,
+            )
+
+            return SaveOfferResponse(
+                status=SaveOfferStatus.draft_failed,
+                message='Не удалось создать черновик за лимит времени. Попробуйте ещё раз'
             )
 
         # В конце location_path лежит идентификатор региона, используем его
@@ -359,7 +403,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     promocode_response: CreatePromocodeGroupResponse = await api_promocodes_create_promocode_group(
                         create_promocode_detail_model(
                             request=request,
-                            realty_user_id=realty_user_id
+                            cian_user_id=cian_user_id
                         )
                     )
                     promocode = promocode_response.promocodes[0].promocode
@@ -368,7 +412,10 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         offer_id=request.offer_id
                     )
             except ApiClientException as exc:
-                statsd.incr('save_offer.error.promo_create')
+                statsd_incr_if_not_test_user(
+                    metric='save_offer.error.promo_create',
+                    user_id=user_id
+                )
                 logger.warning(
                     'Ошибка при создании промокода на бесплатную публикацию для объявления %s: %s',
                     request.offer_id,
@@ -383,11 +430,14 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             try:
                 await promocode_apply(
                     ApplyParameters(
-                        cian_user_id=realty_user_id,
+                        cian_user_id=cian_user_id,
                         promo_code=promocode
                     ))
             except ApiClientException as exc:
-                statsd.incr('save_offer.error.promo_apply')
+                statsd_incr_if_not_test_user(
+                    metric='save_offer.error.promo_apply',
+                    user_id=user_id
+                )
                 logger.warning(
                     'Ошибка при применении промокода на бесплатную публикацию для объявления %s: %s',
                     request.offer_id,
@@ -405,7 +455,10 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             status=OfferStatus.draft.value
         )
         await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
-        statsd.incr('save_offer.success')
+        statsd_incr_if_not_test_user(
+            metric='save_offer.success',
+            user_id=user_id
+        )
         return SaveOfferResponse(
             status=SaveOfferStatus.ok,
             message='Объявление успешно создано'

@@ -34,8 +34,8 @@ CREATE TABLE clients
 (
     client_id        varchar     not null primary key,
     avito_user_id    varchar     not null,
-    realty_user_id   bigint,
-    client_name      varchar(50) not null,
+    cian_user_id     bigint,
+    client_name      varchar(100) not null,
     client_phones    varchar[]   not null,
     client_email     varchar(50),
     operator_user_id bigint,
