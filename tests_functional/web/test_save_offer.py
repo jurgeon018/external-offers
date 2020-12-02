@@ -16,6 +16,7 @@ async def test_save_offer__correct_json__status_ok(
         monolith_cian_profileapi_mock
 ):
     # arrange
+    operator_user_id = 123123
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -37,6 +38,23 @@ async def test_save_offer__correct_json__status_ok(
             )
         """
     )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['1', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
+    )
+
     request = {
         'deal_type': 'rent',
         'offer_type': 'flat',
@@ -51,10 +69,9 @@ async def test_save_offer__correct_json__status_ok(
         'sale_type': '',
         'phone_number': '89134488338',
         'offerId': '1',
-        'clientId': '7',
+        'clientId': '1',
         'description': 'Test'
     }
-    user_id = 123123
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -123,14 +140,14 @@ async def test_save_offer__correct_json__status_ok(
         '/api/admin/v1/save-offer/',
         json=request,
         headers={
-            'X-Real-UserId': user_id
+            'X-Real-UserId': operator_user_id
         }
     )
 
     # assert
     assert json.loads(response.body)['status'] == 'ok'
 
-    offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [user_id])
+    offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
     assert offers_event_log[0]['status'] == 'draft'
     assert offers_event_log[0]['offer_id'] == '1'
 
@@ -144,6 +161,8 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         monolith_cian_profileapi_mock
 ):
     # arrange
+    operator_user_id = 12345
+    offer_id = '1'
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -165,6 +184,23 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
             )
         """
     )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['1', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
+    )
+
     request = {
         'deal_type': 'rent',
         'offer_type': 'flat',
@@ -178,11 +214,10 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         'price': 100000,
         'sale_type': '',
         'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
+        'offerId': offer_id,
+        'clientId': '1',
         'description': 'Test'
     }
-    user_id = 123123
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -250,12 +285,12 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         '/api/admin/v1/save-offer/',
         json=request,
         headers={
-            'X-Real-UserId': user_id
+            'X-Real-UserId': operator_user_id
         }
     )
 
     # assert
-    status = await pg.fetchval("""SELECT status FROM offers_for_call WHERE id='1'""")
+    status = await pg.fetchval(f"""SELECT status FROM offers_for_call WHERE id='{offer_id}'""")
     assert status == 'draft'
 
 
@@ -1169,6 +1204,8 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         monolith_cian_profileapi_mock
 ):
     # arrange
+    operator_user_id = 123123
+
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -1190,8 +1227,22 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
             )
         """
     )
-
-    user_id = 123123
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['1', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
+    )
     paid_regions = [1, 2]
     request = {
         'deal_type': 'rent',
@@ -1207,7 +1258,7 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         'sale_type': '',
         'phone_number': '89134488338',
         'offerId': '1',
-        'clientId': '7',
+        'clientId': '1',
         'description': 'Test'
     }
     await runtime_settings.set({
@@ -1282,7 +1333,7 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         '/api/admin/v1/save-offer/',
         json=request,
         headers={
-            'X-Real-UserId': user_id
+            'X-Real-UserId': operator_user_id
         }
     )
 
@@ -1483,3 +1534,65 @@ async def test_save_offer__has_many_accounts_returned__logged_warning(
     # assert
     assert any([f'Не удалось однозначно определить аккаунт для пользователя 7, выбран {client_realty_id}' in line
                 for line in logs.get_lines()])
+
+
+async def test_save_offer__save_already_saved_offer__returns_already_processed(
+        http,
+        pg,
+):
+    # arrange
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '1',
+            'draft',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+
+    user_id = 123123
+    client_id = '5'
+
+    request = {
+        'deal_type': 'rent',
+        'offer_type': 'flat',
+        'category': 'room',
+        'address': 'ул. просторная 6, квартира 200',
+        'realty_type': 'apartments',
+        'total_area': 120,
+        'rooms_count': None,
+        'floor_number': 1,
+        'floors_count': 5,
+        'price': 100000,
+        'sale_type': '',
+        'phone_number': '89134488338',
+        'offerId': '1',
+        'clientId': client_id,
+        'description': 'Test'
+    }
+
+    # act
+    response = await http.request(
+            'POST',
+            '/api/admin/v1/save-offer/',
+            json=request,
+            headers={
+                'X-Real-UserId': user_id
+            }
+        )
+
+    # assert
+    assert json.loads(response.body)['status'] == 'alreadyProcessed'

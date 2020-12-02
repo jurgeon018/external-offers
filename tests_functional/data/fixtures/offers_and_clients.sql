@@ -46,6 +46,14 @@ INSERT INTO public.clients(
     'nemoyemail1234@gmail.com',
     60024649,
     'inProgress'
+), (
+    '6',
+    '32131326',
+    'Александр Петров',
+    '{+79812333238}',
+    'nemoyemail1234@gmail.com',
+    60024659,
+    'inProgress'
 );
 
 INSERT INTO public.offers_for_call(
@@ -132,6 +140,22 @@ INSERT INTO public.offers_for_call(
     10,
     'wrong-parsed-id-2',
     '4',
+    'inProgress',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06'
+),(
+    11,
+    '2dddd3b8-3157-47cc-b50a-419052da619f',
+    '6',
+    'inProgress',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06'
+),(
+    12,
+    '3dddd3b8-3257345cc-b50a-419052da619f',
+    '6',
     'inProgress',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',

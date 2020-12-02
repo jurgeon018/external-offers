@@ -332,10 +332,10 @@ async def set_offer_promocode_by_offer_id(promocode: str, offer_id: str) -> None
     await pg.get().execute(query, *params)
 
 
-async def try_to_lock_offer_and_return_result(offer_id: str) -> bool:
+async def try_to_lock_offer_and_return_status(offer_id: str) -> Optional[str]:
     query = """
         SELECT
-            *
+            status
         FROM
             offers_for_call as ofc
         WHERE
@@ -343,9 +343,9 @@ async def try_to_lock_offer_and_return_result(offer_id: str) -> bool:
         FOR UPDATE SKIP LOCKED
     """
 
-    row = await pg.get().fetchrow(query, offer_id)
+    status = await pg.get().fetchval(query, offer_id)
 
-    return bool(row)
+    return status
 
 
 async def clear_waiting_offers_and_clients_with_off_limit_number_of_offers():
