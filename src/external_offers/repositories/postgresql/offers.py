@@ -148,12 +148,12 @@ async def set_waiting_offers_in_progress_by_client(client_id: str) -> List[str]:
         WHERE
             status = 'waiting'
             AND client_id = $1
-        RETURNING parsed_id;
+        RETURNING id;
     """
 
     result = await pg.get().fetch(query, client_id)
 
-    return [r['parsed_id'] for r in result]
+    return [r['id'] for r in result]
 
 
 async def set_offers_declined_by_client(client_id: str) -> List[str]:
@@ -168,14 +168,14 @@ async def set_offers_declined_by_client(client_id: str) -> List[str]:
                 offers_for_call.c.status == OfferStatus.in_progress.value
             )
         ).returning(
-            offers_for_call.c.parsed_id
+            offers_for_call.c.id
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
     result = await pg.get().fetch(query, *params)
 
-    return [r['parsed_id'] for r in result]
+    return [r['id'] for r in result]
 
 
 async def set_offers_call_missed_by_client(client_id: str) -> List[str]:
@@ -190,14 +190,14 @@ async def set_offers_call_missed_by_client(client_id: str) -> List[str]:
                 offers_for_call.c.status == OfferStatus.in_progress.value
             )
         ).returning(
-            offers_for_call.c.parsed_id
+            offers_for_call.c.id
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
     result = await pg.get().fetch(query, *params)
 
-    return [r['parsed_id'] for r in result]
+    return [r['id'] for r in result]
 
 
 async def set_offer_draft_by_offer_id(offer_id: str) -> None:

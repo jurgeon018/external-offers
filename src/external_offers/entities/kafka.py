@@ -31,8 +31,6 @@ class DraftAnnouncementsKafkaMessage:
     """Идентификатор клиента на Циане"""
     phone: str
     """Номер телефона клиента"""
-    status: str
-    """Статус звонка"""
     date: datetime
     """Дата события"""
     draft: int

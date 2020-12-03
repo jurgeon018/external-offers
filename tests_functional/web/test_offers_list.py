@@ -168,7 +168,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
         'SELECT * FROM event_log where operator_user_id=$1',
         [operator_without_offers_in_progress]
     )
-    assert offers_event_log[0]['offer_id'] == '9999d421-b7ba-4ee0-b29f-bc8add87c933'
+    assert offers_event_log[0]['offer_id'] == '4'
     assert offers_event_log[0]['status'] == 'inProgress'
 
 
@@ -214,14 +214,14 @@ async def test_update_offers_list__second_operator_without_client_update__update
         'SELECT * FROM event_log where operator_user_id=$1',
         [first_operator_without_offers_in_progress]
     )
-    assert offers_event_log_first_operator[0]['offer_id'] == '9999d421-b7ba-4ee0-b29f-bc8add87c933'
+    assert offers_event_log_first_operator[0]['offer_id'] == '4'
     assert offers_event_log_first_operator[0]['status'] == 'inProgress'
 
     offers_event_log_second_operator = await pg.fetch(
         'SELECT * FROM event_log where operator_user_id=$1',
         [second_operator_without_offers_in_progress]
     )
-    assert offers_event_log_second_operator[0]['offer_id'] == '33e4d51e-e8d3-499d-9497-4229d6c539ee'
+    assert offers_event_log_second_operator[0]['offer_id'] == '5'
     assert offers_event_log_second_operator[0]['status'] == 'inProgress'
 
 
@@ -293,9 +293,9 @@ async def test_decline_client__client_with_cancelled_and_in_progress__only_in_pr
 
     assert row_offer_expected_declined['status'] == 'declined'
     assert row_offer_expected_cancelled['status'] == 'cancelled'
-    assert offers_event_log[0]['offer_id'] == 'wrong-parsed-id'
+    assert offers_event_log[0]['offer_id'] == '6'
     assert offers_event_log[0]['status'] == 'declined'
-    assert offers_event_log[1]['offer_id'] == 'wrong-parsed-id-2'
+    assert offers_event_log[1]['offer_id'] == '10'
     assert offers_event_log[1]['status'] == 'declined'
 
 
@@ -367,9 +367,9 @@ async def test_call_missed_client__exist_offers_in_progress_and_cancelled__only_
 
     assert row_offer_expected_call_missed['status'] == 'callMissed'
     assert row_offer_expected_cancelled['status'] == 'cancelled'
-    assert offers_event_log[0]['offer_id'] == 'wrong-parsed-id'
+    assert offers_event_log[0]['offer_id'] == '6'
     assert offers_event_log[0]['status'] == 'callMissed'
-    assert offers_event_log[1]['offer_id'] == 'wrong-parsed-id-2'
+    assert offers_event_log[1]['offer_id'] == '10'
     assert offers_event_log[1]['status'] == 'callMissed'
 
 

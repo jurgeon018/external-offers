@@ -13,7 +13,11 @@ from external_offers.repositories.postgresql.clients import (
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
 )
-from external_offers.repositories.postgresql.event_log import save_event_log_for_offers
+from external_offers.repositories.postgresql.event_log import (
+    get_enriched_event_log_entries_for_calls_kafka_sync,
+    get_enriched_event_log_entries_for_drafts_kafka_sync,
+    save_event_log_for_offers,
+)
 from external_offers.repositories.postgresql.offers import (
     clear_waiting_offers_and_clients_with_off_limit_number_of_offers,
     exists_offers_in_progress_by_client,

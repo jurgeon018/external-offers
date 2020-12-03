@@ -6,6 +6,7 @@ from uuid import uuid4
 import pytz
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException, BadRequestException, TimeoutException
+from cian_kafka._producer.exceptions import KafkaProducerError
 from simple_settings import settings
 
 from external_offers import pg
@@ -14,7 +15,7 @@ from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRe
 from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
-from external_offers.queue.kafka import kafka_preposition_admin_calls_producer, kafka_preposition_admin_drafts_producer
+from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     AddDraftResult,
@@ -470,29 +471,33 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             metric='save_offer.success',
             user_id=user_id
         )
-
         if user_id not in settings.TEST_OPERATOR_IDS:
             now = datetime.now(tz=pytz.utc)
-            await kafka_preposition_admin_drafts_producer(DraftAnnouncementsKafkaMessage(
-                manager_id=user_id,
-                source_user_id=client.avito_user_id,
-                user_id=cian_user_id,
-                phone=phone_number,
-                status=OfferStatus.draft.value,
-                date=now,
-                draft=offer_cian_id
-            ))
-
-            if updated:
-                await kafka_preposition_admin_calls_producer(CallsKafkaMessage(
+            try:
+                await kafka_preposition_drafts_producer(DraftAnnouncementsKafkaMessage(
                     manager_id=user_id,
                     source_user_id=client.avito_user_id,
-                    user_id=client.cian_user_id,
-                    phone=client.client_phones[0],
-                    status=ClientStatus.accepted.value,
+                    user_id=cian_user_id,
+                    phone=phone_number,
                     date=now,
-                    source=settings.AVITO_SOURCE_NAME
+                    draft=offer_cian_id
                 ))
+
+                if updated:
+                    await kafka_preposition_calls_producer(
+                        message=CallsKafkaMessage(
+                            manager_id=user_id,
+                            source_user_id=client.avito_user_id,
+                            user_id=client.cian_user_id,
+                            phone=client.client_phones[0],
+                            status=ClientStatus.accepted.value,
+                            date=now,
+                            source=settings.AVITO_SOURCE_NAME
+                        ),
+                        timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                    )
+            except KafkaProducerError:
+                logger.warning('Не удалось отправить события аналитики для объявления %s', request.offer_id)
 
 
         return SaveOfferResponse(
