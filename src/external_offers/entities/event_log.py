@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Optional
 
 from external_offers.enums import ClientStatus, OfferStatus
 
@@ -28,13 +28,13 @@ class EnrichedEventLogEntry:
     operator_user_id: str
     """Идентификатор оператора"""
     cian_user_id: Optional[int]
-    "Идентификатор пользователя на Циане"
+    """Идентификатор пользователя на Циане"""
     avito_user_id: str
-    "Идентификатор пользователя на Авито"
+    """Идентификатор пользователя на Авито"""
     client_phones: str
-    "Идентификатор пользователя на Авито"
+    """Идентификатор пользователя на Авито"""
     offer_cian_id: Optional[int]
-    "Идентификатор опубликованного объявления на Циан"
+    """Идентификатор опубликованного объявления на Циане"""
     status: OfferStatus
     """Статус объявления"""
     client_status: ClientStatus

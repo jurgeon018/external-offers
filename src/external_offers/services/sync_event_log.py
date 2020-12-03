@@ -38,7 +38,6 @@ async def sync_event_log(date_from: Optional[str], date_to: Optional[str]):
             date=draft_event.created_at,
             draft=draft_event.offer_cian_id
         ))
-    
 
     client_events = await get_enriched_event_log_entries_for_calls_kafka_sync(
         date_from=datetime_from,

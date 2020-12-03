@@ -7,4 +7,3 @@ enriched_event_log_entry_mapper = EntityMapper(
     EnrichedEventLogEntry,
     without_camelcase=True,
 )
-

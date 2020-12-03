@@ -69,7 +69,11 @@ async def test_sync_event_log__exist_draft_entry_in_interval__expected_message_t
     )
 
     # act
-    await runner.run_python_command('sync-event-log-with-kafka-analytics', '--date-from=11-10-2020', '--date-to=13-10-2020')
+    await runner.run_python_command(
+        'sync-event-log-with-kafka-analytics',
+        '--date-from=11-10-2020',
+        '--date-to=13-10-2020'
+    )
 
     # assert
     messages = await kafka_service.wait_messages(
@@ -241,12 +245,13 @@ async def test_sync_event_log__exist_draft_entry_in_wrong_interval__expected_no_
             timeout=4
         )
 
+
 @pytest.mark.parametrize(
-    (   
+    (
         'offer_status',
         'event_log_status',
         'client_status'
-    ),(
+    ), (
         ('draft', 'draft', 'accepted'),
         ('declined', 'declined', 'declined'),
         ('callMissed', 'callMissed', 'callMissed')
@@ -303,7 +308,7 @@ async def test_sync_event_log__exist_appliable_client_call_entry_in_interval__ex
         """
     )
     await pg.execute(
-        f"""
+        """
         INSERT INTO public.clients (
             client_id,
             avito_user_id,
@@ -321,7 +326,11 @@ async def test_sync_event_log__exist_appliable_client_call_entry_in_interval__ex
     )
 
     # act
-    await runner.run_python_command('sync-event-log-with-kafka-analytics', '--date-from=11-10-2020', '--date-to=13-10-2020')
+    await runner.run_python_command(
+        'sync-event-log-with-kafka-analytics',
+        '--date-from=11-10-2020',
+        '--date-to=13-10-2020'
+    )
 
     # assert
     messages = await kafka_service.wait_messages(
@@ -408,7 +417,11 @@ async def test_sync_event_log__exist_in_progress_client_call_entry_in_interval__
     )
 
     # act
-    await runner.run_python_command('sync-event-log-with-kafka-analytics', '--date-from=11-10-2020', '--date-to=13-10-2020')
+    await runner.run_python_command(
+        'sync-event-log-with-kafka-analytics',
+        '--date-from=11-10-2020',
+        '--date-to=13-10-2020'
+    )
 
     # assert
     with pytest.raises(TimeoutError):
