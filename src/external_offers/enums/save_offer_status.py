@@ -16,3 +16,5 @@ class SaveOfferStatus(StrEnum):
     """Ошибка при создании черновика"""
     already_processing = 'already_processing'
     """Объявление уже в обработке"""
+    already_processed = 'already_processed'
+    """Объявление уже обработано"""

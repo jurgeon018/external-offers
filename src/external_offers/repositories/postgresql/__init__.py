@@ -3,16 +3,21 @@ from external_offers.repositories.postgresql.clients import (
     exists_waiting_client,
     get_cian_user_id_by_client_id,
     get_client_by_avito_user_id,
+    get_client_by_client_id,
     get_client_by_operator,
     get_client_id_by_offer_id,
     save_client,
     set_cian_user_id_by_client_id,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
-    set_client_to_call_missed_status,
-    set_client_to_decline_status,
-    set_client_to_waiting_status,
+    set_client_to_call_missed_status_and_return,
+    set_client_to_decline_status_and_return,
+    set_client_to_waiting_status_and_return,
 )
-from external_offers.repositories.postgresql.event_log import save_event_log_for_offers
+from external_offers.repositories.postgresql.event_log import (
+    get_enriched_event_log_entries_for_calls_kafka_sync,
+    get_enriched_event_log_entries_for_drafts_kafka_sync,
+    save_event_log_for_offers,
+)
 from external_offers.repositories.postgresql.offers import (
     clear_waiting_offers_and_clients_with_off_limit_number_of_offers,
     exists_offers_in_progress_by_client,
@@ -33,7 +38,7 @@ from external_offers.repositories.postgresql.offers import (
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
-    try_to_lock_offer_and_return_result,
+    try_to_lock_offer_and_return_status,
 )
 from external_offers.repositories.postgresql.parsed_offers import (
     get_parsed_offer_object_model_by_offer_id,

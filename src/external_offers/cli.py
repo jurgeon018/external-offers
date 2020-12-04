@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Optional
 
 import click
 from cian_core.kafka import register_kafka_consumer
@@ -8,6 +9,7 @@ from tornado.ioloop import IOLoop
 from external_offers import entities, setup
 from external_offers.queue.consumers import save_parsed_offers_callback
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
+from external_offers.services.sync_event_log import sync_event_log
 from external_offers.web.urls import urlpatterns
 
 
@@ -27,9 +29,16 @@ def serve(debug: bool, host: str, port: int) -> None:
 
 @cli.command()
 def create_offers_for_call():
-    """ Синхронизировать таблицы offers_for_call и clients на основе parsed_offers"""
-
+    """ Синхронизировать таблицы offers_for_call и clients на основе parsed_offers """
     IOLoop.current().run_sync(partial(sync_offers_for_call_with_parsed))
+
+
+@cli.command()
+@click.option('--date-from', type=str, default=None)
+@click.option('--date-to', type=str, default=None)
+def sync_event_log_with_kafka_analytics(date_from: Optional[str], date_to: Optional[str]):
+    """ Дослать события аналитики за период на основе таблицы event_log  """
+    IOLoop.current().run_sync(partial(sync_event_log, date_from, date_to))
 
 
 # [ML] сохранение объявлений с внешних площадок

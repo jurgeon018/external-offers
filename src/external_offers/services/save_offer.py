@@ -6,13 +6,16 @@ from uuid import uuid4
 import pytz
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException, BadRequestException, TimeoutException
+from cian_kafka._producer.exceptions import KafkaProducerError
 from simple_settings import settings
 
 from external_offers import pg
+from external_offers.entities.kafka import CallsKafkaMessage, DraftAnnouncementsKafkaMessage
 from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRequest, SaveOfferResponse
-from external_offers.enums import OfferStatus, SaveOfferCategory
+from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
+from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     AddDraftResult,
@@ -65,6 +68,7 @@ from external_offers.repositories.monolith_cian_service.entities.service_package
 )
 from external_offers.repositories.postgresql import (
     get_cian_user_id_by_client_id,
+    get_client_by_client_id,
     get_offer_cian_id_by_offer_id,
     get_offer_promocode_by_offer_id,
     save_event_log_for_offers,
@@ -73,7 +77,7 @@ from external_offers.repositories.postgresql import (
     set_offer_cian_id_by_offer_id,
     set_offer_draft_by_offer_id,
     set_offer_promocode_by_offer_id,
-    try_to_lock_offer_and_return_result,
+    try_to_lock_offer_and_return_status,
 )
 from external_offers.repositories.users import v1_register_user_by_phone
 from external_offers.repositories.users.entities import RegisterUserByPhoneRequest, RegisterUserByPhoneResponse
@@ -254,12 +258,18 @@ def statsd_incr_if_not_test_user(metric: str, user_id: int):
 async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveOfferResponse:
     """ Сохранить объявление как черновик в ЦИАН. """
     async with pg.get().transaction():
-        if not await try_to_lock_offer_and_return_result(
+        status = await try_to_lock_offer_and_return_status(
                 offer_id=request.offer_id
-        ):
+        )
+        if not status:
             return SaveOfferResponse(
                 status=SaveOfferStatus.already_processing,
                 message='Объявление уже обрабатывается'
+            )
+        if status == OfferStatus.draft.value:
+            return SaveOfferResponse(
+                status=SaveOfferStatus.already_processed,
+                message='Объявление уже сохранено как черновик'
             )
 
         phone_number = transform_phone_number_to_canonical_format(request.phone_number)
@@ -269,7 +279,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
              request.offer_type)
         ]
 
-        try:
+        try:  # Регистрируем клиента по номеру телефона или получаем уже существующий аккаунт
             cian_user_id = await get_cian_user_id_by_client_id(
                 client_id=request.client_id
             )
@@ -308,7 +318,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 message='Не удалось создать учетную запись по номеру телефона'
             )
 
-        try:
+        try:  # Геокодинг переданного через форму адреса
             geocode_response: GeoCodeAnnouncementResponse = await v1_geo_geocode(
                 V1GeoGeocode(
                     request=request.address,
@@ -347,8 +357,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 message='Не удалось обработать переданный в объявлении адрес за лимит времени. Попробуйте ещё раз'
             )
 
-
-        try:
+        try:  # Создание черновика объявления
             offer_cian_id = await get_offer_cian_id_by_offer_id(
                 offer_id=request.offer_id
             )
@@ -360,9 +369,9 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     phone_number=phone_number,
                     category=category
                 ))
-
+                offer_cian_id = add_draft_result.realty_object_id
                 await set_offer_cian_id_by_offer_id(
-                    offer_cian_id=add_draft_result.realty_object_id,
+                    offer_cian_id=offer_cian_id,
                     offer_id=request.offer_id
                 )
         except BadRequestException as exc:
@@ -397,7 +406,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
         # В конце location_path лежит идентификатор региона, используем его
         if geocode_response.location_path[-1] in settings.REGIONS_WITH_PAID_PUBLICATION:
-            try:
+            try:  # Создание промокода на бесплатную публикацию объявления
                 promocode = await get_offer_promocode_by_offer_id(request.offer_id)
                 if not promocode:
                     promocode_response: CreatePromocodeGroupResponse = await api_promocodes_create_promocode_group(
@@ -427,7 +436,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     message='Не удалось создать промокод на бесплатную публикацию'
                 )
 
-            try:
+            try:  # Применение промокода на бесплатную публикацию объявления
                 await promocode_apply(
                     ApplyParameters(
                         cian_user_id=cian_user_id,
@@ -454,11 +463,43 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             operator_user_id=user_id,
             status=OfferStatus.draft.value
         )
-        await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
+        client = await get_client_by_client_id(client_id=request.client_id)
+
+        updated = await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
+
         statsd_incr_if_not_test_user(
             metric='save_offer.success',
             user_id=user_id
         )
+        if user_id not in settings.TEST_OPERATOR_IDS:
+            now = datetime.now(tz=pytz.utc)
+            try:
+                await kafka_preposition_drafts_producer(DraftAnnouncementsKafkaMessage(
+                    manager_id=user_id,
+                    source_user_id=client.avito_user_id,
+                    user_id=cian_user_id,
+                    phone=phone_number,
+                    date=now,
+                    draft=offer_cian_id
+                ))
+
+                if updated:
+                    await kafka_preposition_calls_producer(
+                        message=CallsKafkaMessage(
+                            manager_id=user_id,
+                            source_user_id=client.avito_user_id,
+                            user_id=client.cian_user_id,
+                            phone=client.client_phones[0],
+                            status=ClientStatus.accepted.value,
+                            date=now,
+                            source=settings.AVITO_SOURCE_NAME
+                        ),
+                        timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                    )
+            except KafkaProducerError:
+                logger.warning('Не удалось отправить события аналитики для объявления %s', request.offer_id)
+
+
         return SaveOfferResponse(
             status=SaveOfferStatus.ok,
             message='Объявление успешно создано'
