@@ -35,4 +35,4 @@ command = "sync-event-log-with-kafka-analytics"
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "manage"
 command = "send-latest-parsed-offers-timestamp-diff-to-graphite"
-cron = "*/5 * * * *"
+cron = "*/15 * * * *"

@@ -128,6 +128,7 @@ async def get_lastest_event_timestamp() -> Optional[datetime]:
         select([
             func.max(po.c.timestamp)
         ])
+        .limit(1)
     )
 
     return await pg.get().fetchval(query, *params)
