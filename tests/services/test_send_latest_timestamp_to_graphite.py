@@ -1,6 +1,3 @@
-from datetime import datetime
-from unittest.mock import ANY
-
 import freezegun
 import pytest
 import pytz
@@ -15,7 +12,7 @@ from external_offers.services.send_latest_timestamp_to_graphite import send_pars
 async def test_send_parsed_offers_timestamp_diff_to_graphite__when_called__send_to_graphite_called(mocker):
     # arrange
     get_timestamp_mock = mocker.patch('external_offers.services.send_latest_timestamp_'
-                                    'to_graphite.get_lastest_event_timestamp')
+                                      'to_graphite.get_lastest_event_timestamp')
     send_to_graphite_mock = mocker.patch('external_offers.services.send_latest_timestamp_to_graphite.send_to_graphite')
     last_timestamp = FakeDatetime(2020, 10, 10, 9, 57, 30, 303690, tzinfo=pytz.UTC)
     freezed_now = FakeDatetime.now(pytz.UTC)
