@@ -9,6 +9,7 @@ from tornado.ioloop import IOLoop
 from external_offers import entities, setup
 from external_offers.queue.consumers import save_parsed_offers_callback
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
+from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
 from external_offers.services.sync_event_log import sync_event_log
 from external_offers.web.urls import urlpatterns
 
@@ -31,6 +32,12 @@ def serve(debug: bool, host: str, port: int) -> None:
 def create_offers_for_call():
     """ Синхронизировать таблицы offers_for_call и clients на основе parsed_offers """
     IOLoop.current().run_sync(partial(sync_offers_for_call_with_parsed))
+
+
+@cli.command()
+def send_latest_parsed_offers_timestamp_diff_to_graphite():
+    """ Отправить в grafana разницу между now() и timestamp последнего пришедшего спаршенного объявления """
+    IOLoop.current().run_sync(partial(send_parsed_offers_timestamp_diff_to_graphite))
 
 
 @cli.command()

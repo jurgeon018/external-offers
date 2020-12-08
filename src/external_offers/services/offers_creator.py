@@ -2,6 +2,7 @@ import logging
 import uuid
 from datetime import datetime
 
+import pytz
 from cian_json import json
 
 from external_offers.entities import Offer
@@ -54,7 +55,7 @@ async def sync_offers_for_call_with_parsed():
                 await save_client(client)
 
             offer_id = str(uuid.uuid4())
-            now = datetime.now()
+            now = datetime.now(tz=pytz.utc)
             offer = Offer(
                 id=offer_id,
                 parsed_id=parsed_offer.id,

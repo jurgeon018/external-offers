@@ -5,7 +5,7 @@ import asyncpgsa
 import pytz
 from cian_json import json
 from simple_settings import settings
-from sqlalchemy import JSON
+from sqlalchemy import JSON, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, not_, select, update
 
@@ -120,3 +120,14 @@ async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optiona
     row = await pg.get().fetchrow(query, *params)
 
     return parsed_object_model_mapper.map_from(json.loads(row['source_object_model'])) if row else None
+
+
+async def get_lastest_event_timestamp() -> Optional[datetime]:
+    po = tables.parsed_offers_table.alias()
+    query, params = asyncpgsa.compile_query(
+        select([
+            func.max(po.c.timestamp)
+        ])
+    )
+
+    return await pg.get().fetchval(query, *params)
