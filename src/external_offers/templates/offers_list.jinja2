@@ -31,7 +31,11 @@
          }
          .offercolumn.offer-column-identifier:hover {
          text-decoration:none;
-         text-shadow: 1px 1px 1px #555;
+         text-shadow: 0.5px 0.5px 0.5px #555;
+         }
+         .client-info-profile-url:hover {
+         text-decoration:none;
+         text-shadow: 0.5px 0.5px 0.5px #555;
          }
          .offers-row {
          border-top: 0;
@@ -91,6 +95,7 @@
          <div id="clientInfoClientId">Идентификатор: {{ client.client_id }}</div>
          {% if (client.client_name) %}<div id="clientInfiClientName">Имя: {{ client.client_name }}</div>{% endif %}
          <div id="clientInfoClientPhone">Телефон: {{ client.client_phones | join(',') }}</div>
+         {% if (client.cian_user_id) %}<div class="client-info-profile-url"> <a rel="noopener noreferrer" target="_blank" href="https://service.cian.ru/customers/view/{{ client.cian_user_id }}">Профиль</a></div>{% endif %}
          <div class="client-buttons">
             <div class="decline-client-block">
                <button class="decline-client-button" id="declineClientButton1">Отказ</button>
