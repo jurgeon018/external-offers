@@ -18,7 +18,7 @@ url = "https://nexus.cian.tech/repository/cian/simple/"
 default = true
 
 [tool.poetry.dependencies]
-cian-core = {version = "^1.20", extras = ['postgres', 'kafka']}
+cian-core = {version = "^1.20", extras = ['postgres', 'kafka', 'graphite']}
 cian-kafka = "^1.2"
 cian-entities = "^1.8"
 cian-enum = "^1.1"
@@ -45,3 +45,4 @@ pytest-mock = "*"
 pytest-tornado = "*"
 tox = "*"
 tox-poetry = "*"
+freezegun = "^1.0.0"

@@ -41,6 +41,7 @@ from external_offers.repositories.postgresql.offers import (
     try_to_lock_offer_and_return_status,
 )
 from external_offers.repositories.postgresql.parsed_offers import (
+    get_lastest_event_timestamp,
     get_parsed_offer_object_model_by_offer_id,
     save_parsed_offer,
     set_synced_and_fetch_parsed_offers_chunk,
