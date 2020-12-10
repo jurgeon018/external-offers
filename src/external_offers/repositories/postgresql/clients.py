@@ -124,6 +124,13 @@ async def set_client_to_call_missed_status_and_return(client_id: str) -> Optiona
     )
 
 
+async def set_client_to_call_later_status_and_return(client_id: str) -> Optional[Client]:
+    return await set_client_to_status_and_return(
+        client_id=client_id,
+        status=ClientStatus.call_later
+    )
+
+
 async def save_client(client: Client) -> None:
     insert_query = insert(clients)
 

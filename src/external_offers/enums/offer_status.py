@@ -10,6 +10,8 @@ class OfferStatus(StrEnum):
     """Создан черновик"""
     call_missed = 'call_missed'
     """Недозвон по объявлению"""
+    call_later = 'call_later'
+    """Позвонить позже"""
     cancelled = 'cancelled'
     """Отмена работы по объявлению оператором"""
     declined = 'declined'

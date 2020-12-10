@@ -3,6 +3,7 @@ CREATE TYPE offer_status_type AS enum (
     'inProgress',
     'draft',
     'callMissed',
+    'callLater',
     'cancelled',
     'declined',
     'done'

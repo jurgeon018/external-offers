@@ -2,7 +2,7 @@ CREATE TYPE client_status_type AS enum (
     'waiting',
     'declined',
     'inProgress',
-    'callRetry',
+    'callLater',
     'callMissed',
     'accepted'
 );

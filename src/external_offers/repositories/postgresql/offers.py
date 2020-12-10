@@ -157,33 +157,23 @@ async def set_waiting_offers_in_progress_by_client(client_id: str) -> List[str]:
 
 
 async def set_offers_declined_by_client(client_id: str) -> List[str]:
-    sql = (
-        update(
-            offers_for_call
-        ).values(
-            status=OfferStatus.declined.value,
-        ).where(
-            and_(
-                offers_for_call.c.client_id == client_id,
-                offers_for_call.c.status == OfferStatus.in_progress.value
-            )
-        ).returning(
-            offers_for_call.c.id
-        )
-    )
-
-    query, params = asyncpgsa.compile_query(sql)
-    result = await pg.get().fetch(query, *params)
-
-    return [r['id'] for r in result]
+    return await set_offers_status_by_client(client_id, OfferStatus.declined)
 
 
 async def set_offers_call_missed_by_client(client_id: str) -> List[str]:
+    return await set_offers_status_by_client(client_id, OfferStatus.call_missed)
+
+
+async def set_offers_call_later_by_client(client_id: str) -> List[str]:
+    return await set_offers_status_by_client(client_id, OfferStatus.call_later)
+
+
+async def set_offers_status_by_client(client_id: str, status: OfferStatus) -> List[str]:
     sql = (
         update(
             offers_for_call
         ).values(
-            status=OfferStatus.call_missed.value,
+            status=status.value,
         ).where(
             and_(
                 offers_for_call.c.client_id == client_id,
