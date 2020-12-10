@@ -33,6 +33,6 @@ type = "manage"
 command = "sync-event-log-with-kafka-analytics"
 
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
-type = "manage"
+type = "cron"
 command = "send-latest-parsed-offers-timestamp-diff-to-graphite"
 cron = "*/15 * * * *"

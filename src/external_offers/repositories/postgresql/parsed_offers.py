@@ -33,7 +33,6 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
                     tables.parsed_offers_table.c.timestamp <= parsed_offer.timestamp
             ),
             set_={
-                'id': insert_query.excluded.id,
                 'user_segment': insert_query.excluded.user_segment,
                 'source_object_id': insert_query.excluded.source_object_id,
                 'source_user_id': insert_query.excluded.source_user_id,
