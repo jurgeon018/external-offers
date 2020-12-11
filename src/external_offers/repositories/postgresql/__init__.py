@@ -1,5 +1,6 @@
 from external_offers.repositories.postgresql.clients import (
     assign_waiting_client_to_operator,
+    delete_waiting_clients_by_client_ids,
     exists_waiting_client,
     get_cian_user_id_by_client_id,
     get_client_by_avito_user_id,
@@ -20,7 +21,7 @@ from external_offers.repositories.postgresql.event_log import (
     save_event_log_for_offers,
 )
 from external_offers.repositories.postgresql.offers import (
-    clear_waiting_offers_and_clients_with_off_limit_number_of_offers,
+    delete_waiting_offers_for_call_by_client_ids,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_offers_in_progress_by_operator_and_offer_id,
@@ -40,6 +41,7 @@ from external_offers.repositories.postgresql.offers import (
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
+    set_waiting_offers_priority_by_client_ids,
     try_to_lock_offer_and_return_status,
 )
 from external_offers.repositories.postgresql.parsed_offers import (

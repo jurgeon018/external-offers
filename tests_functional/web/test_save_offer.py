@@ -81,7 +81,8 @@ async def test_save_offer__correct_json__status_ok(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True
                 }
             }
         ),
@@ -227,7 +228,8 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -418,7 +420,8 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -507,7 +510,8 @@ async def test_save_offer__geocode_timeout__logged_timeout(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -593,7 +597,8 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -703,7 +708,8 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -826,7 +832,8 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -931,7 +938,8 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -1019,7 +1027,8 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -1126,7 +1135,8 @@ async def test_save_offer__offers_in_progress_left__client_status_in_progress(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -1274,7 +1284,8 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -1383,7 +1394,8 @@ async def test_save_offer__offer_with_free_region__promo_apis_not_called(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -1508,7 +1520,8 @@ async def test_save_offer__has_many_accounts_returned__logged_warning(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': client_realty_id
+                    'id': client_realty_id,
+                    'is_agent': True
                 }
             }
         ),

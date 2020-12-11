@@ -327,14 +327,18 @@ async def test_call_later_client__client_exist_send_exceeded_timeout__expected_l
          for line in logs.get_lines()])
 
 
-
 async def test_call_later_client__client_exist_with_2_offers__expected_1_messages_to_kafka(
         pg,
         http,
         kafka_service,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        runtime_settings
 ):
     # arrange
+    await runtime_settings.set({
+        'TEST_OPERATOR_IDS': []
+    })
+
     await pg.execute_scripts(offers_and_clients_fixture)
     operator_user_id = 60024659
     operator_client = '6'
@@ -355,7 +359,7 @@ async def test_call_later_client__client_exist_with_2_offers__expected_1_message
     # assert
     messages = await kafka_service.wait_messages(
         topic='preposition-admin.calls',
-        timeout=1.5,
+        timeout=2,
         count=1
     )
 

@@ -136,7 +136,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
     assert not resp.data['errors']
 
 
-async def test_update_offers_list__first_operator_without_client__updates_first_created(
+async def test_update_offers_list__first_operator_without_client__updates_first_by_priority(
         pg,
         http,
         offers_and_clients_fixture
@@ -172,7 +172,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
     assert offers_event_log[0]['status'] == 'inProgress'
 
 
-async def test_update_offers_list__second_operator_without_client_update__updates_second_created(
+async def test_update_offers_list__second_operator_without_client_update__updates_second_by_priority(
         pg,
         http,
         offers_and_clients_fixture
@@ -552,8 +552,8 @@ async def test_call_later_client__exist_offers_in_progress_and_cancelled__only_o
 
     # assert
     row_offer_expected_call_later = await pg.fetchrow('SELECT status FROM offers_for_call '
-                                                       'WHERE id=$1',
-                                                       [offer_expected_call_later])
+                                                      'WHERE id=$1',
+                                                      [offer_expected_call_later])
     row_offer_expected_cancelled = await pg.fetchrow('SELECT status FROM offers_for_call '
                                                      'WHERE id=$1',
                                                      [offer_expected_cancelled])

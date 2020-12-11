@@ -551,10 +551,14 @@ class ObjectModel:
     """Флаги объявления."""
     flat_type: Optional[FlatType] = None
     """Тип квартиры"""
+    floor_from: Optional[int] = None
+    """Этаж с"""
     floor_material_type: Optional[FloorMaterialType] = None
     """Материал пола"""
     floor_number: Optional[int] = None
     """Этаж"""
+    floor_to: Optional[int] = None
+    """Этаж по"""
     furniture_presence: Optional[FurniturePresence] = None
     """Мебель"""
     garage: Optional[Garage] = None

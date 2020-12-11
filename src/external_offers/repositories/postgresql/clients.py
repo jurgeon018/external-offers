@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 
 import asyncpgsa
-from sqlalchemy import and_, exists, select, update
+from sqlalchemy import and_, delete, exists, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
@@ -43,6 +43,7 @@ async def assign_waiting_client_to_operator(operator_id: int) -> str:
                 AND c.status = 'waiting'
                 AND ofc.status = 'waiting'
             ORDER BY
+                ofc.priority NULLS LAST,
                 ofc.created_at
             FOR UPDATE SKIP LOCKED
             LIMIT 1
@@ -240,3 +241,20 @@ async def set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id
     client_id = await pg.get().fetchval(query, *params)
 
     return bool(client_id)
+
+
+async def delete_waiting_clients_by_client_ids(client_ids: List[str]) -> None:
+    sql = (
+        delete(
+            clients
+        ).where(
+            and_(
+                clients.c.status == ClientStatus.waiting.value,
+                clients.c.client_id.in_(client_ids)
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)

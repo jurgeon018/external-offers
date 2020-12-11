@@ -21,6 +21,8 @@ class PublishTerms:
     """Автопродление включено"""
     infinite_publish_period: Optional[bool] = None
     'Если true, то будет использован бесконечный период публикации.\r\nТолько для выгрузок, при ручной подаче игнорируем.'
+    payer_user_id: Optional[int] = None
+    """Id пользователя оплативнего размещение"""
     skip_billing: Optional[bool] = None
     'Пропускает биллинг объявления.\r\nТолько для выгрузок, при ручной подаче игнорируем.'
     skip_minimal_price_check: Optional[bool] = None

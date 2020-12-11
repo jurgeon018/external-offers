@@ -42,6 +42,7 @@ async def test_assign_waiting_client_to_operator():
                 AND c.status = 'waiting'
                 AND ofc.status = 'waiting'
             ORDER BY
+                ofc.priority NULLS LAST,
                 ofc.created_at
             FOR UPDATE SKIP LOCKED
             LIMIT 1

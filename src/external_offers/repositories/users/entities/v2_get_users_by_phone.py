@@ -8,4 +8,11 @@ To re-generate, run `codegen generate-client users`
 cian-codegen version: 1.7.1
 
 """
-from ._repo import v1_register_user_by_phone, v2_get_users_by_phone
+from dataclasses import dataclass
+from typing import Optional
+
+
+@dataclass
+class V2GetUsersByPhone:
+    phone: Optional[str] = None
+    """Телефон"""

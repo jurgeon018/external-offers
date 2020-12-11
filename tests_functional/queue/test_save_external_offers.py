@@ -90,12 +90,12 @@ async def test_external_offer_callback__existing_external_offer__updated_without
         topic='ml-content-copying.change',
         message=old_data
     )
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
     await kafka_service.publish(
         topic='ml-content-copying.change',
         message=new_data
     )
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
 
     # act
     await runner.start_background_python_command('save-parsed-offers')
