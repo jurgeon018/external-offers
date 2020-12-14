@@ -790,5 +790,4 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
     )
 
     # assert
-    any([f'Не удалось отправить событие аналитики для объявления {offer_id}' in line
-         for line in logs.get_lines()])
+    assert f'Не удалось отправить событие аналитики для объявления {offer_id}' in logs.get()

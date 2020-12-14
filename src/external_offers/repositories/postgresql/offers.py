@@ -42,7 +42,7 @@ async def save_offer_for_call(*, offer: Offer) -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_offers_in_progress_by_operator(operator_id: int) -> List[Offer]:
+async def get_offers_in_progress_by_operator(*, operator_id: int) -> List[Offer]:
     query = """
         SELECT
             ofc.*
@@ -62,7 +62,7 @@ async def get_offers_in_progress_by_operator(operator_id: int) -> List[Offer]:
     return [offer_mapper.map_from(row) for row in rows]
 
 
-async def get_enriched_offers_in_progress_by_operator(operator_id: int) -> List[EnrichedOffer]:
+async def get_enriched_offers_in_progress_by_operator(*, operator_id: int) -> List[EnrichedOffer]:
     query = """
         SELECT
             ofc.*,
@@ -88,7 +88,7 @@ async def get_enriched_offers_in_progress_by_operator(operator_id: int) -> List[
     return [enriched_offer_mapper.map_from(row) for row in rows]
 
 
-async def exists_offers_in_progress_by_operator(operator_id: int) -> bool:
+async def exists_offers_in_progress_by_operator(*, operator_id: int) -> bool:
     query = """
         SELECT
             1
@@ -109,7 +109,7 @@ async def exists_offers_in_progress_by_operator(operator_id: int) -> bool:
     return exists
 
 
-async def exists_offers_in_progress_by_operator_and_offer_id(operator_id: int, offer_id: str) -> bool:
+async def exists_offers_in_progress_by_operator_and_offer_id(*, operator_id: int, offer_id: str) -> bool:
     query, params = asyncpgsa.compile_query(
         select(
             [1]
@@ -132,7 +132,7 @@ async def exists_offers_in_progress_by_operator_and_offer_id(operator_id: int, o
     return bool(exists)
 
 
-async def exists_offers_in_progress_by_client(client_id: str) -> bool:
+async def exists_offers_in_progress_by_client(*, client_id: str) -> bool:
     query, params = asyncpgsa.compile_query(
         select(
             [1]
@@ -154,7 +154,7 @@ async def exists_offers_in_progress_by_client(client_id: str) -> bool:
     return bool(exists)
 
 
-async def set_waiting_offers_in_progress_by_client(client_id: str) -> List[str]:
+async def set_waiting_offers_in_progress_by_client(*, client_id: str) -> List[str]:
     query = """
         UPDATE
             offers_for_call
@@ -171,19 +171,28 @@ async def set_waiting_offers_in_progress_by_client(client_id: str) -> List[str]:
     return [r['id'] for r in result]
 
 
-async def set_offers_declined_by_client(client_id: str) -> List[str]:
-    return await set_offers_status_by_client(client_id, OfferStatus.declined)
+async def set_offers_declined_by_client(*, client_id: str) -> List[str]:
+    return await set_offers_status_by_client(
+        client_id=client_id,
+        status=OfferStatus.declined
+    )
 
 
-async def set_offers_call_missed_by_client(client_id: str) -> List[str]:
-    return await set_offers_status_by_client(client_id, OfferStatus.call_missed)
+async def set_offers_call_missed_by_client(*, client_id: str) -> List[str]:
+    return await set_offers_status_by_client(
+        client_id=client_id,
+        status=OfferStatus.call_missed
+    )
 
 
-async def set_offers_call_later_by_client(client_id: str) -> List[str]:
-    return await set_offers_status_by_client(client_id, OfferStatus.call_later)
+async def set_offers_call_later_by_client(*, client_id: str) -> List[str]:
+    return await set_offers_status_by_client(
+        client_id=client_id,
+        status=OfferStatus.call_later
+    )
 
 
-async def set_offers_status_by_client(client_id: str, status: OfferStatus) -> List[str]:
+async def set_offers_status_by_client(*, client_id: str, status: OfferStatus) -> List[str]:
     sql = (
         update(
             offers_for_call
@@ -205,7 +214,7 @@ async def set_offers_status_by_client(client_id: str, status: OfferStatus) -> Li
     return [r['id'] for r in result]
 
 
-async def set_offer_draft_by_offer_id(offer_id: str) -> None:
+async def set_offer_draft_by_offer_id(*, offer_id: str) -> None:
     sql = (
         update(
             offers_for_call
@@ -224,7 +233,7 @@ async def set_offer_draft_by_offer_id(offer_id: str) -> None:
     await pg.get().execute(query, *params)
 
 
-async def set_offer_cancelled_by_offer_id(offer_id: str) -> None:
+async def set_offer_cancelled_by_offer_id(*, offer_id: str) -> None:
     sql = (
         update(
             offers_for_call
@@ -242,7 +251,7 @@ async def set_offer_cancelled_by_offer_id(offer_id: str) -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_offer_by_parsed_id(parsed_id: str) -> Optional[Offer]:
+async def get_offer_by_parsed_id(*, parsed_id: str) -> Optional[Offer]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
@@ -256,7 +265,7 @@ async def get_offer_by_parsed_id(parsed_id: str) -> Optional[Offer]:
     return offer_mapper.map_from(row) if row else None
 
 
-async def get_offers_parsed_ids_by_parsed_ids(parsed_ids: str) -> Optional[List[str]]:
+async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: str) -> Optional[List[str]]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.parsed_id]
@@ -270,7 +279,7 @@ async def get_offers_parsed_ids_by_parsed_ids(parsed_ids: str) -> Optional[List[
     return rows
 
 
-async def set_waiting_offers_priority_by_client_ids(client_ids: List[str], priority: int) -> None:
+async def set_waiting_offers_priority_by_client_ids(*, client_ids: List[str], priority: int) -> None:
     sql = (
         update(
             offers_for_call
@@ -300,7 +309,7 @@ async def get_last_sync_date() -> Optional[datetime]:
     return await pg.get().fetchval(query, *params)
 
 
-async def get_offer_cian_id_by_offer_id(offer_id: str) -> Optional[int]:
+async def get_offer_cian_id_by_offer_id(*, offer_id: str) -> Optional[int]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.offer_cian_id]
@@ -312,7 +321,7 @@ async def get_offer_cian_id_by_offer_id(offer_id: str) -> Optional[int]:
     return await pg.get().fetchval(query, *params)
 
 
-async def set_offer_cian_id_by_offer_id(offer_cian_id: int, offer_id: str) -> None:
+async def set_offer_cian_id_by_offer_id(*, offer_cian_id: int, offer_id: str) -> None:
     sql = (
         update(
             offers_for_call
@@ -328,7 +337,7 @@ async def set_offer_cian_id_by_offer_id(offer_cian_id: int, offer_id: str) -> No
     await pg.get().execute(query, *params)
 
 
-async def get_offer_promocode_by_offer_id(offer_id: str) -> Optional[str]:
+async def get_offer_promocode_by_offer_id(*, offer_id: str) -> Optional[str]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.promocode]
@@ -340,7 +349,7 @@ async def get_offer_promocode_by_offer_id(offer_id: str) -> Optional[str]:
     return await pg.get().fetchval(query, *params)
 
 
-async def set_offer_promocode_by_offer_id(promocode: str, offer_id: str) -> None:
+async def set_offer_promocode_by_offer_id(*, promocode: str, offer_id: str) -> None:
     sql = (
         update(
             offers_for_call
@@ -356,7 +365,7 @@ async def set_offer_promocode_by_offer_id(promocode: str, offer_id: str) -> None
     await pg.get().execute(query, *params)
 
 
-async def try_to_lock_offer_and_return_status(offer_id: str) -> Optional[str]:
+async def try_to_lock_offer_and_return_status(*, offer_id: str) -> Optional[str]:
     query = """
         SELECT
             status
@@ -372,7 +381,7 @@ async def try_to_lock_offer_and_return_status(offer_id: str) -> Optional[str]:
     return status
 
 
-async def delete_waiting_offers_for_call_by_client_ids(client_ids: List[str]) -> None:
+async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: List[str]) -> None:
     sql = (
         delete(
             offers_for_call

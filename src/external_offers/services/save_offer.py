@@ -407,7 +407,9 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         # В конце location_path лежит идентификатор региона, используем его
         if geocode_response.location_path[-1] in settings.REGIONS_WITH_PAID_PUBLICATION:
             try:  # Создание промокода на бесплатную публикацию объявления
-                promocode = await get_offer_promocode_by_offer_id(request.offer_id)
+                promocode = await get_offer_promocode_by_offer_id(
+                    offer_id=request.offer_id
+                )
                 if not promocode:
                     promocode_response: CreatePromocodeGroupResponse = await api_promocodes_create_promocode_group(
                         create_promocode_detail_model(
@@ -497,7 +499,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         timeout=settings.DEFAULT_KAFKA_TIMEOUT
                     )
             except KafkaProducerError:
-                logger.warning('Не удалось отправить события аналитики для объявления %s', request.offer_id)
+                logger.warning('Не удалось отправить событие аналитики для объявления %s', request.offer_id)
 
 
         return SaveOfferResponse(

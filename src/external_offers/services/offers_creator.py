@@ -10,6 +10,7 @@ from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from cian_json import json
 from simple_settings import settings
+from tornado import gen
 
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus
@@ -143,8 +144,10 @@ async def prioritize_client(
 async def clear_and_prioritize_waiting_offers() -> None:
     """ Очищаем таблицу заданий и клиентов и проставляем приоритеты заданиям """
 
-    await delete_waiting_clients_with_count_off_limit()
-    await delete_waiting_offers_for_call_with_count_off_limit()
+    await gen.multi([
+        delete_waiting_clients_with_count_off_limit(),
+        delete_waiting_offers_for_call_with_count_off_limit()
+    ])
 
     rows = await get_waiting_offer_counts_by_clients()
 
@@ -168,12 +171,14 @@ async def clear_and_prioritize_waiting_offers() -> None:
         len(to_clear)
     )
 
-    await delete_waiting_offers_for_call_by_client_ids(
-        client_ids=to_clear
-    )
-    await delete_waiting_clients_by_client_ids(
-        client_ids=to_clear
-    )
+    await gen.multi([
+        delete_waiting_offers_for_call_by_client_ids(
+            client_ids=to_clear
+        ),
+        delete_waiting_clients_by_client_ids(
+            client_ids=to_clear
+        )
+    ])
     for priority, client_ids in clients_priority.items():
         logger.warning(
             'После приоритизации для %d клиентов будет задан приоритет %d',
@@ -194,14 +199,18 @@ async def sync_offers_for_call_with_parsed():
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(last_sync_date=last_sync_date):
         logger.info('Fetched %d parsed offers', len(parsed_offers))
 
-        rows = await get_offers_parsed_ids_by_parsed_ids([offer.id for offer in parsed_offers])
+        rows = await get_offers_parsed_ids_by_parsed_ids(
+            parsed_ids=[offer.id for offer in parsed_offers]
+        )
         parsed_offer_ids_existing = set(row['parsed_id'] for row in rows)
 
         for parsed_offer in parsed_offers:
             if parsed_offer.id in parsed_offer_ids_existing:
                 continue
 
-            client = await get_client_by_avito_user_id(parsed_offer.source_user_id)
+            client = await get_client_by_avito_user_id(
+                avito_user_id=parsed_offer.source_user_id
+            )
             if client:
                 if client.status.is_declined or client.status.is_accepted:
                     continue
@@ -217,7 +226,9 @@ async def sync_offers_for_call_with_parsed():
                     client_phones=client_phones if client_phones else [],
                     status=ClientStatus.waiting
                 )
-                await save_client(client)
+                await save_client(
+                    client=client
+                )
 
             offer_id = str(uuid.uuid4())
             now = datetime.now(tz=pytz.utc)

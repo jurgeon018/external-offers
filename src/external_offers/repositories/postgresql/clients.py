@@ -11,7 +11,7 @@ from external_offers.mappers import client_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
 
-async def get_client_by_operator(operator_id: int) -> Optional[Client]:
+async def get_client_by_operator(*, operator_id: int) -> Optional[Client]:
     query = """
         SELECT
             *
@@ -27,7 +27,7 @@ async def get_client_by_operator(operator_id: int) -> Optional[Client]:
     return client_mapper.map_from(row) if row else None
 
 
-async def assign_waiting_client_to_operator(operator_id: int) -> str:
+async def assign_waiting_client_to_operator(*, operator_id: int) -> str:
     query = """
         WITH cte1 as (
             SELECT
@@ -85,7 +85,7 @@ async def exists_waiting_client() -> bool:
     return bool(exists_client)
 
 
-async def set_client_to_status_and_return(client_id: str, status: ClientStatus) -> Optional[Client]:
+async def set_client_to_status_and_return(*, client_id: str, status: ClientStatus) -> Optional[Client]:
     sql = (
         update(
             clients
@@ -104,35 +104,35 @@ async def set_client_to_status_and_return(client_id: str, status: ClientStatus) 
     return client_mapper.map_from(row) if row else None
 
 
-async def set_client_to_decline_status_and_return(client_id: str) -> Optional[Client]:
+async def set_client_to_decline_status_and_return(*, client_id: str) -> Optional[Client]:
     return await set_client_to_status_and_return(
         client_id=client_id,
         status=ClientStatus.declined
     )
 
 
-async def set_client_to_waiting_status_and_return(client_id: str) -> Optional[Client]:
+async def set_client_to_waiting_status_and_return(*, client_id: str) -> Optional[Client]:
     return await set_client_to_status_and_return(
         client_id=client_id,
         status=ClientStatus.waiting
     )
 
 
-async def set_client_to_call_missed_status_and_return(client_id: str) -> Optional[Client]:
+async def set_client_to_call_missed_status_and_return(*, client_id: str) -> Optional[Client]:
     return await set_client_to_status_and_return(
         client_id=client_id,
         status=ClientStatus.call_missed
     )
 
 
-async def set_client_to_call_later_status_and_return(client_id: str) -> Optional[Client]:
+async def set_client_to_call_later_status_and_return(*, client_id: str) -> Optional[Client]:
     return await set_client_to_status_and_return(
         client_id=client_id,
         status=ClientStatus.call_later
     )
 
 
-async def save_client(client: Client) -> None:
+async def save_client(*, client: Client) -> None:
     insert_query = insert(clients)
 
     values = client_mapper.map_to(client)
@@ -146,7 +146,7 @@ async def save_client(client: Client) -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_client_by_avito_user_id(avito_user_id: str) -> Optional[Client]:
+async def get_client_by_avito_user_id(*, avito_user_id: str) -> Optional[Client]:
     query, params = asyncpgsa.compile_query(
         select(
             [clients]
@@ -160,7 +160,7 @@ async def get_client_by_avito_user_id(avito_user_id: str) -> Optional[Client]:
     return client_mapper.map_from(row) if row else None
 
 
-async def get_client_id_by_offer_id(offer_id: str) -> str:
+async def get_client_id_by_offer_id(*, offer_id: str) -> str:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.client_id]
@@ -172,7 +172,7 @@ async def get_client_id_by_offer_id(offer_id: str) -> str:
     return await pg.get().fetchval(query, *params)
 
 
-async def get_client_by_client_id(client_id: str) -> Optional[Client]:
+async def get_client_by_client_id(*, client_id: str) -> Optional[Client]:
     query, params = asyncpgsa.compile_query(
         select(
             [clients]
@@ -186,7 +186,7 @@ async def get_client_by_client_id(client_id: str) -> Optional[Client]:
     return client_mapper.map_from(row) if row else None
 
 
-async def get_cian_user_id_by_client_id(client_id: str) -> Optional[int]:
+async def get_cian_user_id_by_client_id(*, client_id: str) -> Optional[int]:
     query, params = asyncpgsa.compile_query(
         select(
             [clients.c.cian_user_id]
@@ -198,7 +198,7 @@ async def get_cian_user_id_by_client_id(client_id: str) -> Optional[int]:
     return await pg.get().fetchval(query, *params)
 
 
-async def set_cian_user_id_by_client_id(cian_user_id: int, client_id: str):
+async def set_cian_user_id_by_client_id(*, cian_user_id: int, client_id: str):
     query, params = asyncpgsa.compile_query(
         update(
             clients
@@ -212,7 +212,7 @@ async def set_cian_user_id_by_client_id(cian_user_id: int, client_id: str):
     await pg.get().execute(query, *params)
 
 
-async def set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id: str) -> bool:
+async def set_client_accepted_and_no_operator_if_no_offers_in_progress(*, client_id: str) -> bool:
     query, params = asyncpgsa.compile_query(
         update(
             clients
@@ -243,7 +243,7 @@ async def set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id
     return bool(client_id)
 
 
-async def delete_waiting_clients_by_client_ids(client_ids: List[str]) -> None:
+async def delete_waiting_clients_by_client_ids(*, client_ids: List[str]) -> None:
     sql = (
         delete(
             clients
