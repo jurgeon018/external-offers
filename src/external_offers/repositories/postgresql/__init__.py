@@ -21,7 +21,9 @@ from external_offers.repositories.postgresql.event_log import (
     save_event_log_for_offers,
 )
 from external_offers.repositories.postgresql.offers import (
+    delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_by_client_ids,
+    delete_waiting_offers_for_call_with_count_off_limit,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_offers_in_progress_by_operator_and_offer_id,
@@ -32,6 +34,7 @@ from external_offers.repositories.postgresql.offers import (
     get_offer_promocode_by_offer_id,
     get_offers_in_progress_by_operator,
     get_offers_parsed_ids_by_parsed_ids,
+    get_waiting_offer_counts_by_clients,
     save_offer_for_call,
     set_offer_cancelled_by_offer_id,
     set_offer_cian_id_by_offer_id,

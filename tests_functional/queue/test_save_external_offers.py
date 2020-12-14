@@ -52,7 +52,7 @@ async def test_external_offer_callback__new_external_offer__saved(pg, kafka_serv
     }
 
 
-@pytest.mark.skip(reason="флапает, придумать как стабилизировать")
+@pytest.mark.skip(reason='флапает, придумать как стабилизировать')
 async def test_external_offer_callback__existing_external_offer__updated_without_id(pg, kafka_service, runner):
     # arrange
     old_offer_data = {

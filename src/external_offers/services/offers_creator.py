@@ -2,18 +2,15 @@ import logging
 import uuid
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-import asyncpgsa
 import pytz
 from cian_core.context import new_operation_id
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from cian_json import json
 from simple_settings import settings
-from sqlalchemy import and_, delete, func, or_, over, select
 
-from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
@@ -21,18 +18,20 @@ from external_offers.repositories.announcements import v2_get_user_active_announ
 from external_offers.repositories.announcements.entities import V2GetUserActiveAnnouncementsCount
 from external_offers.repositories.postgresql import (
     delete_waiting_clients_by_client_ids,
+    delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_by_client_ids,
+    delete_waiting_offers_for_call_with_count_off_limit,
     get_client_by_avito_user_id,
     get_client_by_client_id,
     get_last_sync_date,
     get_offers_parsed_ids_by_parsed_ids,
+    get_waiting_offer_counts_by_clients,
     save_client,
     save_offer_for_call,
     set_cian_user_id_by_client_id,
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_client_ids,
 )
-from external_offers.repositories.postgresql.tables import clients, offers_for_call
 from external_offers.repositories.users import v2_get_users_by_phone
 from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
 
@@ -48,15 +47,17 @@ _METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
 _METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 
 
-def choose_main_client_profile(user_profiles: List[UserModelV2]):
+def choose_main_client_profile(user_profiles: List[UserModelV2]) -> Optional[UserModelV2]:
     """ Ищем активный профиль агента, не ЕМЛС и не саб """
 
     for profile in user_profiles:
         source_user_type = profile.external_user_source_type
         is_emls_or_subagent = source_user_type and (source_user_type.is_emls or source_user_type.is_sub_agents)
-        if (profile.is_agent
-                and profile.state.is_active
-                and not is_emls_or_subagent):
+        if (
+            profile.is_agent
+            and profile.state.is_active
+            and not is_emls_or_subagent
+        ):
             return profile
 
     return None
@@ -142,60 +143,10 @@ async def prioritize_client(
 async def clear_and_prioritize_waiting_offers() -> None:
     """ Очищаем таблицу заданий и клиентов и проставляем приоритеты заданиям """
 
-    offers_counts_cte = (
-        select(
-            [
-                offers_for_call.c.id,
-                offers_for_call.c.client_id,
-                over(func.count(), partition_by=offers_for_call.c.client_id).label('waiting_offers_count')
-            ]
-        )
-        .where(
-            offers_for_call.c.status == ClientStatus.waiting.value,
-        )
-        .cte('offers_counts_cte')
-    )
+    await delete_waiting_clients_with_count_off_limit()
+    await delete_waiting_offers_for_call_with_count_off_limit()
 
-    offers_query, offers_params = asyncpgsa.compile_query(
-        delete(
-            offers_for_call
-        ).where(
-            and_(
-                offers_for_call.c.id == offers_counts_cte.c.id,
-                or_(
-                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
-                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
-                )
-            )
-        )
-    )
-
-    client_query, client_params = asyncpgsa.compile_query(
-        delete(
-            clients
-        ).where(
-            and_(
-                clients.c.client_id == offers_counts_cte.c.client_id,
-                or_(
-                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
-                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
-                )
-            )
-        )
-    )
-
-    await pg.get().execute(offers_query, *offers_params)
-    await pg.get().execute(client_query, *client_params)
-
-    counts_query, counts_params = asyncpgsa.compile_query(
-        select(
-            [offers_counts_cte]
-        ).distinct(
-            offers_counts_cte.c.client_id
-        )
-    )
-
-    rows = await pg.get().fetch(counts_query, *counts_params)
+    rows = await get_waiting_offer_counts_by_clients()
 
     clients_count: Dict[str, int] = {row['client_id']: row['waiting_offers_count'] for row in rows}
     clients_priority: Dict[int, List[str]] = defaultdict(list)

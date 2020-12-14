@@ -2,14 +2,30 @@ from datetime import datetime
 from typing import List, Optional
 
 import asyncpgsa
-from sqlalchemy import and_, delete, select, update
+from simple_settings import settings
+from sqlalchemy import and_, delete, func, or_, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import EnrichedOffer, Offer
-from external_offers.enums import OfferStatus
+from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.mappers import enriched_offer_mapper, offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
+
+
+offers_counts_cte = (
+    select(
+        [
+            offers_for_call.c.id,
+            offers_for_call.c.client_id,
+            over(func.count(), partition_by=offers_for_call.c.client_id).label('waiting_offers_count')
+        ]
+    )
+    .where(
+        offers_for_call.c.status == ClientStatus.waiting.value,
+    )
+    .cte('offers_counts_cte')
+)
 
 
 async def save_offer_for_call(*, offer: Offer) -> None:
@@ -371,3 +387,57 @@ async def delete_waiting_offers_for_call_by_client_ids(client_ids: List[str]) ->
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
+
+
+async def delete_waiting_offers_for_call_with_count_off_limit() -> None:
+    sql = (
+        delete(
+            offers_for_call
+        ).where(
+            and_(
+                offers_for_call.c.id == offers_counts_cte.c.id,
+                or_(
+                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
+                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
+                )
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
+async def delete_waiting_clients_with_count_off_limit() -> None:
+    sql = (
+        delete(
+            clients
+        ).where(
+            and_(
+                clients.c.client_id == offers_counts_cte.c.client_id,
+                or_(
+                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
+                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
+                )
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
+async def get_waiting_offer_counts_by_clients() -> None:
+    sql = (
+        select(
+            [offers_counts_cte]
+        ).distinct(
+            offers_counts_cte.c.client_id
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    return await pg.get().fetch(query, *params)
