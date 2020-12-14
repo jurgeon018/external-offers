@@ -19,7 +19,9 @@ async def test_get_client_by_operator():
 
     # act
     pg.get().fetchrow.return_value = future(None)
-    await postgresql.get_client_by_operator(operator_id)
+    await postgresql.get_client_by_operator(
+        operator_id=operator_id
+    )
 
     # assert
     pg.get().fetchrow.assert_called_with(query, operator_id)
@@ -65,7 +67,9 @@ async def test_assign_waiting_client_to_operator():
 
     # act
     pg.get().fetchval.return_value = future(None)
-    await postgresql.assign_waiting_client_to_operator(operator_id)
+    await postgresql.assign_waiting_client_to_operator(
+        operator_id=operator_id
+    )
 
     # assert
     pg.get().fetchval.assert_called_with(query, operator_id)
