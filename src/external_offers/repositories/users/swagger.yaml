@@ -1,48 +1,221 @@
 definitions:
+  Rocks.BrokenRules.BrokenRulesResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/Rocks.BrokenRules.BrokenRulesResponse+BrokenRuleError'
+        type: array
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  Rocks.BrokenRules.BrokenRulesResponse+BrokenRuleError:
+    properties:
+      code:
+        type: string
+      key:
+        type: string
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  WebApi.Models.UserModelV2:
+    description: Пользователь
+    properties:
+      birthday:
+        description: Дата рождения
+        format: date-time
+        type: string
+      cianUserId:
+        description: CianId
+        format: int64
+        type: integer
+      city:
+        description: Город из социальной сети
+        type: string
+      creationDate:
+        description: Дата создания пользователя
+        format: date-time
+        type: string
+      email:
+        description: Email
+        type: string
+      externalUserSourceType:
+        description: Тип источника
+        enum:
+        - emls
+        - subAgents
+        - n1
+        type: string
+        x-emls: Пользователи из ЕМЛС
+        x-n1: Партнер N1
+        x-subAgents: Субагенты
+      firstName:
+        description: Имя
+        type: string
+      id:
+        description: Id
+        format: int64
+        type: integer
+      ip:
+        description: Ip пользователя
+        format: int64
+        type: integer
+      isAgent:
+        description: Является ли агентом
+        type: boolean
+      lastName:
+        description: Фамилия
+        type: string
+      mainAnnouncementsRegionId:
+        description: Основной регион работы
+        format: int32
+        type: integer
+      secretCode:
+        description: Секретный код
+        type: string
+      state:
+        description: Состояние пользователя
+        enum:
+        - active
+        - blocked
+        - deleted
+        type: string
+        x-active: Аткивный
+        x-blocked: Заблокирован
+        x-deleted: Удалён
+      stateChangeReason:
+        description: Статус смены состояния
+        enum:
+        - ApplySanction
+        - SubAgent
+        - RemoveSanction
+        - UnBlockedByMasterAgent
+        - blockedBeforeRemove
+        type: string
+        x-ApplySanction: Блокировка из-за санкции
+        x-RemoveSanction: Снятие санкции
+        x-SubAgent: Блокировка мастер-агентом
+        x-UnBlockedByMasterAgent: Снятие блокировки мастер-агентом
+        x-blockedBeforeRemove: Блокировка перед удалением
+      userName:
+        description: Имя пользователя
+        type: string
+    type: object
   WebApi.Models.UserRegistration.ByPhoneRegistration.RegisterUserByPhoneRequest:
     description: Запрос регистрации пользователя по номеру телефона
     properties:
-      phone: {description: Номер телефона, type: string}
-      smsTemplate: {description: "Шаблон текста SMS сообщения с учетными данными.\r\
-          \nПример. \"Ваш ID {0}, ваш пароль {1}\"\r\n0 - id пользвоателяя\r\n1 -\
-          \ пароль пользователя", type: string}
-    required: [phone]
+      phone:
+        description: Номер телефона
+        type: string
+      smsTemplate:
+        description: "Шаблон текста SMS сообщения с учетными данными.\r\nПример. \"\
+          Ваш ID {0}, ваш пароль {1}\"\r\n0 - id пользвоателяя\r\n1 - пароль пользователя"
+        type: string
+    required:
+    - phone
     type: object
   WebApi.Models.UserRegistration.ByPhoneRegistration.RegisterUserByPhoneResponse:
     description: Данные о результате регистрации пользователя по номеру телефона
     properties:
-      hasManyAccounts: {description: С переданным номером телефона существует несколько
-          учетных записей, type: boolean}
-      isRegistered: {description: Зарегистрировали ли пользователя, type: boolean}
-      userData: {$ref: '#/definitions/WebApi.Models.UserRegistration.ByPhoneRegistration.RegisteredUserDto'}
-    required: [hasManyAccounts, isRegistered]
+      hasManyAccounts:
+        description: С переданным номером телефона существует несколько учетных записей
+        type: boolean
+      isRegistered:
+        description: Зарегистрировали ли пользователя
+        type: boolean
+      userData:
+        $ref: '#/definitions/WebApi.Models.UserRegistration.ByPhoneRegistration.RegisteredUserDto'
+    required:
+    - hasManyAccounts
+    - isRegistered
     type: object
   WebApi.Models.UserRegistration.ByPhoneRegistration.RegisteredUserDto:
     description: Данные зергистрированного пользователя
     properties:
-      email: {description: Email/логин пользователя, type: string}
-      id: {description: Идентификатор пользователя, format: int64, type: integer}
-    required: [email, id]
+      email:
+        description: Email/логин пользователя
+        type: string
+      id:
+        description: Идентификатор пользователя
+        format: int64
+        type: integer
+      isAgent:
+        description: Является ли пользователь агентом
+        type: boolean
+    required:
+    - email
+    - id
+    - isAgent
     type: object
-host: master.users.dev3.cian.ru
-info: {title: users, version: v1}
+  WebApi.Models.Users.GetUsersByPhoneResponseV2:
+    description: Пользователи с указанным номером телефона
+    properties:
+      users:
+        description: Пользователи
+        items:
+          $ref: '#/definitions/WebApi.Models.UserModelV2'
+        type: array
+    type: object
+host: beta4.users.stage.cian.ru
+info:
+  title: users
+  version: v1
 paths:
   /v1/register-user-by-phone/:
     post:
-      consumes: [application/json-patch+json, application/json, text/json, application/*+json]
+      consumes:
+      - application/json-patch+json
+      - application/json
+      - text/json
+      - application/*+json
       parameters:
       - in: body
         name: body
-        schema: {$ref: '#/definitions/WebApi.Models.UserRegistration.ByPhoneRegistration.RegisterUserByPhoneRequest'}
-      produces: [application/msgpack, text/plain, application/json, text/json]
+        schema:
+          $ref: '#/definitions/WebApi.Models.UserRegistration.ByPhoneRegistration.RegisterUserByPhoneRequest'
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
       responses:
         '200':
           description: Success
-          schema: {$ref: '#/definitions/WebApi.Models.UserRegistration.ByPhoneRegistration.RegisterUserByPhoneResponse'}
-      summary: Внутренний endpoint для регистрации пользователя по номеру телефона
-        без подтверждения
-      tags: [UserRegistration]
-schemes: [http]
+          schema:
+            $ref: '#/definitions/WebApi.Models.UserRegistration.ByPhoneRegistration.RegisterUserByPhoneResponse'
+      summary: "Внутренний endpoint для регистрации пользователя по номеру телефона\
+        \ без подтверждения\r\nручка для \"Админки предразмещения\""
+      tags:
+      - UserRegistration
+  /v2/get-users-by-phone/:
+    get:
+      parameters:
+      - description: Телефон
+        in: query
+        name: phone
+        type: string
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Models.Users.GetUsersByPhoneResponseV2'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Rocks.BrokenRules.BrokenRulesResponse'
+      summary: Возвращает пользователей с подтверждённым номером телефона
+      tags:
+      - Users
+schemes:
+- http
 swagger: '2.0'
 x-cian-mq:
   exchanges: {}

@@ -23,7 +23,9 @@ async def test_get_offers_in_progress_by_operator():
 
     # act
     pg.get().fetch.return_value = future([])
-    await postgresql.get_offers_in_progress_by_operator(operator_id)
+    await postgresql.get_offers_in_progress_by_operator(
+        operator_id=operator_id
+    )
 
     # assert
     pg.get().fetch.assert_called_with(query, operator_id)
@@ -45,7 +47,9 @@ async def test_set_waiting_offers_in_progress_by_client():
     pg.get().fetch.return_value = future([])
 
     # act
-    await postgresql.set_waiting_offers_in_progress_by_client(client_id)
+    await postgresql.set_waiting_offers_in_progress_by_client(
+        client_id=client_id
+    )
 
     # assert
     pg.get().fetch.assert_called_with(query, client_id)
@@ -72,7 +76,9 @@ async def test_exists_offers_in_progress_by_operator():
 
     # act
     pg.get().fetch.return_value = future([])
-    await postgresql.exists_offers_in_progress_by_operator(operator_id)
+    await postgresql.exists_offers_in_progress_by_operator(
+        operator_id=operator_id
+    )
 
     # assert
     pg.get().fetchval.assert_called_with(query, operator_id)
@@ -89,7 +95,9 @@ async def test_set_offers_declined_by_client():
     pg.get().fetch.return_value = future([])
 
     # act
-    await postgresql.set_offers_declined_by_client(client_id)
+    await postgresql.set_offers_declined_by_client(
+        client_id=client_id
+    )
 
     # assert
     pg.get().fetch.assert_called_with(query, client_id, 'declined', 'inProgress')
@@ -106,7 +114,9 @@ async def test_set_offers_set_call_missed_by_client():
     pg.get().fetch.return_value = future([])
 
     # act
-    await postgresql.set_offers_call_missed_by_client(client_id)
+    await postgresql.set_offers_call_missed_by_client(
+        client_id=client_id
+    )
 
     # assert
     pg.get().fetch.assert_called_with(query, client_id, 'callMissed', 'inProgress')

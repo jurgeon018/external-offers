@@ -83,7 +83,8 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -147,10 +148,11 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
     )
 
     # assert
-    messages = await kafka_service.get_messages(
-        topic='preposition-admin.draft-announcements'
+    messages = await kafka_service.wait_messages(
+        topic='preposition-admin.draft-announcements',
+        timeout=1.5,
+        count=1
     )
-    assert len(messages) == 1
 
     assert messages[0].data == {
         'managerId': operator_user_id,
@@ -244,7 +246,8 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -308,10 +311,11 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
     )
 
     # assert
-    messages = await kafka_service.get_messages(
-        topic='preposition-admin.calls'
+    messages = await kafka_service.wait_messages(
+        topic='preposition-admin.calls',
+        timeout=1.5,
+        count=1
     )
-    assert len(messages) == 1
 
     assert messages[0].data == {
         'managerId': operator_user_id,
@@ -414,7 +418,8 @@ async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -566,7 +571,8 @@ async def test_save_offer__correct_json_test_operator__expected_no_message_to_ka
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -719,7 +725,8 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777
+                    'id': 7777777,
+                    'is_agent': True,
                 }
             }
         ),
@@ -783,5 +790,4 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
     )
 
     # assert
-    any([f'Не удалось отправить событие аналитики для объявления {offer_id}' in line
-         for line in logs.get_lines()])
+    assert f'Не удалось отправить событие аналитики для объявления {offer_id}' in logs.get()

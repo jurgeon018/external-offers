@@ -40,7 +40,8 @@ async def test_save_offer__register_user_by_phone_called_success__cian_user_id_s
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': cian_user_id
+                    'id': cian_user_id,
+                    'is_agent': True
                 }
             }
         ),
@@ -109,7 +110,8 @@ async def test_save_offer__cian_user_id_exists__register_user_by_phone_not_calle
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': cian_user_id
+                    'id': cian_user_id,
+                    'is_agent': True
                 }
             }
         ),
@@ -178,7 +180,8 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': cian_user_id
+                    'id': cian_user_id,
+                    'is_agent': True
                 }
             }
         ),
@@ -274,7 +277,8 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': cian_user_id
+                    'id': cian_user_id,
+                    'is_agent': True
                 }
             }
         ),
@@ -372,7 +376,8 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': cian_user_id
+                    'id': cian_user_id,
+                    'is_agent': True
                 }
             }
         ),
@@ -487,7 +492,8 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': cian_user_id
+                    'id': cian_user_id,
+                    'is_agent': True
                 }
             }
         ),

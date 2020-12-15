@@ -24,10 +24,12 @@ from external_offers.repositories.postgresql import (
     exists_waiting_client,
     get_client_by_client_id,
     save_event_log_for_offers,
+    set_client_to_call_later_status_and_return,
     set_client_to_call_missed_status_and_return,
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
     set_offer_cancelled_by_offer_id,
+    set_offers_call_later_by_client,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
@@ -49,9 +51,9 @@ async def update_offers_list(user_id: int) -> AdminResponse:
                 code='waitingClientMissing'
             )])
 
-
-
-    exists = await exists_offers_in_progress_by_operator(user_id)
+    exists = await exists_offers_in_progress_by_operator(
+        operator_id=user_id
+    )
     if exists:
         return AdminResponse(
             success=False,
@@ -61,8 +63,12 @@ async def update_offers_list(user_id: int) -> AdminResponse:
             )])
 
     async with pg.get().transaction():
-        client_id = await assign_waiting_client_to_operator(user_id)
-        if offers_ids := await set_waiting_offers_in_progress_by_client(client_id):
+        client_id = await assign_waiting_client_to_operator(
+            operator_id=user_id
+        )
+        if offers_ids := await set_waiting_offers_in_progress_by_client(
+            client_id=client_id
+        ):
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
                 operator_user_id=user_id,
@@ -78,16 +84,22 @@ async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminR
     client_id = request.client_id
 
     async with pg.get().transaction():
-        await set_offer_cancelled_by_offer_id(offer_id)
+        await set_offer_cancelled_by_offer_id(
+            offer_id=offer_id
+        )
         await save_event_log_for_offers(
             offers_ids=[offer_id],
             operator_user_id=user_id,
             status=OfferStatus.cancelled.value
         )
-        exists = await exists_offers_in_progress_by_client(client_id)
+        exists = await exists_offers_in_progress_by_client(
+            client_id=client_id
+        )
 
         if not exists:
-            await set_client_to_waiting_status_and_return(client_id)
+            await set_client_to_waiting_status_and_return(
+                client_id=client_id
+            )
 
     return AdminResponse(success=True, errors=[])
 
@@ -95,10 +107,15 @@ async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminR
 async def set_decline_status_for_client(request: AdminDeclineClientRequest, user_id: int) -> AdminResponse:
     """ Поставить клиенту статус `Отклонен` в админке """
     client_id = request.client_id
-    async with pg.get().transaction():
-        client = await set_client_to_decline_status_and_return(client_id)
 
-        if offers_ids := await set_offers_declined_by_client(client_id):
+    async with pg.get().transaction():
+        client = await set_client_to_decline_status_and_return(
+            client_id=client_id
+        )
+
+        if offers_ids := await set_offers_declined_by_client(
+            client_id=client_id
+        ):
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
                 operator_user_id=user_id,
@@ -131,8 +148,13 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
     client_id = request.client_id
 
     async with pg.get().transaction():
-        client = await set_client_to_call_missed_status_and_return(client_id)
-        if offers_ids := await set_offers_call_missed_by_client(client_id):
+        client = await set_client_to_call_missed_status_and_return(
+            client_id=client_id
+        )
+
+        if offers_ids := await set_offers_call_missed_by_client(
+            client_id=client_id
+        ):
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
                 operator_user_id=user_id,
@@ -149,6 +171,44 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
                         user_id=client.cian_user_id,
                         phone=client.client_phones[0],
                         status=ClientStatus.call_missed.value,
+                        date=now,
+                        source=settings.AVITO_SOURCE_NAME
+                    ),
+                    timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                )
+            except KafkaProducerError:
+                logger.warning('Не удалось отправить событие аналитики для клиента %s', client_id)
+
+    return AdminResponse(success=True, errors=[])
+
+
+async def set_call_later_status_for_client(request: AdminCallMissedClientRequest, user_id: int) -> AdminResponse:
+    """ Поставить клиенту статус `Позвонить позже` в админке """
+    client_id = request.client_id
+
+    async with pg.get().transaction():
+        client = await set_client_to_call_later_status_and_return(
+            client_id=client_id
+        )
+        if offers_ids := await set_offers_call_later_by_client(
+            client_id=client_id
+        ):
+            await save_event_log_for_offers(
+                offers_ids=offers_ids,
+                operator_user_id=user_id,
+                status=OfferStatus.call_later.value
+            )
+
+        if client and user_id not in settings.TEST_OPERATOR_IDS:
+            now = datetime.now(tz=pytz.utc)
+            try:
+                await kafka_preposition_calls_producer(
+                    message=CallsKafkaMessage(
+                        manager_id=user_id,
+                        source_user_id=client.avito_user_id,
+                        user_id=client.cian_user_id,
+                        phone=client.client_phones[0],
+                        status=ClientStatus.call_later.value,
                         date=now,
                         source=settings.AVITO_SOURCE_NAME
                     ),

@@ -82,6 +82,11 @@
          padding: 0.5em 0.5em;
          display: inline-block;
          }
+         .call-later-client-block {
+         padding: 0.5em 0em;
+         display: inline-block;
+         }
+
       </style>
       <meta charset="utf-8">
    </head>
@@ -105,6 +110,11 @@
                <button class="call-missed-client-button" id="callMissedClientButton1">Недозвон</button>
                <div class="call-missed-client-messages" id="callMissedClientMessages1"></div>
             </div>
+            <div class="call-later-client-block">
+               <button class="call-later-client-button" id="callLaterClientButton1">Перезвонить</button>
+               <div class="call-later-client-messages" id="callLaterClientMessages1"></div>
+            </div>
+
          </div>
       </div>
       <div class="offers-block">
@@ -212,6 +222,23 @@
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("callMissedClientMessages1").innerHTML = errors
+           }
+         };
+
+         document.getElementById("callLaterClientButton1").onclick = async function () {
+           let obj =  {
+               'client_id': '1'
+           }
+           const response = await fetch("/api/admin/v1/call-later-client/", {
+             method: 'POST',
+             body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+           });
+           resp = await response.json()
+           if (resp.success === true) {
+             location.reload(); 
+           } else {
+             errors = resp.errors.map((element) => element.message).join('<br>')
+             document.getElementById("callLaterClientMessages1").innerHTML = errors
            }
          };
          

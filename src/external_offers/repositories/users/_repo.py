@@ -21,3 +21,10 @@ v1_register_user_by_phone = _api.make_client(
     request_schema=entities.RegisterUserByPhoneRequest,
     response_schema=entities.RegisterUserByPhoneResponse,
 )
+v2_get_users_by_phone = _api.make_client(
+    path='/v2/get-users-by-phone/',
+    method='GET',
+    handle_http_exceptions=True,
+    request_schema=entities.V2GetUsersByPhone,
+    response_schema=entities.GetUsersByPhoneResponseV2,
+)

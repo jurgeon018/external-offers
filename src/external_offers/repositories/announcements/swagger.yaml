@@ -1,0 +1,42 @@
+definitions:
+  WebApi.Models.Announcements.GetAnnouncementCountResponse:
+    description: Ответ на запрос на получение количества объявлений
+    properties:
+      count:
+        description: Количество объявлений
+        format: int32
+        type: integer
+    required:
+    - count
+    type: object
+host: master.announcements.dev3.cian.ru
+info:
+  title: announcements
+  version: v1
+paths:
+  /v2/get-user-active-announcements-count/:
+    get:
+      parameters:
+      - format: int64
+        in: query
+        name: userId
+        type: integer
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Models.Announcements.GetAnnouncementCountResponse'
+      summary: Получить количество активных объявлений пользователя
+      tags:
+      - UserAnnouncementInfo
+schemes:
+- http
+swagger: '2.0'
+x-cian-mq:
+  exchanges: {}
+  spec-version: '1.0'

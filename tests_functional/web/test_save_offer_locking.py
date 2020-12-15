@@ -47,7 +47,8 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': cian_user_id
+                    'id': cian_user_id,
+                    'is_agent': True
                 }
             },
             wait=1000

@@ -8,7 +8,7 @@ class ClientStatus(StrEnum):
     """Получен отказ от клиента"""
     in_progress = 'in_progress'
     """Взят в работу"""
-    call_retry = 'call_retry'
+    call_later = 'call_later'
     """Позвонить позже"""
     call_missed = 'call_missed'
     """Недозвон"""

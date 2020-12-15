@@ -1,11 +1,14 @@
 import asyncio
 
+from cian_functional_test_utils.pytest_plugin import MockResponse
+
 
 async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creates_waiting_client(
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_clients_test
+    parsed_offers_fixture_for_clients_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_clients_test)
@@ -15,6 +18,13 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -34,7 +44,8 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_clients_test
+    parsed_offers_fixture_for_clients_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_clients_test)
@@ -44,6 +55,13 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -62,7 +80,8 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -73,6 +92,13 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -90,7 +116,8 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -101,6 +128,13 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -119,7 +153,8 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
@@ -128,6 +163,13 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -146,7 +188,8 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -156,6 +199,13 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -170,11 +220,12 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
     assert row is None
 
 
-async def test_create_offers__exist_parsed_offer_without_phones___doesnt_create_offer(
+async def test_create_offers__exist_parsed_offer_without_phones__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -184,6 +235,13 @@ async def test_create_offers__exist_parsed_offer_without_phones___doesnt_create_
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -198,11 +256,12 @@ async def test_create_offers__exist_parsed_offer_without_phones___doesnt_create_
     assert row is None
 
 
-async def test_create_offers__exist_parsed_offer_with_calltracking___doesnt_create_offer(
+async def test_create_offers__exist_parsed_offer_with_calltracking__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -212,6 +271,14 @@ async def test_create_offers__exist_parsed_offer_with_calltracking___doesnt_crea
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
+
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -226,11 +293,12 @@ async def test_create_offers__exist_parsed_offer_with_calltracking___doesnt_crea
     assert row is None
 
 
-async def test_create_offers__exist_parsed_offer_synced___doesnt_create_offer(
+async def test_create_offers__exist_parsed_offer_synced__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -239,6 +307,13 @@ async def test_create_offers__exist_parsed_offer_synced___doesnt_create_offer(
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -253,11 +328,12 @@ async def test_create_offers__exist_parsed_offer_synced___doesnt_create_offer(
     assert row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_with_existing_client___created_offer_inherited_client_status(
+async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__created_offer_inherited_client_status(
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -283,6 +359,13 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -297,11 +380,12 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
     assert row['status'] == 'inProgress'
 
 
-async def test_create_offers__exist_suitable_parsed_offer_with_declined_client___doesnt_create_offer(
+async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await pg.execute(
@@ -326,6 +410,13 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -340,11 +431,12 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
     assert row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_with_accepted_client___doesnt_create_offer(
+async def test_create_offers__exist_suitable_parsed_offer_with_accepted_client__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await pg.execute(
@@ -369,6 +461,13 @@ async def test_create_offers__exist_suitable_parsed_offer_with_accepted_client__
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -383,12 +482,13 @@ async def test_create_offers__exist_suitable_parsed_offer_with_accepted_client__
     assert row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_last_sync_date___doesnt_create_offer(
+async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_last_sync_date__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
-    offers_and_clients_fixture
+    offers_and_clients_fixture,
+    users_mock
 ):
     await pg.execute_scripts([parsed_offers_fixture_for_offers_for_call_test, offers_and_clients_fixture])
     await runtime_settings.set({
@@ -397,6 +497,13 @@ async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -415,7 +522,8 @@ async def test_create_offers__exist_suitable_parsed_offer_with_suitable_minimum_
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -430,6 +538,13 @@ async def test_create_offers__exist_suitable_parsed_offer_with_suitable_minimum_
     # act
     await runner.run_python_command('create-offers-for-call')
     await asyncio.sleep(1)
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # assert
     rows = await pg.fetch(
@@ -447,7 +562,8 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_use
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -458,6 +574,13 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_use
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 4,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -476,7 +599,8 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_maximum_exceed
     pg,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -487,6 +611,13 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_maximum_exceed
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 1,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 2,
     })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')

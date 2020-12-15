@@ -136,7 +136,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
     assert not resp.data['errors']
 
 
-async def test_update_offers_list__first_operator_without_client__updates_first_created(
+async def test_update_offers_list__first_operator_without_client__updates_first_by_priority(
         pg,
         http,
         offers_and_clients_fixture
@@ -172,7 +172,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
     assert offers_event_log[0]['status'] == 'inProgress'
 
 
-async def test_update_offers_list__second_operator_without_client_update__updates_second_created(
+async def test_update_offers_list__second_operator_without_client_update__updates_second_by_priority(
         pg,
         http,
         offers_and_clients_fixture
@@ -491,3 +491,77 @@ async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
     assert not resp.data['success']
     assert resp.data['errors']
     assert resp.data['errors'][0]['code'] == 'waitingClientMissing'
+
+
+async def test_call_later_client__no_operator_and_in_progress__still_no_operator_and_call_later(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024636
+    operator_client = '2'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/call-later-client/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+
+    assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'callLater'
+
+
+async def test_call_later_client__exist_offers_in_progress_and_cancelled__only_offers_in_progress_set_call_later(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator_user_id = 60024636
+    operator_client = '4'
+    offer_expected_call_later = '6'
+    offer_expected_cancelled = '7'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/call-later-client/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_offer_expected_call_later = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                      'WHERE id=$1',
+                                                      [offer_expected_call_later])
+    row_offer_expected_cancelled = await pg.fetchrow('SELECT status FROM offers_for_call '
+                                                     'WHERE id=$1',
+                                                     [offer_expected_cancelled])
+    offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
+
+    assert row_offer_expected_call_later['status'] == 'callLater'
+    assert row_offer_expected_cancelled['status'] == 'cancelled'
+    assert offers_event_log[0]['offer_id'] == '6'
+    assert offers_event_log[0]['status'] == 'callLater'
+    assert offers_event_log[1]['offer_id'] == '10'
+    assert offers_event_log[1]['status'] == 'callLater'
