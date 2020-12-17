@@ -59,7 +59,7 @@ register_kafka_consumer(
 )
 
 
-# [ML] сохранение объявлений с внешних площадок
+# [ML] преобразовать объявления с внешних площадок в object_model и оповестить
 register_kafka_consumer(
     command=cli.command('send-parsed-offers'),
     topic='ml-content-copying.change',
