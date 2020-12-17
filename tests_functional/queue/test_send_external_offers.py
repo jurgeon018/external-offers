@@ -268,7 +268,6 @@ async def test_external_offer_callback__new_external_offer_without_phones__no_me
         'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale'],
     })
 
-
     offer_data = {
         'phones': [],
         'category': 'flatSale',
@@ -316,7 +315,6 @@ async def test_external_offer_callback__new_external_offer_nonsuitable_category_
     await runtime_settings.set({
         'SUITABLE_CATEGORIES_FOR_REPORTING': ['commercialSale'],
     })
-
 
     offer_data = {
         'phones': [],

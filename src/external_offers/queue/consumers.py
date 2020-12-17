@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from cian_core.context import new_operation_id
 from cian_kafka import EntityKafkaConsumerMessage
 
 from external_offers import entities
@@ -19,6 +20,7 @@ async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[
 
 async def send_change_event(messages: List[EntityKafkaConsumerMessage[entities.ParsedOffer]]):
     for msg in messages:
-        offer_event = msg.data
-        logger.info('Send change parsed offer event: %s', offer_event.id)
-        await send_parsed_offer_change_event(offer=offer_event)
+        with new_operation_id():
+            offer_event = msg.data
+            logger.info('Send change parsed offer event: %s', offer_event.id)
+            await send_parsed_offer_change_event(offer=offer_event)

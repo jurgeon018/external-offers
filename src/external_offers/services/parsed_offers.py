@@ -1,8 +1,6 @@
 import logging
 from typing import Dict, Optional
-from uuid import uuid4
 
-from cian_core.context import new_operation_id
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
@@ -97,15 +95,14 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
     if not (lat and lng):
         return None
 
-    with new_operation_id():
-        try:
-            geocode_response = await v2_geocode(GeoCodedRequest(
-                kind=DEFAULT_GEOCODE_KIND,
-                lat=lat,
-                lng=lng
-            ))
-        except ApiClientException:
-            return None
+    try:
+        geocode_response = await v2_geocode(GeoCodedRequest(
+            kind=DEFAULT_GEOCODE_KIND,
+            lat=lat,
+            lng=lng
+        ))
+    except ApiClientException:
+        return None
 
     return SwaggerGeo(
         country_id=geocode_response.country_id,
@@ -186,7 +183,6 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
             category=get_category_from_source_object_model(source_object_model),
             geo=geo,
             description=get_description_from_source_object_model(source_object_model),
-            object_guid=str(uuid4()).upper(),
             is_enabled_call_tracking=offer.is_calltracking,
             row_version=0
     )

@@ -242,7 +242,7 @@ def create_promocode_detail_model(
                     OperationTypes.rent
                 ],
                 polygon_ids=settings.PROMOCODE_POLYGONS,
-                duration_in_days=DurationInDays.seven,
+                duration_in_days=DurationInDays.thirty,
                 debit_count=1,
                 object_type_id=offer_type_to_object_type[request.offer_type]
             )]
