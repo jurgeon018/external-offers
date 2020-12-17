@@ -15,7 +15,7 @@ class ParsedOfferMessage:
     """ID объявления на внешней площадке"""
     source_object_model: dict
     """Данные об объявлении"""
-    is_calltracking: bool
+    is_calltracking: Optional[bool]
     """Есть ли коллтрекинг у объявления"""
     timestamp: datetime
     """Дата отправки"""

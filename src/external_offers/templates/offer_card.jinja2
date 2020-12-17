@@ -5,7 +5,7 @@
                     <a rel="noopener noreferrer" target="_blank" href="{{ parsed_object_model.url }}">{{ parsed_object_model.title }}</a>
                 </div>
                 <div class="client-info-offer-phones">
-                    {% for phone in parsed_object_model.phones %}
+                    {% for phone in client.client_phones %}
                         <span>{{ phone }}</span>
                     {% endfor %}
                 </div>
@@ -198,7 +198,7 @@
             </div>
             <div class="offerTelephoneTitleInput">
                     <input class="input-control" placeholder="Реальный телефон владельца"
-                           value="{{ parsed_object_model.phones[0] }}"
+                           value="{{ client.client_phones[0] }}"
                            type="string"
                            id="getPhoneNumber">
             </div>
@@ -295,7 +295,7 @@
             realtyType: getValueOrStrNull(getRealtyType.val()),
             saleType: getValueOrStrNull(getSaleType.val()),
             offerId: '{{ offer_id }}',
-            clientId: '{{ client_id }}'
+            clientId: '{{ client.id }}'
 
         }
         {% if parsed_object_model.is_rent %}

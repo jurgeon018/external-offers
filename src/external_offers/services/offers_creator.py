@@ -154,7 +154,6 @@ async def clear_and_prioritize_waiting_offers() -> None:
     clients_count: Dict[str, int] = {row['client_id']: row['waiting_offers_count'] for row in rows}
     clients_priority: Dict[int, List[str]] = defaultdict(list)
     to_clear: List[str] = []
-
     for client_id in clients_count.keys():
         with new_operation_id():
             priority = await prioritize_client(

@@ -34,7 +34,7 @@ asyncpgsa = "^0.26"
 
 [tool.poetry.dev-dependencies]
 cian-lint = "*"
-cian-functional-test-utils = {version = "*", extras = ["python", "postgres", "kafka"]}
+cian-functional-test-utils = {version = "*", extras = ["python", "postgres", "kafka", "rabbitmq"]}
 cian-test-utils = "^1.2"
 diff-cover = "*"
 isort = "*"

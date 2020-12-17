@@ -11,7 +11,7 @@ class SaveOfferRequest:
     offer_id: str
     """Идентификатор задания"""
     client_id: str
-    """Идентификатор задания"""
+    """Идентификатор клиента"""
     phone_number: str
     """Телефон"""
     category: SaveOfferCategory

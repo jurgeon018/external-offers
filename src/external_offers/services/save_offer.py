@@ -84,13 +84,13 @@ from external_offers.repositories.users.entities import RegisterUserByPhoneReque
 
 
 geo_type_to_type_mapping: Dict[GeoType, Type] = {
-    GeoType.house: Type.house,
-    GeoType.country: Type.country,
-    GeoType.district: Type.district,
-    GeoType.road: Type.road,
-    GeoType.street: Type.street,
-    GeoType.underground: Type.underground,
-    GeoType.location: Type.location
+    GeoType.house.value: Type.house,
+    GeoType.country.value: Type.country,
+    GeoType.district.value: Type.district,
+    GeoType.road.value: Type.road,
+    GeoType.street.value: Type.street,
+    GeoType.underground.value: Type.underground,
+    GeoType.location.value: Type.location
 }
 
 offer_type_to_object_type: Dict[OfferType, ObjectTypeId] = {
@@ -200,7 +200,7 @@ def create_publication_model(
                 address=[
                     AddressInfo(
                         id=detail.id,
-                        type=geo_type_to_type_mapping[detail.geo_type]
+                        type=geo_type_to_type_mapping[detail.geo_type.value]
                     ) for detail in geocode_response.details
                 ]
             ),

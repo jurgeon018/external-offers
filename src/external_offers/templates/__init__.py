@@ -3,6 +3,7 @@ from typing import Any
 from jinja2 import Environment, PackageLoader
 from simple_settings import settings
 
+from external_offers.entities import Client
 from external_offers.entities.parsed_offers import ParsedObjectModel
 from external_offers.templates.filters import custom_filters
 
@@ -27,7 +28,7 @@ def get_offer_card_html(
     parsed_object_model: ParsedObjectModel,
     info_message: str,
     offer_id: str,
-    client_id: str
+    client: Client
 ) -> str:
     template = templates.get_template('offer_card.jinja2')
     return template.render(
@@ -35,5 +36,5 @@ def get_offer_card_html(
         info_message=info_message,
         debug=settings.DEBUG,
         offer_id=offer_id,
-        client_id=client_id
+        client=client
     )
