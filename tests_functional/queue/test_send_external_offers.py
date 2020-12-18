@@ -145,7 +145,7 @@ async def test_external_offer_callback__new_external_offer_with_coordinates__geo
     )
 
     await runner.start_background_python_command('send-parsed-offers')
-    await asyncio.sleep(5)
+    await asyncio.sleep(6)
 
     # assert
     request = await geoapi_stub.get_request()
