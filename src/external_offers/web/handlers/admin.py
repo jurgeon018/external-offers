@@ -48,8 +48,8 @@ class AdminOffersCardPageHandler(PublicHandler):
             offer_id=offer_id
         )
 
-        client_id = await get_client_id_by_offer_id(
-            offer_id=offer_id
+        client = await get_client_by_operator(
+            operator_id=self.realty_user_id
         )
 
         if not offer_object_model:
@@ -60,7 +60,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
             offer_id=offer_id,
-            client_id=client_id,
+            client=client,
         )
 
         self.write(offer_html)
