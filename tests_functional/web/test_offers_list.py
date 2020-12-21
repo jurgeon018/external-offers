@@ -466,6 +466,40 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
     assert row_client['status'] == 'waiting'
 
 
+async def test_delete_offer__exist_offers_in_progress__client_accepted_if_no_offers_in_progress_and_draft(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator_user_id = 70024649
+    operator_client = '7'
+    offer_in_progress = '13'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/delete-offer/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'offer_id': offer_in_progress,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+
+    assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'accepted'
+
+
 async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
         pg,
         http,

@@ -27,6 +27,7 @@ from external_offers.repositories.postgresql.offers import (
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_offers_in_progress_by_operator_and_offer_id,
+    exists_offers_draft_by_client,
     get_enriched_offers_in_progress_by_operator,
     get_last_sync_date,
     get_offer_by_parsed_id,
