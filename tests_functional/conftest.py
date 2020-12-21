@@ -1,5 +1,6 @@
 # pylint: disable=redefined-outer-name
 
+from asyncio import sleep
 from pathlib import Path
 
 import pytest
@@ -91,3 +92,15 @@ async def monolith_cian_geoapi_mock(http_mock_service):
 @pytest.fixture(scope='session')
 async def announcements_mock(http_mock_service):
     yield await http_mock_service.make_microservice_mock('announcements')
+
+
+@pytest.fixture(scope='session')
+async def send_parsed_offer_consumer(runner):
+    await runner.start_background_python_command('send-parsed-offers')
+    await sleep(4)
+
+
+@pytest.fixture(scope='session')
+async def save_parsed_offer_consumer(runner):
+    await runner.start_background_python_command('save-parsed-offers')
+    await sleep(4)

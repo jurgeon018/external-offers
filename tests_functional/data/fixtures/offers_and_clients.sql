@@ -60,7 +60,7 @@ INSERT INTO public.clients(
     'Александр Александров',
     '{+79812932338}',
     'gmail@gmail.com',
-    60024649,
+    70024649,
     'inProgress'
 );
 
