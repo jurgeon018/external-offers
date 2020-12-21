@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOffer]]):
     for msg in messages:
         offer_event = msg.data
-        logger.info(msg.data.is_calltracking)
         logger.info('Save parsed offer: %s', offer_event.id)
         await save_parsed_offer(offer=offer_event)
 

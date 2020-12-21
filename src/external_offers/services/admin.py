@@ -19,11 +19,13 @@ from external_offers.enums import OfferStatus
 from external_offers.queue.kafka import kafka_preposition_calls_producer
 from external_offers.repositories.postgresql import (
     assign_waiting_client_to_operator,
+    exists_offers_draft_by_client,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_waiting_client,
     get_client_by_client_id,
     save_event_log_for_offers,
+    set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_client_to_call_later_status_and_return,
     set_client_to_call_missed_status_and_return,
     set_client_to_decline_status_and_return,
@@ -33,8 +35,6 @@ from external_offers.repositories.postgresql import (
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_waiting_offers_in_progress_by_client,
-    set_client_accepted_and_no_operator_if_no_offers_in_progress,
-    exists_offers_draft_by_client
 )
 
 
