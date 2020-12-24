@@ -1,7 +1,37 @@
 import asyncio
 
 import pytest
-from cian_functional_test_utils.pytest_plugin import MockResponse
+from cian_functional_test_utils import DependencyType
+from cian_functional_test_utils.pytest_plugin import KafkaService, MockResponse, Runner
+from confluent_kafka.admin import AdminClient
+from confluent_kafka.cimpl import NewTopic
+
+
+async def _create_topic(kafka_service: KafkaService, kafka_addr: str, topic: str) -> None:
+    # TODO: https://jira.cian.tech/browse/ML-12130
+    client = AdminClient({'bootstrap.servers': kafka_addr})
+    client.create_topics([NewTopic(topic=topic, num_partitions=1)])
+
+    while True:
+        topics = await kafka_service._producer.list_topics(timeout=1)
+        if topic in topics:
+            break
+        await asyncio.sleep(0.5)
+
+
+@pytest.fixture(autouse=True)
+async def delete_all_topics_before_test(kafka_service):
+    # при тестировании консьюмера топики удалять не нужно, переопределяем
+    # дефолтную фикстуру
+    pass
+
+
+@pytest.fixture(scope='module', autouse=True)
+async def run_consumer(runner: Runner, kafka_service: KafkaService, dependencies):
+    host, port = dependencies.get(type_=DependencyType.kafka, alias='default', port=9092)
+    await _create_topic(kafka_service, kafka_addr=f'{host}:{port}', topic='ml-content-copying.change')
+
+    await runner.start_background_python_command('send-parsed-offers')
 
 
 async def test_external_offer_callback__new_external_offer__send_publish_message(
@@ -9,7 +39,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     queue_service,
     monolith_cian_geoapi_mock,
     runtime_settings,
-    runner
 ):
     # arrange
     await runtime_settings.set({
@@ -64,9 +93,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         topic='ml-content-copying.change',
         message=data
     )
-
-    await runner.start_background_python_command('send-parsed-offers')
-    await asyncio.sleep(5)
+    await asyncio.sleep(2)
 
     # assert
     messages = await queue.get_messages()
@@ -101,7 +128,6 @@ async def test_external_offer_callback__new_external_offer_with_coordinates__geo
     queue_service,
     monolith_cian_geoapi_mock,
     runtime_settings,
-    runner
 ):
     # arrange
     await runtime_settings.set({
@@ -143,9 +169,7 @@ async def test_external_offer_callback__new_external_offer_with_coordinates__geo
         topic='ml-content-copying.change',
         message=data
     )
-
-    await runner.start_background_python_command('send-parsed-offers')
-    await asyncio.sleep(6)
+    await asyncio.sleep(2)
 
     # assert
     request = await geoapi_stub.get_request()
@@ -156,7 +180,6 @@ async def test_external_offer_callback__new_external_offer_without_lat__geoapi_n
     kafka_service,
     monolith_cian_geoapi_mock,
     runtime_settings,
-    runner
 ):
     # arrange
     await runtime_settings.set({
@@ -196,9 +219,7 @@ async def test_external_offer_callback__new_external_offer_without_lat__geoapi_n
         topic='ml-content-copying.change',
         message=data
     )
-
-    await runner.start_background_python_command('send-parsed-offers')
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
 
     # assert
     with pytest.raises(AssertionError):
@@ -209,7 +230,6 @@ async def test_external_offer_callback__new_external_offer_without_lng__geoapi_n
     kafka_service,
     monolith_cian_geoapi_mock,
     runtime_settings,
-    runner
 ):
     # arrange
     await runtime_settings.set({
@@ -248,9 +268,7 @@ async def test_external_offer_callback__new_external_offer_without_lng__geoapi_n
         topic='ml-content-copying.change',
         message=data
     )
-
-    await runner.start_background_python_command('send-parsed-offers')
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
 
     # assert
     with pytest.raises(AssertionError):
@@ -261,7 +279,6 @@ async def test_external_offer_callback__new_external_offer_without_phones__no_me
     kafka_service,
     queue_service,
     runtime_settings,
-    runner
 ):
     # arrange
     await runtime_settings.set({
@@ -296,9 +313,7 @@ async def test_external_offer_callback__new_external_offer_without_phones__no_me
         topic='ml-content-copying.change',
         message=data
     )
-
-    await runner.start_background_python_command('send-parsed-offers')
-    await asyncio.sleep(4)
+    await asyncio.sleep(2)
 
     # assert
     messages = await queue.get_messages()
@@ -308,8 +323,7 @@ async def test_external_offer_callback__new_external_offer_without_phones__no_me
 async def test_external_offer_callback__new_external_offer_nonsuitable_category__no_message(
     kafka_service,
     queue_service,
-    runtime_settings,
-    runner
+    runtime_settings
 ):
     # arrange
     await runtime_settings.set({
@@ -344,9 +358,7 @@ async def test_external_offer_callback__new_external_offer_nonsuitable_category_
         topic='ml-content-copying.change',
         message=data
     )
-
-    await runner.start_background_python_command('send-parsed-offers')
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
 
     # assert
     messages = await queue.get_messages()

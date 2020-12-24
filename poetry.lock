@@ -338,7 +338,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-functional-test-utils"
-version = "0.59.0"
+version = "0.60.1"
 description = "Фреймворк функциональных тестов"
 category = "dev"
 optional = false
@@ -2175,8 +2175,8 @@ cian-enum = [
     {file = "cian_enum-1.1.3-py3-none-any.whl", hash = "md5:a67ca3abca39cbaad7c1b28cf10da784"},
 ]
 cian-functional-test-utils = [
-    {file = "cian-functional-test-utils-0.59.0.tar.gz", hash = "md5:3c98b3cab84f44420f86bf19aab9eee3"},
-    {file = "cian_functional_test_utils-0.59.0-py3-none-any.whl", hash = "md5:1e54cd982096300efd0fb6614197ecab"},
+    {file = "cian-functional-test-utils-0.60.1.tar.gz", hash = "md5:f7c700a29cad59347a213a556490deb1"},
+    {file = "cian_functional_test_utils-0.60.1-py3-none-any.whl", hash = "md5:0f97a5e1e0d44fd6c8c1441584c470f3"},
 ]
 cian-helpers = [
     {file = "cian-helpers-1.1.0.tar.gz", hash = "md5:6e833fb63cf3cc6e20f80d598a4808a5"},

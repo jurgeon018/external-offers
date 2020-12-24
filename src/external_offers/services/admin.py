@@ -19,11 +19,13 @@ from external_offers.enums import OfferStatus
 from external_offers.queue.kafka import kafka_preposition_calls_producer
 from external_offers.repositories.postgresql import (
     assign_waiting_client_to_operator,
+    exists_offers_draft_by_client,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
     exists_waiting_client,
     get_client_by_client_id,
     save_event_log_for_offers,
+    set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_client_to_call_later_status_and_return,
     set_client_to_call_missed_status_and_return,
     set_client_to_decline_status_and_return,
@@ -97,9 +99,32 @@ async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminR
         )
 
         if not exists:
-            await set_client_to_waiting_status_and_return(
+            created_draft = await exists_offers_draft_by_client(
                 client_id=client_id
             )
+            if created_draft:
+                await set_client_accepted_and_no_operator_if_no_offers_in_progress(
+                    client_id=client_id
+                )
+                if user_id not in settings.TEST_OPERATOR_IDS:
+                    client = await get_client_by_client_id(client_id=request.client_id)
+                    now = datetime.now(pytz.utc)
+                    await kafka_preposition_calls_producer(
+                        message=CallsKafkaMessage(
+                            manager_id=user_id,
+                            source_user_id=client.avito_user_id,
+                            user_id=client.cian_user_id,
+                            phone=client.client_phones[0],
+                            status=ClientStatus.accepted.value,
+                            date=now,
+                            source=settings.AVITO_SOURCE_NAME
+                        ),
+                        timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                    )
+            else:
+                await set_client_to_waiting_status_and_return(
+                    client_id=client_id
+                )
 
     return AdminResponse(success=True, errors=[])
 

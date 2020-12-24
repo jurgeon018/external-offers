@@ -154,6 +154,28 @@ async def exists_offers_in_progress_by_client(*, client_id: str) -> bool:
     return bool(exists)
 
 
+async def exists_offers_draft_by_client(*, client_id: str) -> bool:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [1]
+        ).select_from(
+            offers_for_call.join(
+                clients,
+                offers_for_call.c.client_id == clients.c.client_id
+            )
+        ).where(
+            and_(
+                offers_for_call.c.status == OfferStatus.draft.value,
+                clients.c.client_id == client_id,
+            )
+        ).limit(1)
+    )
+
+    exists = await pg.get().fetchval(query, *params)
+
+    return bool(exists)
+
+
 async def set_waiting_offers_in_progress_by_client(*, client_id: str) -> List[str]:
     query = """
         UPDATE
