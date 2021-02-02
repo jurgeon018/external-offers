@@ -7,12 +7,21 @@ from cian_json import json
 from simple_settings import settings
 from sqlalchemy import JSON, func
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, not_, select, update
+from sqlalchemy.sql import and_, delete, not_, select, update
 
 from external_offers import pg
-from external_offers.entities.parsed_offers import ParsedObjectModel, ParsedOfferForCreation, ParsedOfferMessage
+from external_offers.entities.parsed_offers import (
+    ParsedObjectModel,
+    ParsedOffer,
+    ParsedOfferForCreation,
+    ParsedOfferMessage,
+)
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
-from external_offers.mappers.parsed_offers import parsed_offer_for_creation_mapper, parsed_offer_message_mapper
+from external_offers.mappers.parsed_offers import (
+    parsed_offer_for_creation_mapper,
+    parsed_offer_mapper,
+    parsed_offer_message_mapper,
+)
 from external_offers.repositories.postgresql import tables
 
 
@@ -95,7 +104,6 @@ async def set_synced_and_fetch_parsed_offers_chunk(
             tables.parsed_offers_table.c.source_object_model['contact'].label('contact')
         )
     )
-
     rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
 
     return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
@@ -131,3 +139,34 @@ async def get_lastest_event_timestamp() -> Optional[datetime]:
     )
 
     return await pg.get().fetchval(query, *params)
+
+
+async def get_latest_updated_at() -> Optional[datetime]:
+    po = tables.parsed_offers_table.alias()
+    query, params = asyncpgsa.compile_query(
+        select([
+            func.max(po.c.updated_at)
+        ])
+        .limit(1)
+    )
+
+    return await pg.get().fetchval(query, *params)
+
+
+async def delete_outdated_parsed_offers(*, updated_at_border: datetime) -> List[ParsedOffer]:
+    po = tables.parsed_offers_table.alias()
+
+    sql = (
+        delete(
+            po
+        ).where(
+            po.c.updated_at < updated_at_border
+        ).returning(
+            po
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    rows = await pg.get().fetch(query, *params)
+    return [parsed_offer_mapper.map_from(row) for row in rows]

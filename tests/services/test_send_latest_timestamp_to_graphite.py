@@ -21,8 +21,8 @@ async def test_send_parsed_offers_timestamp_diff_to_graphite__when_called__send_
 
     # act
     await send_parsed_offers_timestamp_diff_to_graphite()
-    # assert
 
+    # assert
     assert get_timestamp_mock.called
     send_to_graphite_mock.assert_called_once_with(
         key='parsed_offers.seconds_since_last_timestamp',

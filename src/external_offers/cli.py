@@ -8,6 +8,7 @@ from tornado.ioloop import IOLoop
 
 from external_offers import entities, setup
 from external_offers.queue.consumers import save_parsed_offers_callback, send_change_event
+from external_offers.services.clear_outdated_offers import clear_outdated_offers
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
 from external_offers.services.sync_event_log import sync_event_log
@@ -31,13 +32,19 @@ def serve(debug: bool, host: str, port: int) -> None:
 @cli.command()
 def create_offers_for_call():
     """ Синхронизировать таблицы offers_for_call и clients на основе parsed_offers """
-    IOLoop.current().run_sync(partial(sync_offers_for_call_with_parsed))
+    IOLoop.current().run_sync(sync_offers_for_call_with_parsed)
+
+
+@cli.command()
+def clear_outdated_offers_cron():
+    """ Очистить таблицу спаршенных объявлений и очередь от неактуальных объявлений """
+    IOLoop.current().run_sync(clear_outdated_offers)
 
 
 @cli.command()
 def send_latest_parsed_offers_timestamp_diff_to_graphite():
     """ Отправить в grafana разницу между now() и timestamp последнего пришедшего спаршенного объявления """
-    IOLoop.current().run_sync(partial(send_parsed_offers_timestamp_diff_to_graphite))
+    IOLoop.current().run_sync(send_parsed_offers_timestamp_diff_to_graphite)
 
 
 @cli.command()

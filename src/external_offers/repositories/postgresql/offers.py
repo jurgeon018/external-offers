@@ -22,7 +22,7 @@ offers_counts_cte = (
         ]
     )
     .where(
-        offers_for_call.c.status == ClientStatus.waiting.value,
+        offers_for_call.c.status == OfferStatus.waiting.value,
     )
     .cte('offers_counts_cte')
 )
@@ -411,6 +411,23 @@ async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: List[str])
             and_(
                 offers_for_call.c.status == OfferStatus.waiting.value,
                 offers_for_call.c.client_id.in_(client_ids)
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
+async def delete_waiting_offers_for_call_by_parsed_ids(*, parsed_ids: List[str]) -> None:
+    sql = (
+        delete(
+            offers_for_call
+        ).where(
+            and_(
+                offers_for_call.c.parsed_id.in_(parsed_ids),
+                offers_for_call.c.status == OfferStatus.waiting.value
             )
         )
     )

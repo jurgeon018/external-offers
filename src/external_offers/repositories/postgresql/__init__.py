@@ -23,6 +23,7 @@ from external_offers.repositories.postgresql.event_log import (
 from external_offers.repositories.postgresql.offers import (
     delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_by_client_ids,
+    delete_waiting_offers_for_call_by_parsed_ids,
     delete_waiting_offers_for_call_with_count_off_limit,
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_client,
@@ -49,7 +50,9 @@ from external_offers.repositories.postgresql.offers import (
     try_to_lock_offer_and_return_status,
 )
 from external_offers.repositories.postgresql.parsed_offers import (
+    delete_outdated_parsed_offers,
     get_lastest_event_timestamp,
+    get_latest_updated_at,
     get_parsed_offer_object_model_by_offer_id,
     save_parsed_offer,
     set_synced_and_fetch_parsed_offers_chunk,
