@@ -193,9 +193,13 @@ async def clear_and_prioritize_waiting_offers() -> None:
 
 async def sync_offers_for_call_with_parsed():
     """ Синхронизировать таблицу заданий offers_for_call и parsed_offers """
+    last_sync_date = None
+    if settings.ENABLE_LAST_SYNC_DATE_FETCHING:
+        last_sync_date = await get_last_sync_date()
 
-    last_sync_date = await get_last_sync_date()
-    while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(last_sync_date=last_sync_date):
+    while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
+        last_sync_date=last_sync_date
+    ):
         logger.info('Fetched %d parsed offers', len(parsed_offers))
 
         rows = await get_offers_parsed_ids_by_parsed_ids(

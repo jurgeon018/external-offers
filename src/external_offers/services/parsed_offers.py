@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 SOURCE_ROOMS_COUNT = 'roomsCount'
 SOURCE_TOTAL_AREA = 'totalArea'
+SOURCE_LIVING_AREA = 'livingArea'
 SOURCE_FLOORS_COUNT = 'floorsCount'
 SOURCE_PRICE = 'price'
 SOURCE_DESCRIPTION = 'description'
@@ -55,6 +56,10 @@ def get_rooms_count_from_source_object_model(source_object_model: dict) -> Optio
 
 def get_total_area_from_source_object_model(source_object_model: dict) -> Optional[float]:
     return source_object_model.get(SOURCE_TOTAL_AREA)
+
+
+def get_living_area_from_source_object_model(source_object_model: dict) -> Optional[float]:
+    return source_object_model.get(SOURCE_LIVING_AREA)
 
 
 def get_floors_count_from_source_object_model(source_object_model: dict) -> Optional[int]:
@@ -177,6 +182,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
                 )
             ],
             total_area=get_total_area_from_source_object_model(source_object_model),
+            living_area=get_living_area_from_source_object_model(source_object_model),
             property_type=PropertyType.building,
             rooms_count=get_rooms_count_from_source_object_model(source_object_model),
             floor_number=get_floor_number_from_source_object_model(source_object_model),
@@ -205,7 +211,6 @@ async def send_parsed_offer_change_event(*, offer: ParsedOffer) -> None:
     source_model = create_source_model_from_parsed_offer(
         offer=offer
     )
-
     await external_offers_change_producer(
         model=object_model,
         source_model=source_model
