@@ -1,5 +1,4 @@
 import logging
-from asyncio import sleep
 from datetime import datetime, timedelta
 from typing import List
 
@@ -18,13 +17,14 @@ from external_offers.repositories.postgresql import (
 
 logger = logging.getLogger(__name__)
 
+
 async def check_if_was_update() -> bool:
     """ Проверяем, было ли обновление за последние N часов """
     now = datetime.now(pytz.utc)
     latest_updated_at = await get_latest_updated_at()
     check_border = now - timedelta(hours=settings.OFFER_UPDATE_CHECK_WINDOW_IN_HOURS)
 
-    return (latest_updated_at and latest_updated_at > check_border)
+    return latest_updated_at and latest_updated_at > check_border
 
 
 def get_updated_at_border() -> datetime:

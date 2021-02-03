@@ -180,7 +180,7 @@ def create_publication_model(
             total_area=request.total_area,
             is_apartments=realty_type_to_is_aparments.get(request.realty_type, None),
             property_type=PropertyType.building,
-            rooms_count=rooms_count_to_num.get(request.rooms_count, None),
+            rooms_count=rooms_count_to_num.get(request.rooms_count, 1),
             floor_number=request.floor_number,
             category=category,
             cian_user_id=cian_user_id,
@@ -207,7 +207,7 @@ def create_publication_model(
             name='Наименование',
             description=request.description,
             object_guid=str(uuid4()).upper(),
-            flat_type=rooms_count_to_flat_type.get(request.rooms_count, None),
+            flat_type=rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms),
             is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
             row_version=0  # если этот параметр не слать, шарп 500ит
         ),
