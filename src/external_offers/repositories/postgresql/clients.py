@@ -198,6 +198,18 @@ async def get_cian_user_id_by_client_id(*, client_id: str) -> Optional[int]:
     return await pg.get().fetchval(query, *params)
 
 
+async def get_segment_by_client_id(*, client_id: str) -> Optional[str]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.segment]
+        ).where(
+            clients.c.client_id == client_id,
+        ).limit(1)
+    )
+
+    return await pg.get().fetchval(query, *params)
+
+
 async def set_cian_user_id_by_client_id(*, cian_user_id: int, client_id: str):
     query, params = asyncpgsa.compile_query(
         update(

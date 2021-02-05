@@ -6,31 +6,15 @@ async def test_save_offer__register_user_by_phone_called_success__cian_user_id_s
         pg,
         users_mock,
         monolith_cian_announcementapi_mock,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
     cian_user_id = 77777
     client_id = '5'
-
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -58,7 +42,7 @@ async def test_save_offer__register_user_by_phone_called_success__cian_user_id_s
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -74,31 +58,15 @@ async def test_save_offer__cian_user_id_exists__register_user_by_phone_not_calle
         pg,
         users_mock,
         monolith_cian_announcementapi_mock,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
     cian_user_id = 77777
     client_id = '5'
-
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
     await pg.execute('UPDATE clients SET cian_user_id=$1 WHERE client_id=$2', [cian_user_id, client_id])
 
     register_mock = await users_mock.add_stub(
@@ -128,7 +96,7 @@ async def test_save_offer__cian_user_id_exists__register_user_by_phone_not_calle
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -144,7 +112,8 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
         users_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_service_mock,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -154,23 +123,9 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
     client_id = '5'
     offer_id = '8'
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': offer_id,
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+    save_offer_request_body['offerId'] = offer_id
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -223,7 +178,7 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -240,7 +195,8 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
         users_mock,
         monolith_cian_announcementapi_mock,
         offers_and_clients_fixture,
-        monolith_cian_service_mock
+        monolith_cian_service_mock,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -250,23 +206,8 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
     client_id = '5'
     offer_id = '8'
     await pg.execute('UPDATE offers_for_call SET offer_cian_id=$1 WHERE id=$2', [offer_cian_id, offer_id])
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': offer_id,
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+    save_offer_request_body['offerId'] = offer_id
 
     await users_mock.add_stub(
         method='POST',
@@ -322,7 +263,7 @@ async def test_save_offer__offer_cian_id_exists__add_draft_not_called(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -339,7 +280,8 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
         monolith_cian_announcementapi_mock,
         monolith_cian_service_mock,
         offers_and_clients_fixture,
-        monolith_cian_profileapi_mock
+        monolith_cian_profileapi_mock,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -350,23 +292,9 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
     offer_id = '8'
     promocode = 'TESTTEST'
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': offer_id,
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+    save_offer_request_body['offerId'] = offer_id
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -434,7 +362,7 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -452,7 +380,8 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
         monolith_cian_announcementapi_mock,
         offers_and_clients_fixture,
         monolith_cian_service_mock,
-        monolith_cian_profileapi_mock
+        monolith_cian_profileapi_mock,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -465,23 +394,8 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
 
     await pg.execute('UPDATE offers_for_call SET promocode=$1 WHERE id=$2', [promocode, offer_id])
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': offer_id,
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+    save_offer_request_body['offerId'] = offer_id
 
     await users_mock.add_stub(
         method='POST',
@@ -552,7 +466,7 @@ async def test_save_offer__promocode_exists__promo_apis_not_called(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }

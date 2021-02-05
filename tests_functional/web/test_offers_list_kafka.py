@@ -119,7 +119,7 @@ async def test_call_missed_client__client_exist_with_2_offers__expected_1_messag
     # assert
     messages = await kafka_service.wait_messages(
         topic='preposition-admin.calls',
-        timeout=1.5,
+        timeout=2.5,
         count=1
     )
 

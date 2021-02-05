@@ -12,7 +12,8 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        runtime_settings
+        runtime_settings,
+        save_offer_request_body
 ):
     # arrange
     operator_user_id = 60024640
@@ -57,23 +58,6 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
          ['+79812333292'], 'nemoy@gmail.com', 60024640, 'inProgress']
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -141,7 +125,7 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': operator_user_id
         }
@@ -173,7 +157,8 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        runtime_settings
+        runtime_settings,
+        save_offer_request_body
 ):
     # arrange
     operator_user_id = 60024640
@@ -220,23 +205,6 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
          ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -304,7 +272,7 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': operator_user_id
         }
@@ -337,7 +305,8 @@ async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        runtime_settings
+        runtime_settings,
+        save_offer_request_body
 ):
     # arrange
     await runtime_settings.set({
@@ -392,23 +361,6 @@ async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka
          ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -476,7 +428,7 @@ async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': operator_user_id
         }
@@ -499,7 +451,8 @@ async def test_save_offer__correct_json_test_operator__expected_no_message_to_ka
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        runtime_settings
+        runtime_settings,
+        save_offer_request_body
 ):
     # arrange
     test_operator = 60024640
@@ -544,24 +497,6 @@ async def test_save_offer__correct_json_test_operator__expected_no_message_to_ka
          ['+79812333292'], 'nemoy@gmail.com', test_operator, 'inProgress']
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
-
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -629,7 +564,7 @@ async def test_save_offer__correct_json_test_operator__expected_no_message_to_ka
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': test_operator
         }
@@ -652,7 +587,8 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         runtime_settings,
-        logs
+        logs,
+        save_offer_request_body
 ):
     # arrange
     operator_user_id = 60024640
@@ -699,23 +635,6 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
          ['+79812333292'], 'nemoy@gmail.com', 60024640, 'inProgress']
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -783,7 +702,7 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': operator_user_id
         }

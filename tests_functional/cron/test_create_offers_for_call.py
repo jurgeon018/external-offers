@@ -37,6 +37,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
         """
     )
     assert row['client_phones'] == ['89883325632']
+    assert row['segment'] == 'c'
     assert row['status'] == 'waiting'
 
 
@@ -86,7 +87,7 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
@@ -122,7 +123,7 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4530],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
@@ -158,7 +159,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
 ):
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -194,7 +195,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['suburbanSale'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -230,7 +231,7 @@ async def test_create_offers__exist_parsed_offer_without_phones__doesnt_create_o
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -266,7 +267,7 @@ async def test_create_offers__exist_parsed_offer_with_calltracking__doesnt_creat
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -303,7 +304,7 @@ async def test_create_offers__exist_parsed_offer_synced__doesnt_create_offer(
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
     })
@@ -354,7 +355,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
          ['+79812333292'], 'nemoy@gmail.com', 60024640, 'inProgress']
     )
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -405,7 +406,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
          ['+79812333292'], 'nemoy@gmail.com', 60024640, 'declined']
     )
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -456,7 +457,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_accepted_client__
          ['+79812333292'], 'nemoy@gmail.com', 60024640, 'accepted']
     )
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -492,7 +493,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_
 ):
     await pg.execute_scripts([parsed_offers_fixture_for_offers_for_call_test, offers_and_clients_fixture])
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -528,7 +529,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_suitable_minimum_
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 3,
@@ -568,7 +569,7 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_use
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 4,
@@ -605,7 +606,7 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_maximum_exceed
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 1,

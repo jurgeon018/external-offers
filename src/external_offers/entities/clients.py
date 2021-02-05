@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from external_offers.enums import ClientStatus
+from external_offers.enums import ClientStatus, UserSegment
 
 
 @dataclass
@@ -22,3 +22,13 @@ class Client:
     """Почтовый ящик клиента, к которому привязана учетная запись Циана"""
     operator_user_id: Optional[str] = None
     """Идентификатор оператора, который взял клиента в работу"""
+    segment: Optional[UserSegment] = None
+    """Сегмент пользователя"""
+
+
+@dataclass
+class ClientWaitingOffersCount:
+    client_id: str
+    """Идентификатор клиента"""
+    waiting_offers_count: int
+    """Количество объявлений в ожидании"""

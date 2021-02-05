@@ -10,7 +10,8 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
         runtime_settings,
         users_mock,
         monolith_cian_announcementapi_mock,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -18,23 +19,8 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
     cian_user_id = 77777
     client_id = '5'
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+
     await runtime_settings.set({
         'USERS_TIMEOUT': 10000
     })
@@ -67,7 +53,7 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
         http.request(
             'POST',
             '/api/admin/v1/save-offer/',
-            json=request,
+            json=save_offer_request_body,
             headers={
                 'X-Real-UserId': user_id
             }
@@ -75,7 +61,7 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
         http.request(
             'POST',
             '/api/admin/v1/save-offer/',
-            json=request,
+            json=save_offer_request_body,
             headers={
                 'X-Real-UserId': user_id
             }

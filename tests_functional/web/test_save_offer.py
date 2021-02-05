@@ -13,10 +13,12 @@ async def test_save_offer__correct_json__status_ok(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        monolith_cian_profileapi_mock
+        monolith_cian_profileapi_mock,
+        save_offer_request_body
 ):
     # arrange
     operator_user_id = 123123
+    client_id = '1'
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -30,13 +32,16 @@ async def test_save_offer__correct_json__status_ok(
         ) VALUES (
             '1',
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
-            '1',
+            $1,
             'inProgress',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06'
             )
-        """
+        """,
+        [
+            client_id
+        ]
     )
     await pg.execute(
         """
@@ -51,27 +56,12 @@ async def test_save_offer__correct_json__status_ok(
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         """,
-        ['1', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+        [client_id, '555bb598767308327e1dffbe7241486c', 'Иван Петров',
          ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '1',
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -139,7 +129,7 @@ async def test_save_offer__correct_json__status_ok(
     response = await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': operator_user_id
         }
@@ -159,11 +149,13 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        monolith_cian_profileapi_mock
+        monolith_cian_profileapi_mock,
+        save_offer_request_body
 ):
     # arrange
     operator_user_id = 12345
     offer_id = '1'
+    client_id = '1'
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -177,13 +169,15 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         ) VALUES (
             '1',
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
-            '1',
+            $1,
             'inProgress',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06'
             )
-        """
+        """, [
+            client_id
+        ]
     )
     await pg.execute(
         """
@@ -198,27 +192,12 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         """,
-        ['1', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+        [client_id, '555bb598767308327e1dffbe7241486c', 'Иван Петров',
          ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': offer_id,
-        'clientId': '1',
-        'description': 'Test'
-    }
+    save_offer_request_body['offerId'] = offer_id
+    save_offer_request_body['clientId'] = client_id
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -285,7 +264,7 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': operator_user_id
         }
@@ -300,6 +279,7 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
         pg,
         http,
         users_mock,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute(
@@ -324,23 +304,6 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
         """
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     user_id = 123123
     await users_mock.add_stub(
         method='POST',
@@ -354,7 +317,7 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
     response = await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -369,6 +332,7 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
         http,
         users_mock,
         monolith_cian_announcementapi_mock,
+        save_offer_request_body,
 ):
     # arrange
     await pg.execute(
@@ -393,23 +357,6 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
         """
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     user_id = 123123
     await users_mock.add_stub(
         method='POST',
@@ -438,7 +385,7 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
     response = await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -455,6 +402,7 @@ async def test_save_offer__geocode_timeout__logged_timeout(
         runtime_settings,
         users_mock,
         monolith_cian_announcementapi_mock,
+        save_offer_request_body,
 ):
     # arrange
     await runtime_settings.set({
@@ -483,23 +431,9 @@ async def test_save_offer__geocode_timeout__logged_timeout(
     )
     address = 'ул. просторная 6, квартира 200'
     offer_id = '1'
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': address,
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': offer_id,
-        'clientId': '7',
-        'description': 'Test'
-    }
+    save_offer_request_body['address'] = address
+    save_offer_request_body['offerId'] = offer_id
+
     user_id = 123123
     await users_mock.add_stub(
         method='POST',
@@ -529,7 +463,7 @@ async def test_save_offer__geocode_timeout__logged_timeout(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -546,6 +480,7 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
+        save_offer_request_body
 ):
     await pg.execute(
         """
@@ -569,23 +504,6 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         """
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     user_id = 123123
 
     await users_mock.add_stub(
@@ -640,7 +558,7 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
     response = await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -656,7 +574,8 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        monolith_cian_profileapi_mock
+        monolith_cian_profileapi_mock,
+        save_offer_request_body
 ):
     # arrange
     await pg.execute(
@@ -681,23 +600,6 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         """
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     user_id = 123123
     await users_mock.add_stub(
         method='POST',
@@ -766,7 +668,7 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
     response = await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -781,6 +683,7 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         http,
         users_mock,
         monolith_cian_announcementapi_mock,
+        save_offer_request_body,
 ):
     # arrange
     await pg.execute(
@@ -805,23 +708,6 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         """
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     user_id = 123123
     await users_mock.add_stub(
         method='POST',
@@ -865,7 +751,7 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
     response = await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -882,6 +768,7 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
         runtime_settings,
         users_mock,
         monolith_cian_announcementapi_mock,
+        save_offer_request_body,
 ):
     # arrange
     await runtime_settings.set({
@@ -911,23 +798,7 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
     )
 
     offer_id = '1'
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': offer_id,
-        'clientId': '7',
-        'description': 'Test'
-    }
+    save_offer_request_body['offerId'] = offer_id
     user_id = 123123
     await users_mock.add_stub(
         method='POST',
@@ -972,7 +843,7 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -990,10 +861,12 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         monolith_cian_service_mock,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        save_offer_request_body,
 ):
     # arrange
     client_id = '5'
+    offer_id = '8'
     user_id = 123123
     await pg.execute_scripts(offers_and_clients_fixture)
     await pg.execute(
@@ -1001,23 +874,9 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         UPDATE offers_for_call SET status='draft' WHERE id='9'
         """
     )
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '8',
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+    save_offer_request_body['offerId'] = offer_id
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -1085,7 +944,7 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -1103,28 +962,13 @@ async def test_save_offer__offers_in_progress_left__client_status_in_progress(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         monolith_cian_service_mock,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        save_offer_request_body,
 ):
     # arrange
     client_id = '5'
     await pg.execute_scripts(offers_and_clients_fixture)
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '9',
-        'clientId': client_id,
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
     user_id = 123123
     await users_mock.add_stub(
         method='POST',
@@ -1193,7 +1037,7 @@ async def test_save_offer__offers_in_progress_left__client_status_in_progress(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -1211,10 +1055,12 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        monolith_cian_profileapi_mock
+        monolith_cian_profileapi_mock,
+        save_offer_request_body
 ):
     # arrange
     operator_user_id = 123123
+    client_id = '1'
 
     await pg.execute(
         """
@@ -1227,7 +1073,7 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
             started_at,
             synced_at
         ) VALUES (
-            '1',
+            $1,
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
             '1',
             'inProgress',
@@ -1235,7 +1081,10 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06'
             )
-        """
+        """,
+        [
+            client_id
+        ]
     )
     await pg.execute(
         """
@@ -1254,23 +1103,8 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
          ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
     )
     paid_regions = [1, 2]
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '1',
-        'description': 'Test'
-    }
+    save_offer_request_body['clientId'] = client_id
+
     await runtime_settings.set({
         'REGIONS_WITH_PAID_PUBLICATION': paid_regions,
     })
@@ -1342,7 +1176,7 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': operator_user_id
         }
@@ -1359,28 +1193,13 @@ async def test_save_offer__offer_with_free_region__promo_apis_not_called(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        monolith_cian_profileapi_mock
+        monolith_cian_profileapi_mock,
+        save_offer_request_body,
 ):
     # arrange
     user_id = 123123
     paid_regions = [1, 2]
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '3567',
-        'clientId': '7',
-        'description': 'Test'
-    }
+
     await runtime_settings.set({
         'REGIONS_WITH_PAID_PUBLICATION': paid_regions,
     })
@@ -1452,7 +1271,7 @@ async def test_save_offer__offer_with_free_region__promo_apis_not_called(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
@@ -1469,7 +1288,9 @@ async def test_save_offer__has_many_accounts_returned__logged_warning(
         logs,
         users_mock,
         monolith_cian_announcementapi_mock,
+        save_offer_request_body,
 ):
+    client_id = '1'
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -1483,34 +1304,21 @@ async def test_save_offer__has_many_accounts_returned__logged_warning(
         ) VALUES (
             '1',
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
-            '1',
+            $1,
             'inProgress',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06'
             )
-        """
+        """, [
+            client_id
+        ]
     )
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': '7',
-        'description': 'Test'
-    }
     user_id = 123123
     client_realty_id = 77
+
+    save_offer_request_body['clientId'] = client_id
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -1538,20 +1346,21 @@ async def test_save_offer__has_many_accounts_returned__logged_warning(
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=request,
+        json=save_offer_request_body,
         headers={
             'X-Real-UserId': user_id
         }
     )
 
     # assert
-    assert any([f'Не удалось однозначно определить аккаунт для пользователя 7, выбран {client_realty_id}' in line
+    assert any([f'Не удалось однозначно определить аккаунт для пользователя 1, выбран {client_realty_id}' in line
                 for line in logs.get_lines()])
 
 
 async def test_save_offer__save_already_saved_offer__returns_already_processed(
         http,
         pg,
+        save_offer_request_body,
 ):
     # arrange
     await pg.execute(
@@ -1579,29 +1388,12 @@ async def test_save_offer__save_already_saved_offer__returns_already_processed(
     user_id = 123123
     client_id = '5'
 
-    request = {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'category': 'room',
-        'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
-        'rooms_count': None,
-        'floor_number': 1,
-        'floors_count': 5,
-        'price': 100000,
-        'sale_type': '',
-        'phone_number': '89134488338',
-        'offerId': '1',
-        'clientId': client_id,
-        'description': 'Test'
-    }
-
+    save_offer_request_body['clientId'] = client_id
     # act
     response = await http.request(
             'POST',
             '/api/admin/v1/save-offer/',
-            json=request,
+            json=save_offer_request_body,
             headers={
                 'X-Real-UserId': user_id
             }
