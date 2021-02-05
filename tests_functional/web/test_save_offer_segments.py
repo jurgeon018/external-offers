@@ -7,7 +7,7 @@ from cian_json import json
     ('segment', 'is_by_homeowner'),
     (
         ('c', False),
-        ('d',True)
+        ('d', True)
     )
 )
 async def test_save_offer__smb_segment__is_by_homeowner_false(

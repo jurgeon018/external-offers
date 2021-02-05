@@ -10,3 +10,15 @@ class ClientChooseMainProfileResult:
     """Есть неподходящий для добавления в очередь аккаунт"""
     chosen_profile: Optional[UserModelV2]
     """Модель профиля"""
+
+
+@dataclass
+class HomeownerClientChooseMainProfileResult(ClientChooseMainProfileResult):
+    ...
+
+
+@dataclass
+class SmbClientChooseMainProfileResult(ClientChooseMainProfileResult):
+    ...
+    has_emls_or_subagent: bool
+    """Есть ЕМЛС или саб аккаунт """

@@ -5,7 +5,7 @@ from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
-from external_offers.entities import ClientChooseMainProfileResult
+from external_offers.entities import SmbClientChooseMainProfileResult
 from external_offers.entities.clients import Client
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
@@ -26,21 +26,28 @@ _METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
 _METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 
 
-def choose_main_smb_client_profile(user_profiles: List[UserModelV2]) -> ClientChooseMainProfileResult:
-    """ Ищем активный профиль агента. Нашли ЕМЛС, заблокированный или саб - не берем клиента в очередь """
+def choose_main_smb_client_profile(user_profiles: List[UserModelV2]) -> SmbClientChooseMainProfileResult:
+    """ Ищем активный профиль агента. Ставим метки заблокированных пользователей и ЕМЛС или саб. """
     has_bad_account = False
+    has_emls_or_subagent = False
     chosen_profile = None
 
     for profile in user_profiles:
         source_user_type = profile.external_user_source_type
 
-        if (profile.state.is_blocked
-            or (source_user_type
-                and (source_user_type.is_emls
-                     or source_user_type.is_sub_agents)
-                )):
+        if profile.state.is_blocked:
             has_bad_account = True
             break
+
+        if (
+            source_user_type
+            and (
+                source_user_type.is_emls
+                or source_user_type.is_sub_agents
+                )
+        ):
+            has_emls_or_subagent = True
+            continue
 
         if (
             profile.is_agent
@@ -48,9 +55,10 @@ def choose_main_smb_client_profile(user_profiles: List[UserModelV2]) -> ClientCh
         ):
             chosen_profile = profile
 
-    return ClientChooseMainProfileResult(
+    return SmbClientChooseMainProfileResult(
         has_bad_account=has_bad_account,
-        chosen_profile=chosen_profile
+        chosen_profile=chosen_profile,
+        has_emls_or_subagent=has_emls_or_subagent
     )
 
 
@@ -78,6 +86,9 @@ async def prioritize_smb_client(
             # Выбираем основной активный агентский профиль пользователя
             result = choose_main_smb_client_profile(response.users)
             if result.has_bad_account:
+                return _CLEAR_CLIENT_PRIORITY
+
+            if not result.chosen_profile and result.has_emls_or_subagent:
                 return _CLEAR_CLIENT_PRIORITY
 
             if not result.chosen_profile:

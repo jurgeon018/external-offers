@@ -1,6 +1,5 @@
 import asyncio
 
-import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
@@ -588,7 +587,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
                 'userName': None,
                 'creationDate': '2017-01-20T22:22:58.913',
                 'ip': 167772335,
-                'externalUserSourceType': None,
+                'externalUserSourceType': 'emls',
                 'isAgent': True
             }, {
                 'id': 12835367,

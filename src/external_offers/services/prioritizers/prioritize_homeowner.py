@@ -5,7 +5,7 @@ from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
-from external_offers.entities import ClientChooseMainProfileResult
+from external_offers.entities import HomeownerClientChooseMainProfileResult
 from external_offers.entities.clients import Client
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.postgresql import set_cian_user_id_by_client_id
@@ -23,8 +23,8 @@ _METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
 _METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 
 
-def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> ClientChooseMainProfileResult:
-    """ Ищем активный профиль собственника. Нашли заблокированный аккаунт - не берем клиента в очередь """
+def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> HomeownerClientChooseMainProfileResult:
+    """ Ищем активный профиль собственника. Ставим метки заблокированных пользователей """
     has_bad_account = False
     chosen_profile = None
 
@@ -39,7 +39,7 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Cl
         ):
             chosen_profile = profile
 
-    return ClientChooseMainProfileResult(
+    return HomeownerClientChooseMainProfileResult(
         has_bad_account=has_bad_account,
         chosen_profile=chosen_profile
     )
