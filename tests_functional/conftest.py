@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def start(pg, runner, global_runtime_settings):
+async def start(pg):
     await pg.execute_scripts((Path('contrib') / 'postgresql' / 'migrations').glob('*.sql'))
 
 
@@ -104,3 +104,25 @@ async def send_parsed_offer_consumer(runner):
 async def save_parsed_offer_consumer(runner):
     await runner.start_background_python_command('save-parsed-offers')
     await sleep(4)
+
+
+@pytest.fixture
+async def save_offer_request_body():
+    return {
+        'deal_type': 'rent',
+        'offer_type': 'flat',
+        'term_type': 'long',
+        'category': 'room',
+        'address': 'ул. просторная 6, квартира 200',
+        'realty_type': 'apartments',
+        'total_area': 120,
+        'rooms_count': None,
+        'floor_number': 1,
+        'floors_count': 5,
+        'price': 100000,
+        'sale_type': '',
+        'phone_number': '89134488338',
+        'offerId': '1',
+        'clientId': '7',
+        'description': 'Test'
+    }

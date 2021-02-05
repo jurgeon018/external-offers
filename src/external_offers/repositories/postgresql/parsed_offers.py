@@ -100,6 +100,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
             tables.parsed_offers_table.c.id,
             tables.parsed_offers_table.c.source_user_id,
             tables.parsed_offers_table.c.timestamp,
+            tables.parsed_offers_table.c.user_segment,
             tables.parsed_offers_table.c.source_object_model['phones'].label('phones'),
             tables.parsed_offers_table.c.source_object_model['contact'].label('contact')
         )

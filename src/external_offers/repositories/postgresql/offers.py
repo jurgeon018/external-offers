@@ -7,13 +7,13 @@ from sqlalchemy import and_, delete, func, or_, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
-from external_offers.entities import EnrichedOffer, Offer
+from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
 from external_offers.enums import ClientStatus, OfferStatus
-from external_offers.mappers import enriched_offer_mapper, offer_mapper
+from external_offers.mappers import client_waiting_offers_count_mapper, enriched_offer_mapper, offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
 
-offers_counts_cte = (
+waiting_offers_counts_cte = (
     select(
         [
             offers_for_call.c.id,
@@ -24,7 +24,7 @@ offers_counts_cte = (
     .where(
         offers_for_call.c.status == OfferStatus.waiting.value,
     )
-    .cte('offers_counts_cte')
+    .cte('waiting_offers_counts_cte')
 )
 
 
@@ -443,10 +443,10 @@ async def delete_waiting_offers_for_call_with_count_off_limit() -> None:
             offers_for_call
         ).where(
             and_(
-                offers_for_call.c.id == offers_counts_cte.c.id,
+                offers_for_call.c.id == waiting_offers_counts_cte.c.id,
                 or_(
-                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
-                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
+                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > waiting_offers_counts_cte.c.waiting_offers_count,
+                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < waiting_offers_counts_cte.c.waiting_offers_count
                 )
             )
         )
@@ -463,10 +463,10 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
             clients
         ).where(
             and_(
-                clients.c.client_id == offers_counts_cte.c.client_id,
+                clients.c.client_id == waiting_offers_counts_cte.c.client_id,
                 or_(
-                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > offers_counts_cte.c.waiting_offers_count,
-                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < offers_counts_cte.c.waiting_offers_count
+                    settings.OFFER_TASK_CREATION_MINIMUM_OFFERS > waiting_offers_counts_cte.c.waiting_offers_count,
+                    settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS < waiting_offers_counts_cte.c.waiting_offers_count
                 )
             )
         )
@@ -477,15 +477,15 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_waiting_offer_counts_by_clients() -> None:
+async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount]:
     sql = (
         select(
-            [offers_counts_cte]
+            [waiting_offers_counts_cte]
         ).distinct(
-            offers_counts_cte.c.client_id
+            waiting_offers_counts_cte.c.client_id
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
-
-    return await pg.get().fetch(query, *params)
+    rows = await pg.get().fetch(query, *params)
+    return [client_waiting_offers_count_mapper.map_from(row) for row in rows]

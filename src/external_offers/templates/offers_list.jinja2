@@ -99,7 +99,8 @@
          <div class="client-info-block-title">Клиент</div>
          {% if (client.cian_user_id) %}<div class="client-info-profile-url"> <a rel="noopener noreferrer" target="_blank" href="https://service.cian.ru/customers/view/{{ client.cian_user_id }}">Профиль</a></div>{% endif %}
          <div id="clientInfoClientId">Идентификатор: {{ client.client_id }}</div>
-         {% if (client.client_name) %}<div id="clientInfiClientName">Имя: {{ client.client_name }}</div>{% endif %}
+         {% if (client.client_name) %}<div id="clientInfoClientName">Имя: {{ client.client_name }}</div>{% endif %}
+         {% if (client.segment) %}<div id="clientInfoClientSegment">Сегмент: {{ client.segment }}</div>{% endif %}
          <div id="clientInfoClientPhone">Телефон: {{ client.client_phones | join(',') }}</div>
          <div class="client-buttons">
             <div class="decline-client-block">

@@ -27,12 +27,20 @@
                 <div class="offerDealTypeSelect">
                     <select class="select-control" id="getDealType">
                         <option value="not_selected" disabled>Не выбрано</option>
-                        <option value="rent" {% if parsed_object_model.is_rent %}selected{% endif %}>Аренда
-                        </option>
-                        <option value="sale" {% if parsed_object_model.is_sale %}selected{% endif %}>Продажа
-                        </option>
+                        <option value="rent" {% if parsed_object_model.is_rent %}selected{% endif %}>Аренда</option>
+                        <option value="sale" {% if parsed_object_model.is_sale %}selected{% endif %}>Продажа</option>
                     </select>
                 </div>
+
+                {% if parsed_object_model.is_rent %}
+                    <div class="offerTermTypeTitle"><span class="">Срок аренды</span></div>
+                    <div class="offerTermTypeSelect">
+                        <select class="select-control" id="getTermType">
+                            <option value="long" {% if parsed_object_model.is_long_term_rent %}selected{% endif %}>Долгосрочная</option>
+                            <option value="daily" {% if parsed_object_model.is_daily_term_rent %}selected{% endif %}>Посуточная</option>
+                        </select>
+                    </div>
+                {% endif %}
 
                 <div class="offerTypeTitle"><span class="">Тип недвижимости</span></div>
                 <div class="offerTypeSelect">
@@ -51,28 +59,22 @@
                     <select class="select-control" id="getCategoryType">
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="flat"
-                                {% if parsed_object_model.category.is_flat_sale
-                                or parsed_object_model.category.is_flat_rent %}
+                                {% if parsed_object_model.is_flat %}
                                 selected {% endif %}>Квартира
                         </option>
                         <option value="room"
-                                {% if parsed_object_model.category.is_room_sale
-                                or parsed_object_model.category.is_room_rent %}
+                                {% if parsed_object_model.is_room %}
                                 selected {% endif %}>Комната
                         </option>
-                        <option value="flat_share" {% if parsed_object_model.category.is_flat_share_sale %}
-                                selected {% endif %}>
+                        <option value="flat_share" {% if parsed_object_model.is_flat_share %}
+                                                   selected {% endif %}>
                             Доля
                             в квартире
                         </option>
-                        <option value="bed" {% if parsed_object_model.category.is_bed_rent %} selected {% endif %}>
+                        <option value="bed" {% if parsed_object_model.is_bed %} 
+                                            selected {% endif %}>
                             Койко-место (только аренда)
                         </option>
-                        <option value="" disabled>Дом/Дача</option>
-                        <option value="" disabled>Коттедж</option>
-                        <option value="" disabled>Таунхаус</option>
-                        <option value="" disabled>Часть дома</option>
-                        <option value="" disabled>Участок</option>
                     </select>
                 </div>
 
@@ -93,16 +95,16 @@
             </div>
 
             {% if parsed_object_model.is_allow_realty_type %}
-            <div class="offerRealtyTypeTitle">
-                <span class="">Тип жилья</span>
-            </div>
-            <div class="offerCategoryTypeSelect">
-                <select class="select-control" id="getRealtyType">
-                    <option value="" selected disabled>Не выбрано</option>
-                    <option value="flat">Квартира</option>
-                    <option value="apartments">Апартаменты</option>
-                </select>
-            </div>
+                <div class="offerRealtyTypeTitle">
+                    <span class="">Тип жилья</span>
+                </div>
+                <div class="offerCategoryTypeSelect">
+                    <select class="select-control" id="getRealtyType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="flat">Квартира</option>
+                        <option value="apartments">Апартаменты</option>
+                    </select>
+                </div>
             {% endif %}
 
             <div class="offerTotalAreaTitle">
@@ -115,22 +117,22 @@
             </div>
 
             {% if parsed_object_model.is_allow_rooms %}
-            <div class="offerRoomsCountTitle">
-                <span class="">Количество комнат</span>
-            </div>
-            <div class="offerRoomsCountSelect">
-                <select class="select-control" id="getRoomsCount">
-                    <option value="" selected disabled>Не выбрано</option>
-                    <option value="room1">1</option>
-                    <option value="room2">2</option>
-                    <option value="room3">3</option>
-                    <option value="room4">4</option>
-                    <option value="room5">5</option>
-                    <option value="room6_plus">6+</option>
-                    <option value="open_plan">свободная планировка</option>
-                    <option value="studio">студия</option>
-                </select>
-            </div>
+                <div class="offerRoomsCountTitle">
+                    <span class="">Количество комнат</span>
+                </div>
+                <div class="offerRoomsCountSelect">
+                    <select class="select-control" id="getRoomsCount">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="room1">1</option>
+                        <option value="room2">2</option>
+                        <option value="room3">3</option>
+                        <option value="room4">4</option>
+                        <option value="room5">5</option>
+                        <option value="room6_plus">6+</option>
+                        <option value="open_plan">свободная планировка</option>
+                        <option value="studio">студия</option>
+                    </select>
+                </div>
             {% endif %}
 
             <div class="offerFloorNumberTitle">
@@ -157,36 +159,36 @@
             </div>
 
             {% if parsed_object_model.is_rent %}
-            <div class="offerDepositTitle">
-                    <span class="">Залог</span>
-            </div>
-            <div class="offerDepositInput">
-                <input class="input-control" required placeholder="Залог собственнику"
-                    type="number" id="getDeposit">
-            </div>
+                <div class="offerDepositTitle">
+                        <span class="">Залог</span>
+                </div>
+                <div class="offerDepositInput">
+                    <input class="input-control" required placeholder="Залог собственнику"
+                        type="number" id="getDeposit">
+                </div>
             {% endif %}
 
-            {% if parsed_object_model.is_rent %}
-            <div class="offerPrepayMonthsTitle">
-                    <span class="">Предоплата</span>
-            </div>
-            <div class="offerPrepayMonthsInput">
-                <input class="input-control" required placeholder="Предоплата (от 1 до 12 месяцев)"
-                    type="number" id="getPrepayMonths">
-            </div>
+            {% if parsed_object_model.is_long_term_rent %}
+                <div class="offerPrepayMonthsTitle">
+                        <span class="">Предоплата</span>
+                </div>
+                <div class="offerPrepayMonthsInput">
+                    <input class="input-control" required placeholder="Предоплата (от 1 до 12 месяцев)"
+                        type="number" id="getPrepayMonths">
+                </div>
             {% endif %}
 
             {% if parsed_object_model.is_sale %}
-            <div class="offerSaleTypeTitle">
-                    <span class="">Тип продажи</span>
-            </div>
-            <div class="offerSaleTypeSelect">
-                <select class="select-control" id="getSaleType">
-                    <option value="" selected disabled>Не выбрано</option>
-                    <option value="free">Свободная продажа</option>
-                    <option value="alternative">Альтернатива</option>
-                </select>
-            </div>
+                <div class="offerSaleTypeTitle">
+                        <span class="">Тип продажи</span>
+                </div>
+                <div class="offerSaleTypeSelect">
+                    <select class="select-control" id="getSaleType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="free">Свободная продажа</option>
+                        <option value="alternative">Альтернатива</option>
+                    </select>
+                </div>
             {% endif %}
 
             <div class='table-block-header'>
@@ -230,6 +232,7 @@
         const getDealType = $('#getDealType');
         const getOfferType = $('#getOfferType');
         const getCategoryType = $('#getCategoryType');
+        const getTermType = $('#getTermType');
         const getAddress = $('#getAddress');
         const getRealtyType = $('#getRealtyType');
         const getTotalArea = $('#getTotalArea');
@@ -294,16 +297,22 @@
             roomsCount: getValueOrStrNull(getRoomsCount.val()),
             realtyType: getValueOrStrNull(getRealtyType.val()),
             saleType: getValueOrStrNull(getSaleType.val()),
+            termType: getValueOrStrNull(getTermType.val()),
             offerId: '{{ offer_id }}',
-            clientId: '{{ client.client_id }}'
-
+            clientId: '{{ client.client_id }}',
         }
         {% if parsed_object_model.is_rent %}
             let obj_rent = {
                 deposit: getNumberOrStrNull(getDeposit.val()),
-                prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
             }
             obj = {...obj, ...obj_rent};
+        {% endif %}
+
+        {% if parsed_object_model.is_long_term_rent %}
+            let obj_long_term_rent = {
+                prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
+            }
+            obj = {...obj, ...obj_long_term_rent};
         {% endif %}
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj

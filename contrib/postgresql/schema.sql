@@ -40,8 +40,8 @@ CREATE TABLE clients
     client_phones    varchar[]   not null,
     client_email     varchar(50),
     operator_user_id bigint,
-    status           client_status_type
-
+    status           client_status_type,
+    segment          varchar(1)
 );
 
 CREATE TABLE event_log

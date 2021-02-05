@@ -7,6 +7,7 @@ from external_offers.repositories.postgresql.clients import (
     get_client_by_client_id,
     get_client_by_operator,
     get_client_id_by_offer_id,
+    get_segment_by_client_id,
     save_client,
     set_cian_user_id_by_client_id,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,

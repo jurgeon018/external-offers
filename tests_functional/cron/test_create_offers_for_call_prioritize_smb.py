@@ -1,5 +1,6 @@
 import asyncio
 
+import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
@@ -13,7 +14,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
@@ -56,7 +57,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
     assert row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_agent__doesnt_creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_agent__prioritize_as_no_lk(
     pg,
     runtime_settings,
     runner,
@@ -66,11 +67,12 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+        'NO_LK_SMB_PRIORITY': 1
     })
     await users_mock.add_stub(
         method='GET',
@@ -102,12 +104,22 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     await asyncio.sleep(1)
 
     # assert
-    row = await pg.fetchrow(
+    offer_row = await pg.fetchrow(
         """
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    assert row is None
+
+    client_row = await pg.fetchrow(
+        """
+        SELECT * FROM clients WHERE client_id = $1
+        """,
+        [offer_row['client_id']]
+    )
+
+    assert offer_row['status'] == 'waiting'
+    assert offer_row['priority'] == 1
+    assert client_row['cian_user_id'] is None
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_agent__doesnt_creates_waiting_offer(
@@ -120,7 +132,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
@@ -174,7 +186,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
@@ -229,12 +241,12 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-        'NO_ACTIVE_PRIORITY': 2
+        'NO_ACTIVE_SMB_PRIORITY': 2
     })
     await users_mock.add_stub(
         method='GET',
@@ -299,6 +311,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
 async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk__creates_waiting_offer(
     pg,
     runtime_settings,
+
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
@@ -306,12 +319,12 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk_
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-        'NO_LK_PRIORITY': 1
+        'NO_LK_SMB_PRIORITY': 1
     })
     await users_mock.add_stub(
         method='GET',
@@ -355,7 +368,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_a
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
@@ -422,13 +435,13 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_ma
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'KEEP_PROPORTION_PRIORITY': 3
+        'KEEP_PROPORTION_SMB_PRIORITY': 3
     })
     await users_mock.add_stub(
         method='GET',
@@ -498,7 +511,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
@@ -548,13 +561,13 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'KEEP_PROPORTION_PRIORITY': 3
+        'KEEP_PROPORTION_SMB_PRIORITY': 3
     })
     await users_mock.add_stub(
         method='GET',
@@ -575,7 +588,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
                 'userName': None,
                 'creationDate': '2017-01-20T22:22:58.913',
                 'ip': 167772335,
-                'externalUserSourceType': 'emls',
+                'externalUserSourceType': None,
                 'isAgent': True
             }, {
                 'id': 12835367,
@@ -642,13 +655,14 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['b'],
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'KEEP_PROPORTION_PRIORITY': 3
+        'KEEP_PROPORTION_SMB_PRIORITY': 3,
+        'FAILED_PRIORITY': 4
     })
     await users_mock.add_stub(
         method='GET',
@@ -704,3 +718,80 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     assert offer_row['status'] == 'waiting'
     assert offer_row['priority'] == 4
     assert client_row['cian_user_id'] == 12835367
+
+
+async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_homeowner__prioritize_as_no_lk(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock,
+    announcements_mock
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+        'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
+        'NO_LK_SMB_PRIORITY': 4
+    })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': [{
+                'id': 12835367,
+                'cianUserId': 12835367,
+                'mainAnnouncementsRegionId': 2,
+                'email': 'forias@yandex.ru',
+                'state': 'active',
+                'stateChangeReason': None,
+                'secretCode': '8321',
+                'birthday': '0001-01-01T00:00:00+02:31',
+                'firstName': 'Александровна',
+                'lastName': 'Ирина',
+                'city': None,
+                'userName': None,
+                'creationDate': '2017-01-20T22:22:58.913',
+                'ip': 167772335,
+                'externalUserSourceType': None,
+                'isAgent': False
+            }]}
+        ),
+    )
+
+    await announcements_mock.add_stub(
+        method='GET',
+        path='/v2/get-user-active-announcements-count/',
+        response=MockResponse(
+            body={
+                'count': 1
+            }
+        ),
+    )
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+    await asyncio.sleep(1)
+
+    # assert
+    offer_row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
+        """
+    )
+
+    client_row = await pg.fetchrow(
+        """
+        SELECT * FROM clients WHERE client_id = $1
+        """,
+        [offer_row['client_id']]
+    )
+
+    assert offer_row['status'] == 'waiting'
+    assert offer_row['priority'] == 4
+    assert client_row['cian_user_id'] is None

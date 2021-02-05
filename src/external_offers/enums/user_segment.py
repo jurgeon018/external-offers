@@ -15,3 +15,12 @@ class UserSegment(StrEnum):
     """SMB"""
     d = 'd'
     """Собственник"""
+
+    @classmethod
+    def from_str(cls, value: str):
+        return {
+            'a': cls.a,
+            'b': cls.b,
+            'c': cls.c,
+            'd': cls.d
+        }[value]

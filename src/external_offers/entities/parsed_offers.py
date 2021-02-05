@@ -101,6 +101,36 @@ class ParsedObjectModel:
         return deal_type.is_sale
 
     @property
+    def is_flat(self) -> bool:
+        return self.category in [
+            Category.flat_rent,
+            Category.flat_sale,
+            Category.flat_share_sale,
+            Category.daily_flat_rent,
+        ]
+
+    @property
+    def is_room(self) -> bool:
+        return self.category in [
+            Category.room_rent,
+            Category.room_sale,
+            Category.daily_room_rent,
+        ]
+
+    @property
+    def is_share(self) -> bool:
+        return self.category in [
+            Category.flat_share_sale
+        ]
+
+    @property
+    def is_bed(self) -> bool:
+        return self.category in [
+            Category.bed_rent,
+            Category.daily_bed_rent,
+        ]
+
+    @property
     def is_allow_rooms(self) -> bool:
         return self.category in [
             Category.flat_rent,
@@ -121,6 +151,22 @@ class ParsedObjectModel:
             Category.daily_room_rent
         ]
 
+    @property
+    def is_long_term_rent(self) -> bool:
+        return self.category in [
+            Category.flat_rent,
+            Category.room_rent,
+            Category.bed_rent
+        ]
+
+    @property
+    def is_daily_term_rent(self) -> bool:
+        return self.category in [
+            Category.daily_bed_rent,
+            Category.daily_flat_rent,
+            Category.daily_room_rent
+        ]
+
 
 @dataclass
 class ParsedOfferForCreation:
@@ -134,3 +180,5 @@ class ParsedOfferForCreation:
     """ID пользователя на внешней площадке"""
     phones: str
     """Номера телефонов в виде JSON списка"""
+    user_segment: str
+    """Сегмент пользователя"""

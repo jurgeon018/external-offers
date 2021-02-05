@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 from uuid import uuid4
 
 import pytz
@@ -12,7 +12,7 @@ from simple_settings import settings
 from external_offers import pg
 from external_offers.entities.kafka import CallsKafkaMessage, DraftAnnouncementsKafkaMessage
 from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRequest, SaveOfferResponse
-from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory
+from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory, SaveOfferTerm, UserSegment
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer
@@ -71,6 +71,7 @@ from external_offers.repositories.postgresql import (
     get_client_by_client_id,
     get_offer_cian_id_by_offer_id,
     get_offer_promocode_by_offer_id,
+    get_segment_by_client_id,
     save_event_log_for_offers,
     set_cian_user_id_by_client_id,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
@@ -100,16 +101,19 @@ offer_type_to_object_type: Dict[OfferType, ObjectTypeId] = {
     OfferType.newobject: ObjectTypeId.flat
 }
 
-category_mapping_key = Tuple[SaveOfferCategory, DealType, OfferType]
-save_offer_category_deal_type_and_offer_type_to_category: Dict[category_mapping_key, Category] = {
-    (SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.flat_rent,
-    (SaveOfferCategory.flat, DealType.sale, OfferType.flat): Category.flat_sale,
-    (SaveOfferCategory.bed, DealType.sale, OfferType.flat): Category.flat_share_sale,
-    (SaveOfferCategory.bed, DealType.rent, OfferType.flat): Category.bed_rent,
-    (SaveOfferCategory.share, DealType.sale, OfferType.flat): Category.flat_share_sale,
-    (SaveOfferCategory.share, DealType.rent, OfferType.flat): Category.room_rent,
-    (SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.room_rent,
-    (SaveOfferCategory.room, DealType.sale, OfferType.flat): Category.room_sale,
+category_mapping_key = Tuple[SaveOfferTerm, SaveOfferCategory, DealType, OfferType]
+mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
+    (SaveOfferTerm.long_term, SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.flat_rent,
+    (None, SaveOfferCategory.flat, DealType.sale, OfferType.flat): Category.flat_sale,
+    (None, SaveOfferCategory.bed, DealType.sale, OfferType.flat): Category.flat_share_sale,
+    (None, SaveOfferCategory.share, DealType.sale, OfferType.flat): Category.flat_share_sale,
+    (SaveOfferTerm.long_term, SaveOfferCategory.bed, DealType.rent, OfferType.flat): Category.bed_rent,
+    (SaveOfferTerm.long_term, SaveOfferCategory.share, DealType.rent, OfferType.flat): Category.room_rent,
+    (SaveOfferTerm.long_term, SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.room_rent,
+    (None, SaveOfferCategory.room, DealType.sale, OfferType.flat): Category.room_sale,
+    (SaveOfferTerm.daily_term, SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.daily_flat_rent,
+    (SaveOfferTerm.daily_term, SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.daily_room_rent,
+    (SaveOfferTerm.daily_term, SaveOfferCategory.bed, DealType.rent, OfferType.flat): Category.daily_bed_rent,
 }
 
 deal_type_to_operation_types = {
@@ -145,12 +149,20 @@ realty_type_to_is_aparments: Dict[str, bool] = {
     'flat': False
 }
 
-save_offer_sale_type_to_sale_type = {
+save_offer_sale_type_to_sale_type: Dict[str, SaleType] = {
     'free': SaleType.free,
     'alternative': SaleType.alternative
 }
 
+segment_to_is_by_homeowner: Dict[Any, bool] = {
+    'a': False,
+    'b': False,
+    'c': False,
+    'd': True
+}
+
 logger = logging.getLogger(__name__)
+
 
 def create_publication_model(
         request: SaveOfferRequest,
@@ -158,7 +170,7 @@ def create_publication_model(
         geocode_response: GeoCodeAnnouncementResponse,
         phone_number: str,
         category: Category,
-
+        user_segment: Optional[str]
 ):
     return PublicationModel(
         model=ObjectModel(
@@ -208,6 +220,7 @@ def create_publication_model(
             description=request.description,
             object_guid=str(uuid4()).upper(),
             flat_type=rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms),
+            is_by_home_owner=segment_to_is_by_homeowner.get(user_segment, False),
             is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
             row_version=0  # если этот параметр не слать, шарп 500ит
         ),
@@ -273,8 +286,9 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             )
 
         phone_number = transform_phone_number_to_canonical_format(request.phone_number)
-        category = save_offer_category_deal_type_and_offer_type_to_category[
-            (request.category,
+        category = mapping_offer_params_to_category[
+            (request.term_type,
+             request.category,
              request.deal_type,
              request.offer_type)
         ]
@@ -362,12 +376,16 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 offer_id=request.offer_id
             )
             if not offer_cian_id:
+                user_segment = await get_segment_by_client_id(
+                    client_id=request.client_id
+                )
                 add_draft_result: AddDraftResult = await v2_announcements_draft(create_publication_model(
                     request=request,
                     cian_user_id=cian_user_id,
                     geocode_response=geocode_response,
                     phone_number=phone_number,
-                    category=category
+                    category=category,
+                    user_segment=user_segment
                 ))
                 offer_cian_id = add_draft_result.realty_object_id
                 await set_offer_cian_id_by_offer_id(

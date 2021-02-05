@@ -2,21 +2,17 @@ import logging
 import uuid
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import pytz
 from cian_core.context import new_operation_id
-from cian_core.statsd import statsd
-from cian_http.exceptions import ApiClientException
 from cian_json import json
 from simple_settings import settings
 from tornado import gen
 
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus
-from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
-from external_offers.repositories.announcements import v2_get_user_active_announcements_count
-from external_offers.repositories.announcements.entities import V2GetUserActiveAnnouncementsCount
+from external_offers.enums import UserSegment
 from external_offers.repositories.postgresql import (
     delete_waiting_clients_by_client_ids,
     delete_waiting_clients_with_count_off_limit,
@@ -29,12 +25,10 @@ from external_offers.repositories.postgresql import (
     get_waiting_offer_counts_by_clients,
     save_client,
     save_offer_for_call,
-    set_cian_user_id_by_client_id,
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_client_ids,
 )
-from external_offers.repositories.users import v2_get_users_by_phone
-from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
+from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 
 
 logger = logging.getLogger(__name__)
@@ -48,23 +42,29 @@ _METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
 _METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 
 
-def choose_main_client_profile(user_profiles: List[UserModelV2]) -> Optional[UserModelV2]:
-    """ Ищем активный профиль агента, не ЕМЛС и не саб """
+async def clear_waiting_offers_and_clients_with_off_count_limits() -> None:
+    await gen.multi([
+        delete_waiting_clients_with_count_off_limit(),
+        delete_waiting_offers_for_call_with_count_off_limit()
+    ])
 
-    for profile in user_profiles:
-        source_user_type = profile.external_user_source_type
-        is_emls_or_subagent = source_user_type and (source_user_type.is_emls or source_user_type.is_sub_agents)
-        if (
-            profile.is_agent
-            and profile.state.is_active
-            and not is_emls_or_subagent
-        ):
-            return profile
 
-    return None
+async def clear_waiting_offers_and_clients_by_clients_ids(
+    *,
+    clients_ids
+) -> None:
+    await gen.multi([
+        delete_waiting_offers_for_call_by_client_ids(
+            client_ids=clients_ids
+        ),
+        delete_waiting_clients_by_client_ids(
+            client_ids=clients_ids
+        )
+    ])
 
 
 async def prioritize_client(
+    *,
     client_id: str,
     client_count: int
 ) -> int:
@@ -73,111 +73,53 @@ async def prioritize_client(
     client: Client = await get_client_by_client_id(
         client_id=client_id
     )
-    client_info = None
-    cian_user_id = client.cian_user_id
+    priority = _CLEAR_CLIENT_PRIORITY
 
-    if not cian_user_id:
-        phone = transform_phone_number_to_canonical_format(client.client_phones[0])
-
-        try:
-            response = await v2_get_users_by_phone(
-                V2GetUsersByPhone(
-                    phone=phone
-                )
-            )
-
-            # Приоритет для незарегистрированных пользователей
-            if not response.users:
-                statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-                return settings.NO_LK_PRIORITY
-
-            # Выбираем основной активный профиль пользователя
-            client_info = choose_main_client_profile(response.users)
-            if not client_info:
-                return _CLEAR_CLIENT_PRIORITY
-
-            cian_user_id = client_info.cian_user_id
-
-            # Обновляем идентификатор клиента
-            await set_cian_user_id_by_client_id(
-                cian_user_id=client_info.cian_user_id,
-                client_id=client_id
-            )
-        except ApiClientException as exc:
-            logger.warning(
-                'Ошибка при получении идентификатора клиента %s для приоритизации: %s',
-                client_id,
-                exc.message
-            )
-            statsd.incr(_METRIC_PRIORITIZE_FAILED)
-            return settings.FAILED_PRIORITY
-
-    # Получаем количество активных объявлений
-    try:
-        active_response = await v2_get_user_active_announcements_count(
-            V2GetUserActiveAnnouncementsCount(
-                user_id=cian_user_id
-            )
+    if client and client.segment and client.segment.is_c:
+        priority = await prioritize_smb_client(
+            client=client,
+            client_count=client_count
         )
-    except ApiClientException as exc:
-        logger.warning(
-            'Ошибка при получении количества активных объявлений клиента %s для приоритизации: %s',
-            client_id,
-            exc.message
+
+    if client and client.segment and client.segment.is_d:
+        priority = await prioritize_homeowner_client(
+            client=client
         )
-        statsd.incr(_METRIC_PRIORITIZE_FAILED)
-        return settings.FAILED_PRIORITY
 
-    # Приоритет по отсутствию активных объявлений на циане
-    if active_response.count == _NO_ACTIVE:
-        statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
-        return settings.NO_ACTIVE_PRIORITY
+    return priority
 
-    # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
-    if (active_response.count / client_count) <= settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
-        statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
-        return settings.KEEP_PROPORTION_PRIORITY
-
-    return _CLEAR_CLIENT_PRIORITY
 
 
 async def clear_and_prioritize_waiting_offers() -> None:
     """ Очищаем таблицу заданий и клиентов и проставляем приоритеты заданиям """
 
-    await gen.multi([
-        delete_waiting_clients_with_count_off_limit(),
-        delete_waiting_offers_for_call_with_count_off_limit()
-    ])
+    await clear_waiting_offers_and_clients_with_off_count_limits()
 
-    rows = await get_waiting_offer_counts_by_clients()
+    clients_counts = await get_waiting_offer_counts_by_clients()
 
-    clients_count: Dict[str, int] = {row['client_id']: row['waiting_offers_count'] for row in rows}
     clients_priority: Dict[int, List[str]] = defaultdict(list)
     to_clear: List[str] = []
-    for client_id in clients_count.keys():
+
+    for client_count in clients_counts:
         with new_operation_id():
             priority = await prioritize_client(
-                client_id=client_id,
-                client_count=clients_count[client_id]
+                client_id=client_count.client_id,
+                client_count=client_count.waiting_offers_count
             )
         if priority == _CLEAR_CLIENT_PRIORITY:
-            to_clear.append(client_id)
+            to_clear.append(client_count.client_id)
         else:
-            clients_priority[priority].append(client_id)
+            clients_priority[priority].append(client_count.client_id)
 
     logger.warning(
         'После приоритизации %d клиентов будут удалены',
         len(to_clear)
     )
 
-    await gen.multi([
-        delete_waiting_offers_for_call_by_client_ids(
-            client_ids=to_clear
-        ),
-        delete_waiting_clients_by_client_ids(
-            client_ids=to_clear
-        )
-    ])
+    await clear_waiting_offers_and_clients_by_clients_ids(
+        clients_ids=to_clear
+    )
+
     for priority, client_ids in clients_priority.items():
         logger.warning(
             'После приоритизации для %d клиентов будет задан приоритет %d',
@@ -227,7 +169,8 @@ async def sync_offers_for_call_with_parsed():
                     avito_user_id=parsed_offer.source_user_id,
                     client_name=client_contact,
                     client_phones=client_phones if client_phones else [],
-                    status=ClientStatus.waiting
+                    status=ClientStatus.waiting,
+                    segment=UserSegment.from_str(parsed_offer.user_segment) 
                 )
                 await save_client(
                     client=client

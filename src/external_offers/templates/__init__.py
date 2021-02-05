@@ -1,9 +1,9 @@
-from typing import Any
+from typing import Any, List, Optional
 
 from jinja2 import Environment, PackageLoader
 from simple_settings import settings
 
-from external_offers.entities import Client
+from external_offers.entities import Client, EnrichedOffer
 from external_offers.entities.parsed_offers import ParsedObjectModel
 from external_offers.templates.filters import custom_filters
 
@@ -15,7 +15,7 @@ templates = Environment(
 templates.filters.update(custom_filters)
 
 
-def get_offers_list_html(offers: Any, client: Any) -> str:
+def get_offers_list_html(offers: List[EnrichedOffer], client: Optional[Client]) -> str:
     template = templates.get_template('offers_list.jinja2')
     return template.render(
         offers=offers,

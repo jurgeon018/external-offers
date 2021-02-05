@@ -34,7 +34,10 @@ async def run_consumer(runner: Runner, kafka_service: KafkaService, dependencies
     await runner.start_background_python_command('save-parsed-offers')
 
 
-async def test_external_offer_callback__new_external_offer__saved(pg, kafka_service):
+async def test_external_offer_callback__new_external_offer__saved(
+    pg,
+    kafka_service
+):
     # arrange
     offer_data = {
         'phones': ['87771114422'],
@@ -57,7 +60,7 @@ async def test_external_offer_callback__new_external_offer__saved(pg, kafka_serv
         topic='ml-content-copying.change',
         message=data
     )
-    await asyncio.sleep(3)
+    await asyncio.sleep(5)
     # assert
     row = await pg.fetchrow('SELECT * FROM parsed_offers LIMIT 1')
 
@@ -79,7 +82,10 @@ async def test_external_offer_callback__new_external_offer__saved(pg, kafka_serv
     }
 
 
-async def test_external_offer_callback__existing_external_offer__updated_without_id(pg, kafka_service):
+async def test_external_offer_callback__existing_external_offer__updated_without_id(
+    pg,
+    kafka_service
+):
     # arrange
     old_offer_data = {
         'phones': ['87771114422'],
