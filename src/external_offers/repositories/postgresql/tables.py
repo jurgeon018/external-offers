@@ -30,7 +30,7 @@ clients = sa.Table(
     sa.Column('client_email', sa.VARCHAR),
     sa.Column('status', sa.VARCHAR, nullable=False),
     sa.Column('operator_user_id', sa.BIGINT),
-    sa.Column('segment', sa.VARCHAR, nullable=False),
+    sa.Column('segment', sa.VARCHAR, nullable=True),
 )
 
 offers_for_call = sa.Table(

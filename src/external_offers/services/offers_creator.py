@@ -162,6 +162,7 @@ async def sync_offers_for_call_with_parsed():
             else:
                 client_phones = json.loads(parsed_offer.phones)
                 client_contact = parsed_offer.contact
+                segment = parsed_offer.user_segment
 
                 client_id = str(uuid.uuid4())
                 client = Client(
@@ -170,7 +171,7 @@ async def sync_offers_for_call_with_parsed():
                     client_name=client_contact,
                     client_phones=client_phones if client_phones else [],
                     status=ClientStatus.waiting,
-                    segment=UserSegment.from_str(parsed_offer.user_segment) 
+                    segment=UserSegment.from_str(segment) if segment else None
                 )
                 await save_client(
                     client=client

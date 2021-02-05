@@ -12,7 +12,7 @@ from simple_settings import settings
 from external_offers import pg
 from external_offers.entities.kafka import CallsKafkaMessage, DraftAnnouncementsKafkaMessage
 from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRequest, SaveOfferResponse
-from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory, SaveOfferTerm, UserSegment
+from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory, SaveOfferTerm
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer

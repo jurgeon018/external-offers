@@ -37,7 +37,7 @@ def choose_main_smb_client_profile(user_profiles: List[UserModelV2]) -> ClientCh
         if (profile.state.is_blocked
             or (source_user_type
                 and (source_user_type.is_emls
-                    or source_user_type.is_sub_agents)
+                     or source_user_type.is_sub_agents)
                 )):
             has_bad_account = True
             break
