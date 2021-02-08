@@ -26,6 +26,7 @@ from external_offers.repositories.postgresql.offers import (
     delete_waiting_offers_for_call_by_client_ids,
     delete_waiting_offers_for_call_by_parsed_ids,
     delete_waiting_offers_for_call_with_count_off_limit,
+    delete_waiting_offers_for_call_without_parsed_offers,
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
