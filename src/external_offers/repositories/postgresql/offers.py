@@ -442,7 +442,7 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
             left=offers_for_call,
             right=parsed_offers,
             onclause=offers_for_call.c.parsed_id == parsed_offers.c.id
-    ) 
+    )
 
     waiting_offers_without_parsed_cte = (
         select(
@@ -456,7 +456,7 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
         .where(
             and_(
                 offers_for_call.c.status == OfferStatus.waiting.value,
-                parsed_offers.c.id == None
+                parsed_offers.c.id.is_(None)
             )
         )
         .cte('waiting_offers_without_parsed_cte')
