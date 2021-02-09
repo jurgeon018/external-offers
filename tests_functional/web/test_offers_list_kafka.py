@@ -35,7 +35,7 @@ async def test_decline_client__client_exist_with_2_offers__expected_1_messages_t
     # assert
     messages = await kafka_service.wait_messages(
         topic='preposition-admin.calls',
-        timeout=1.5,
+        timeout=2.5,
         count=1
     )
 
