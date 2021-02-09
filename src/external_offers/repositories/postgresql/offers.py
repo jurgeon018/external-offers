@@ -10,7 +10,7 @@ from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
 from external_offers.enums import OfferStatus
 from external_offers.mappers import client_waiting_offers_count_mapper, enriched_offer_mapper, offer_mapper
-from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers_table
+from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 
 
 waiting_offers_counts_cte = (
@@ -438,11 +438,11 @@ async def delete_waiting_offers_for_call_by_parsed_ids(*, parsed_ids: List[str])
 
 
 async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
-    join =outerjoin(
+    offers_and_parsed_offers = outerjoin(
             left=offers_for_call,
-            right=parsed_offers_table,
-            onclause=offers_for_call.c.parsed_id == parsed_offers_table.c.id
-        ) 
+            right=parsed_offers,
+            onclause=offers_for_call.c.parsed_id == parsed_offers.c.id
+    ) 
 
     waiting_offers_without_parsed_cte = (
         select(
@@ -451,12 +451,12 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
             ]
         )
         .select_from(
-            join
+            offers_and_parsed_offers
         )
         .where(
             and_(
                 offers_for_call.c.status == OfferStatus.waiting.value,
-                parsed_offers_table.c.id == None
+                parsed_offers.c.id == None
             )
         )
         .cte('waiting_offers_without_parsed_cte')
