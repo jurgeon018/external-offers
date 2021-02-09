@@ -1105,6 +1105,10 @@ definitions:
       isArchived:
         description: Объявление архивировано.
         type: boolean
+      isCommercialOwnershipVerified:
+        description: Объявление от собственника коммерческой с проверенным правом
+          собственности.
+        type: boolean
       isDealRent:
         description: Объявление из сделки в аренде.
         type: boolean
@@ -2004,6 +2008,9 @@ definitions:
       isPenthouse:
         description: Пентхаус
         type: boolean
+      isRealtyDemonstrationEnabled:
+        description: Демонстрация недвижимости доступна
+        type: boolean
       isRentByParts:
         description: Сдается ли в аренду частями
         type: boolean
@@ -2479,6 +2486,17 @@ definitions:
     type: object
   RealtyApi.Models.Announcements.Swagger.PlatformSchema:
     properties:
+      externalSource:
+        enum:
+        - emls
+        - subAgents
+        - n1
+        - mlsn
+        type: string
+        x-emls: ЕМЛС
+        x-mlsn: N1
+        x-n1: N1
+        x-subAgents: Субагенты
       type:
         enum:
         - webSite
@@ -2566,6 +2584,10 @@ definitions:
       \ - посуточно.\r\nСрок действия Выделенние цветом такой же, как и у размещения\
       \ на которое вы его добавляете (платное или премиум)"
     properties:
+      actorUserId:
+        description: Id пользователя инициировавшего размещение
+        format: int64
+        type: integer
       autoprolong:
         description: Автопродление включено
         type: boolean
@@ -2845,6 +2867,11 @@ definitions:
         type: string
         x-v1: Сделка V1
         x-v2: Сделка V2
+      source:
+        description: "Откуда было произведено согласие на подключение услуги \"Сделка\"\
+          \ в виде строки.\r\nИспользутся взамен {Web.AnnouncementApi.App.Announcements.Models.DealRent.DealRentData.ApplyDealRentSource},\
+          \ чтобы при добавлении новых значений не менять каждый раз enum"
+        type: string
     type: object
   Web.AnnouncementApi.App.Announcements.Models.Geo.Details:
     description: Содержит в себе массив объектов, каждый из которых описывает часть
