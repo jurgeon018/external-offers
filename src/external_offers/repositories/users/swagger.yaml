@@ -159,7 +159,7 @@ definitions:
           $ref: '#/definitions/WebApi.Models.UserModelV2'
         type: array
     type: object
-host: beta4.users.stage.cian.ru
+host: master.users.dev3.cian.ru
 info:
   title: users
   version: v1
