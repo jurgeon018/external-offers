@@ -10,7 +10,6 @@ from external_offers.entities.parsed_offers import ParsedOffer
 from external_offers.queue.producers import external_offers_deleted_producer
 from external_offers.repositories.postgresql import (
     delete_outdated_parsed_offers,
-    delete_waiting_offers_for_call_by_parsed_ids,
     delete_waiting_offers_for_call_without_parsed_offers,
     get_latest_updated_at,
 )
