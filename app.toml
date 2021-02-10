@@ -3,7 +3,7 @@ team = "b2b"
 
 [runtime]
 name = "python"
-version = "3.8"
+version = "3.9"
 
 [[dependency]]
 type = "postgres"

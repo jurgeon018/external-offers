@@ -3,14 +3,14 @@ from typing import List, Optional
 
 import asyncpgsa
 from simple_settings import settings
-from sqlalchemy import and_, delete, func, or_, over, select, update
+from sqlalchemy import and_, delete, func, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
-from external_offers.enums import ClientStatus, OfferStatus
+from external_offers.enums import OfferStatus
 from external_offers.mappers import client_waiting_offers_count_mapper, enriched_offer_mapper, offer_mapper
-from external_offers.repositories.postgresql.tables import clients, offers_for_call
+from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 
 
 waiting_offers_counts_cte = (
@@ -427,6 +427,47 @@ async def delete_waiting_offers_for_call_by_parsed_ids(*, parsed_ids: List[str])
         ).where(
             and_(
                 offers_for_call.c.parsed_id.in_(parsed_ids),
+                offers_for_call.c.status == OfferStatus.waiting.value
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
+async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
+    offers_and_parsed_offers = outerjoin(
+            left=offers_for_call,
+            right=parsed_offers,
+            onclause=offers_for_call.c.parsed_id == parsed_offers.c.id
+    )
+
+    waiting_offers_without_parsed_cte = (
+        select(
+            [
+                offers_for_call.c.id,
+            ]
+        )
+        .select_from(
+            offers_and_parsed_offers
+        )
+        .where(
+            and_(
+                offers_for_call.c.status == OfferStatus.waiting.value,
+                parsed_offers.c.id.is_(None)
+            )
+        )
+        .cte('waiting_offers_without_parsed_cte')
+    )
+
+    sql = (
+        delete(
+            offers_for_call
+        ).where(
+            and_(
+                offers_for_call.c.id == waiting_offers_without_parsed_cte.c.id,
                 offers_for_call.c.status == OfferStatus.waiting.value
             )
         )

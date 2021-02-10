@@ -10,7 +10,7 @@ from external_offers.entities.parsed_offers import ParsedOffer
 from external_offers.queue.producers import external_offers_deleted_producer
 from external_offers.repositories.postgresql import (
     delete_outdated_parsed_offers,
-    delete_waiting_offers_for_call_by_parsed_ids,
+    delete_waiting_offers_for_call_without_parsed_offers,
     get_latest_updated_at,
 )
 
@@ -32,13 +32,6 @@ def get_updated_at_border() -> datetime:
     update_border = now - timedelta(days=settings.OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS)
     return update_border
 
-
-async def clear_outdated_offers_for_call(deleted_offers: List[ParsedOffer]) -> None:
-    parsed_ids = [offer.id for offer in deleted_offers]
-    if parsed_ids:
-        await delete_waiting_offers_for_call_by_parsed_ids(
-            parsed_ids=parsed_ids
-        )
 
 
 async def notify_about_deletion(deleted_offers: List[ParsedOffer]) -> None:
@@ -67,5 +60,5 @@ async def clear_outdated_offers() -> None:
         updated_at_border=updated_at_border
     )
 
-    await clear_outdated_offers_for_call(deleted_offers)
+    await delete_waiting_offers_for_call_without_parsed_offers()
     await notify_about_deletion(deleted_offers)

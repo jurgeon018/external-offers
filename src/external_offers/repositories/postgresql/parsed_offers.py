@@ -26,7 +26,7 @@ from external_offers.repositories.postgresql import tables
 
 
 async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
-    insert_query = insert(tables.parsed_offers_table)
+    insert_query = insert(tables.parsed_offers)
 
     now = datetime.now(tz=pytz.UTC)
     values = parsed_offer_message_mapper.map_to(parsed_offer)
@@ -37,9 +37,9 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
         insert_query.values(
             [values]
         ).on_conflict_do_update(
-            index_elements=[tables.parsed_offers_table.c.source_object_id],
+            index_elements=[tables.parsed_offers.c.source_object_id],
             where=(
-                    tables.parsed_offers_table.c.timestamp <= parsed_offer.timestamp
+                    tables.parsed_offers.c.timestamp <= parsed_offer.timestamp
             ),
             set_={
                 'user_segment': insert_query.excluded.user_segment,
@@ -60,7 +60,7 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
 async def set_synced_and_fetch_parsed_offers_chunk(
     *, last_sync_date: Optional[datetime]
 ) -> Optional[List[ParsedOfferForCreation]]:
-    po = tables.parsed_offers_table.alias()
+    po = tables.parsed_offers.alias()
     options = [
         po.c.source_object_model['phones'] != JSON.NULL,
         not_(po.c.is_calltracking),
@@ -91,18 +91,18 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     )
 
     fetch_offers_query, fetch_offers_params = asyncpgsa.compile_query(
-        update(tables.parsed_offers_table)
+        update(tables.parsed_offers)
         .where(
-            tables.parsed_offers_table.c.id == selected_non_synced_offers_cte.c.id
+            tables.parsed_offers.c.id == selected_non_synced_offers_cte.c.id
         )
         .values(synced=True)
         .returning(
-            tables.parsed_offers_table.c.id,
-            tables.parsed_offers_table.c.source_user_id,
-            tables.parsed_offers_table.c.timestamp,
-            tables.parsed_offers_table.c.user_segment,
-            tables.parsed_offers_table.c.source_object_model['phones'].label('phones'),
-            tables.parsed_offers_table.c.source_object_model['contact'].label('contact')
+            tables.parsed_offers.c.id,
+            tables.parsed_offers.c.source_user_id,
+            tables.parsed_offers.c.timestamp,
+            tables.parsed_offers.c.user_segment,
+            tables.parsed_offers.c.source_object_model['phones'].label('phones'),
+            tables.parsed_offers.c.source_object_model['contact'].label('contact')
         )
     )
     rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
@@ -111,7 +111,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
 
 
 async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optional[ParsedObjectModel]:
-    po = tables.parsed_offers_table.alias()
+    po = tables.parsed_offers.alias()
     ofc = tables.offers_for_call.alias()
 
     query, params = asyncpgsa.compile_query(
@@ -131,7 +131,7 @@ async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optiona
 
 
 async def get_lastest_event_timestamp() -> Optional[datetime]:
-    po = tables.parsed_offers_table.alias()
+    po = tables.parsed_offers.alias()
     query, params = asyncpgsa.compile_query(
         select([
             func.max(po.c.timestamp)
@@ -143,7 +143,7 @@ async def get_lastest_event_timestamp() -> Optional[datetime]:
 
 
 async def get_latest_updated_at() -> Optional[datetime]:
-    po = tables.parsed_offers_table.alias()
+    po = tables.parsed_offers.alias()
     query, params = asyncpgsa.compile_query(
         select([
             func.max(po.c.updated_at)
@@ -155,7 +155,7 @@ async def get_latest_updated_at() -> Optional[datetime]:
 
 
 async def delete_outdated_parsed_offers(*, updated_at_border: datetime) -> List[ParsedOffer]:
-    po = tables.parsed_offers_table.alias()
+    po = tables.parsed_offers.alias()
 
     sql = (
         delete(

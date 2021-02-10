@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 metadata = sa.MetaData()
 
-parsed_offers_table = sa.Table(
+parsed_offers = sa.Table(
     'parsed_offers',
     metadata,
     sa.Column('id', sa.VARCHAR, unique=True, primary_key=True),

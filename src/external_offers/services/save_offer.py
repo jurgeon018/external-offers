@@ -357,7 +357,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             )
         except TimeoutException as exc:
             statsd_incr_if_not_test_user(
-                metric='save_offer.error.geocode',
+                metric='save_offer.error.geocode.timeout',
                 user_id=user_id
             )
             logger.warning(
