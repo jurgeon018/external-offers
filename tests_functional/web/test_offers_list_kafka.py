@@ -516,3 +516,52 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_message_i
         'status': 'accepted',
         'source': 'avito'
     }
+
+
+async def test_decline_client__exist_draft_client_accepted_message(
+        pg,
+        http,
+        kafka_service,
+        runtime_settings,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await runtime_settings.set({
+        'TEST_OPERATOR_IDS': [60024659]
+    })
+    operator_user_id = 70024649
+    operator_client = '7'
+    offer_in_progress = '13'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/decline-client/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'offer_id': offer_in_progress,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    messages = await kafka_service.wait_messages(
+        topic='preposition-admin.calls',
+        timeout=2.5,
+        count=1
+    )
+
+    assert messages[0].data == {
+        'managerId': 70024649,
+        'sourceUserId': '32131327',
+        'date': ANY,
+        'timestamp': ANY,
+        'userId': None,
+        'phone': '+79812932338',
+        'status': 'accepted',
+        'source': 'avito'
+    }

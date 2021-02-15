@@ -1,9 +1,4 @@
 import logging
-from datetime import datetime
-
-import pytz
-from cian_kafka._producer.exceptions import KafkaProducerError
-from simple_settings import settings
 
 from external_offers import pg
 from external_offers.entities.admin import (
@@ -13,10 +8,8 @@ from external_offers.entities.admin import (
     AdminError,
     AdminResponse,
 )
-from external_offers.entities.clients import ClientStatus
-from external_offers.entities.kafka import CallsKafkaMessage
-from external_offers.enums import OfferStatus
-from external_offers.queue.kafka import kafka_preposition_calls_producer
+from external_offers.enums import ClientStatus, OfferStatus
+from external_offers.queue.helpers import send_kafka_calls_analytics_message_if_not_test
 from external_offers.repositories.postgresql import (
     assign_waiting_client_to_operator,
     exists_offers_draft_by_client,
@@ -42,16 +35,19 @@ logger = logging.getLogger(__name__)
 
 
 async def update_offers_list(user_id: int) -> AdminResponse:
-    """ Обновить лист объявлений в админке """
+    """ Обновить для оператора список объявлений в работе в админке """
     exists_client = await exists_waiting_client()
 
     if not exists_client:
         return AdminResponse(
             success=False,
-            errors=[AdminError(
-                message='Отсутствуют доступные задания',
-                code='waitingClientMissing'
-            )])
+            errors=[
+                AdminError(
+                    message='Отсутствуют доступные задания',
+                    code='waitingClientMissing'
+                )
+            ]
+        )
 
     exists = await exists_offers_in_progress_by_operator(
         operator_id=user_id
@@ -59,10 +55,13 @@ async def update_offers_list(user_id: int) -> AdminResponse:
     if exists:
         return AdminResponse(
             success=False,
-            errors=[AdminError(
-                message='Есть объявления в работе, завершите их',
-                code='offersInProgressExist'
-            )])
+            errors=[
+                AdminError(
+                    message='Есть объявления в работе, завершите их',
+                    code='offersInProgressExist'
+                )
+            ]
+        )
 
     async with pg.get().transaction():
         client_id = await assign_waiting_client_to_operator(
@@ -81,9 +80,18 @@ async def update_offers_list(user_id: int) -> AdminResponse:
 
 
 async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminResponse:
-    """ Удалитть объявление в списке объявлений в админке """
+    """ Удалить объявление в списке объявлений в админке """
     offer_id = request.offer_id
     client_id = request.client_id
+    client = await get_client_by_client_id(client_id=request.client_id)
+
+    if not client:
+        return AdminResponse(success=True, errors=[
+            AdminError(
+                message='Пользователь с переданным идентификатором не найден',
+                code='missingUser'
+            )
+        ])
 
     async with pg.get().transaction():
         await set_offer_cancelled_by_offer_id(
@@ -102,25 +110,16 @@ async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminR
             created_draft = await exists_offers_draft_by_client(
                 client_id=client_id
             )
+
             if created_draft:
                 await set_client_accepted_and_no_operator_if_no_offers_in_progress(
                     client_id=client_id
                 )
-                if user_id not in settings.TEST_OPERATOR_IDS:
-                    client = await get_client_by_client_id(client_id=request.client_id)
-                    now = datetime.now(pytz.utc)
-                    await kafka_preposition_calls_producer(
-                        message=CallsKafkaMessage(
-                            manager_id=user_id,
-                            source_user_id=client.avito_user_id,
-                            user_id=client.cian_user_id,
-                            phone=client.client_phones[0],
-                            status=ClientStatus.accepted.value,
-                            date=now,
-                            source=settings.AVITO_SOURCE_NAME
-                        ),
-                        timeout=settings.DEFAULT_KAFKA_TIMEOUT
-                    )
+                await send_kafka_calls_analytics_message_if_not_test(
+                    client=client,
+                    status=ClientStatus.accepted,
+                    manager_id=user_id,
+                )
             else:
                 await set_client_to_waiting_status_and_return(
                     client_id=client_id
@@ -132,9 +131,18 @@ async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminR
 async def set_decline_status_for_client(request: AdminDeclineClientRequest, user_id: int) -> AdminResponse:
     """ Поставить клиенту статус `Отклонен` в админке """
     client_id = request.client_id
+    client = await get_client_by_client_id(client_id=request.client_id)
+
+    if not client:
+        return AdminResponse(success=True, errors=[
+            AdminError(
+                message='Пользователь с переданным идентификатором не найден',
+                code='missingUser'
+            )
+        ])
 
     async with pg.get().transaction():
-        client = await set_client_to_decline_status_and_return(
+        created_draft = await exists_offers_draft_by_client(
             client_id=client_id
         )
 
@@ -147,23 +155,24 @@ async def set_decline_status_for_client(request: AdminDeclineClientRequest, user
                 status=OfferStatus.declined.value
             )
 
-        if client and user_id not in settings.TEST_OPERATOR_IDS:
-            now = datetime.now(tz=pytz.utc)
-            try:
-                await kafka_preposition_calls_producer(
-                    message=CallsKafkaMessage(
-                        manager_id=user_id,
-                        source_user_id=client.avito_user_id,
-                        user_id=client.cian_user_id,
-                        phone=client.client_phones[0],
-                        status=ClientStatus.declined.value,
-                        date=now,
-                        source=settings.AVITO_SOURCE_NAME
-                    ),
-                    timeout=settings.DEFAULT_KAFKA_TIMEOUT
-                )
-            except KafkaProducerError:
-                logger.warning('Не удалось отправить событие аналитики для клиента %s', client_id)
+        if created_draft:
+            await send_kafka_calls_analytics_message_if_not_test(
+                client=client,
+                status=ClientStatus.accepted,
+                manager_id=user_id,
+            )
+            await set_client_accepted_and_no_operator_if_no_offers_in_progress(
+                client_id=client_id
+            )
+        else:
+            await send_kafka_calls_analytics_message_if_not_test(
+                client=client,
+                status=ClientStatus.declined,
+                manager_id=user_id,
+            )
+            await set_client_to_decline_status_and_return(
+                client_id=client_id
+            )
 
     return AdminResponse(success=True, errors=[])
 
@@ -171,9 +180,19 @@ async def set_decline_status_for_client(request: AdminDeclineClientRequest, user
 async def set_call_missed_status_for_client(request: AdminCallMissedClientRequest, user_id: int) -> AdminResponse:
     """ Поставить клиенту статус `Недозвон` в админке """
     client_id = request.client_id
+    client = await get_client_by_client_id(client_id=request.client_id)
+
+    if not client:
+        return AdminResponse(success=True, errors=[
+            AdminError(
+                message='Пользователь с переданным идентификатором не найден',
+                code='missingUser'
+            )
+        ])
+
 
     async with pg.get().transaction():
-        client = await set_client_to_call_missed_status_and_return(
+        await set_client_to_call_missed_status_and_return(
             client_id=client_id
         )
 
@@ -186,23 +205,11 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
                 status=OfferStatus.call_missed.value
             )
 
-        if client and user_id not in settings.TEST_OPERATOR_IDS:
-            now = datetime.now(tz=pytz.utc)
-            try:
-                await kafka_preposition_calls_producer(
-                    message=CallsKafkaMessage(
-                        manager_id=user_id,
-                        source_user_id=client.avito_user_id,
-                        user_id=client.cian_user_id,
-                        phone=client.client_phones[0],
-                        status=ClientStatus.call_missed.value,
-                        date=now,
-                        source=settings.AVITO_SOURCE_NAME
-                    ),
-                    timeout=settings.DEFAULT_KAFKA_TIMEOUT
-                )
-            except KafkaProducerError:
-                logger.warning('Не удалось отправить событие аналитики для клиента %s', client_id)
+        await send_kafka_calls_analytics_message_if_not_test(
+            client=client,
+            status=ClientStatus.call_missed,
+            manager_id=user_id,
+        )
 
     return AdminResponse(success=True, errors=[])
 
@@ -210,9 +217,18 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
 async def set_call_later_status_for_client(request: AdminCallMissedClientRequest, user_id: int) -> AdminResponse:
     """ Поставить клиенту статус `Позвонить позже` в админке """
     client_id = request.client_id
+    client = await get_client_by_client_id(client_id=request.client_id)
+
+    if not client:
+        return AdminResponse(success=True, errors=[
+            AdminError(
+                message='Пользователь с переданным идентификатором не найден',
+                code='missingUser'
+            )
+        ])
 
     async with pg.get().transaction():
-        client = await set_client_to_call_later_status_and_return(
+        await set_client_to_call_later_status_and_return(
             client_id=client_id
         )
         if offers_ids := await set_offers_call_later_by_client(
@@ -224,22 +240,10 @@ async def set_call_later_status_for_client(request: AdminCallMissedClientRequest
                 status=OfferStatus.call_later.value
             )
 
-        if client and user_id not in settings.TEST_OPERATOR_IDS:
-            now = datetime.now(tz=pytz.utc)
-            try:
-                await kafka_preposition_calls_producer(
-                    message=CallsKafkaMessage(
-                        manager_id=user_id,
-                        source_user_id=client.avito_user_id,
-                        user_id=client.cian_user_id,
-                        phone=client.client_phones[0],
-                        status=ClientStatus.call_later.value,
-                        date=now,
-                        source=settings.AVITO_SOURCE_NAME
-                    ),
-                    timeout=settings.DEFAULT_KAFKA_TIMEOUT
-                )
-            except KafkaProducerError:
-                logger.warning('Не удалось отправить событие аналитики для клиента %s', client_id)
+        await send_kafka_calls_analytics_message_if_not_test(
+            client=client,
+            status=ClientStatus.call_later,
+            manager_id=user_id,
+        )
 
     return AdminResponse(success=True, errors=[])

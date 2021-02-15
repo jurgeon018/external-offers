@@ -599,3 +599,78 @@ async def test_call_later_client__exist_offers_in_progress_and_cancelled__only_o
     assert offers_event_log[0]['status'] == 'callLater'
     assert offers_event_log[1]['offer_id'] == '10'
     assert offers_event_log[1]['status'] == 'callLater'
+
+
+async def test_decline_client__exist_draft__client_accepted(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator_user_id = 70024649
+    operator_client = '7'
+    offer_in_progress = '13'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/decline-client/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'offer_id': offer_in_progress,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+                                   'WHERE client_id=$1',
+                                   [operator_client])
+
+    assert row_client['operator_user_id'] is None
+    assert row_client['status'] == 'accepted'
+
+
+@pytest.mark.parametrize(
+    'method_name',
+    [
+        'decline-client',
+        'call-missed-client',
+        'call-later-client',
+        'delete-offer',
+    ]
+)
+async def test_call_offer_list_method__missing_client__return_error(
+        http,
+        method_name,
+):
+    # arrange
+    operator_user_id = 70024649
+    operator_client = 'missing'
+    offer_in_progress = '13'
+
+    # act
+    response = await http.request(
+        'POST',
+        f'/api/admin/v1/{method_name}/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'offer_id': offer_in_progress,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    assert response.data['errors'] == [
+        {
+            'message': 'Пользователь с переданным идентификатором не найден',
+            'code': 'missingUser'
+        }
+    ]
