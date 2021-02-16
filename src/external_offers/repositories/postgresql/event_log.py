@@ -14,10 +14,12 @@ from external_offers.repositories.postgresql.tables import clients, event_log, o
 
 
 async def save_event_log_for_offers(
-        offers_ids: List[str],
-        operator_user_id: int,
-        status: str,
-        created_at: Optional[datetime] = None
+    *,
+    offers_ids: List[str],
+    operator_user_id: int,
+    status: str,
+    call_id: str,
+    created_at: Optional[datetime] = None
 ) -> None:
     created_at = created_at or datetime.now(tz=pytz.utc)
     values = [
@@ -25,6 +27,7 @@ async def save_event_log_for_offers(
             'offer_id': offer_id,
             'operator_user_id': operator_user_id,
             'status': status,
+            'call_id': call_id,
             'created_at': created_at
         }
         for offer_id in offers_ids
@@ -38,8 +41,8 @@ async def save_event_log_for_offers(
 
 
 async def get_enriched_event_log_entries_for_drafts_kafka_sync(
-        date_from: Optional[datetime] = None,
-        date_to: Optional[datetime] = None
+    date_from: Optional[datetime] = None,
+    date_to: Optional[datetime] = None
 ) -> List[EnrichedEventLogEntry]:
     options = [
         event_log.c.status == OfferStatus.draft.value
@@ -77,8 +80,8 @@ async def get_enriched_event_log_entries_for_drafts_kafka_sync(
 
 
 async def get_enriched_event_log_entries_for_calls_kafka_sync(
-        date_from: Optional[datetime] = None,
-        date_to: Optional[datetime] = None
+    date_from: Optional[datetime] = None,
+    date_to: Optional[datetime] = None
 ) -> List[EnrichedEventLogEntry]:
     options = [
         or_(

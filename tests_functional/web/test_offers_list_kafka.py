@@ -46,6 +46,7 @@ async def test_decline_client__client_exist_with_2_offers__expected_1_messages_t
         'timestamp': ANY,
         'userId': None,
         'phone': '+79812333238',
+        'callId': '2dddd3b8-3157-47cc-b50a-419052da6197',
         'status': 'declined',
         'source': 'avito'
     }
@@ -130,6 +131,7 @@ async def test_call_missed_client__client_exist_with_2_offers__expected_1_messag
         'timestamp': ANY,
         'userId': None,
         'phone': '+79812333238',
+        'callId': '2dddd3b8-3157-47cc-b50a-419052da6197',
         'status': 'callMissed',
         'source': 'avito'
     }
@@ -390,6 +392,7 @@ async def test_call_later_client__client_exist_with_2_offers__expected_1_message
         'timestamp': ANY,
         'userId': None,
         'phone': '+79812333238',
+        'callId': '2dddd3b8-3157-47cc-b50a-419052da6197',
         'status': 'callLater',
         'source': 'avito'
     } for message in messages])
@@ -513,6 +516,7 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_message_i
         'timestamp': ANY,
         'userId': None,
         'phone': '+79812932338',
+        'callId': None,
         'status': 'accepted',
         'source': 'avito'
     }
@@ -562,6 +566,7 @@ async def test_decline_client__exist_draft_client_accepted_message(
         'timestamp': ANY,
         'userId': None,
         'phone': '+79812932338',
+        'callId': None,
         'status': 'accepted',
         'source': 'avito'
     }

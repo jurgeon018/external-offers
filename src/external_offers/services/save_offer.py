@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Tuple
-from uuid import uuid4
 
 import pytz
 from cian_core.statsd import statsd
@@ -15,6 +14,7 @@ from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRe
 from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory, SaveOfferTerm
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
+from external_offers.helpers.uuid import generate_uppercase_guid
 from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
@@ -69,6 +69,7 @@ from external_offers.repositories.monolith_cian_service.entities.service_package
 from external_offers.repositories.postgresql import (
     get_cian_user_id_by_client_id,
     get_client_by_client_id,
+    get_offer_by_offer_id,
     get_offer_cian_id_by_offer_id,
     get_offer_promocode_by_offer_id,
     get_segment_by_client_id,
@@ -218,7 +219,7 @@ def create_publication_model(
             ),
             name='Наименование',
             description=request.description,
-            object_guid=str(uuid4()).upper(),
+            object_guid=generate_uppercase_guid(),
             flat_type=rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms),
             is_by_home_owner=segment_to_is_by_homeowner.get(user_segment, False),
             is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
@@ -271,6 +272,16 @@ def statsd_incr_if_not_test_user(metric: str, user_id: int):
 async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveOfferResponse:
     """ Сохранить объявление как черновик в ЦИАН. """
     async with pg.get().transaction():
+        offer = await get_offer_by_offer_id(
+            offer_id=request.offer_id
+        )
+
+        if not offer:
+            return SaveOfferResponse(
+                status=SaveOfferStatus.missing_offer,
+                message='Отсутствует объявление с переданным идентификатором'
+            )
+
         status = await try_to_lock_offer_and_return_status(
                 offer_id=request.offer_id
         )
@@ -480,6 +491,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         await set_offer_draft_by_offer_id(offer_id=request.offer_id)
         await save_event_log_for_offers(
             offers_ids=[request.offer_id],
+            call_id=offer.last_call_id,
             operator_user_id=user_id,
             status=OfferStatus.draft.value
         )
@@ -499,6 +511,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     source_user_id=client.avito_user_id,
                     user_id=cian_user_id,
                     phone=phone_number,
+                    call_id=offer.last_call_id,
                     date=now,
                     draft=offer_cian_id
                 ))
@@ -511,6 +524,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                             user_id=client.cian_user_id,
                             phone=client.client_phones[0],
                             status=ClientStatus.accepted.value,
+                            call_id=offer.last_call_id,
                             date=now,
                             source=settings.AVITO_SOURCE_NAME
                         ),

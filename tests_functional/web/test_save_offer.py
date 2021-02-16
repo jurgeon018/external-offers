@@ -1401,3 +1401,27 @@ async def test_save_offer__save_already_saved_offer__returns_already_processed(
 
     # assert
     assert json.loads(response.body)['status'] == 'alreadyProcessed'
+
+
+async def test_save_offer__save_missing_offer__returns_error(
+        http,
+        pg,
+        save_offer_request_body,
+):
+    # arrange
+    user_id = 123123
+
+    save_offer_request_body['offerId'] = 'missing'
+
+    # act
+    response = await http.request(
+            'POST',
+            '/api/admin/v1/save-offer/',
+            json=save_offer_request_body,
+            headers={
+                'X-Real-UserId': user_id
+            }
+        )
+
+    # assert
+    assert json.loads(response.body)['status'] == 'missingOffer'

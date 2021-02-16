@@ -11,7 +11,6 @@ from external_offers.queue.consumers import save_parsed_offers_callback, send_ch
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
-from external_offers.services.sync_event_log import sync_event_log
 from external_offers.web.urls import urlpatterns
 
 
@@ -45,14 +44,6 @@ def clear_outdated_offers_cron():
 def send_latest_parsed_offers_timestamp_diff_to_graphite():
     """ Отправить в grafana разницу между now() и timestamp последнего пришедшего спаршенного объявления """
     IOLoop.current().run_sync(send_parsed_offers_timestamp_diff_to_graphite)
-
-
-@cli.command()
-@click.option('--date-from', type=str, default=None)
-@click.option('--date-to', type=str, default=None)
-def sync_event_log_with_kafka_analytics(date_from: Optional[str], date_to: Optional[str]):
-    """ Дослать события аналитики за период на основе таблицы event_log  """
-    IOLoop.current().run_sync(partial(sync_event_log, date_from, date_to))
 
 
 # [ML] сохранение объявлений с внешних площадок

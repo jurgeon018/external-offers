@@ -17,6 +17,8 @@ class EventLogEntry:
     """Статус объявления"""
     created_at: datetime
     """Дата создания объявления"""
+    call_id: Optional[str] = None
+    """Идентификатор звонка события"""
 
 
 @dataclass
@@ -41,3 +43,5 @@ class EnrichedEventLogEntry:
     """Текущий статус клиента"""
     created_at: datetime
     """Дата создания объявления"""
+    call_id: Optional[str] = None
+    """Идентификатор звонка события"""

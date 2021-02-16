@@ -29,7 +29,8 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
             status,
             created_at,
             started_at,
-            synced_at
+            synced_at,
+            last_call_id
         ) VALUES (
             '1',
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
@@ -37,7 +38,8 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
             'inProgress',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
-            '2020-10-12 04:05:06'
+            '2020-10-12 04:05:06',
+            'ddd86dec-20f5-4a70-bb3a-077b2754df77'
             )
         """
     )
@@ -145,6 +147,7 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
         'timestamp': ANY,
         'userId': 7777777,
         'phone': '+79134488338',
+        'callId': 'ddd86dec-20f5-4a70-bb3a-077b2754df77',
         'draft': 1243433
     }
 
@@ -281,7 +284,7 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
     # assert
     messages = await kafka_service.wait_messages(
         topic='preposition-admin.calls',
-        timeout=1.5,
+        timeout=2.5,
         count=1
     )
 
@@ -292,6 +295,7 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
         'timestamp': ANY,
         'userId': 7777777,
         'phone': '+79812333292',
+        'callId': None,
         'status': 'accepted',
         'source': 'avito'
     }

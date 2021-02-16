@@ -18,3 +18,5 @@ class SaveOfferStatus(StrEnum):
     """Объявление уже в обработке"""
     already_processed = 'already_processed'
     """Объявление уже обработано"""
+    missing_offer = 'missing_offer'
+    """Отсутствует объявление с переданным идентификатором"""
