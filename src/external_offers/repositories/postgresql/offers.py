@@ -203,7 +203,6 @@ async def set_waiting_offers_in_progress_by_client(
     return [r['id'] for r in result]
 
 
-
 async def set_offers_declined_by_client(*, client_id: str) -> List[str]:
     return await set_offers_status_by_client(
         client_id=client_id,
