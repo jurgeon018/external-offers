@@ -225,38 +225,6 @@ async def test_update_offers_list__second_operator_without_client_update__update
     assert offers_event_log_second_operator[0]['status'] == 'inProgress'
 
 
-async def test_decline_client__no_operator_and_in_progress__still_no_operator_and_declined(
-        pg,
-        http,
-        offers_and_clients_fixture
-):
-    # arrange
-    await pg.execute_scripts(offers_and_clients_fixture)
-    operator = 60024636
-    client_id = '2'
-
-    # act
-    await http.request(
-        'POST',
-        '/api/admin/v1/decline-client/',
-        headers={
-            'X-Real-UserId': operator
-        },
-        json={
-            'client_id': client_id
-        },
-        expected_status=200
-    )
-
-    # assert
-    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
-                                   'WHERE client_id=$1',
-                                   [client_id])
-
-    assert row_client['operator_user_id'] is None
-    assert row_client['status'] == 'declined'
-
-
 async def test_decline_client__client_with_cancelled_and_in_progress__only_in_progress_set_declined(
         pg,
         http,
@@ -672,5 +640,39 @@ async def test_call_offer_list_method__missing_client__return_error(
         {
             'message': 'Пользователь с переданным идентификатором не найден',
             'code': 'missingUser'
+        }
+    ]
+
+
+async def test_call_delete_offer_method__missing_offer__return_error(
+        http,
+        offers_and_clients_fixture,
+        pg
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator_user_id = 70024649
+    operator_client = '7'
+    offer_in_progress = 'missing'
+
+    # act
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/delete-offer/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'offer_id': offer_in_progress,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    assert response.data['errors'] == [
+        {
+            'message': 'Объявление с переданным идентификатором не найдено',
+            'code': 'missingOffer'
         }
     ]

@@ -32,10 +32,6 @@ type = "cron"
 command = "create-offers-for-call"
 cron = "0 2 * * *"
 
-[job.sync-event-log-with-kafka-analytics]
-type = "manage"
-command = "sync-event-log-with-kafka-analytics"
-
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "cron"
 command = "send-latest-parsed-offers-timestamp-diff-to-graphite"

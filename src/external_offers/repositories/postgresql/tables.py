@@ -46,6 +46,7 @@ offers_for_call = sa.Table(
     sa.Column('started_at', sa.TIMESTAMP),
     sa.Column('promocode', sa.VARCHAR),
     sa.Column('priority', sa.SMALLINT),
+    sa.Column('last_call_id', sa.VARCHAR)
 )
 
 event_log = sa.Table(
@@ -56,4 +57,5 @@ event_log = sa.Table(
     sa.Column('operator_user_id', sa.BIGINT),
     sa.Column('status', sa.VARCHAR, nullable=False),
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('call_id', sa.VARCHAR,)
 )

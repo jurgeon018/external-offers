@@ -176,20 +176,30 @@ async def exists_offers_draft_by_client(*, client_id: str) -> bool:
     return bool(exists)
 
 
-async def set_waiting_offers_in_progress_by_client(*, client_id: str) -> List[str]:
-    query = """
-        UPDATE
+async def set_waiting_offers_in_progress_by_client(
+    *,
+    client_id: str,
+    call_id: str,
+) -> List[str]:
+    sql = (
+        update(
             offers_for_call
-        SET
-            status='inProgress'
-        WHERE
-            status = 'waiting'
-            AND client_id = $1
-        RETURNING id;
-    """
+        ).values(
+            status=OfferStatus.in_progress.value,
+            last_call_id=call_id
+        ).where(
+            and_(
+                offers_for_call.c.client_id == client_id,
+                offers_for_call.c.status == OfferStatus.waiting.value,
+            )
+        ).returning(
+            offers_for_call.c.id
+        )
+    )
 
-    result = await pg.get().fetch(query, client_id)
+    query, params = asyncpgsa.compile_query(sql)
 
+    result = await pg.get().fetch(query, *params)
     return [r['id'] for r in result]
 
 
@@ -279,6 +289,20 @@ async def get_offer_by_parsed_id(*, parsed_id: str) -> Optional[Offer]:
             [offers_for_call]
         ).where(
             offers_for_call.c.parsed_id == parsed_id,
+        ).limit(1)
+    )
+
+    row = await pg.get().fetchrow(query, *params)
+
+    return offer_mapper.map_from(row) if row else None
+
+
+async def get_offer_by_offer_id(*, offer_id: str) -> Optional[Offer]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call]
+        ).where(
+            offers_for_call.c.id == offer_id,
         ).limit(1)
     )
 

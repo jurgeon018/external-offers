@@ -25,6 +25,8 @@ class Offer:
     """Идентификатор объявления на Циане"""
     promocode: Optional[str] = None
     """Промокод для бесплатной публикации"""
+    last_call_id: Optional[str] = None
+    """Последний идентификатор звонка"""
     started_at: Optional[datetime] = None
     """Дата попадания объявления в работу"""
 

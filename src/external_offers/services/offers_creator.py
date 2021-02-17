@@ -1,5 +1,4 @@
 import logging
-import uuid
 from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List
@@ -13,6 +12,7 @@ from tornado import gen
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus
 from external_offers.enums import UserSegment
+from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql import (
     delete_waiting_clients_by_client_ids,
     delete_waiting_clients_with_count_off_limit,
@@ -164,7 +164,7 @@ async def sync_offers_for_call_with_parsed():
                 client_contact = parsed_offer.contact
                 segment = parsed_offer.user_segment
 
-                client_id = str(uuid.uuid4())
+                client_id = generate_guid()
                 client = Client(
                     client_id=client_id,
                     avito_user_id=parsed_offer.source_user_id,
@@ -177,7 +177,7 @@ async def sync_offers_for_call_with_parsed():
                     client=client
                 )
 
-            offer_id = str(uuid.uuid4())
+            offer_id = generate_guid()
             now = datetime.now(tz=pytz.utc)
             offer = Offer(
                 id=offer_id,

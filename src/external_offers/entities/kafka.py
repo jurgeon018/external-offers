@@ -15,6 +15,8 @@ class CallsKafkaMessage:
     """Номер телефона клиента"""
     status: str
     """Статус звонка"""
+    call_id: str
+    """Идентификатор звонка"""
     date: datetime
     """Дата события"""
     source: str
@@ -31,6 +33,8 @@ class DraftAnnouncementsKafkaMessage:
     """Идентификатор клиента на Циане"""
     phone: str
     """Номер телефона клиента"""
+    call_id: str
+    """Идентификатор звонка"""
     date: datetime
     """Дата события"""
     draft: int
