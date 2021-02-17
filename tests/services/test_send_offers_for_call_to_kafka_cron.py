@@ -12,7 +12,6 @@ async def test_send_offers_for_call__kafka_error__expect_warning(mocker):
     offers_for_call_change_producer_mock = mocker.patch('external_offers.services.send_offers_for'
                                                         '_call_to_kafka.offers_for_call_change_producer')
 
-
     logger_mock = mocker.patch('external_offers.services.send_offers_for'
                                '_call_to_kafka.logger')
 
@@ -49,11 +48,10 @@ async def test_send_offers_for_call__producer_success_and_failed__expect_statsd_
                                                        '.get_offers_by_limit_and_offset')
 
     offers_for_call_change_producer_mock = mocker.patch('external_offers.services.send_offers_for'
-                               '_call_to_kafka.offers_for_call_change_producer')
+                                                        '_call_to_kafka.offers_for_call_change_producer')
 
     statsd_incr_mock = mocker.patch('external_offers.services.send_offers_for'
-                               '_call_to_kafka.statsd.incr')
-
+                                    '_call_to_kafka.statsd.incr')
 
     error_sentinel = mocker.sentinel
     get_offers_by_limit_and_offset_mock.side_effect = [

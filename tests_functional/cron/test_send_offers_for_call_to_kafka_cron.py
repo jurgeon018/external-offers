@@ -1,4 +1,4 @@
-async def test_send_parsed_offers_called__parsed_offers_exist__correct_messages_count_in_topic(
+async def test_send_offers_for_call_called__offers_for_call_exist__correct_messages_count_in_topic(
     pg,
     kafka_service,
     runtime_settings,

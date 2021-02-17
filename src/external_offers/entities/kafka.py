@@ -56,7 +56,7 @@ class OfferForCallKafkaMessage:
 @dataclass
 class ParsedOfferKafkaMessage:
     offer: ParsedOffer
-    """Стороннее объявления преобразованное в задание (строка в offers_for_call)"""
+    """Стороннее объявление (строка в parsed_offers)"""
     operation_id: str
     """Operation id"""
     date: datetime
