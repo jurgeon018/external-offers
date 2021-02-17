@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+from external_offers.entities import Offer, ParsedOffer
+
 
 @dataclass
 class CallsKafkaMessage:
@@ -39,3 +41,23 @@ class DraftAnnouncementsKafkaMessage:
     """Дата события"""
     draft: int
     """Идентификатор созданного черновика"""
+
+
+@dataclass
+class OfferForCallKafkaMessage:
+    offer: Offer
+    """Стороннее объявления преобразованное в задание (строка в offers_for_call)"""
+    operation_id: str
+    """Operation id"""
+    date: datetime
+    """Время отправки"""
+
+
+@dataclass
+class ParsedOfferKafkaMessage:
+    offer: ParsedOffer
+    """Стороннее объявления преобразованное в задание (строка в offers_for_call)"""
+    operation_id: str
+    """Operation id"""
+    date: datetime
+    """Время отправки"""

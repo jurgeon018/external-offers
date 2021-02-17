@@ -38,7 +38,11 @@ class ParsedOffer:
     timestamp: datetime
     """Дата отправки"""
     synced: bool
-    """Синхрозировано ли объявление с таблицей заданий"""
+    """Синхронизировано ли объявление с таблицей заданий"""
+    created_at: datetime
+    """Дата создания записи в базе"""
+    updated_at: datetime
+    """Дата обновления записи в базе"""
     source_user_id: Optional[str] = None
     """ID пользователя на внешней площадке"""
     user_segment: Optional[UserSegment] = None

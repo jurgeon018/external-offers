@@ -171,3 +171,27 @@ async def delete_outdated_parsed_offers(*, updated_at_border: datetime) -> List[
 
     rows = await pg.get().fetch(query, *params)
     return [parsed_offer_mapper.map_from(row) for row in rows]
+
+
+async def get_parsed_offers_by_limit_and_offset(
+    *,
+    limit: int,
+    offset: int,
+) -> List[ParsedOffer]:
+    po = tables.parsed_offers.alias()
+
+    query, params = asyncpgsa.compile_query(
+        select(
+            [po]
+        ).order_by(
+            po.c.created_at.asc(),
+            po.c.id.asc()
+        ).limit(
+            limit
+        ).offset(
+            offset
+        )
+    )
+
+    result = await pg.get().fetch(query, *params)
+    return [parsed_offer_mapper.map_from(row) for row in result] if result else []

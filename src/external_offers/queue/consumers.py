@@ -11,14 +11,14 @@ from external_offers.services.parsed_offers import save_parsed_offer, send_parse
 logger = logging.getLogger(__name__)
 
 
-async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOffer]]):
+async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOfferMessage]]):
     for msg in messages:
         offer_event = msg.data
         logger.info('Save parsed offer: %s', offer_event.id)
         await save_parsed_offer(offer=offer_event)
 
 
-async def send_change_event(messages: List[EntityKafkaConsumerMessage[entities.ParsedOffer]]):
+async def send_change_event(messages: List[EntityKafkaConsumerMessage[entities.ParsedOfferMessage]]):
     for msg in messages:
         with new_operation_id():
             offer_event = msg.data

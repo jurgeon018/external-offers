@@ -41,3 +41,13 @@ cron = "*/15 * * * *"
 type = "cron"
 command = "clear-outdated-offers-cron"
 cron = "0 0 * * *"
+
+[job.send-parsed-offers-to-kafka-cron]
+type = "cron"
+command = "send-parsed-offers-to-kafka-cron"
+cron = "0 7 * * *"
+
+[job.send-offers-for-call-to-kafka-cron]
+type = "cron"
+command = "send-offers-for-call-to-kafka-cron"
+cron = "0 7 * * *"
