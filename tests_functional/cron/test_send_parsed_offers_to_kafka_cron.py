@@ -17,6 +17,6 @@ async def test_send_parsed_offers_called__parsed_offers_exist__correct_messages_
 
     await kafka_service.wait_messages(
         topic='parsed-offer.change',
-        timeout=1.5,
+        timeout=2.5,
         count=expected_count
     )

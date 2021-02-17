@@ -17,6 +17,6 @@ async def test_send_offers_for_call_called__offers_for_call_exist__correct_messa
 
     await kafka_service.wait_messages(
         topic='offers-for-call.change',
-        timeout=1.5,
+        timeout=2.5,
         count=expected_count
     )
