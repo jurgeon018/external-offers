@@ -4,7 +4,7 @@ from typing import Dict, Optional
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
-from external_offers.entities.parsed_offers import ParsedOffer
+from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferMessage
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.queue.entities import SourceModel
 from external_offers.queue.producers import external_offers_change_producer
@@ -194,12 +194,12 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
     )
 
 
-async def save_parsed_offer(*, offer: ParsedOffer) -> None:
+async def save_parsed_offer(*, offer: ParsedOfferMessage) -> None:
     """ Сохранить объявление с внешней площадки. """
     await postgresql.save_parsed_offer(parsed_offer=offer)
 
 
-async def send_parsed_offer_change_event(*, offer: ParsedOffer) -> None:
+async def send_parsed_offer_change_event(*, offer: ParsedOfferMessage) -> None:
     """ Преобразовать ParsedOffer в ObjectModel и оповестить """
     object_model = await create_object_model_from_parsed_offer(
         offer=offer

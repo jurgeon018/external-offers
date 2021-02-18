@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -26,7 +25,7 @@ class AnnouncementMessage:
     operation_id: str
     """Operation id"""
     date: datetime
-    """Время изменения"""
+    """Время отправки"""
 
 
 @dataclass
@@ -36,4 +35,4 @@ class AnnouncementDeletedMessage:
     operation_id: str
     """Operation id"""
     date: datetime
-    """Время изменения"""
+    """Время отправки"""

@@ -1,6 +1,3 @@
-from functools import partial
-from typing import Optional
-
 import click
 from cian_core.kafka import register_kafka_consumer
 from cian_core.web import Application
@@ -11,6 +8,8 @@ from external_offers.queue.consumers import save_parsed_offers_callback, send_ch
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
+from external_offers.services.send_offers_for_call_to_kafka import send_offers_for_call_to_kafka
+from external_offers.services.send_parsed_offers_to_kafka import send_parsed_offers_to_kafka
 from external_offers.web.urls import urlpatterns
 
 
@@ -44,6 +43,18 @@ def clear_outdated_offers_cron():
 def send_latest_parsed_offers_timestamp_diff_to_graphite():
     """ Отправить в grafana разницу между now() и timestamp последнего пришедшего спаршенного объявления """
     IOLoop.current().run_sync(send_parsed_offers_timestamp_diff_to_graphite)
+
+
+@cli.command()
+def send_parsed_offers_to_kafka_cron():
+    """ Отправить записи из таблицы parsed_offers в кафку """
+    IOLoop.current().run_sync(send_parsed_offers_to_kafka)
+
+
+@cli.command()
+def send_offers_for_call_to_kafka_cron():
+    """ Отправить записи из таблицы offers_for_call в кафку """
+    IOLoop.current().run_sync(send_offers_for_call_to_kafka)
 
 
 # [ML] сохранение объявлений с внешних площадок

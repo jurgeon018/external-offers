@@ -17,6 +17,8 @@ parsed_offer_mapper = EntityMapper(
     without_camelcase=True,
     mappers={
         'timestamp': ValueMapper(),
+        'created_at': ValueMapper(),
+        'updated_at': ValueMapper(),
     }
 )
 
