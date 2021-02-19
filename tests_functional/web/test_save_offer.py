@@ -395,6 +395,190 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
     assert json.loads(response.body)['status'] == 'geocodeFailed'
 
 
+async def test_save_offer__create_new_account_passed__cian_user_id_overwritten(
+        pg,
+        http,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+        save_offer_request_body,
+):
+    # arrange
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '1',
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+    user_id = 123123
+    new_cian_user_id = 7777777
+
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            cian_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', user_id, 7, 'inProgress']
+    )
+
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': new_cian_user_id,
+                    'is_agent': True,
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            status=400
+        ),
+    )
+    save_offer_request_body['createNewAccount'] = True
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body,
+        headers={
+            'X-Real-UserId': user_id
+        }
+    )
+
+    cian_user_id = await pg.fetchval(
+        """
+        SELECT cian_user_id FROM clients WHERE client_id=$1
+        """,
+        ['7']
+    )
+
+    # assert
+    assert cian_user_id == new_cian_user_id
+
+
+async def test_save_offer__account_for_draft_passed__cian_user_id_overwritten(
+        pg,
+        http,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+        save_offer_request_body,
+):
+    # arrange
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '1',
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+    user_id = 123123
+    new_cian_user_id = 7777777
+
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            cian_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', user_id, 7, 'inProgress']
+    )
+
+    register_stub = await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            status=400
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            status=400
+        ),
+    )
+    save_offer_request_body['accountForDraft'] = new_cian_user_id
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body,
+        headers={
+            'X-Real-UserId': user_id
+        }
+    )
+
+    cian_user_id = await pg.fetchval(
+        """
+        SELECT cian_user_id FROM clients WHERE client_id=$1
+        """,
+        ['7']
+    )
+
+    # assert
+    assert not await register_stub.get_requests()
+    assert cian_user_id == new_cian_user_id
+
+
+
 async def test_save_offer__geocode_timeout__logged_timeout(
         pg,
         http,
@@ -1280,81 +1464,6 @@ async def test_save_offer__offer_with_free_region__promo_apis_not_called(
     # assert
     assert len(await service_stub.get_requests()) == 0
     assert len(await profileapi_stub.get_requests()) == 0
-
-
-async def test_save_offer__has_many_accounts_returned__logged_warning(
-        pg,
-        http,
-        logs,
-        users_mock,
-        monolith_cian_announcementapi_mock,
-        save_offer_request_body,
-):
-    client_id = '1'
-    await pg.execute(
-        """
-        INSERT INTO public.offers_for_call(
-            id,
-            parsed_id,
-            client_id,
-            status,
-            created_at,
-            started_at,
-            synced_at
-        ) VALUES (
-            '1',
-            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
-            $1,
-            'inProgress',
-            '2020-10-12 04:05:06',
-            '2020-10-12 04:05:06',
-            '2020-10-12 04:05:06'
-            )
-        """, [
-            client_id
-        ]
-    )
-
-    user_id = 123123
-    client_realty_id = 77
-
-    save_offer_request_body['clientId'] = client_id
-    await users_mock.add_stub(
-        method='POST',
-        path='/v1/register-user-by-phone/',
-        response=MockResponse(
-            body={
-                'hasManyAccounts': True,
-                'isRegistered': True,
-                'userData': {
-                    'email': 'testemail@cian.ru',
-                    'id': client_realty_id,
-                    'is_agent': True
-                }
-            }
-        ),
-    )
-    await monolith_cian_announcementapi_mock.add_stub(
-        method='GET',
-        path='/v1/geo/geocode/',
-        response=MockResponse(
-            status=400
-        ),
-    )
-
-    # act
-    await http.request(
-        'POST',
-        '/api/admin/v1/save-offer/',
-        json=save_offer_request_body,
-        headers={
-            'X-Real-UserId': user_id
-        }
-    )
-
-    # assert
-    assert any([f'Не удалось однозначно определить аккаунт для пользователя 1, выбран {client_realty_id}' in line
-                for line in logs.get_lines()])
 
 
 async def test_save_offer__save_already_saved_offer__returns_already_processed(

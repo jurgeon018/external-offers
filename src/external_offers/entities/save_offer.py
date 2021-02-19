@@ -44,6 +44,13 @@ class SaveOfferRequest:
     """Предполата за сколько месяцев (до 12)"""
     term_type: Optional[SaveOfferTerm] = None
     """Срок аренды"""
+    create_new_account: Optional[bool] = None
+    """Создать новый аккаунт"""
+    publish_as_homeowner: Optional[bool] = None
+    """Опубликовать как собственник"""
+    account_for_draft: Optional[int] = None
+    """Аккаунт для публикации черновика"""
+
 
 
 @dataclass

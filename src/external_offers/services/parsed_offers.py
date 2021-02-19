@@ -41,6 +41,7 @@ SOURCE_ADDRESS = 'address'
 SOURCE_LAT = 'lat'
 SOURCE_LNG = 'lng'
 SOURCE_URL = 'url'
+SOURCE_IS_AGENCY = 'isAgency'
 
 DEFAULT_GEOCODE_KIND = 'house'
 
@@ -92,6 +93,11 @@ def get_lng_from_source_object_model(source_object_model: dict) -> Optional[floa
 
 def get_address_from_source_object_model(source_object_model: dict) -> Optional[str]:
     return source_object_model.get(SOURCE_ADDRESS)
+
+
+def get_is_by_homeowner_from_source_object_model(source_object_model: dict) -> Optional[bool]:
+    is_agency = bool(source_object_model.get(SOURCE_IS_AGENCY))
+    return not is_agency
 
 
 async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[SwaggerGeo]:
@@ -190,6 +196,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
             geo=geo,
             description=get_description_from_source_object_model(source_object_model),
             is_enabled_call_tracking=offer.is_calltracking,
+            is_by_home_owner=get_is_by_homeowner_from_source_object_model(source_object_model),
             row_version=0
     )
 

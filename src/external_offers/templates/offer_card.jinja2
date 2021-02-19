@@ -212,6 +212,37 @@
                               placeholder="Описание объявления"
                               id="getDescription"></textarea>
             </div>
+            {% if not exist_drafts %}
+                <div class='table-block-header'>
+                    <span class="text-header">Личный кабинет</span>
+                </div>
+
+
+                <div class="createNewAccountTitle">
+                    <span class="">Создать новый</span>
+                </div>
+                <div class="createNewAccountInput">
+                    <input type="checkbox" id="getCreateNewAccount" name="createNewAccount">
+                </div>
+                <div class="createNewAccountTitle">
+                    <span class="">Опубликовать как собственник</span>
+                </div>
+                <div class="publishAsHomeownerInput">
+                    <input type="checkbox" id="getPublishAsHomeowner" name="publishAsHomeowner" {% if client.segment.is_d %} checked {% endif %}>
+                </div>
+                <div class="accountForDraftTitle">
+                    <span class="">Использовать существующий</span>
+                </div>
+                <div class="accountForDraftSelect">
+                    <select class="select-control" id="getAccountForDraft">
+                        <option value="" selected disabled>Не выбрано</option>
+                        {% for client_account in client_accounts %}
+                            <option value={{ client_account.cian_user_id }}>{{ client_account.email }} {% if client_account.is_agent %}Агент{% else %}Собственник{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
         </div>
     </form>
     </div>
@@ -228,6 +259,8 @@
 
 <script>
     jQuery(($) => {
+        let DEBUG = 'True' === '{{ debug }}'
+
         const saveOfferBtn = $('#saveOfferBtn');
         const getDealType = $('#getDealType');
         const getOfferType = $('#getOfferType');
@@ -245,6 +278,9 @@
         const getDescription = $('#getDescription');
         const getDeposit = $('#getDeposit');
         const getPrepayMonths = $('#getPrepayMonths');
+        const getCreateNewAccount = $('#getCreateNewAccount');
+        const getPublishAsHomeowner = $('#getPublishAsHomeowner');
+        const getAccountForDraft = $('#getAccountForDraft');
 
 
         $('.ajax-form').on('submit', (event) => {
@@ -257,14 +293,26 @@
         };
 
         function getNumberOrStrNull(obj) {
-            return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
+            return isNaN(parseInt(obj)) ? (DEBUG ? "null" : "") : parseInt(obj)
         }
 
         function getValueOrStrNull(obj) {
-            return obj === '' ? "null" : obj
+            return obj === '' ? (DEBUG ? "null" : "") : obj
         }
 
-        let DEBUG = 'True' === '{{ debug }}'
+        function onClickCreateNewAccountCheckbox() {
+            var title_element = document.getElementsByClassName('accountForDraftTitle')[0]
+            var input_element = document.getElementsByClassName('accountForDraftSelect')[0]
+
+            if (getCreateNewAccount.is(':checked') === true) {
+                title_element.style.display = 'none'
+                input_element.style.display = 'none'
+            } else {
+                title_element.style.display = 'inline'
+                input_element.style.display = 'inline'
+            }
+        }
+
         const saveOffer = () => {
             if (getPrice.val() === "") {
                 alert('Цена обязательный параметр!');
@@ -282,38 +330,42 @@
                 alert('Описание объявления обязательный параметр!');
                 return
             }
-
-        let obj = {
-            dealType: getDealType.val(),
-            offerType: getOfferType.val(),
-            category: getCategoryType.val(),
-            address: getAddress.val(),
-            totalArea: parseInt(getTotalArea.val()),
-            price: parseInt(getPrice.val()),
-            phoneNumber: getPhoneNumber.val(),
-            description: getDescription.val(),
-            floorNumber: getNumberOrStrNull(getFloorNumber.val()),
-            floorsCount: getNumberOrStrNull(getFloorCount.val()),
-            roomsCount: getValueOrStrNull(getRoomsCount.val()),
-            realtyType: getValueOrStrNull(getRealtyType.val()),
-            saleType: getValueOrStrNull(getSaleType.val()),
-            termType: getValueOrStrNull(getTermType.val()),
-            offerId: '{{ offer_id }}',
-            clientId: '{{ client.client_id }}',
-        }
-        {% if parsed_object_model.is_rent %}
-            let obj_rent = {
-                deposit: getNumberOrStrNull(getDeposit.val()),
+            var createNewAccount = getCreateNewAccount.is(':checked')
+            var publishAsHomeowner = getPublishAsHomeowner.is(':checked')
+            let obj = {
+                dealType: getDealType.val(),
+                offerType: getOfferType.val(),
+                category: getCategoryType.val(),
+                address: getAddress.val(),
+                totalArea: parseInt(getTotalArea.val()),
+                price: parseInt(getPrice.val()),
+                phoneNumber: getPhoneNumber.val(),
+                description: getDescription.val(),
+                floorNumber: getNumberOrStrNull(getFloorNumber.val()),
+                floorsCount: getNumberOrStrNull(getFloorCount.val()),
+                roomsCount: getValueOrStrNull(getRoomsCount.val()),
+                realtyType: getValueOrStrNull(getRealtyType.val()),
+                saleType: getValueOrStrNull(getSaleType.val()),
+                termType: getValueOrStrNull(getTermType.val()),
+                createNewAccount: createNewAccount,
+                publishAsHomeowner: publishAsHomeowner,
+                accountForDraft:  getNumberOrStrNull(createNewAccount ? "" : getAccountForDraft.val()),
+                offerId: '{{ offer_id }}',
+                clientId: '{{ client.client_id }}',
             }
-            obj = {...obj, ...obj_rent};
-        {% endif %}
-
-        {% if parsed_object_model.is_long_term_rent %}
-            let obj_long_term_rent = {
-                prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
-            }
-            obj = {...obj, ...obj_long_term_rent};
-        {% endif %}
+            {% if parsed_object_model.is_rent %}
+                let obj_rent = {
+                    deposit: getNumberOrStrNull(getDeposit.val()),
+                }
+                obj = {...obj, ...obj_rent};
+            {% endif %}
+    
+            {% if parsed_object_model.is_long_term_rent %}
+                let obj_long_term_rent = {
+                    prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
+                }
+                obj = {...obj, ...obj_long_term_rent};
+            {% endif %}
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
@@ -332,6 +384,10 @@
         saveOfferBtn.click(() => {
             saveOffer()
         });
+
+        getCreateNewAccount.click(() => {
+            onClickCreateNewAccountCheckbox()
+        })
 
     });
 

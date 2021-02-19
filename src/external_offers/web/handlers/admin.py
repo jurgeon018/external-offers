@@ -1,14 +1,13 @@
 from simple_settings import settings
 
 from external_offers.repositories.postgresql import (
+    exists_offers_draft_by_client,
     exists_offers_in_progress_by_operator_and_offer_id,
-    exists_waiting_client,
     get_client_by_operator,
-    get_client_id_by_offer_id,
     get_enriched_offers_in_progress_by_operator,
-    get_offers_in_progress_by_operator,
     get_parsed_offer_object_model_by_offer_id,
 )
+from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
 from external_offers.templates import get_offer_card_html, get_offers_list_html
 from external_offers.web.handlers.base import PublicHandler
 
@@ -56,11 +55,20 @@ class AdminOffersCardPageHandler(PublicHandler):
             self.write('Объявление из внешнего источника не найдено'.encode('utf-8'))
             return
 
+        client_accounts = await get_client_accounts_by_phone_number_degradation_handler(
+            phone=client.client_phones[0]
+        )
+
+        exist_drafts = await exists_offers_draft_by_client(
+            client_id=client.client_id
+        )
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
             offer_id=offer_id,
             client=client,
+            client_accounts=client_accounts,
+            exist_drafts=exist_drafts
         )
 
         self.write(offer_html)
