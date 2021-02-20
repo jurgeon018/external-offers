@@ -22,7 +22,8 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
 
     client_accounts_mock = mocker.patch('external_offers.web.handlers.admin.get_client_ac'
                                         'counts_by_phone_number_degradation_handler')
-    client_accounts_mock.return_value = future([mocker.sentinel.client_account])
+    client_account = mocker.MagicMock(value=[])
+    client_accounts_mock.return_value = future(client_account)
 
     exist_drafts_mock = mocker.patch('external_offers.web.handlers.admin.exists_offers_draft_by_client')
     exist_drafts_mock.return_value = future(False)
@@ -48,7 +49,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                 info_message=save_offer_msg,
                 offer_id=offer_id,
                 client=client_mock,
-                client_accounts=[mocker.sentinel.client_account],
+                client_accounts=[],
                 exist_drafts=False
             )
         ]

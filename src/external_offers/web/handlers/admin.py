@@ -55,20 +55,19 @@ class AdminOffersCardPageHandler(PublicHandler):
             self.write('Объявление из внешнего источника не найдено'.encode('utf-8'))
             return
 
-        client_accounts = await get_client_accounts_by_phone_number_degradation_handler(
+        client_accounts_result = await get_client_accounts_by_phone_number_degradation_handler(
             phone=client.client_phones[0]
         )
 
         exist_drafts = await exists_offers_draft_by_client(
             client_id=client.client_id
         )
-
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
             offer_id=offer_id,
             client=client,
-            client_accounts=client_accounts,
+            client_accounts=client_accounts_result.value,
             exist_drafts=exist_drafts
         )
 
