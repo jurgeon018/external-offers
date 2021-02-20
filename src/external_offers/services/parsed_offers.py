@@ -41,6 +41,7 @@ SOURCE_ADDRESS = 'address'
 SOURCE_LAT = 'lat'
 SOURCE_LNG = 'lng'
 SOURCE_URL = 'url'
+SOURCE_IS_AGENCY = 'isAgency'
 
 DEFAULT_GEOCODE_KIND = 'house'
 
@@ -48,6 +49,9 @@ SOURCE_CATEGORY_TO_CATEGORY: Dict[str, Category] = {
     'flatSale': Category.flat_sale,
     'flatRent': Category.flat_rent,
 }
+
+CITY_LOCATION_ID = 1
+REGION_LOCATION_ID = 2
 
 
 def get_rooms_count_from_source_object_model(source_object_model: dict) -> Optional[int]:
@@ -94,6 +98,11 @@ def get_address_from_source_object_model(source_object_model: dict) -> Optional[
     return source_object_model.get(SOURCE_ADDRESS)
 
 
+def get_is_by_homeowner_from_source_object_model(source_object_model: dict) -> Optional[bool]:
+    is_agency = bool(source_object_model.get(SOURCE_IS_AGENCY))
+    return not is_agency
+
+
 async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[SwaggerGeo]:
     lng = get_lng_from_source_object_model(source_object_model)
     lat = get_lat_from_source_object_model(source_object_model)
@@ -108,6 +117,26 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
         ))
     except ApiClientException:
         return None
+    address = []
+    for detail in geocode_response.details:
+        location_type_id = None
+        _type = geo_type_to_type_mapping[detail.geo_type.value]
+
+        if _type.is_location and detail.is_locality:
+            location_type_id = CITY_LOCATION_ID
+
+        if _type.is_location and not detail.is_locality:
+            location_type_id = REGION_LOCATION_ID
+
+        address.append(AddressInfo(
+            id=detail.id,
+            full_name=detail.full_name,
+            short_name=detail.name,
+            name=detail.name,
+            type=_type,
+            location_type_id=location_type_id,
+            is_forming_address=True,
+        ))
 
     return SwaggerGeo(
         country_id=geocode_response.country_id,
@@ -116,12 +145,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
             lng=geocode_response.geo.lng
         ),
         user_input=get_address_from_source_object_model(source_object_model),
-        address=[
-            AddressInfo(
-                id=detail.id,
-                type=geo_type_to_type_mapping[detail.geo_type.value]
-            ) for detail in geocode_response.details
-        ]
+        address=address
     )
 
 
@@ -190,6 +214,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
             geo=geo,
             description=get_description_from_source_object_model(source_object_model),
             is_enabled_call_tracking=offer.is_calltracking,
+            is_by_home_owner=get_is_by_homeowner_from_source_object_model(source_object_model),
             row_version=0
     )
 
@@ -211,6 +236,7 @@ async def send_parsed_offer_change_event(*, offer: ParsedOfferMessage) -> None:
     source_model = create_source_model_from_parsed_offer(
         offer=offer
     )
+
     await external_offers_change_producer(
         model=object_model,
         source_model=source_model

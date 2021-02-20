@@ -51,6 +51,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'region': 4628,
         'title': 'название',
         'description': 'описание',
+        'isAgency': False,
         'address': 'адресф',
         'lat': 1.0,
         'lng': 2.0,
@@ -83,7 +84,29 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                     'lat': 12.0,
                     'lng': 13.0
                 },
-                'details': []
+                'details': [
+                    {
+                        'id': 1,
+                        'fullName': 'Область test',
+                        'name': 'test',
+                        'isLocality': False,
+                        'geoType': 'Location',
+                    },
+                     {
+                        'id': 2,
+                        'fullName': 'Город test',
+                        'name': 'test',
+                        'isLocality': True,
+                        'geoType': 'Location',
+                    },
+                     {
+                        'id': 3,
+                        'fullName': 'Улица test',
+                        'name': 'test',
+                        'isLocality': False,
+                        'geoType': 'Street',
+                    }
+                ]
             }
         ),
     )
@@ -113,7 +136,32 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     assert payload['model']['totalArea'] == 30
     assert payload['model']['description'] == 'описание'
     assert not payload['model']['isEnabledCallTracking']
-
+    assert payload['model']['isByHomeOwner']
+    assert payload['model']['geo']['address'] == [{
+        'id': 1,
+        'name': 'test',
+        'fullName': 'Область test',
+        'isFormingAddress': True,
+        'shortName': 'test',
+        'locationTypeId': 2,
+        'type': 'location'
+    }, {
+        'id': 2,
+        'name': 'test',
+        'fullName': 'Город test',
+        'isFormingAddress': True,
+        'shortName': 'test',
+        'locationTypeId': 1,
+        'type': 'location'
+    }, {
+        'id': 3,
+        'name': 'test',
+        'fullName': 'Улица test',
+        'isFormingAddress': True,
+        'shortName': 'test',
+        'locationTypeId': None,
+        'type': 'street'
+    }]
     assert payload['model']['building']['floorsCount'] == 10
 
     assert payload['model']['phones'] == [{
