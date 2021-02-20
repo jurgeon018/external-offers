@@ -91,7 +91,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                         'name': 'test',
                         'isLocality': False,
                         'geoType': 'Location',
-                        
                     },
                      {
                         'id': 2,
@@ -99,7 +98,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                         'name': 'test',
                         'isLocality': True,
                         'geoType': 'Location',
-                        
                     },
                      {
                         'id': 3,
@@ -107,7 +105,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                         'name': 'test',
                         'isLocality': False,
                         'geoType': 'Street',
-                        
                     }
                 ]
             }
@@ -164,7 +161,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'shortName': 'test',
         'locationTypeId': None,
         'type': 'street'
-    },]
+    }]
     assert payload['model']['building']['floorsCount'] == 10
 
     assert payload['model']['phones'] == [{
