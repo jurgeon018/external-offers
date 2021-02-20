@@ -50,6 +50,9 @@ SOURCE_CATEGORY_TO_CATEGORY: Dict[str, Category] = {
     'flatRent': Category.flat_rent,
 }
 
+CITY_LOCATION_ID = 1
+REGION_LOCATION_ID = 2
+
 
 def get_rooms_count_from_source_object_model(source_object_model: dict) -> Optional[int]:
     return source_object_model.get(SOURCE_ROOMS_COUNT)
@@ -118,6 +121,26 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
         ))
     except ApiClientException:
         return None
+    address = []
+    for detail in geocode_response.details:
+        location_type_id = None
+        _type = geo_type_to_type_mapping[detail.geo_type.value]
+
+        if _type.is_location and detail.is_locality:
+            location_type_id = CITY_LOCATION_ID
+
+        if _type.is_location and not detail.is_locality:
+            location_type_id = REGION_LOCATION_ID
+
+        address.append(AddressInfo(
+            id=detail.id,
+            full_name=detail.full_name,
+            short_name=detail.name,
+            name=detail.name,
+            type=_type,
+            location_type_id=location_type_id,
+            is_forming_address=True,
+        ))
 
     return SwaggerGeo(
         country_id=geocode_response.country_id,
@@ -126,12 +149,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
             lng=geocode_response.geo.lng
         ),
         user_input=get_address_from_source_object_model(source_object_model),
-        address=[
-            AddressInfo(
-                id=detail.id,
-                type=geo_type_to_type_mapping[detail.geo_type.value]
-            ) for detail in geocode_response.details
-        ]
+        address=address
     )
 
 
@@ -223,6 +241,7 @@ async def send_parsed_offer_change_event(*, offer: ParsedOfferMessage) -> None:
     source_model = create_source_model_from_parsed_offer(
         offer=offer
     )
+
     await external_offers_change_producer(
         model=object_model,
         source_model=source_model
