@@ -101,7 +101,8 @@ def get_is_by_homeowner_from_source_object_model(source_object_model: dict) -> O
 
 
 def get_id_from_source_object_id(source_object_id: str) -> str:
-    return source_object_id.split(sep='_')[0]
+    return source_object_id.split(sep='_')[1]
+
 
 async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[SwaggerGeo]:
     lng = get_lng_from_source_object_model(source_object_model)

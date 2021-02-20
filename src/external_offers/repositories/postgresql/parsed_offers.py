@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Generator, List, Optional
 
 import asyncpgsa
 import pytz
@@ -173,25 +173,23 @@ async def delete_outdated_parsed_offers(*, updated_at_border: datetime) -> List[
     return [parsed_offer_mapper.map_from(row) for row in rows]
 
 
-async def get_parsed_offers_by_limit_and_offset(
+async def iterate_over_parsed_offers_sorted(
     *,
-    limit: int,
-    offset: int,
-) -> List[ParsedOffer]:
+    prefetch=settings.DEFAULT_PREFETCH,
+) -> Generator[ParsedOffer, None, None]:
     po = tables.parsed_offers.alias()
-
     query, params = asyncpgsa.compile_query(
         select(
             [po]
         ).order_by(
             po.c.created_at.asc(),
             po.c.id.asc()
-        ).limit(
-            limit
-        ).offset(
-            offset
         )
     )
-
-    result = await pg.get().fetch(query, *params)
-    return [parsed_offer_mapper.map_from(row) for row in result] if result else []
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield parsed_offer_mapper.map_from(row)

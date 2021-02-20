@@ -1,13 +1,15 @@
+from unittest.mock import MagicMock
+
 from cian_kafka import KafkaProducerError
 from cian_test_utils import future
 
 from external_offers.services.send_parsed_offers_to_kafka import send_parsed_offers_to_kafka
 
 
-async def test_send_offers_for_call__kafka_error__expect_warning(mocker):
+async def test_send_parsed_offers__kafka_error__expect_warning(mocker):
     # arrange
-    get_offers_by_limit_and_offset_mock = mocker.patch('external_offers.services.send_parsed_offers_to_kafka'
-                                                       '.get_parsed_offers_by_limit_and_offset')
+    iterate_over_parsed_offers_sorted_mock = mocker.patch('external_offers.services.send_parsed_offers_to_kafka'
+                                                          '.iterate_over_parsed_offers_sorted')
 
     parsed_offers_change_producer_mock = mocker.patch('external_offers.services.send_parsed_offers_to_kafka'
                                                       '.parsed_offers_change_producer')
@@ -16,16 +18,13 @@ async def test_send_offers_for_call__kafka_error__expect_warning(mocker):
                                '.logger')
 
     error_sentinel = mocker.sentinel
-    get_offers_by_limit_and_offset_mock.side_effect = [
-        future(
-            [
-                mocker.sentinel,
-                error_sentinel,
-                mocker.sentinel,
-            ],
-        ),
-        future([])
+    iterate_return_value = MagicMock()
+    iterate_return_value.__aiter__.return_value = [
+            mocker.sentinel,
+            error_sentinel,
+            mocker.sentinel,
     ]
+    iterate_over_parsed_offers_sorted_mock.return_value = iterate_return_value
 
     parsed_offers_change_producer_mock.side_effect = [
         future(None),
@@ -42,10 +41,10 @@ async def test_send_offers_for_call__kafka_error__expect_warning(mocker):
     ])
 
 
-async def test_send_offers_for_call__producer_success_and_failed__expect_statsd_incr(mocker):
+async def test_send_parsed_offers__producer_success_and_failed__expect_statsd_incr(mocker):
     # arrange
-    get_offers_by_limit_and_offset_mock = mocker.patch('external_offers.services.send_parsed_offers_to_kafka'
-                                                       '.get_parsed_offers_by_limit_and_offset')
+    iterate_over_parsed_offers_sorted_mock = mocker.patch('external_offers.services.send_parsed_offers_to_kafka'
+                                                          '.iterate_over_parsed_offers_sorted')
 
     parsed_offers_change_producer_mock = mocker.patch('external_offers.services.send_parsed_offers_to_kafka'
                                                       '.parsed_offers_change_producer')
@@ -53,17 +52,15 @@ async def test_send_offers_for_call__producer_success_and_failed__expect_statsd_
     statsd_incr_mock = mocker.patch('external_offers.services.'
                                     'send_parsed_offers_to_kafka.statsd.incr')
 
+
     error_sentinel = mocker.sentinel
-    get_offers_by_limit_and_offset_mock.side_effect = [
-        future(
-            [
-                mocker.sentinel,
-                error_sentinel,
-                mocker.sentinel,
-            ],
-        ),
-        future([])
+    iterate_return_value = MagicMock()
+    iterate_return_value.__aiter__.return_value = [
+            mocker.sentinel,
+            error_sentinel,
+            mocker.sentinel,
     ]
+    iterate_over_parsed_offers_sorted_mock.return_value = iterate_return_value
 
     parsed_offers_change_producer_mock.side_effect = [
         future(None),
@@ -76,6 +73,7 @@ async def test_send_offers_for_call__producer_success_and_failed__expect_statsd_
 
     # assert
     statsd_incr_mock.assert_has_calls([
-        mocker.call(stat='send-parsed-offers-to-kafka.success', count=2),
-        mocker.call(stat='send-parsed-offers-to-kafka.failed', count=1)
+        mocker.call(stat='send-parsed-offers-to-kafka.success'),
+        mocker.call(stat='send-parsed-offers-to-kafka.failed'),
+        mocker.call(stat='send-parsed-offers-to-kafka.success'),
     ])
