@@ -293,11 +293,11 @@
         };
 
         function getNumberOrStrNull(obj) {
-            return isNaN(parseInt(obj)) ? (DEBUG ? "null" : "") : parseInt(obj)
+            return isNaN(parseInt(obj)) ? (DEBUG ? "" : "null") : parseInt(obj)
         }
 
         function getValueOrStrNull(obj) {
-            return obj === '' ? (DEBUG ? "null" : "") : obj
+            return obj === '' ? (DEBUG ? "" : "null") : obj
         }
 
         function onClickCreateNewAccountCheckbox() {

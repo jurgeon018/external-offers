@@ -99,6 +99,8 @@ def get_is_by_homeowner_from_source_object_model(source_object_model: dict) -> O
     is_agency = bool(source_object_model.get(SOURCE_IS_AGENCY))
     return not is_agency
 
+def get_id_from_source_object_id(source_object_id: str) -> str:
+    return source_object_id.split(sep='_')[0]
 
 async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[SwaggerGeo]:
     lng = get_lng_from_source_object_model(source_object_model)
@@ -169,6 +171,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
         return None
 
     return ObjectModel(
+            id=get_id_from_source_object_id(offer.source_object_id),
             bargain_terms=BargainTerms(
                 price=get_price_from_source_object_model(source_object_model),
                 currency=Currency.rur,
@@ -176,7 +179,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
                     UtilitiesTerms(
                         included_in_price=True
                     )
-                ]
+                ],
             ),
             building=Building(
                 floors_count=get_floors_count_from_source_object_model(source_object_model)

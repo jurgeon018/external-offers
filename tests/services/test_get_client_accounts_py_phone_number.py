@@ -70,7 +70,7 @@ async def test_get_client_accounts_by_phone_number__called_with_phone__returns_c
         )
     ])
 
-    assert  result == [
+    assert result == [
         ClientAccountInfo(
             cian_user_id=5,
             email='test5@cian.ru',
