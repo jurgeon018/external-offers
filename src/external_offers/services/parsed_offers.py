@@ -99,6 +99,7 @@ def get_is_by_homeowner_from_source_object_model(source_object_model: dict) -> O
     is_agency = bool(source_object_model.get(SOURCE_IS_AGENCY))
     return not is_agency
 
+
 def get_id_from_source_object_id(source_object_id: str) -> str:
     return source_object_id.split(sep='_')[0]
 

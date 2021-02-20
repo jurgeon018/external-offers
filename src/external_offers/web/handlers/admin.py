@@ -62,6 +62,7 @@ class AdminOffersCardPageHandler(PublicHandler):
         exist_drafts = await exists_offers_draft_by_client(
             client_id=client.client_id
         )
+
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
