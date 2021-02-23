@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Generator, List, Optional
+from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
 from simple_settings import settings
@@ -559,7 +559,7 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
 async def iterate_over_offers_for_call_sorted(
     *,
     prefetch=settings.DEFAULT_PREFETCH,
-) -> Generator[Offer, None, None]:
+) -> AsyncGenerator[Offer, None]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
