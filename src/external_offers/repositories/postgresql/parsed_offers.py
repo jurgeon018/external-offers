@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Generator, List, Optional
+from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
 import pytz
@@ -176,7 +176,7 @@ async def delete_outdated_parsed_offers(*, updated_at_border: datetime) -> List[
 async def iterate_over_parsed_offers_sorted(
     *,
     prefetch=settings.DEFAULT_PREFETCH,
-) -> Generator[ParsedOffer, None, None]:
+) -> AsyncGenerator[ParsedOffer, None]:
     po = tables.parsed_offers.alias()
     query, params = asyncpgsa.compile_query(
         select(
