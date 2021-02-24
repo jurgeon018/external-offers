@@ -3,6 +3,7 @@ from typing import List
 from cian_core.degradation import get_degradation_handler
 
 from external_offers.entities import ClientAccountInfo
+from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.repositories.users import v2_get_users_by_phone
 from external_offers.repositories.users.entities import V2GetUsersByPhone
 
@@ -12,6 +13,8 @@ async def get_client_accounts_by_phone_number(
     phone: str,
 ) -> List[ClientAccountInfo]:
     client_accounts = []
+    phone = transform_phone_number_to_canonical_format(phone)
+
     response = await v2_get_users_by_phone(
         V2GetUsersByPhone(
             phone=phone
