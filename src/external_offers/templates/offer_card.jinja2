@@ -261,6 +261,10 @@
 <script>
     jQuery(($) => {
         let DEBUG = 'True' === '{{ debug }}'
+        let clientAccountsDict = {}
+        {% for client_account in client_accounts %}
+        clientAccountsDict[{{ client_account.cian_user_id }}] = {% if client_account.is_agent %} true {% else %} false {% endif %}
+        {% endfor %}
 
         const saveOfferBtn = $('#saveOfferBtn');
         const updateClientPhoneBtn = $('#updateClientPhoneNumberBtn');
@@ -316,6 +320,13 @@
         }
 
         const saveOffer = () => {
+            if (getCreateNewAccount.is(':checked') === false
+                &&  getPublishAsHomeowner.is(':checked') === true
+                && clientAccountsDict[getAccountForDraft.val()] === true) {
+                alert('Нельзя опубликоваться как собственник в агентском аккаунте!');
+                return
+            }
+
             if (getPrice.val() === "") {
                 alert('Цена обязательный параметр!');
                 return
