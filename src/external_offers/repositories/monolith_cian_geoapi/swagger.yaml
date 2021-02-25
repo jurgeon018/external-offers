@@ -102,6 +102,105 @@ definitions:
         description: Результат яндекса после геокодинга.
         type: string
     type: object
+  Geo.Api.App.Underground.Models.UndergroundModelV2:
+    description: Модель метро
+    properties:
+      cianId:
+        description: Идентификатор станции метро Циан
+        format: int32
+        type: integer
+      constructionDate:
+        description: Дата постройки
+        format: date-time
+        type: string
+      entrances:
+        description: Входы в метро
+        items:
+          $ref: '#/definitions/Geo.Api.App.Underground.Models.UndergroundModelV2.UndergroundEntrance'
+        type: array
+      genitiveCase:
+        description: "Название станции метро в родительном падеже (Нет Кого? Чего?)\r\
+          \nЕсли есть"
+        type: string
+      id:
+        description: Идентификатор станции метро
+        format: int32
+        type: integer
+      isPutIntoOperation:
+        description: Введён ли в экслпуатацию
+        type: boolean
+      lat:
+        description: Широта
+        format: double
+        type: number
+      lines:
+        description: Линии метро, где фигурирует станция
+        items:
+          $ref: '#/definitions/Geo.Api.App.Underground.Models.UndergroundModelV2.LineModel'
+        type: array
+      lng:
+        description: Долгота
+        format: double
+        type: number
+      locationId:
+        description: Id региона
+        format: int32
+        type: integer
+      name:
+        description: Название станции метро
+        type: string
+      nativeName:
+        description: "Название станции метро (оригинальное имя)\r\nЕсли есть"
+        type: string
+      prepositionalCase:
+        description: "Названии станции метро в предложном падеже (Думать О ком? О\
+          \ чём?)\r\nЕсли есть"
+        type: string
+      timeByCar:
+        description: Id региона
+        format: int32
+        type: integer
+      timeByWalk:
+        description: Id региона
+        format: int32
+        type: integer
+      translitName:
+        description: Название станции метро в транслите
+        type: string
+    type: object
+  Geo.Api.App.Underground.Models.UndergroundModelV2.LineModel:
+    description: Модель для линии метро
+    properties:
+      lineColor:
+        description: RGB цвет линии метро
+        type: string
+      lineId:
+        description: Идентификатор линии метро
+        format: int32
+        type: integer
+      lineName:
+        description: Название линии метро
+        type: string
+    type: object
+  Geo.Api.App.Underground.Models.UndergroundModelV2.UndergroundEntrance:
+    description: Вход в метро
+    properties:
+      id:
+        description: Id входа в метро
+        format: int32
+        type: integer
+      lat:
+        description: Широта
+        format: double
+        type: number
+      lng:
+        description: Долгота
+        format: double
+        type: number
+      name:
+        description: Название входа в метро
+        type: string
+    type: object
   Geo.GeoApi.Models.Geo:
     description: Координата
     properties:
@@ -142,6 +241,30 @@ paths:
             $ref: '#/definitions/Geo.Api.App.Geo.Models.GeoCoderWebApi.GeoCodedResponse'
       tags:
       - GeoCoderWebApi
+  /v2/undergrounds/get-all/:
+    get:
+      consumes: []
+      operationId: Underground_GetAllV2Async
+      parameters:
+      - format: int32
+        in: query
+        name: locationId
+        required: false
+        type: integer
+      produces:
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Geo.Api.App.Underground.Models.UndergroundModelV2'
+            type: array
+      summary: "Возвращает список метро для города\r\nДля каждой станции метро возвращаем\
+        \ список линий метро, в которых фигурирует станция"
+      tags:
+      - Underground
 schemes:
 - http
 swagger: '2.0'

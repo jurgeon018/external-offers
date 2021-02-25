@@ -24,6 +24,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 from external_offers.repositories.monolith_cian_geoapi import v2_geocode
 from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest
 from external_offers.services.save_offer import geo_type_to_type_mapping
+from external_offers.services.undergrounds.get_undergrounds import get_underground_by_coordinates
 
 
 logger = logging.getLogger(__name__)
@@ -137,6 +138,15 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
             location_type_id=location_type_id,
             is_forming_address=True,
         ))
+    undergrounds = []
+    if geocode_response.details:
+        undergrounds = await get_underground_by_coordinates(
+            coordinates=Coordinates(
+                lat=geocode_response.geo.lat,
+                lng=geocode_response.geo.lng
+            ),
+            region_id=geocode_response.details[0].id
+        )
 
     return SwaggerGeo(
         country_id=geocode_response.country_id,
@@ -144,6 +154,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
             lat=geocode_response.geo.lat,
             lng=geocode_response.geo.lng
         ),
+        undergrounds=undergrounds,
         user_input=get_address_from_source_object_model(source_object_model),
         address=address
     )

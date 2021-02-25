@@ -1,0 +1,77 @@
+definitions:
+  RealtyDmir.App.RealtyObjects.Models.AutocompleteSubway:
+    properties:
+      color:
+        type: string
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string
+      timeByCar:
+        format: int32
+        type: integer
+      timeByWalk:
+        format: int32
+        type: integer
+    type: object
+host: master.monolith-cian-realty.dev3.cian.ru
+info:
+  title: monolith-cian-realty
+  version: v1
+paths:
+  /api/autocomplete-undeground/:
+    get:
+      consumes: []
+      operationId: RealtyObjectsWebApi_GetAutocompleteUndegroundAsync
+      parameters:
+      - description: id локации, где ищем метро
+        format: int32
+        in: query
+        name: regionId
+        required: true
+        type: integer
+      - description: текст из поля ввода
+        in: query
+        name: q
+        required: false
+        type: string
+      - description: широта выбранного адреса (если есть), для расчета времени, сколько
+          идти/ехать в транспорте до метро
+        format: double
+        in: query
+        name: lat
+        required: false
+        type: number
+      - description: долгота выбранного адреса (если есть), для расчета времени, сколько
+          идти/ехать в транспорте до метро
+        format: double
+        in: query
+        name: lng
+        required: false
+        type: number
+      - description: не ограничивать количество предлагаемых элементов в выдаче, по
+          умолчанию, отдаем первые 15 элементов
+        in: query
+        name: all
+        required: false
+        type: boolean
+      produces:
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/RealtyDmir.App.RealtyObjects.Models.AutocompleteSubway'
+            type: array
+      summary: Автокомплит по частичному вхождению по названию станции метро
+      tags:
+      - RealtyObjectsWebApi
+schemes:
+- http
+swagger: '2.0'
+x-cian-mq:
+  exchanges: {}
+  spec-version: '1.0'

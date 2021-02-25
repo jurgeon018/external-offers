@@ -38,11 +38,13 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     kafka_service,
     queue_service,
     monolith_cian_geoapi_mock,
+    monolith_cian_realty_mock,
     runtime_settings,
 ):
     # arrange
     await runtime_settings.set({
         'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale'],
+        'MAX_GEOCODE_STATIONS': 3
     })
 
     offer_data = {
@@ -53,8 +55,8 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'description': 'описание',
         'isAgency': False,
         'address': 'адресф',
-        'lat': 1.0,
-        'lng': 2.0,
+        'lat': 12.0,
+        'lng': 13.0,
         'url': 'http://test',
         'floorNumber': 3,
         'roomsCount': 5,
@@ -109,6 +111,115 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                 ]
             }
         ),
+    )
+
+    await monolith_cian_geoapi_mock.add_stub(
+        method='GET',
+        path='/v2/undergrounds/get-all/',
+        response=MockResponse(
+            body=[{
+                'cianId': 85,
+                'entrances': [
+                    {'id': 3, 'lat': 55.752408, 'lng': 37.717001, 'name': '1'},
+                    {'id': 859, 'lat': 55.753528, 'lng': 37.719145, 'name': '2'}
+                ],
+                'id': 1,
+                'isPutIntoOperation': True,
+                'lat': 12.0,
+                'lines': [
+                    {'lineColor': 'FFDF00', 'lineId': 4, 'lineName': 'Калининско-Солнцевская'},
+                    {'lineColor': '7ACDCE', 'lineId': 27, 'lineName': 'Большая кольцевая линия'}
+                ],
+                'lng': 13.0,
+                'locationId': 1,
+                'name': 'Авиамоторная1',
+                'translitName': 'aviamotornaya'
+            }, {
+                'cianId': 85,
+                'entrances': [
+                    {'id': 3, 'lat': 55.752408, 'lng': 37.717001, 'name': '1'},
+                    {'id': 859, 'lat': 55.753528, 'lng': 37.719145, 'name': '2'}
+                ],
+                'id': 1,
+                'isPutIntoOperation': True,
+                'lat': 100.0,
+                'lines': [
+                    {'lineColor': 'FFDF00', 'lineId': 4, 'lineName': 'Калининско-Солнцевская'},
+                    {'lineColor': '7ACDCE', 'lineId': 27, 'lineName': 'Большая кольцевая линия'}
+                ],
+                'lng': 100.0,
+                'locationId': 1,
+                'name': 'Авиамоторная',
+                'translitName': 'aviamotornaya'
+            }, {
+                'cianId': 85,
+                'entrances': [
+                    {'id': 3, 'lat': 55.752408, 'lng': 37.717001, 'name': '1'},
+                    {'id': 859, 'lat': 55.753528, 'lng': 37.719145, 'name': '2'}
+                ],
+                'id': 1,
+                'isPutIntoOperation': True,
+                'lat': 12.0,
+                'lines': [
+                    {'lineColor': 'FFDF00', 'lineId': 4, 'lineName': 'Калининско-Солнцевская'},
+                    {'lineColor': '7ACDCE', 'lineId': 27, 'lineName': 'Большая кольцевая линия'}
+                ],
+                'lng': 13.0,
+                'locationId': 1,
+                'name': 'станция Авиамоторная2',
+                'translitName': 'aviamotornaya'
+            }, {
+                'cianId': 85,
+                'entrances': [
+                    {'id': 3, 'lat': 55.752408, 'lng': 37.717001, 'name': '1'},
+                    {'id': 859, 'lat': 55.753528, 'lng': 37.719145, 'name': '2'}
+                ],
+                'id': 1,
+                'isPutIntoOperation': True,
+                'lat': 12.0,
+                'lines': [
+                    {'lineColor': 'FFDF00', 'lineId': 4, 'lineName': 'Калининско-Солнцевская'},
+                    {'lineColor': '7ACDCE', 'lineId': 27, 'lineName': 'Большая кольцевая линия'}
+                ],
+                'lng': 13.0,
+                'locationId': 1,
+                'name': 'Авиамоторная2',
+                'translitName': 'aviamotornaya'
+            }]
+        ),
+    )
+
+    await monolith_cian_realty_mock.add_stub(
+        method='GET',
+        path='/api/autocomplete-undeground/',
+        response=[MockResponse(
+            body=[{
+                'color': 'test',
+                'id': 1,
+                'name': 'Авиамоторная1',
+                'timeByCar': None,
+                'timeByWalk': 5,
+            }],
+            repeat=1,
+        ), MockResponse(
+            body=[{
+                'color': 'test',
+                'id': 1,
+                'name': 'Авиамоторная2',
+                'timeByCar': 5,
+                'timeByWalk': None,
+            }],
+            repeat=1
+        ), MockResponse(
+            body=[{
+                'color': 'test',
+                'id': 1,
+                'name': 'Авиамоторная3',
+                'timeByCar': 5,
+                'timeByWalk': None,
+            }],
+            repeat=1
+        )],
     )
 
     # act
