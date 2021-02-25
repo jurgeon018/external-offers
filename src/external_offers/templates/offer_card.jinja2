@@ -195,15 +195,6 @@
                 <span class="text-header">Контакты</span>
             </div>
 
-            <div class="offerTelephoneTitle">
-                <span class="">Телефон</span>
-            </div>
-            <div class="offerTelephoneTitleInput">
-                    <input class="input-control" placeholder="Реальный телефон владельца"
-                           value="{{ client.client_phones[0] }}"
-                           type="string"
-                           id="getPhoneNumber">
-            </div>
             <div class="offerDescriptionTitle">
                 <span class=""> Описание объявления</span>
             </div>
@@ -241,6 +232,16 @@
                         {% endfor %}
                     </select>
                 </div>
+                <div class="updateClientPhoneNumberButtonBlock" style="padding-top: 15px">
+                    <button id="updateClientPhoneNumberBtn" type="button" class="btn">Сменить номер телефона</button>
+                </div>
+                <div class="clientPhoneNumber" style="padding-top: 15px">
+                    <input class="input-control" placeholder="Реальный телефон владельца"
+                           value="{{ client.client_phones[0] }}"
+                           type="string"
+                           id="getPhoneNumber">
+                </div>
+
             {% endif %}
 
         </div>
@@ -262,6 +263,7 @@
         let DEBUG = 'True' === '{{ debug }}'
 
         const saveOfferBtn = $('#saveOfferBtn');
+        const updateClientPhoneBtn = $('#updateClientPhoneNumberBtn');
         const getDealType = $('#getDealType');
         const getOfferType = $('#getOfferType');
         const getCategoryType = $('#getCategoryType');
@@ -320,9 +322,6 @@
             } else if (getTotalArea.val() === "") {
                 alert('Общая площадь обязательный параметр!');
                 return
-            } else if (getPhoneNumber.val() === "") {
-                alert('Телефон обязательный параметр!');
-                return
             } else if (getAddress.val() === "") {
                 alert('Адрес обязательный параметр!');
                 return
@@ -339,7 +338,6 @@
                 address: getAddress.val(),
                 totalArea: parseInt(getTotalArea.val()),
                 price: parseInt(getPrice.val()),
-                phoneNumber: getPhoneNumber.val(),
                 description: getDescription.val(),
                 floorNumber: getNumberOrStrNull(getFloorNumber.val()),
                 floorsCount: getNumberOrStrNull(getFloorCount.val()),
@@ -387,6 +385,28 @@
 
         getCreateNewAccount.click(() => {
             onClickCreateNewAccountCheckbox()
+        })
+
+        updateClientPhoneBtn.click(function() {
+            if (getPhoneNumber.val() === "") {
+                alert('Телефон обязательный параметр!')
+                return
+            }
+            let obj = {
+                phoneNumber: getPhoneNumber.val(),
+                clientId: '{{ client.client_id }}',
+
+            }
+            $.post("/api/admin/v1/update-client-phone/", DEBUG ? JSON.stringify(obj) : obj
+            ).then(function (data) {
+                if (data.success === true) {
+                    alert('Телефон успешно изменен')
+                    location.reload();
+                } else {
+                    errors = data.errors.map((element) => element.message).join('<br>');
+                    alert(errors)
+                }
+            });
         })
 
     });

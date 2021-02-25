@@ -12,8 +12,6 @@ class SaveOfferRequest:
     """Идентификатор задания"""
     client_id: str
     """Идентификатор клиента"""
-    phone_number: str
-    """Телефон"""
     category: SaveOfferCategory
     """Категория объявления"""
     deal_type: DealType

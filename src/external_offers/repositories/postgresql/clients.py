@@ -224,6 +224,20 @@ async def set_cian_user_id_by_client_id(*, cian_user_id: int, client_id: str):
     await pg.get().execute(query, *params)
 
 
+async def set_phone_number_by_client_id(*, client_id: str, phone_number: str):
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            client_phones=[phone_number]
+        ).where(
+            clients.c.client_id == client_id,
+        )
+    )
+
+    await pg.get().execute(query, *params)
+
+
 async def set_client_accepted_and_no_operator_if_no_offers_in_progress(*, client_id: str) -> bool:
     query, params = asyncpgsa.compile_query(
         update(

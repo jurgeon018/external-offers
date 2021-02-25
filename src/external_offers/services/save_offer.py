@@ -286,6 +286,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 message='Отсутствует объявление с переданным идентификатором'
             )
 
+        client = await get_client_by_client_id(client_id=request.client_id)
+
         status = await try_to_lock_offer_and_return_status(
                 offer_id=request.offer_id
         )
@@ -300,7 +302,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 message='Объявление уже сохранено как черновик'
             )
 
-        phone_number = transform_phone_number_to_canonical_format(request.phone_number)
+        phone_number = transform_phone_number_to_canonical_format(client.client_phones[0])
         category = mapping_offer_params_to_category[
             (request.term_type,
              request.category,
@@ -495,7 +497,6 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             operator_user_id=user_id,
             status=OfferStatus.draft.value
         )
-        client = await get_client_by_client_id(client_id=request.client_id)
 
         updated = await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
 
@@ -521,8 +522,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         message=CallsKafkaMessage(
                             manager_id=user_id,
                             source_user_id=client.avito_user_id,
-                            user_id=client.cian_user_id,
-                            phone=client.client_phones[0],
+                            user_id=cian_user_id,
+                            phone=phone_number,
                             status=ClientStatus.accepted.value,
                             call_id=offer.last_call_id,
                             date=now,

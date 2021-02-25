@@ -282,6 +282,8 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
         save_offer_request_body
 ):
     # arrange
+    user_id = 123123
+
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -304,7 +306,23 @@ async def test_save_offer__create_user_by_phone_failed__status_registration_fail
         """
     )
 
-    user_id = 123123
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['89134488338'], 'nemoy@gmail.com', user_id, 'inProgress']
+    )
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone',
@@ -335,6 +353,8 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
         save_offer_request_body,
 ):
     # arrange
+    user_id = 123123
+
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -357,7 +377,24 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
         """
     )
 
-    user_id = 123123
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            cian_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', user_id, 7, 'inProgress']
+    )
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -589,6 +626,8 @@ async def test_save_offer__geocode_timeout__logged_timeout(
         save_offer_request_body,
 ):
     # arrange
+    user_id = 123123
+
     await runtime_settings.set({
         'MONOLITH_CIAN_ANNOUNCEMENTAPI_TIMEOUT': 1
     })
@@ -613,12 +652,29 @@ async def test_save_offer__geocode_timeout__logged_timeout(
             )
         """
     )
+
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['89134488338'], 'nemoy@gmail.com', user_id, 'inProgress']
+    )
+
     address = 'ул. просторная 6, квартира 200'
     offer_id = '1'
     save_offer_request_body['address'] = address
     save_offer_request_body['offerId'] = offer_id
 
-    user_id = 123123
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -666,6 +722,8 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         monolith_cian_announcementapi_mock,
         save_offer_request_body
 ):
+    user_id = 123123
+
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -688,7 +746,22 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         """
     )
 
-    user_id = 123123
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['89134488338'], 'nemoy@gmail.com', user_id, 'inProgress']
+    )
 
     await users_mock.add_stub(
         method='POST',
@@ -762,6 +835,8 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         save_offer_request_body
 ):
     # arrange
+    user_id = 123123
+
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -775,7 +850,7 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         ) VALUES (
             '1',
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
-            '1',
+            '7',
             'inProgress',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
@@ -784,7 +859,23 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         """
     )
 
-    user_id = 123123
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['89134488338'], 'nemoy@gmail.com', user_id, 'inProgress']
+    )
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -870,6 +961,8 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         save_offer_request_body,
 ):
     # arrange
+    user_id = 123123
+
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -892,7 +985,23 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         """
     )
 
-    user_id = 123123
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['89134488338'], 'nemoy@gmail.com', user_id, 'inProgress']
+    )
+
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -958,6 +1067,7 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
     await runtime_settings.set({
         'MONOLITH_CIAN_ANNOUNCEMENTAPI_TIMEOUT': 1
     })
+    user_id = 123123
 
     await pg.execute(
         """
@@ -981,9 +1091,25 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
         """
     )
 
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['89134488338'], 'nemoy@gmail.com', user_id, 'inProgress']
+    )
+
     offer_id = '1'
     save_offer_request_body['offerId'] = offer_id
-    user_id = 123123
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',

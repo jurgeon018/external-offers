@@ -5,6 +5,7 @@ from tornado.web import url
 from external_offers import entities
 from external_offers.services import admin
 from external_offers.services.save_offer import save_offer_public
+from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
@@ -54,6 +55,13 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.SaveOfferRequest,
         response_schema=entities.SaveOfferResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-client-phone/$', get_handler(
+        service=update_client_phone_public,
+        method='POST',
+        request_schema=entities.UpdateClientPhoneRequest,
+        response_schema=entities.UpdateClientPhoneResponse,
         base_handler_cls=PublicHandler,
     )),
 ]

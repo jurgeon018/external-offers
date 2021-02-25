@@ -15,6 +15,7 @@ from external_offers.repositories.postgresql.clients import (
     set_client_to_call_missed_status_and_return,
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
+    set_phone_number_by_client_id,
 )
 from external_offers.repositories.postgresql.event_log import (
     get_enriched_event_log_entries_for_calls_kafka_sync,
