@@ -10,7 +10,7 @@ async def test_update_client_phone__missing_client__return_error(http_client, ba
     client_id = '1'
     phone_number = '+79819421122'
     get_client_by_client_id_mock = mocker.patch('external_offers.services.update_client_phone'
-                                      '.get_client_by_client_id')
+                                                '.get_client_by_client_id')
     get_client_by_client_id_mock.return_value = future(None)
 
     # act
