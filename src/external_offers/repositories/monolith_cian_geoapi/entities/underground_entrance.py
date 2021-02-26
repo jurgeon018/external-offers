@@ -13,10 +13,14 @@ from typing import Optional
 
 
 @dataclass
-class Geo:
-    """Координата"""
+class UndergroundEntrance:
+    """Вход в метро"""
 
+    id: Optional[int] = None
+    """Id входа в метро"""
     lat: Optional[float] = None
-    """Широта."""
+    """Широта"""
     lng: Optional[float] = None
-    """Долгота."""
+    """Долгота"""
+    name: Optional[str] = None
+    """Название входа в метро"""

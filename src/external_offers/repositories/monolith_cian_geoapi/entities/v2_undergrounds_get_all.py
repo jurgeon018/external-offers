@@ -13,10 +13,5 @@ from typing import Optional
 
 
 @dataclass
-class Geo:
-    """Координата"""
-
-    lat: Optional[float] = None
-    """Широта."""
-    lng: Optional[float] = None
-    """Долгота."""
+class V2UndergroundsGetAll:
+    location_id: Optional[int] = None
