@@ -192,7 +192,7 @@
             {% endif %}
 
             <div class='table-block-header'>
-                <span class="text-header">Контакты</span>
+                <span class="text-header">Дополнительно</span>
             </div>
 
             <div class="offerDescriptionTitle">
@@ -203,48 +203,84 @@
                               placeholder="Описание объявления"
                               id="getDescription"></textarea>
             </div>
+        </div>
             {% if not exist_drafts %}
-                <div class='table-block-header'>
+            <div class="clientForm">
+                <div class='client-table-block-header'>
                     <span class="text-header">Личный кабинет</span>
                 </div>
+                <div class="changeClientPhoneTitle">
+                    <span class="">Номер телефона</span>
+                </div>
 
-
-                <div class="createNewAccountTitle">
-                    <span class="">Создать новый</span>
-                </div>
-                <div class="createNewAccountInput">
-                    <input type="checkbox" id="getCreateNewAccount" name="createNewAccount">
-                </div>
-                <div class="createNewAccountTitle">
-                    <span class="">Опубликовать как собственник</span>
-                </div>
-                <div class="publishAsHomeownerInput">
-                    <input type="checkbox" id="getPublishAsHomeowner" name="publishAsHomeowner" {% if client.segment.is_d %} checked {% endif %}>
-                </div>
-                <div class="accountForDraftTitle">
-                    <span class="">Использовать существующий</span>
-                </div>
-                <div class="accountForDraftSelect">
-                    <select class="select-control" id="getAccountForDraft">
-                        <option value="" selected disabled>Не выбрано</option>
-                        {% for client_account in client_accounts %}
-                            <option value={{ client_account.cian_user_id }}>{{ client_account.email }} {% if client_account.is_agent %}Агент{% else %}Собственник{% endif %}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="updateClientPhoneNumberButtonBlock" style="padding-top: 15px">
-                    <button id="updateClientPhoneNumberBtn" type="button" class="btn">Сменить номер телефона</button>
-                </div>
-                <div class="clientPhoneNumber" style="padding-top: 15px">
+                <div id="clientPhoneNumberInput" class="client-form-phone-input">
                     <input class="input-control" placeholder="Реальный телефон владельца"
                            value="{{ client.client_phones[0] }}"
                            type="string"
-                           id="getPhoneNumber">
+                           id="getPhoneNumber"
+                           style="float: left">
+                </div>
+                <div id="clientPhoneNumberBtn">
+                    <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
+                </div>
+                <div id="useExistingAccountBlock" >
+                <div id="useExistingAccountRadio" style="float: left;">
+                    <input type="radio" style="float: left;" name="account" id="getUseExistingAccount" checked>
+                </div>
+                <div id="useExistingAccountTitle">
+                    <span class="">Использовать существующий ЛК</span>
+                </div>
                 </div>
 
-            {% endif %}
+                <div id="createNewAccountBlock">
+                <div id="createNewAccountRadio" style="float: left;">
+                    <input type="radio" style="float: left;" name="account" id="getCreateNewAccount">
+                </div>
+                <div id="createNewAccountTitle">
+                    <span class="">Создать новый ЛК</span>
+                </div>
+                </div>
+                <div id="accountForDraftTitle">
+                    <span class="">Выбранный ЛК</span>
+                </div>
+                <div id="accountForDraftSelect">
+                    <select class="select-control" id="getAccountForDraft">
+                        <option value="" selected disabled>Не выбрано</option>
+                        {% for client_account in client_accounts %}
+                            <option value={{ client_account.cian_user_id }}>{{ client_account.email }} {% if client_account.is_agent %}Специалист{% else %}Собственник{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="accountForDraftSpacer"></div>
 
-        </div>
+                <div id="accountTypeTitle">
+                    <span class="">Тип ЛК</span>
+                </div>
+                <div id="accountTypeSelect">
+                    <select class="select-control" id="getAccountType">
+                        <option selected value="realtor">Специалист</option>
+                        <option value="homeowner">Собственник</option>
+                    </select>
+                </div>
+                <div id="accountTypeSpacer"></div>
+
+                <div id="transformAccountToSpecialistTitleBlock" >
+                <div id="transformAccountToSpecialistCheckboxTitle" style="float: left;">
+                    <span class="">Превратить в специалиста</span>
+                </div>
+                </div>
+
+                <div id="transformAccountToSpecialistCheckboxBlock">
+                <div id="transformAccountToSpecialistCheckbox" style="float: left;">
+                    <input type="checkbox" style="float: left;" name="account" id="getTransformAccountToSpecialist" checked>
+                </div>
+                <div id="transformAccountToSpecialistMessage" style="float: left;">
+                    <span class="">Это действие не может быть отменено позже!</span>
+                </div>
+                </div>
+
+            </div>
+            {% endif %}
     </form>
     </div>
 
@@ -285,8 +321,10 @@
         const getDeposit = $('#getDeposit');
         const getPrepayMonths = $('#getPrepayMonths');
         const getCreateNewAccount = $('#getCreateNewAccount');
-        const getPublishAsHomeowner = $('#getPublishAsHomeowner');
         const getAccountForDraft = $('#getAccountForDraft');
+        const getAccountType = $('#getAccountType');
+        const getUseExistingAccount = $('#getUseExistingAccount');
+        const getTransformAccountToSpecialist = $('#getTransformAccountToSpecialist');
 
 
         $('.ajax-form').on('submit', (event) => {
@@ -299,34 +337,77 @@
         };
 
         function getNumberOrStrNull(obj) {
-            return isNaN(parseInt(obj)) ? (DEBUG ? "" : "null") : parseInt(obj)
+            return isNaN(parseInt(obj)) ? (DEBUG ? null : "null") : parseInt(obj)
         }
 
         function getValueOrStrNull(obj) {
-            return obj === '' ? (DEBUG ? "" : "null") : obj
+            return obj === '' ? (DEBUG ? null : "null") : obj
         }
 
-        function onClickCreateNewAccountCheckbox() {
-            var title_element = document.getElementsByClassName('accountForDraftTitle')[0]
-            var input_element = document.getElementsByClassName('accountForDraftSelect')[0]
+        function onClickCreateNewAccountRadio() {
+            var account_title_element = document.getElementById('accountForDraftTitle')
+            var account_input_element = document.getElementById('accountForDraftSelect')
+            var account_spacer_element = document.getElementById('accountForDraftSpacer')
+            var type_title_element = document.getElementById('accountTypeTitle')
+            var type_input_element = document.getElementById('accountTypeSelect')
+            var type_spacer_element = document.getElementById('accountTypeSpacer')
+            var transform_account_title_block = document.getElementById('transformAccountToSpecialistTitleBlock')
+            var transform_account_checkbox_block = document.getElementById('transformAccountToSpecialistCheckboxBlock')
 
             if (getCreateNewAccount.is(':checked') === true) {
-                title_element.style.display = 'none'
-                input_element.style.display = 'none'
+                account_title_element.style.display = 'none'
+                account_input_element.style.display = 'none'
+                account_spacer_element.style.display = 'none'
+                transform_account_title_block.style.display = 'none'
+                transform_account_checkbox_block.style.display = 'none'
+                type_title_element.style.display = 'inline'
+                type_input_element.style.display = 'inline'
+                type_spacer_element.style.display = 'inline'
+            }
+        }
+
+        function onClickUseExistingAccountRadio() {
+            var account_title_element = document.getElementById('accountForDraftTitle')
+            var account_input_element = document.getElementById('accountForDraftSelect')
+            var account_spacer_element = document.getElementById('accountForDraftSpacer')
+            var type_title_element = document.getElementById('accountTypeTitle')
+            var type_input_element = document.getElementById('accountTypeSelect')
+            var type_spacer_element = document.getElementById('accountTypeSpacer')
+            var transform_account_title_block = document.getElementById('transformAccountToSpecialistTitleBlock')
+            var transform_account_checkbox_block = document.getElementById('transformAccountToSpecialistCheckboxBlock')
+
+            if (getUseExistingAccount.is(':checked') === true) {
+                account_title_element.style.display = 'inline'
+                account_input_element.style.display = 'inline'
+                account_spacer_element.style.display = 'inline'
+                type_title_element.style.display = 'none'
+                type_input_element.style.display = 'none'
+                type_spacer_element.style.display = 'none'
+                if (clientAccountsDict[getAccountForDraft.val()] === false) {
+                    transform_account_title_block.style.display = 'inline'
+                    transform_account_checkbox_block.style.display = 'inline'
+                } else {
+                    transform_account_title_block.style.display = 'none'
+                    transform_account_checkbox_block.style.display = 'none'
+                }
+            }
+        }
+
+        function onChangeAccountForDraftCombo() {
+            clientAccountsDict[getAccountForDraft.val()] === true
+            var transform_account_title_block = document.getElementById('transformAccountToSpecialistTitleBlock')
+            var transform_account_checkbox_block = document.getElementById('transformAccountToSpecialistCheckboxBlock')
+
+            if (clientAccountsDict[getAccountForDraft.val()] === false) {
+                transform_account_title_block.style.display = 'inline'
+                transform_account_checkbox_block.style.display = 'inline'
             } else {
-                title_element.style.display = 'inline'
-                input_element.style.display = 'inline'
+                transform_account_title_block.style.display = 'none'
+                transform_account_checkbox_block.style.display = 'none'
             }
         }
 
         const saveOffer = () => {
-            if (getCreateNewAccount.is(':checked') === false
-                &&  getPublishAsHomeowner.is(':checked') === true
-                && clientAccountsDict[getAccountForDraft.val()] === true) {
-                alert('Нельзя опубликоваться как собственник в агентском аккаунте!');
-                return
-            }
-
             if (getPrice.val() === "") {
                 alert('Цена обязательный параметр!');
                 return
@@ -341,7 +422,16 @@
                 return
             }
             var createNewAccount = getCreateNewAccount.is(':checked')
-            var publishAsHomeowner = getPublishAsHomeowner.is(':checked')
+            var publishAsHomeowner = null
+
+            if (createNewAccount === true) {
+                publishAsHomeowner = (getAccountType.val() === 'homeowner')
+            } else if (clientAccountsDict[getAccountForDraft.val()] === true){
+                publishAsHomeowner = false
+            } else {
+                publishAsHomeowner = !getTransformAccountToSpecialist.is(':checked')
+            }
+
             let obj = {
                 dealType: getDealType.val(),
                 offerType: getOfferType.val(),
@@ -395,9 +485,16 @@
         });
 
         getCreateNewAccount.click(() => {
-            onClickCreateNewAccountCheckbox()
+            onClickCreateNewAccountRadio()
         })
 
+        getAccountForDraft.change(() => {
+            onChangeAccountForDraftCombo()
+        })
+
+        getUseExistingAccount.click(() => {
+            onClickUseExistingAccountRadio()
+        })
         updateClientPhoneBtn.click(function() {
             if (getPhoneNumber.val() === "") {
                 alert('Телефон обязательный параметр!')
@@ -512,10 +609,26 @@
         width: 60%
     }
 
+    .clientForm {
+        display: grid;
+        grid-template-columns: 0.5fr 0.5fr 0.5fr 0.5fr;
+        padding: 0em 0;
+        margin-left: auto;
+        margin-right: auto;
+        width: 60%
+    }
+
     .offerForm div {
         padding: 0.1em 0;
     }
-    
+    .client-form-input {
+        grid-column-start: 2;
+        grid-column-end: 4;
+    }
+    .client-form-phone-input {
+        grid-column-start: 2;
+        grid-column-end: 4;
+    }
     .header-block {
         margin-left: auto;
         margin-right: auto;
@@ -535,9 +648,73 @@
         grid-column-start: 1;
         grid-column-end: 3;
     }
+    .client-table-block-header {
+        grid-column-start: 1;
+        grid-column-end: 5;
+    }
+    .clientForm div {
+        padding: 0.1em 0;
+    }
+    #clientPhoneNumberBtn {
+        padding: 0em 0.9em;
+    }
+
+    #accountForDraftTitle {
+        grid-column-start: 1;
+        grid-column-end: 2;
+    }
+    #accountForDraftSelect {
+        grid-column-start: 2;
+        grid-column-end: 4;
+    }
+    #accountTypeSelect {
+        grid-column-start: 2;
+        grid-column-end: 4;
+        display: none;
+    }
+    #accountTypeTitle {
+        display: none;
+    }
     .save-offer-button-block {
         margin-left: auto;
         margin-right: auto;
         width: 30%
+    }
+    #useExistingAccountBlock {
+        grid-column-start: 1;
+        grid-column-end: 3;
+    }
+    #createNewAccountBlock {
+        grid-column-start: 3;
+        grid-column-end: 5;
+    }
+    #useExistingAccountRadio {
+        padding: 1em 0em;
+    }
+
+    #createNewAccountRadio {
+        padding: 1em 0em;
+    }
+
+    #useExistingAccountTitle {
+        padding: 1em 1.5em;
+    }
+
+    #createNewAccountTitle {
+        padding: 1em 1.5em;
+    }
+    #transformAccountToSpecialistTitleBlock {
+        grid-column-start: 1;
+        grid-column-end: 2;
+        display: none
+    }
+    #transformAccountToSpecialistCheckboxBlock {
+        grid-column-start: 2;
+        grid-column-end: 5;
+        display: none;
+    }
+    #transformAccountToSpecialistMessage {
+        padding-left: 1em;
+        color: red;
     }
 </style>
