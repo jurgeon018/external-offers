@@ -223,22 +223,23 @@
                 <div id="clientPhoneNumberBtn">
                     <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
                 </div>
-                <div id="useExistingAccountBlock" >
+                <div id="accountCheckboxesBlock" >
                 <div id="useExistingAccountRadio" style="float: left;">
                     <input type="radio" style="float: left;" name="account" id="getUseExistingAccount" checked>
                 </div>
-                <div id="useExistingAccountTitle">
+                <div id="useExistingAccountTitle" style="float: left;">
                     <span class="">Использовать существующий ЛК</span>
                 </div>
-                </div>
-
-                <div id="createNewAccountBlock">
                 <div id="createNewAccountRadio" style="float: left;">
                     <input type="radio" style="float: left;" name="account" id="getCreateNewAccount">
                 </div>
-                <div id="createNewAccountTitle">
+                <div id="createNewAccountTitle" style="float: left;">
                     <span class="">Создать новый ЛК</span>
                 </div>
+
+                </div>
+
+                <div id="createNewAccountSpacer">
                 </div>
                 <div id="accountForDraftTitle">
                     <span class="">Выбранный ЛК</span>
@@ -611,7 +612,7 @@
 
     .clientForm {
         display: grid;
-        grid-template-columns: 0.5fr 0.5fr 0.5fr 0.5fr;
+        grid-template-columns: 0.75fr 0.5fr 0.5fr 0.5fr;
         padding: 0em 0;
         margin-left: auto;
         margin-right: auto;
@@ -680,28 +681,28 @@
         margin-right: auto;
         width: 30%
     }
-    #useExistingAccountBlock {
+    #accountCheckboxesBlock {
         grid-column-start: 1;
         grid-column-end: 3;
     }
-    #createNewAccountBlock {
+    #createNewAccountSpacer {
         grid-column-start: 3;
         grid-column-end: 5;
     }
     #useExistingAccountRadio {
-        padding: 1em 0em;
+        padding: 0.75em 0em;
     }
 
     #createNewAccountRadio {
-        padding: 1em 0em;
+        padding: 0.75em 0em;
     }
 
     #useExistingAccountTitle {
-        padding: 1em 1.5em;
+        padding: 0.75em 2em 0.75em 0.5em
     }
 
     #createNewAccountTitle {
-        padding: 1em 1.5em;
+        padding: 0.75em 1em 1em 0.5em;
     }
     #transformAccountToSpecialistTitleBlock {
         grid-column-start: 1;
