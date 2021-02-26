@@ -63,6 +63,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     po = tables.parsed_offers.alias()
     options = [
         po.c.source_object_model['phones'] != JSON.NULL,
+        po.c.source_object_model['phones'] != [''],
         not_(po.c.is_calltracking),
         not_(po.c.synced),
     ]
