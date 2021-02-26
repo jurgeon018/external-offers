@@ -414,7 +414,7 @@
                     alert('Телефон успешно изменен')
                     location.reload();
                 } else {
-                    errors = data.errors.map((element) => element.message).join('<br>');
+                    errors = data.errors.map((element) => element.message).join('\n');
                     alert(errors)
                 }
             });
