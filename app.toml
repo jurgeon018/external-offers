@@ -13,6 +13,9 @@ alias = "external_offers"
 type = "rabbitmq"
 
 [[dependency]]
+type = "redis"
+
+[[dependency]]
 type = "kafka"
 alias = "default"
 

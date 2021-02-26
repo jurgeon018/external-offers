@@ -2,37 +2,32 @@
 Скопировано из монолита cian.addform.service.get_underground_by_coordinates
 """
 
-import math
 from typing import List
 
+from cian_cache import CachedOptions, cached
 from simple_settings import settings
 
 from external_offers.repositories.monolith_cian_announcementapi.entities import Coordinates, UndergroundInfo
 from external_offers.repositories.monolith_cian_announcementapi.entities.calculated_undergrounds import TransportType
 from external_offers.repositories.monolith_cian_geoapi import v2_undergrounds_get_all
+from external_offers.repositories.monolith_cian_geoapi.entities import UndergroundModelV2
 from external_offers.repositories.monolith_cian_realty import api_autocomplete_undeground
 from external_offers.repositories.monolith_cian_realty.entities import ApiAutocompleteUndeground
+from external_offers.services.undergrounds.utils import haversine
 
 
-EARTH_RADIUS = 6378137.0
+async def get_all_undergrounds() -> List[UndergroundModelV2]:
+    return await v2_undergrounds_get_all()
 
 
-def haversine(
-    *,
-    lon1: float,
-    lat1: float,
-    lon2: float,
-    lat2: float
-) -> float:
-    """
-    Вычисление расстояния между 2 координатами в метрах
-    """
-    lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
-    distance_lon = abs(lon2 - lon1)
-    distance_lat = abs(lat2 - lat1)
-    a = math.sin(distance_lat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(distance_lon / 2) ** 2
-    c = 2 * math.asin(math.sqrt(a))
-    return c * EARTH_RADIUS
+get_all_undergrounds_cached = cached(
+    group='external_offers_get_all_undergrounds',
+    options=CachedOptions(
+        ttl=settings.GET_ALL_UNDERGROUNDS_CACHE_TTL,
+        use_global_cache=False,
+        use_local_cache=True,
+    )
+)(get_all_undergrounds)
 
 
 async def get_underground_by_coordinates(
@@ -44,7 +39,7 @@ async def get_underground_by_coordinates(
     radius = settings.UNDERGROUND_SEARCH_RADIUS
     # не использовать region_id для фильтрации так как объекты в МО
     # расположенные близко к метро не будут учитываться
-    all_metro = await v2_undergrounds_get_all()
+    all_metro = await get_all_undergrounds_cached()
     calculate_distance_within_radius = {}
     for metro in all_metro:
         distance = haversine(

@@ -227,7 +227,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         topic='ml-content-copying.change',
         message=data
     )
-    await asyncio.sleep(2)
+    await asyncio.sleep(3)
 
     # assert
     messages = await queue.get_messages()
@@ -328,7 +328,7 @@ async def test_external_offer_callback__new_external_offer_with_coordinates__geo
         topic='ml-content-copying.change',
         message=data
     )
-    await asyncio.sleep(2)
+    await asyncio.sleep(3)
 
     # assert
     request = await geoapi_stub.get_request()

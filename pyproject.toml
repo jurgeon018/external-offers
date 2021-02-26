@@ -18,7 +18,7 @@ url = "https://nexus.cian.tech/repository/cian/simple/"
 default = true
 
 [tool.poetry.dependencies]
-cian-core = {version = "^1.20", extras = ['postgres', 'kafka', 'graphite']}
+cian-core = {version = "^1.20", extras = ['postgres', 'kafka', 'graphite', 'cache']}
 cian-kafka = "^1.2"
 cian-entities = "^1.8"
 cian-enum = "^1.1"
@@ -31,10 +31,12 @@ simple-settings = "^0.19"
 tornado = "^6.0"
 jinja2 = "^2.11.2"
 asyncpgsa = "^0.26"
+cian-cache = "^1.4.0"
+astroid = "2.4.2"
 
 [tool.poetry.dev-dependencies]
 cian-lint = "*"
-cian-functional-test-utils = {version = "*", extras = ["python", "postgres", "kafka", "rabbitmq"]}
+cian-functional-test-utils = {version = "^0.64", extras = ["python", "postgres", "kafka", "rabbitmq", "cache"]}
 cian-test-utils = "^1.2"
 diff-cover = "*"
 isort = "*"
