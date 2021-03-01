@@ -243,6 +243,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
 
     assert payload['model']['category'] == 'flatSale'
     assert payload['model']['floorNumber'] == 3
+    assert payload['model']['flatType'] == 'rooms'
     assert payload['model']['roomsCount'] == 5
     assert payload['model']['totalArea'] == 30
     assert payload['model']['description'] == 'описание'

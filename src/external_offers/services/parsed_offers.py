@@ -20,7 +20,11 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     UtilitiesTerms,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.bargain_terms import Currency
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category, PropertyType
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
+    Category,
+    FlatType,
+    PropertyType,
+)
 from external_offers.repositories.monolith_cian_geoapi import v2_geocode
 from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest
 from external_offers.services.save_offer import geo_type_to_type_mapping
@@ -31,6 +35,8 @@ logger = logging.getLogger(__name__)
 
 SOURCE_ROOMS_COUNT = 'roomsCount'
 SOURCE_TOTAL_AREA = 'totalArea'
+SOURCE_KITCHEN_AREA = 'kitchenArea'
+SOURCE_IS_STUDIO = 'isStudio'
 SOURCE_LIVING_AREA = 'livingArea'
 SOURCE_FLOORS_COUNT = 'floorsCount'
 SOURCE_PRICE = 'price'
@@ -45,6 +51,7 @@ SOURCE_URL = 'url'
 SOURCE_IS_AGENCY = 'isAgency'
 
 DEFAULT_GEOCODE_KIND = 'house'
+DEFAULT_ROOMS_COUNT = 1
 
 SOURCE_CATEGORY_TO_CATEGORY: Dict[str, Category] = {
     'flatSale': Category.flat_sale,
@@ -55,12 +62,16 @@ CITY_LOCATION_ID = 1
 REGION_LOCATION_ID = 2
 
 
-def get_rooms_count_from_source_object_model(source_object_model: dict) -> Optional[int]:
-    return source_object_model.get(SOURCE_ROOMS_COUNT)
-
+def get_rooms_count_from_source_object_model(source_object_model: dict) -> int:
+    rooms_count = source_object_model.get(SOURCE_ROOMS_COUNT)
+    return rooms_count or DEFAULT_ROOMS_COUNT
 
 def get_total_area_from_source_object_model(source_object_model: dict) -> Optional[float]:
     return source_object_model.get(SOURCE_TOTAL_AREA)
+
+
+def get_kitchen_area_from_source_object_model(source_object_model: dict) -> Optional[float]:
+    return source_object_model.get(SOURCE_KITCHEN_AREA)
 
 
 def get_living_area_from_source_object_model(source_object_model: dict) -> Optional[float]:
@@ -102,6 +113,16 @@ def get_address_from_source_object_model(source_object_model: dict) -> Optional[
 def get_is_by_homeowner_from_source_object_model(source_object_model: dict) -> Optional[bool]:
     is_agency = bool(source_object_model.get(SOURCE_IS_AGENCY))
     return not is_agency
+
+
+def get_flat_type_from_source_object_model(source_object_model: dict) -> Optional[FlatType]:
+    if source_object_model.get(SOURCE_IS_STUDIO):
+        return FlatType.studio
+
+    if source_object_model.get(SOURCE_ROOMS_COUNT) is None:
+        return FlatType.open_plan
+
+    return FlatType.rooms
 
 
 def get_id_from_source_object_id(source_object_id: str) -> str:
@@ -222,6 +243,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
                 )
             ],
             total_area=get_total_area_from_source_object_model(source_object_model),
+            kitchen_area=get_kitchen_area_from_source_object_model(source_object_model),
             living_area=get_living_area_from_source_object_model(source_object_model),
             property_type=PropertyType.building,
             rooms_count=get_rooms_count_from_source_object_model(source_object_model),
@@ -231,6 +253,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
             description=get_description_from_source_object_model(source_object_model),
             is_enabled_call_tracking=offer.is_calltracking,
             is_by_home_owner=get_is_by_homeowner_from_source_object_model(source_object_model),
+            flat_type=get_flat_type_from_source_object_model(source_object_model),
             row_version=0
     )
 

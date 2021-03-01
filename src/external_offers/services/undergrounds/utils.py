@@ -20,5 +20,3 @@ def haversine(
     a = math.sin(distance_lat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(distance_lon / 2) ** 2
     c = 2 * math.asin(math.sqrt(a))
     return c * EARTH_RADIUS
-
-
