@@ -192,18 +192,9 @@
             {% endif %}
 
             <div class='table-block-header'>
-                <span class="text-header">Контакты</span>
+                <span class="text-header">Дополнительно</span>
             </div>
 
-            <div class="offerTelephoneTitle">
-                <span class="">Телефон</span>
-            </div>
-            <div class="offerTelephoneTitleInput">
-                    <input class="input-control" placeholder="Реальный телефон владельца"
-                           value="{{ client.client_phones[0] }}"
-                           type="string"
-                           id="getPhoneNumber">
-            </div>
             <div class="offerDescriptionTitle">
                 <span class=""> Описание объявления</span>
             </div>
@@ -213,6 +204,84 @@
                               id="getDescription"></textarea>
             </div>
         </div>
+            {% if not exist_drafts %}
+            <div class="clientForm">
+                <div class='client-table-block-header'>
+                    <span class="text-header">Личный кабинет</span>
+                </div>
+                <div class="changeClientPhoneTitle">
+                    <span class="">Номер телефона</span>
+                </div>
+
+                <div id="clientPhoneNumberInput" class="client-form-phone-input">
+                    <input class="input-control" placeholder="Реальный телефон владельца"
+                           value="{{ client.client_phones[0] }}"
+                           type="string"
+                           id="getPhoneNumber"
+                           style="float: left">
+                </div>
+                <div id="clientPhoneNumberBtn">
+                    <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
+                </div>
+                <div id="accountCheckboxesBlock" >
+                <div id="useExistingAccountRadio" style="float: left;">
+                    <input type="radio" style="float: left;" name="account" id="getUseExistingAccount" checked>
+                </div>
+                <div id="useExistingAccountTitle" style="float: left;">
+                    <span class="">Использовать существующий ЛК</span>
+                </div>
+                <div id="createNewAccountRadio" style="float: left;">
+                    <input type="radio" style="float: left;" name="account" id="getCreateNewAccount">
+                </div>
+                <div id="createNewAccountTitle" style="float: left;">
+                    <span class="">Создать новый ЛК</span>
+                </div>
+
+                </div>
+
+                <div id="createNewAccountSpacer">
+                </div>
+                <div id="accountForDraftTitle">
+                    <span class="">Выбранный ЛК</span>
+                </div>
+                <div id="accountForDraftSelect">
+                    <select class="select-control" id="getAccountForDraft">
+                        <option value="" selected disabled>Не выбрано</option>
+                        {% for client_account in client_accounts %}
+                            <option value={{ client_account.cian_user_id }}>{{ client_account.email }} {% if client_account.is_agent %}Специалист{% else %}Собственник{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="accountForDraftSpacer"></div>
+
+                <div id="accountTypeTitle">
+                    <span class="">Тип ЛК</span>
+                </div>
+                <div id="accountTypeSelect">
+                    <select class="select-control" id="getAccountType">
+                        <option selected value="realtor">Специалист</option>
+                        <option value="homeowner">Собственник</option>
+                    </select>
+                </div>
+                <div id="accountTypeSpacer"></div>
+
+                <div id="transformAccountToSpecialistTitleBlock" >
+                <div id="transformAccountToSpecialistCheckboxTitle" style="float: left;">
+                    <span class="">Превратить в специалиста</span>
+                </div>
+                </div>
+
+                <div id="transformAccountToSpecialistCheckboxBlock">
+                <div id="transformAccountToSpecialistCheckbox" style="float: left;">
+                    <input type="checkbox" style="float: left;" name="account" id="getTransformAccountToSpecialist" checked>
+                </div>
+                <div id="transformAccountToSpecialistMessage" style="float: left;">
+                    <span class="">Это действие не может быть отменено позже!</span>
+                </div>
+                </div>
+
+            </div>
+            {% endif %}
     </form>
     </div>
 
@@ -228,7 +297,14 @@
 
 <script>
     jQuery(($) => {
+        let DEBUG = 'True' === '{{ debug }}'
+        let clientAccountsDict = {}
+        {% for client_account in client_accounts %}
+        clientAccountsDict[{{ client_account.cian_user_id }}] = {% if client_account.is_agent %} true {% else %} false {% endif %}
+        {% endfor %}
+
         const saveOfferBtn = $('#saveOfferBtn');
+        const updateClientPhoneBtn = $('#updateClientPhoneNumberBtn');
         const getDealType = $('#getDealType');
         const getOfferType = $('#getOfferType');
         const getCategoryType = $('#getCategoryType');
@@ -245,6 +321,11 @@
         const getDescription = $('#getDescription');
         const getDeposit = $('#getDeposit');
         const getPrepayMonths = $('#getPrepayMonths');
+        const getCreateNewAccount = $('#getCreateNewAccount');
+        const getAccountForDraft = $('#getAccountForDraft');
+        const getAccountType = $('#getAccountType');
+        const getUseExistingAccount = $('#getUseExistingAccount');
+        const getTransformAccountToSpecialist = $('#getTransformAccountToSpecialist');
 
 
         $('.ajax-form').on('submit', (event) => {
@@ -257,23 +338,82 @@
         };
 
         function getNumberOrStrNull(obj) {
-            return isNaN(parseInt(obj)) ? "null" : parseInt(obj)
+            return isNaN(parseInt(obj)) ? (DEBUG ? null : "null") : parseInt(obj)
         }
 
         function getValueOrStrNull(obj) {
-            return obj === '' ? "null" : obj
+            return obj === '' ? (DEBUG ? null : "null") : obj
         }
 
-        let DEBUG = 'True' === '{{ debug }}'
+        function onClickCreateNewAccountRadio() {
+            var account_title_element = document.getElementById('accountForDraftTitle')
+            var account_input_element = document.getElementById('accountForDraftSelect')
+            var account_spacer_element = document.getElementById('accountForDraftSpacer')
+            var type_title_element = document.getElementById('accountTypeTitle')
+            var type_input_element = document.getElementById('accountTypeSelect')
+            var type_spacer_element = document.getElementById('accountTypeSpacer')
+            var transform_account_title_block = document.getElementById('transformAccountToSpecialistTitleBlock')
+            var transform_account_checkbox_block = document.getElementById('transformAccountToSpecialistCheckboxBlock')
+
+            if (getCreateNewAccount.is(':checked') === true) {
+                account_title_element.style.display = 'none'
+                account_input_element.style.display = 'none'
+                account_spacer_element.style.display = 'none'
+                transform_account_title_block.style.display = 'none'
+                transform_account_checkbox_block.style.display = 'none'
+                type_title_element.style.display = 'inline'
+                type_input_element.style.display = 'inline'
+                type_spacer_element.style.display = 'inline'
+            }
+        }
+
+        function onClickUseExistingAccountRadio() {
+            var account_title_element = document.getElementById('accountForDraftTitle')
+            var account_input_element = document.getElementById('accountForDraftSelect')
+            var account_spacer_element = document.getElementById('accountForDraftSpacer')
+            var type_title_element = document.getElementById('accountTypeTitle')
+            var type_input_element = document.getElementById('accountTypeSelect')
+            var type_spacer_element = document.getElementById('accountTypeSpacer')
+            var transform_account_title_block = document.getElementById('transformAccountToSpecialistTitleBlock')
+            var transform_account_checkbox_block = document.getElementById('transformAccountToSpecialistCheckboxBlock')
+
+            if (getUseExistingAccount.is(':checked') === true) {
+                account_title_element.style.display = 'inline'
+                account_input_element.style.display = 'inline'
+                account_spacer_element.style.display = 'inline'
+                type_title_element.style.display = 'none'
+                type_input_element.style.display = 'none'
+                type_spacer_element.style.display = 'none'
+                if (clientAccountsDict[getAccountForDraft.val()] === false) {
+                    transform_account_title_block.style.display = 'inline'
+                    transform_account_checkbox_block.style.display = 'inline'
+                } else {
+                    transform_account_title_block.style.display = 'none'
+                    transform_account_checkbox_block.style.display = 'none'
+                }
+            }
+        }
+
+        function onChangeAccountForDraftCombo() {
+            clientAccountsDict[getAccountForDraft.val()] === true
+            var transform_account_title_block = document.getElementById('transformAccountToSpecialistTitleBlock')
+            var transform_account_checkbox_block = document.getElementById('transformAccountToSpecialistCheckboxBlock')
+
+            if (clientAccountsDict[getAccountForDraft.val()] === false) {
+                transform_account_title_block.style.display = 'inline'
+                transform_account_checkbox_block.style.display = 'inline'
+            } else {
+                transform_account_title_block.style.display = 'none'
+                transform_account_checkbox_block.style.display = 'none'
+            }
+        }
+
         const saveOffer = () => {
             if (getPrice.val() === "") {
                 alert('Цена обязательный параметр!');
                 return
             } else if (getTotalArea.val() === "") {
                 alert('Общая площадь обязательный параметр!');
-                return
-            } else if (getPhoneNumber.val() === "") {
-                alert('Телефон обязательный параметр!');
                 return
             } else if (getAddress.val() === "") {
                 alert('Адрес обязательный параметр!');
@@ -282,38 +422,50 @@
                 alert('Описание объявления обязательный параметр!');
                 return
             }
+            var createNewAccount = getCreateNewAccount.is(':checked')
+            var publishAsHomeowner = null
 
-        let obj = {
-            dealType: getDealType.val(),
-            offerType: getOfferType.val(),
-            category: getCategoryType.val(),
-            address: getAddress.val(),
-            totalArea: parseInt(getTotalArea.val()),
-            price: parseInt(getPrice.val()),
-            phoneNumber: getPhoneNumber.val(),
-            description: getDescription.val(),
-            floorNumber: getNumberOrStrNull(getFloorNumber.val()),
-            floorsCount: getNumberOrStrNull(getFloorCount.val()),
-            roomsCount: getValueOrStrNull(getRoomsCount.val()),
-            realtyType: getValueOrStrNull(getRealtyType.val()),
-            saleType: getValueOrStrNull(getSaleType.val()),
-            termType: getValueOrStrNull(getTermType.val()),
-            offerId: '{{ offer_id }}',
-            clientId: '{{ client.client_id }}',
-        }
-        {% if parsed_object_model.is_rent %}
-            let obj_rent = {
-                deposit: getNumberOrStrNull(getDeposit.val()),
+            if (createNewAccount === true) {
+                publishAsHomeowner = (getAccountType.val() === 'homeowner')
+            } else if (clientAccountsDict[getAccountForDraft.val()] === true){
+                publishAsHomeowner = false
+            } else {
+                publishAsHomeowner = !getTransformAccountToSpecialist.is(':checked')
             }
-            obj = {...obj, ...obj_rent};
-        {% endif %}
 
-        {% if parsed_object_model.is_long_term_rent %}
-            let obj_long_term_rent = {
-                prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
+            let obj = {
+                dealType: getDealType.val(),
+                offerType: getOfferType.val(),
+                category: getCategoryType.val(),
+                address: getAddress.val(),
+                totalArea: parseInt(getTotalArea.val()),
+                price: parseInt(getPrice.val()),
+                description: getDescription.val(),
+                floorNumber: getNumberOrStrNull(getFloorNumber.val()),
+                floorsCount: getNumberOrStrNull(getFloorCount.val()),
+                roomsCount: getValueOrStrNull(getRoomsCount.val()),
+                realtyType: getValueOrStrNull(getRealtyType.val()),
+                saleType: getValueOrStrNull(getSaleType.val()),
+                termType: getValueOrStrNull(getTermType.val()),
+                createNewAccount: createNewAccount,
+                publishAsHomeowner: publishAsHomeowner,
+                accountForDraft:  getNumberOrStrNull(createNewAccount ? "" : getAccountForDraft.val()),
+                offerId: '{{ offer_id }}',
+                clientId: '{{ client.client_id }}',
             }
-            obj = {...obj, ...obj_long_term_rent};
-        {% endif %}
+            {% if parsed_object_model.is_rent %}
+                let obj_rent = {
+                    deposit: getNumberOrStrNull(getDeposit.val()),
+                }
+                obj = {...obj, ...obj_rent};
+            {% endif %}
+    
+            {% if parsed_object_model.is_long_term_rent %}
+                let obj_long_term_rent = {
+                    prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
+                }
+                obj = {...obj, ...obj_long_term_rent};
+            {% endif %}
 
             $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
@@ -332,6 +484,39 @@
         saveOfferBtn.click(() => {
             saveOffer()
         });
+
+        getCreateNewAccount.click(() => {
+            onClickCreateNewAccountRadio()
+        })
+
+        getAccountForDraft.change(() => {
+            onChangeAccountForDraftCombo()
+        })
+
+        getUseExistingAccount.click(() => {
+            onClickUseExistingAccountRadio()
+        })
+        updateClientPhoneBtn.click(function() {
+            if (getPhoneNumber.val() === "") {
+                alert('Телефон обязательный параметр!')
+                return
+            }
+            let obj = {
+                phoneNumber: getPhoneNumber.val(),
+                clientId: '{{ client.client_id }}',
+
+            }
+            $.post("/api/admin/v1/update-client-phone/", DEBUG ? JSON.stringify(obj) : obj
+            ).then(function (data) {
+                if (data.success === true) {
+                    alert('Телефон успешно изменен')
+                    location.reload();
+                } else {
+                    errors = data.errors.map((element) => element.message).join('\n');
+                    alert(errors)
+                }
+            });
+        })
 
     });
 
@@ -419,7 +604,16 @@
     .offerForm {
         display: grid;
         grid-template-columns: 0.5fr 1fr;
-        padding: 2em 0;
+        padding: 2em 0 1em 0;
+        margin-left: auto;
+        margin-right: auto;
+        width: 60%
+    }
+
+    .clientForm {
+        display: grid;
+        grid-template-columns: 0.75fr 0.5fr 0.5fr 0.5fr;
+        padding: 0em 0;
         margin-left: auto;
         margin-right: auto;
         width: 60%
@@ -428,7 +622,14 @@
     .offerForm div {
         padding: 0.1em 0;
     }
-    
+    .client-form-input {
+        grid-column-start: 2;
+        grid-column-end: 4;
+    }
+    .client-form-phone-input {
+        grid-column-start: 2;
+        grid-column-end: 4;
+    }
     .header-block {
         margin-left: auto;
         margin-right: auto;
@@ -448,9 +649,76 @@
         grid-column-start: 1;
         grid-column-end: 3;
     }
+    .client-table-block-header {
+        grid-column-start: 1;
+        grid-column-end: 5;
+    }
+    .clientForm div {
+        padding: 0.1em 0;
+    }
+    #clientPhoneNumberBtn {
+        padding: 0em 0.9em;
+    }
+
+    #accountForDraftTitle {
+        grid-column-start: 1;
+        grid-column-end: 2;
+    }
+    #accountForDraftSelect {
+        grid-column-start: 2;
+        grid-column-end: 4;
+    }
+    #accountTypeSelect {
+        grid-column-start: 2;
+        grid-column-end: 4;
+        display: none;
+    }
+    #accountTypeTitle {
+        display: none;
+    }
     .save-offer-button-block {
         margin-left: auto;
         margin-right: auto;
         width: 30%
+    }
+    #accountCheckboxesBlock {
+        grid-column-start: 1;
+        grid-column-end: 4;
+    }
+    #createNewAccountSpacer {
+        grid-column-start: 4;
+        grid-column-end: 5;
+    }
+    #useExistingAccountRadio {
+        padding: 0.75em 0em;
+    }
+
+    #createNewAccountRadio {
+        padding: 0.75em 0em;
+    }
+
+    #useExistingAccountTitle {
+        padding: 0.75em 2em 0.75em 0.5em
+    }
+
+    #createNewAccountTitle {
+        padding: 0.75em 1em 0.75em 0.5em;
+    }
+    #transformAccountToSpecialistTitleBlock {
+        grid-column-start: 1;
+        grid-column-end: 2;
+        display: none
+    }
+    #transformAccountToSpecialistCheckboxBlock {
+        grid-column-start: 2;
+        grid-column-end: 5;
+        display: none;
+    }
+    #transformAccountToSpecialistMessage {
+        padding-left: 1em;
+        color: red;
+    }
+    .text-info {
+        padding: 1em 0 0.5em 0;
     }
 </style>

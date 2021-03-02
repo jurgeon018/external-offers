@@ -91,21 +91,27 @@ async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminR
 
     client = await get_client_by_client_id(client_id=request.client_id)
     if not client:
-        return AdminResponse(success=True, errors=[
-            AdminError(
-                message='Пользователь с переданным идентификатором не найден',
-                code='missingUser'
-            )
-        ])
+        return AdminResponse(
+            success=False,
+            errors=[
+                AdminError(
+                    message='Пользователь с переданным идентификатором не найден',
+                    code='missingUser'
+                )
+            ]
+        )
 
     offer = await get_offer_by_offer_id(offer_id=offer_id)
     if not offer:
-        return AdminResponse(success=True, errors=[
-            AdminError(
-                message='Объявление с переданным идентификатором не найдено',
-                code='missingOffer'
-            )
-        ])
+        return AdminResponse(
+            success=False,
+            errors=[
+                AdminError(
+                    message='Объявление с переданным идентификатором не найдено',
+                    code='missingOffer'
+                )
+            ]
+        )
 
     async with pg.get().transaction():
         await set_offer_cancelled_by_offer_id(
@@ -148,12 +154,15 @@ async def set_decline_status_for_client(request: AdminDeclineClientRequest, user
     client_id = request.client_id
     client = await get_client_by_client_id(client_id=request.client_id)
     if not client:
-        return AdminResponse(success=True, errors=[
-            AdminError(
-                message='Пользователь с переданным идентификатором не найден',
-                code='missingUser'
-            )
-        ])
+        return AdminResponse(
+            success=False,
+            errors=[
+                AdminError(
+                    message='Пользователь с переданным идентификатором не найден',
+                    code='missingUser'
+                )
+            ]
+        )
 
     async with pg.get().transaction():
         created_draft = await exists_offers_draft_by_client(
@@ -199,12 +208,15 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
     client = await get_client_by_client_id(client_id=request.client_id)
 
     if not client:
-        return AdminResponse(success=True, errors=[
-            AdminError(
-                message='Пользователь с переданным идентификатором не найден',
-                code='missingUser'
-            )
-        ])
+        return AdminResponse(
+            success=False,
+            errors=[
+                AdminError(
+                    message='Пользователь с переданным идентификатором не найден',
+                    code='missingUser'
+                )
+            ]
+        )
 
     async with pg.get().transaction():
         await set_client_to_call_missed_status_and_return(
@@ -237,12 +249,15 @@ async def set_call_later_status_for_client(request: AdminCallMissedClientRequest
     client = await get_client_by_client_id(client_id=request.client_id)
 
     if not client:
-        return AdminResponse(success=True, errors=[
-            AdminError(
-                message='Пользователь с переданным идентификатором не найден',
-                code='missingUser'
-            )
-        ])
+        return AdminResponse(
+            success=False,
+            errors=[
+                AdminError(
+                    message='Пользователь с переданным идентификатором не найден',
+                    code='missingUser'
+                )
+            ]
+        )
 
     async with pg.get().transaction():
         await set_client_to_call_later_status_and_return(

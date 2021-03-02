@@ -126,7 +126,6 @@ async def save_offer_request_body():
         'floors_count': 5,
         'price': 100000,
         'sale_type': '',
-        'phone_number': '89134488338',
         'offerId': '1',
         'clientId': '7',
         'description': 'Test'

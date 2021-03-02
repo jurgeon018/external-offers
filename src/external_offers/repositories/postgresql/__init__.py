@@ -15,6 +15,7 @@ from external_offers.repositories.postgresql.clients import (
     set_client_to_call_missed_status_and_return,
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
+    set_phone_number_by_client_id,
 )
 from external_offers.repositories.postgresql.event_log import (
     get_enriched_event_log_entries_for_calls_kafka_sync,
@@ -37,10 +38,10 @@ from external_offers.repositories.postgresql.offers import (
     get_offer_by_parsed_id,
     get_offer_cian_id_by_offer_id,
     get_offer_promocode_by_offer_id,
-    get_offers_by_limit_and_offset,
     get_offers_in_progress_by_operator,
     get_offers_parsed_ids_by_parsed_ids,
     get_waiting_offer_counts_by_clients,
+    iterate_over_offers_for_call_sorted,
     save_offer_for_call,
     set_offer_cancelled_by_offer_id,
     set_offer_cian_id_by_offer_id,
@@ -58,7 +59,7 @@ from external_offers.repositories.postgresql.parsed_offers import (
     get_lastest_event_timestamp,
     get_latest_updated_at,
     get_parsed_offer_object_model_by_offer_id,
-    get_parsed_offers_by_limit_and_offset,
+    iterate_over_parsed_offers_sorted,
     save_parsed_offer,
     set_synced_and_fetch_parsed_offers_chunk,
 )

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
 from simple_settings import settings
@@ -556,23 +556,22 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
 
 
-async def get_offers_by_limit_and_offset(
+async def iterate_over_offers_for_call_sorted(
     *,
-    limit: int,
-    offset: int,
-) -> List[Offer]:
+    prefetch=settings.DEFAULT_PREFETCH,
+) -> AsyncGenerator[Offer, None]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
         ).order_by(
             offers_for_call.c.created_at.asc(),
             offers_for_call.c.id.asc()
-        ).limit(
-            limit
-        ).offset(
-            offset
         )
     )
-
-    result = await pg.get().fetch(query, *params)
-    return [offer_mapper.map_from(row) for row in result] if result else []
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield offer_mapper.map_from(row)

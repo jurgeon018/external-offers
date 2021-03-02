@@ -1,16 +1,17 @@
 import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
-from cian_json import json
 
 
 @pytest.mark.parametrize(
-    ('segment', 'is_by_homeowner'),
+    ('segment', 'publish_as_homeowner', 'is_by_homeowner'),
     (
-        ('c', False),
-        ('d', True)
+        ('c', True, True),
+        ('d', False, False),
+        ('c', None, False),
+        ('d', None, True)
     )
 )
-async def test_save_offer__smb_segment__is_by_homeowner_false(
+async def test_save_offer__smb_segment_and_publish_as_homeowner__is_by_homeowner_overwritten(
         pg,
         http,
         users_mock,
@@ -18,6 +19,7 @@ async def test_save_offer__smb_segment__is_by_homeowner_false(
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
         segment,
+        publish_as_homeowner,
         is_by_homeowner
 ):
     # arrange
@@ -115,7 +117,7 @@ async def test_save_offer__smb_segment__is_by_homeowner_false(
             status=400
         ),
     )
-
+    save_offer_request_body['publishAsHomeowner'] = publish_as_homeowner
     # act
     await http.request(
         'POST',
@@ -128,6 +130,5 @@ async def test_save_offer__smb_segment__is_by_homeowner_false(
 
     # assert
     request = await draft_stub.get_request()
-    request_body = json.loads(request.body)
 
-    assert request_body['model']['isByHomeOwner'] is is_by_homeowner
+    assert request.data['model']['isByHomeOwner'] is is_by_homeowner

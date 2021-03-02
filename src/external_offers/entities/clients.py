@@ -32,3 +32,13 @@ class ClientWaitingOffersCount:
     """Идентификатор клиента"""
     waiting_offers_count: int
     """Количество объявлений в ожидании"""
+
+
+@dataclass
+class ClientAccountInfo:
+    cian_user_id: int
+    """Идентификатор клиента на Циане"""
+    email: Optional[str]
+    """Почта привязанная к аккаунту"""
+    is_agent: bool
+    """Агентский ли аккаунт"""

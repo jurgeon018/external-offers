@@ -25,6 +25,6 @@ offers_for_call_change_producer: EntityKafkaProducer[OfferForCallKafkaMessage] =
 )
 
 parsed_offers_change_producer: EntityKafkaProducer[ParsedOfferKafkaMessage] = get_kafka_entity_producer(
-    topic='parsed-offer.change',
+    topic='parsed-offers.change',
     message_type=ParsedOfferKafkaMessage,
 )

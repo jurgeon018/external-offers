@@ -173,6 +173,10 @@ def create_publication_model(
         category: Category,
         user_segment: Optional[str]
 ):
+    is_by_home_owner = (request.publish_as_homeowner
+                        if request.publish_as_homeowner is not None
+                        else segment_to_is_by_homeowner.get(user_segment, False))
+
     return PublicationModel(
         model=ObjectModel(
             bargain_terms=BargainTerms(
@@ -221,7 +225,7 @@ def create_publication_model(
             description=request.description,
             object_guid=generate_uppercase_guid(),
             flat_type=rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms),
-            is_by_home_owner=segment_to_is_by_homeowner.get(user_segment, False),
+            is_by_home_owner=is_by_home_owner,
             is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
             row_version=0  # если этот параметр не слать, шарп 500ит
         ),
@@ -282,6 +286,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 message='Отсутствует объявление с переданным идентификатором'
             )
 
+        client = await get_client_by_client_id(client_id=request.client_id)
+
         status = await try_to_lock_offer_and_return_status(
                 offer_id=request.offer_id
         )
@@ -296,7 +302,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 message='Объявление уже сохранено как черновик'
             )
 
-        phone_number = transform_phone_number_to_canonical_format(request.phone_number)
+        phone_number = transform_phone_number_to_canonical_format(client.client_phones[0])
         category = mapping_offer_params_to_category[
             (request.term_type,
              request.category,
@@ -308,7 +314,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             cian_user_id = await get_cian_user_id_by_client_id(
                 client_id=request.client_id
             )
-            if not cian_user_id:
+            cian_user_id = request.account_for_draft or cian_user_id
+            if request.create_new_account or not cian_user_id:
                 register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
                     RegisterUserByPhoneRequest(
                         phone=phone_number,
@@ -316,17 +323,12 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     )
                 )
                 cian_user_id = register_response.user_data.id
-                await set_cian_user_id_by_client_id(
-                    cian_user_id=cian_user_id,
-                    client_id=request.client_id
-                )
 
-                if register_response.has_many_accounts:
-                    logger.warning(
-                        'Не удалось однозначно определить аккаунт для пользователя %s, выбран %d',
-                        request.client_id,
-                        cian_user_id
-                    )
+            await set_cian_user_id_by_client_id(
+                cian_user_id=cian_user_id,
+                client_id=request.client_id
+            )
+
         except ApiClientException as exc:
             statsd_incr_if_not_test_user(
                 metric='save_offer.error.registration',
@@ -495,7 +497,6 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             operator_user_id=user_id,
             status=OfferStatus.draft.value
         )
-        client = await get_client_by_client_id(client_id=request.client_id)
 
         updated = await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
 
@@ -521,8 +522,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         message=CallsKafkaMessage(
                             manager_id=user_id,
                             source_user_id=client.avito_user_id,
-                            user_id=client.cian_user_id,
-                            phone=client.client_phones[0],
+                            user_id=cian_user_id,
+                            phone=phone_number,
                             status=ClientStatus.accepted.value,
                             call_id=offer.last_call_id,
                             date=now,

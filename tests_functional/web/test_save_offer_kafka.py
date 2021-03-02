@@ -146,7 +146,7 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
         'date': ANY,
         'timestamp': ANY,
         'userId': 7777777,
-        'phone': '+79134488338',
+        'phone': '+79812333292',
         'callId': 'ddd86dec-20f5-4a70-bb3a-077b2754df77',
         'draft': 1243433
     }

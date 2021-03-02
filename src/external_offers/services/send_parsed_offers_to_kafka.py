@@ -7,28 +7,22 @@ from cian_core.statsd import statsd
 from cian_kafka import KafkaProducerError
 from simple_settings import settings
 
+from external_offers import pg
 from external_offers.entities.kafka import ParsedOfferKafkaMessage
 from external_offers.queue.kafka import parsed_offers_change_producer
-from external_offers.repositories.postgresql import get_parsed_offers_by_limit_and_offset
+from external_offers.repositories.postgresql import iterate_over_parsed_offers_sorted
 
 
 logger = logging.getLogger(__name__)
 
 
 async def send_parsed_offers_to_kafka():
-    offset = 0
-    offers = await get_parsed_offers_by_limit_and_offset(
-        limit=settings.PARSED_OFFERS_FOR_KAFKA_FETCH_LIMIT,
-        offset=offset
-    )
+    async with pg.get().transaction():
+        async for offer in iterate_over_parsed_offers_sorted(
+            prefetch=settings.PARSED_OFFERS_FOR_KAFKA_FETCH_LIMIT
+        ):
+            now = datetime.now(pytz.utc)
 
-    while offers:
-        now = datetime.now(pytz.utc)
-        offers_processed = 0
-        offers_success = 0
-        offers_failed = 0
-
-        for offer in offers:
             try:
                 await parsed_offers_change_producer(
                     message=ParsedOfferKafkaMessage(
@@ -40,23 +34,9 @@ async def send_parsed_offers_to_kafka():
                 )
             except KafkaProducerError:
                 logger.warning('Не удалось отправить событие для объявления %s', offer.id)
-                offers_failed += 1
-
-        offers_processed = len(offers)
-        offers_success = offers_processed - offers_failed
-
-        statsd.incr(
-            stat='send-parsed-offers-to-kafka.success',
-            count=offers_success
-        )
-
-        statsd.incr(
-            stat='send-parsed-offers-to-kafka.failed',
-            count=offers_failed
-        )
-
-        offset += offers_processed
-        offers = await get_parsed_offers_by_limit_and_offset(
-            limit=settings.PARSED_OFFERS_FOR_KAFKA_FETCH_LIMIT,
-            offset=offset
-        )
+                statsd.incr(
+                    stat='send-parsed-offers-to-kafka.failed',
+                )
+            statsd.incr(
+                stat='send-parsed-offers-to-kafka.success',
+            )
