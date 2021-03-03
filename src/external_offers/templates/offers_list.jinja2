@@ -224,9 +224,13 @@
          };
 
          document.getElementById("returnClientByPhoneNumberBtn").onclick = async function () {
-
+           phoneNumber = document.getElementById("clientPhoneNumberInput").value
+           if (phoneNumber === '') {
+              alert('Не заполнен номер телефона!');
+              return;
+           }
            obj = {
-              'phoneNumber': document.getElementById("clientPhoneNumberInput").value
+              'phoneNumber': phoneNumber
            }
            body = DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
            const response = await fetch("/api/admin/v1/return-client-by-phone/", {
