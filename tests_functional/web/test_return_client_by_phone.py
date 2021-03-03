@@ -19,7 +19,7 @@ async def test_return_client_by_phone__correct_request__client_and_offers_return
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         """,
         ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
-         ['89134488338'], 'nemoy@gmail.com', None, 'inProgress']
+         ['89134488338'], 'nemoy@gmail.com', None, 'callLater']
     )
 
     await pg.execute(
@@ -78,13 +78,13 @@ async def test_return_client_by_phone__correct_request__client_and_offers_return
 
     before_return_call_missed_offer = await pg.fetchrow(
         """
-        SELECT * FROM offers_for_call WHERE id = 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6'
+        SELECT * FROM offers_for_call WHERE id = '1'
         """
     )
 
     before_return_draft_offer = await pg.fetchrow(
         """
-        SELECT * FROM offers_for_call WHERE id = 'f1a91ade-13a2-48d9-a05a-6131af39033e'
+        SELECT * FROM offers_for_call WHERE id = '2'
         """
     )
 

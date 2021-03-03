@@ -19,7 +19,7 @@ SUITABLE_RETURN_CLIENT_STATUS = [
 
 
 async def return_client_by_phone(request: ReturnClientByPhoneRequest, user_id: int) -> ReturnClientByPhoneResponse:
-    """ Обновить телефон клиента """
+    """ Взять в работу клиента по номеру телефона. Возможно не для всех статусов """
     phone_number = transform_phone_number_to_inner_format(request.phone_number)
     async with pg.get().transaction():
         client = await get_client_for_update_by_phone_number(

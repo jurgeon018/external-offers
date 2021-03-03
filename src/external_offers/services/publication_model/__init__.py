@@ -1,1 +1,0 @@
-from external_offers.services.publication_model.create_publication_model import create_publication_model
