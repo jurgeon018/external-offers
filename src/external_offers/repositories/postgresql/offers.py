@@ -204,34 +204,6 @@ async def set_undrafted_offers_in_progress_by_client(
     return [r['id'] for r in result]
 
 
-async def set_undrafted_offers_in_progress_by_client(
-    *,
-    client_id: str,
-    call_id: str,
-) -> List[str]:
-    sql = (
-        update(
-            offers_for_call
-        ).values(
-            status=OfferStatus.in_progress.value,
-            last_call_id=call_id
-        ).where(
-            and_(
-                offers_for_call.c.client_id == client_id,
-                offers_for_call.c.status != OfferStatus.draft.value
-            )
-        ).returning(
-            offers_for_call.c.id
-        )
-    )
-
-    query, params = asyncpgsa.compile_query(sql)
-
-    result = await pg.get().fetch(query, *params)
-    return [r['id'] for r in result]
-
-
-
 async def set_offers_declined_by_client(*, client_id: str) -> List[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
@@ -369,7 +341,7 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: str) -> Optional[Li
 
 async def set_waiting_offers_priority_by_client_ids(*, client_ids: List[str], priority: int) -> None:
     for client_ids_chunk in iterate_over_list_by_chunks(
-        l=client_ids,
+        iterable=client_ids,
         chunk_size=settings.SET_WAITING_OFFERS_PRIORITY_BY_CLIENT_IDS_CHUNK
     ):
         sql = (
