@@ -38,7 +38,6 @@ async def test_clear_offers__clearing_disabled__clear_nothing(
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -91,7 +90,6 @@ async def test_clear_offers__none_updated_in_window__clear_nothing(
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -144,7 +142,6 @@ async def test_clear_offers__none_updated_in_window_but_check_disabled__clear(
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -222,7 +219,6 @@ async def test_clear_offers__none_before_border__clear_nothing(
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -298,7 +294,7 @@ async def test_clear_offers__exist_offer_before_border__clear_only(
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-    await asyncio.sleep(1)
+
     expected_missing = await pg.fetchval(
         """
         SELECT 1 FROM parsed_offers WHERE id = '2e6c73b8-3057-47cc-b50a-419052da619f'
@@ -429,7 +425,7 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-    await asyncio.sleep(1)
+
     expected_missing = await pg.fetchval(
         """
         SELECT 1 FROM offers_for_call WHERE id = '1'
@@ -492,7 +488,7 @@ async def test_clear_offers__offer_cleard__send_message_to_queue(
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-    await asyncio.sleep(1)
+
     messages = await queue.get_messages()
     payload = messages[0].payload
 

@@ -46,7 +46,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -100,7 +99,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -164,7 +162,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -218,7 +215,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -286,7 +282,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -335,7 +330,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk_
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -411,7 +405,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_a
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -479,7 +472,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_ma
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -528,7 +520,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -622,7 +613,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -698,7 +688,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -775,7 +764,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(

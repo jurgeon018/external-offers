@@ -41,7 +41,8 @@ CREATE TABLE clients
     client_email     varchar(50),
     operator_user_id bigint,
     status           client_status_type,
-    segment          varchar(1)
+    segment          varchar(1),
+    next_call  timestamp with time zone,
 );
 
 CREATE TABLE event_log

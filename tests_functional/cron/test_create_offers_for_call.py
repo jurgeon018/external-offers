@@ -28,7 +28,6 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -66,7 +65,6 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -103,7 +101,6 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -139,7 +136,6 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -174,7 +170,6 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -210,7 +205,6 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -246,7 +240,6 @@ async def test_create_offers__exist_parsed_offer_without_phones__doesnt_create_o
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -283,7 +276,6 @@ async def test_create_offers__exist_parsed_offer_with_calltracking__doesnt_creat
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -318,7 +310,6 @@ async def test_create_offers__exist_parsed_offer_synced__doesnt_create_offer(
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -370,7 +361,6 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -421,7 +411,6 @@ async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -472,7 +461,6 @@ async def test_create_offers__exist_suitable_parsed_offer_with_accepted_client__
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -508,7 +496,6 @@ async def test_create_offers__exist_suitable_parsed_offer_with_timestamp_before_
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -585,7 +572,6 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_use
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -622,7 +608,6 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_maximum_exceed
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(
@@ -658,7 +643,6 @@ async def test_create_offers__exist_parsed_offer_with_empty_phone__doesnt_create
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     row = await pg.fetchrow(

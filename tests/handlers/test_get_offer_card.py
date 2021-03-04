@@ -16,7 +16,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                                          'offer_object_model_by_offer_id')
     get_parsed_offer_mock.return_value = future(mocker.sentinel.parsed_offer)
 
-    get_client_mock = mocker.patch('external_offers.web.handlers.admin.get_client_by_operator')
+    get_client_mock = mocker.patch('external_offers.web.handlers.admin.get_client_in_progress_by_operator')
     client_mock = mocker.MagicMock()
     get_client_mock.return_value = future(client_mock)
 

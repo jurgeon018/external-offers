@@ -1,0 +1,1 @@
+from external_offers.utils.utils import iterate_over_list_by_chunks

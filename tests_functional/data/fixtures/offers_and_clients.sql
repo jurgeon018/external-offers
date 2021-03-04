@@ -13,7 +13,7 @@ INSERT INTO public.clients(
     '{+79812333234}',
     'testemail@gmail.com',
     60024635,
-    'waiting'
+    'inProgress'
 ), (
     '2',
     '32131323',

@@ -2,6 +2,7 @@ import logging
 
 from external_offers import pg
 from external_offers.entities.admin import (
+    AdminCallLaterClientRequest,
     AdminCallMissedClientRequest,
     AdminDeclineClientRequest,
     AdminDeleteOfferRequest,
@@ -12,16 +13,15 @@ from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid
 from external_offers.queue.helpers import send_kafka_calls_analytics_message_if_not_test
 from external_offers.repositories.postgresql import (
-    assign_waiting_client_to_operator,
+    assign_suitable_client_to_operator,
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_client,
     exists_offers_in_progress_by_operator,
-    exists_waiting_client,
     get_client_by_client_id,
     get_offer_by_offer_id,
     save_event_log_for_offers,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
-    set_client_to_call_later_status_and_return,
+    set_client_to_call_later_status_set_next_call_and_return,
     set_client_to_call_missed_status_and_return,
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
@@ -29,7 +29,7 @@ from external_offers.repositories.postgresql import (
     set_offers_call_later_by_client,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
-    set_waiting_offers_in_progress_by_client,
+    set_undrafted_offers_in_progress_by_client,
 )
 
 
@@ -38,19 +38,6 @@ logger = logging.getLogger(__name__)
 
 async def update_offers_list(user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
-    exists_client = await exists_waiting_client()
-
-    if not exists_client:
-        return AdminResponse(
-            success=False,
-            errors=[
-                AdminError(
-                    message='Отсутствуют доступные задания',
-                    code='waitingClientMissing'
-                )
-            ]
-        )
-
     exists = await exists_offers_in_progress_by_operator(
         operator_id=user_id
     )
@@ -67,10 +54,21 @@ async def update_offers_list(user_id: int) -> AdminResponse:
 
     async with pg.get().transaction():
         call_id = generate_guid()
-        client_id = await assign_waiting_client_to_operator(
+        client_id = await assign_suitable_client_to_operator(
             operator_id=user_id
         )
-        if offers_ids := await set_waiting_offers_in_progress_by_client(
+        if not client_id:
+            return AdminResponse(
+                success=False,
+                errors=[
+                    AdminError(
+                        message='Отсутствуют доступные задания',
+                        code='suitableClientMissing'
+                    )
+                ]
+            )
+
+        if offers_ids := await set_undrafted_offers_in_progress_by_client(
             client_id=client_id,
             call_id=call_id
         ):
@@ -243,9 +241,10 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
     return AdminResponse(success=True, errors=[])
 
 
-async def set_call_later_status_for_client(request: AdminCallMissedClientRequest, user_id: int) -> AdminResponse:
+async def set_call_later_status_for_client(request: AdminCallLaterClientRequest, user_id: int) -> AdminResponse:
     """ Поставить клиенту статус `Позвонить позже` в админке """
     client_id = request.client_id
+    call_later_datetime = request.call_later_datetime
     client = await get_client_by_client_id(client_id=request.client_id)
 
     if not client:
@@ -260,9 +259,11 @@ async def set_call_later_status_for_client(request: AdminCallMissedClientRequest
         )
 
     async with pg.get().transaction():
-        await set_client_to_call_later_status_and_return(
-            client_id=client_id
+        await set_client_to_call_later_status_set_next_call_and_return(
+            client_id=client_id,
+            next_call=call_later_datetime
         )
+
         if offers_ids := await set_offers_call_later_by_client(
             client_id=client_id
         ):

@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import List, Optional
 
 import asyncpgsa
-from sqlalchemy import and_, delete, exists, select, update
+import pytz
+from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
@@ -11,78 +13,93 @@ from external_offers.mappers import client_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
 
-async def get_client_by_operator(*, operator_id: int) -> Optional[Client]:
-    query = """
-        SELECT
-            *
-        FROM
-            clients as c
-        WHERE
-            c.operator_user_id = $1
-        LIMIT 1
-    """
+async def get_client_in_progress_by_operator(*, operator_id: int) -> Optional[Client]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients]
+        ).where(
+            and_(
+                clients.c.operator_user_id == operator_id,
+                clients.c.status == ClientStatus.in_progress.value
 
-    row = await pg.get().fetchrow(query, operator_id)
+            )
+        ).limit(1)
+    )
+    row = await pg.get().fetchrow(query, *params)
 
     return client_mapper.map_from(row) if row else None
 
 
-async def assign_waiting_client_to_operator(*, operator_id: int) -> str:
-    query = """
-        WITH cte1 as (
-            SELECT
-                c.client_id as client_id
-            FROM
-                clients as c
-            INNER JOIN
-                offers_for_call as ofc
-            ON
-                ofc.client_id = c.client_id
-            WHERE
-                c.operator_user_id IS NULL
-                AND c.status = 'waiting'
-                AND ofc.status = 'waiting'
-            ORDER BY
-                ofc.priority NULLS LAST,
-                ofc.created_at
-            FOR UPDATE SKIP LOCKED
-            LIMIT 1
-        )
+async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
+    now = datetime.now(pytz.utc)
 
-
-        UPDATE
-            clients
-        SET
-            operator_user_id = $1,
-            status = 'inProgress'
-        FROM
-            cte1
-        WHERE
-            clients.client_id = cte1.client_id
-        RETURNING
-            clients.client_id
-    """
-
-    return await pg.get().fetchval(query, operator_id)
-
-
-async def exists_waiting_client() -> bool:
-    query, params = asyncpgsa.compile_query(
-        select([1])
-        .select_from(
-            clients
-        )
-        .where(
-            and_(
-                clients.c.status == ClientStatus.waiting.value,
+    first_suitable_offer_client_cte = (
+        select(
+            [
+                clients.c.client_id,
+            ]
+        ).select_from(
+            clients.join(
+                offers_for_call,
+                offers_for_call.c.client_id == clients.c.client_id
             )
+        ).with_for_update(
+            skip_locked=True
+        ).where(
+            or_(
+                and_(
+                    clients.c.operator_user_id.is_(None),
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    clients.c.status == ClientStatus.waiting.value
+                ),
+                and_(
+                    clients.c.operator_user_id == operator_id,
+                    offers_for_call.c.status == OfferStatus.call_later.value,
+                    clients.c.next_call <= now
+                )
+            )
+        ).order_by(
+            nullslast(offers_for_call.c.priority.asc()),
+            offers_for_call.c.created_at.asc()
+        ).limit(
+            1
+        ).cte(
+            'first_suitable_offer_client_cte'
         )
-        .limit(1)
     )
 
-    exists_client = await pg.get().fetchval(query, *params)
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            operator_user_id=operator_id,
+            status=ClientStatus.in_progress.value
+        ).where(
+            clients.c.client_id == first_suitable_offer_client_cte.c.client_id
+        ).returning(
+            clients.c.client_id
+        )
+    )
+    return await pg.get().fetchval(query, *params)
 
-    return bool(exists_client)
+
+async def assign_client_to_operator(*, client_id: str, operator_id: int) -> Optional[Client]:
+    sql = (
+        update(
+            clients
+        ).values(
+            operator_user_id=operator_id,
+            status=ClientStatus.in_progress.value
+        ).where(
+            clients.c.client_id == client_id
+        ).returning(
+            clients
+        )
+    )
+    query, params = asyncpgsa.compile_query(sql)
+    row = await pg.get().fetchrow(query, *params)
+
+    return client_mapper.map_from(row) if row else None
 
 
 async def set_client_to_status_and_return(*, client_id: str, status: ClientStatus) -> Optional[Client]:
@@ -91,9 +108,32 @@ async def set_client_to_status_and_return(*, client_id: str, status: ClientStatu
             clients
         ).values(
             status=status.value,
-            operator_user_id=None
         ).where(
             clients.c.client_id == client_id
+        ).returning(
+            clients
+        )
+    )
+    query, params = asyncpgsa.compile_query(sql)
+    row = await pg.get().fetchrow(query, *params)
+
+    return client_mapper.map_from(row) if row else None
+
+
+async def set_client_to_status_and_set_next_call_date_and_return(
+    *,
+    client_id: str,
+    next_call: datetime,
+    status: ClientStatus
+) -> Optional[Client]:
+    sql = (
+        update(
+            clients
+        ).values(
+            status=status.value,
+            next_call=next_call
+        ).where(
+            clients.c.client_id == client_id,
         ).returning(
             clients
         )
@@ -125,10 +165,15 @@ async def set_client_to_call_missed_status_and_return(*, client_id: str) -> Opti
     )
 
 
-async def set_client_to_call_later_status_and_return(*, client_id: str) -> Optional[Client]:
-    return await set_client_to_status_and_return(
+async def set_client_to_call_later_status_set_next_call_and_return(
+    *,
+    client_id: str,
+    next_call: datetime
+) -> Optional[Client]:
+    return await set_client_to_status_and_set_next_call_date_and_return(
         client_id=client_id,
-        status=ClientStatus.call_later
+        status=ClientStatus.call_later,
+        next_call=next_call
     )
 
 
@@ -158,18 +203,6 @@ async def get_client_by_avito_user_id(*, avito_user_id: str) -> Optional[Client]
     row = await pg.get().fetchrow(query, *params)
 
     return client_mapper.map_from(row) if row else None
-
-
-async def get_client_id_by_offer_id(*, offer_id: str) -> str:
-    query, params = asyncpgsa.compile_query(
-        select(
-            [offers_for_call.c.client_id]
-        ).where(
-            offers_for_call.c.id == offer_id,
-        ).limit(1)
-    )
-
-    return await pg.get().fetchval(query, *params)
 
 
 async def get_client_by_client_id(*, client_id: str) -> Optional[Client]:
