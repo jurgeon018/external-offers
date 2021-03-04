@@ -88,32 +88,11 @@ async def assign_client_to_operator(*, client_id: str, operator_id: int) -> Opti
         update(
             clients
         ).values(
-<<<<<<< HEAD
             operator_user_id=operator_id,
             status=ClientStatus.in_progress.value
         ).where(
             clients.c.client_id == client_id
         ).returning(
-=======
-            status=ClientStatus.in_progress.value,
-            operator_user_id=operator_id
-        ).where(
-            clients.c.client_id == client_id
-        ).returning(
-            clients
-        )
-    )
-    query, params = asyncpgsa.compile_query(sql)
-    row = await pg.get().fetchrow(query, *params)
-
-    return client_mapper.map_from(row) if row else None
-
-
-async def exists_waiting_client() -> bool:
-    query, params = asyncpgsa.compile_query(
-        select([1])
-        .select_from(
->>>>>>> master
             clients
         )
     )

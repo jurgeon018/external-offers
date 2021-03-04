@@ -1,14 +1,11 @@
 from external_offers.repositories.postgresql.clients import (
     assign_client_to_operator,
     assign_suitable_client_to_operator,
-    assign_waiting_client_to_operator,
     delete_waiting_clients_by_client_ids,
     get_cian_user_id_by_client_id,
     get_client_by_avito_user_id,
     get_client_by_client_id,
-    get_client_by_operator,
     get_client_for_update_by_phone_number,
-    get_client_id_by_offer_id,
     get_client_in_progress_by_operator,
     get_segment_by_client_id,
     save_client,
@@ -54,7 +51,6 @@ from external_offers.repositories.postgresql.offers import (
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
     set_undrafted_offers_in_progress_by_client,
-    set_waiting_offers_in_progress_by_client,
     set_waiting_offers_priority_by_client_ids,
     try_to_lock_offer_and_return_status,
 )
