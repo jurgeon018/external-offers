@@ -5,7 +5,6 @@ from external_offers.repositories.postgresql.clients import (
     get_cian_user_id_by_client_id,
     get_client_by_avito_user_id,
     get_client_by_client_id,
-    get_client_for_update_by_phone_number,
     get_client_in_progress_by_operator,
     get_segment_by_client_id,
     save_client,

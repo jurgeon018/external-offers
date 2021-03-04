@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import asyncpgsa
 import pytz
-from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
+from sqlalchemy import and_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
