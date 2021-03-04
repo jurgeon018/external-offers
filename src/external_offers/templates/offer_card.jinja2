@@ -139,12 +139,12 @@
                 <span class="">Этаж (необязательно)</span>
             </div>
             <div>
-                <input type="number" class="input-control" value="{{ parsed_object_model.floor_number }}"
+                <input type="number" class="input-control" value="{{ parsed_object_model.floor_number | int }}"
                        placeholder="Этаж объекта" id="getFloorNumber">
             </div>
             <div></div>
             <div>
-                <input type="number" class="input-control" value="{{ parsed_object_model.floors_count }}"
+                <input type="number" class="input-control" value="{{ parsed_object_model.floors_count | int }}"
                        placeholder="Общее количество этажей в доме"
                        id="getFloorCount">
             </div>
@@ -472,6 +472,15 @@
                 switch (data.status) {
                     case 'ok':
                         alert('Объявление успешно создано как черновик');
+                        if (DEBUG) {
+                            window.location.href = `/admin/offers-list/`;
+                        } else {
+                            // workaround to redirect when on service.cian.ru
+                            queryParams = new URLSearchParams(window.location.search)
+                            queryParams.set("url", `/admin/offers-list/`);
+                            history.pushState(null, null, "?"+queryParams.toString());
+                            location.reload()
+                        }
                         break;
                     default:
                         alert(data.message);

@@ -17,6 +17,7 @@ templates.filters.update(custom_filters)
 
 
 def get_offers_list_html(
+    *,
     offers: List[EnrichedOffer],
     client: Optional[Client],
     default_next_call_datetime: datetime
@@ -31,6 +32,7 @@ def get_offers_list_html(
 
 
 def get_offer_card_html(
+    *,
     parsed_object_model: ParsedObjectModel,
     info_message: str,
     offer_id: str,

@@ -7,6 +7,7 @@ T = TypeVar('T')
 
 
 def iterate_over_list_by_chunks(
+    *,
     iterable: Iterable[T],
     chunk_size: int = settings.ITERATE_OVER_LIST_DEFAULT_CHUNK
 ) -> Generator[Iterable[T], None, None]:
