@@ -59,9 +59,17 @@
          .update-offers-button {
          margin: auto;
          }
+         .return-client-block {
+         margin: auto;
+         padding: 1.5em 0 0 0;
+         display: flex;
+         }
+         #clientPhoneNumberInputWrapper {
+         padding: 0 0.5em 0 0;
+         }
          .update-offers-messages {
          margin: auto;
-         padding: 1em;
+         padding: 0.5em;
          }
          .error-messages-block {
          display: {% if not (client is defined) or not (client) or not (offers is defined) or not offers %} grid {% else %} none {% endif %};
@@ -96,7 +104,19 @@
    </head>
    <body>
       <div class="update-offers-block">
-         <button class="update-offers-button" id="updateOffersButton1">Получить задания</button>
+         <button class="update-offers-button" id="updateOffersBtn">Получить задания</button>
+         <div class="return-client-block">
+            <div id="clientPhoneNumberInputWrapper" class="client-form-phone-input">
+                <input id="clientPhoneNumberInput" placeholder="Телефон клиента"
+                       type="string"
+                       size=20
+                       maxlength=15>
+            </div>
+            <div id="clientPhoneNumberBtn">
+               <button id="returnClientByPhoneNumberBtn" type="button">Взять клиента в работу</button>
+            </div>
+         </div>
+
          <div class="update-offers-messages" id="updateOffersMessages1"></div>
       </div>
       <div class="client-info-block">
@@ -194,7 +214,7 @@
            }
          }
 
-         document.getElementById("updateOffersButton1").onclick = async function () {
+         document.getElementById("updateOffersBtn").onclick = async function () {
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST'
            });
@@ -207,6 +227,32 @@
              updateOffersMessages.innerHTML = errors;
            }
          };
+
+         document.getElementById("returnClientByPhoneNumberBtn").onclick = async function () {
+           phoneNumber = document.getElementById("clientPhoneNumberInput").value
+           if (phoneNumber === '') {
+              alert('Не заполнен номер телефона!');
+              return;
+           }
+           obj = {
+              'phoneNumber': phoneNumber
+           }
+           body = DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+           const response = await fetch("/api/admin/v1/return-client-by-phone/", {
+             method: 'POST',
+             body: body
+           });
+           resp = await response.json()
+           if (resp.success === true) {
+              alert('Клиент взят в работу')
+              location.reload()
+           } else {
+             errors = resp.errors.map((element) => element.message).join('<br>');
+             updateOffersMessages = document.getElementById("updateOffersMessages1");
+             updateOffersMessages.innerHTML = errors;
+           }
+         };
+
          
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {

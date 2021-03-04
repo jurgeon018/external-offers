@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import asyncpgsa
 import pytz
-from sqlalchemy import and_, delete, exists, nullslast, or_, select, update
+from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
@@ -88,11 +88,32 @@ async def assign_client_to_operator(*, client_id: str, operator_id: int) -> Opti
         update(
             clients
         ).values(
+<<<<<<< HEAD
             operator_user_id=operator_id,
             status=ClientStatus.in_progress.value
         ).where(
             clients.c.client_id == client_id
         ).returning(
+=======
+            status=ClientStatus.in_progress.value,
+            operator_user_id=operator_id
+        ).where(
+            clients.c.client_id == client_id
+        ).returning(
+            clients
+        )
+    )
+    query, params = asyncpgsa.compile_query(sql)
+    row = await pg.get().fetchrow(query, *params)
+
+    return client_mapper.map_from(row) if row else None
+
+
+async def exists_waiting_client() -> bool:
+    query, params = asyncpgsa.compile_query(
+        select([1])
+        .select_from(
+>>>>>>> master
             clients
         )
     )
@@ -211,6 +232,22 @@ async def get_client_by_client_id(*, client_id: str) -> Optional[Client]:
             [clients]
         ).where(
             clients.c.client_id == client_id,
+        ).limit(1)
+    )
+
+    row = await pg.get().fetchrow(query, *params)
+
+    return client_mapper.map_from(row) if row else None
+
+
+async def get_client_for_update_by_phone_number(*, phone_number: str) -> Optional[Client]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients],
+        ).with_for_update(
+            skip_locked=True
+        ).where(
+            any_(clients.c.client_phones) == phone_number,
         ).limit(1)
     )
 
