@@ -47,7 +47,7 @@ urlpatterns = base_urls.urlpatterns + [
     url('/api/admin/v1/call-later-client/$', get_handler(
         service=admin.set_call_later_status_for_client,
         method='POST',
-        request_schema=entities.AdminCallMissedClientRequest,
+        request_schema=entities.AdminCallLaterClientRequest,
         response_schema=entities.AdminResponse,
         base_handler_cls=PublicHandler,
     )),

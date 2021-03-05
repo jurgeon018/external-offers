@@ -1,4 +1,5 @@
 from external_offers.entities.admin import (
+    AdminCallLaterClientRequest,
     AdminCallMissedClientRequest,
     AdminDeclineClientRequest,
     AdminDeleteOfferRequest,

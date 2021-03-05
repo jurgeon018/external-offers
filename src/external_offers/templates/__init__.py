@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, List, Optional
 
 from jinja2 import Environment, PackageLoader
@@ -15,16 +16,23 @@ templates = Environment(
 templates.filters.update(custom_filters)
 
 
-def get_offers_list_html(offers: List[EnrichedOffer], client: Optional[Client]) -> str:
+def get_offers_list_html(
+    *,
+    offers: List[EnrichedOffer],
+    client: Optional[Client],
+    default_next_call_datetime: datetime
+) -> str:
     template = templates.get_template('offers_list.jinja2')
     return template.render(
         offers=offers,
         client=client,
+        next_call_datetime=default_next_call_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
         debug=settings.DEBUG
     )
 
 
 def get_offer_card_html(
+    *,
     parsed_object_model: ParsedObjectModel,
     info_message: str,
     offer_id: str,

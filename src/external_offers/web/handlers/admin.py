@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
+
 from simple_settings import settings
 
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_operator_and_offer_id,
-    get_client_by_operator,
+    get_client_in_progress_by_operator,
     get_enriched_offers_in_progress_by_operator,
     get_parsed_offer_object_model_by_offer_id,
 )
@@ -17,16 +19,24 @@ class AdminOffersListPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        client = await get_client_by_operator(
+        client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
         offers = await get_enriched_offers_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
+        now = datetime.now()
+        next_call_day = now + timedelta(days=settings.NEXT_CALL_DAY)
+        next_call_datetime = next_call_day.replace(
+            hour=settings.NEXT_CALL_HOUR,
+            minute=settings.NEXT_CALL_MINUTES,
+            second=settings.NEXT_CALL_SECONDS
+        )
 
         self.write(get_offers_list_html(
             offers=offers,
-            client=client
+            client=client,
+            default_next_call_datetime=next_call_datetime
         ))
 
 
@@ -47,7 +57,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             offer_id=offer_id
         )
 
-        client = await get_client_by_operator(
+        client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
 

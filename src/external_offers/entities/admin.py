@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List
 
 
@@ -36,3 +37,11 @@ class AdminDeleteOfferRequest:
 class AdminCallMissedClientRequest:
     client_id: str
     """ID клиента"""
+
+
+@dataclass
+class AdminCallLaterClientRequest:
+    client_id: str
+    """ID клиента"""
+    call_later_datetime: datetime
+    """Дата и время следующего звонка"""

@@ -93,7 +93,10 @@
          }
          .call-later-client-block {
          padding: 0.5em 0em;
-         display: inline-block;
+         display: flex;
+         }
+         #call-later-datetime {
+         margin: 0em 1em 0em 0em
          }
 
       </style>
@@ -133,8 +136,10 @@
                <div class="call-missed-client-messages" id="callMissedClientMessages1"></div>
             </div>
             <div class="call-later-client-block">
+               <input id="call-later-datetime" type="datetime-local" value={{ next_call_datetime }}>
                <button class="call-later-client-button" id="callLaterClientButton1">Перезвонить</button>
                <div class="call-later-client-messages" id="callLaterClientMessages1"></div>
+
             </div>
 
          </div>
@@ -285,8 +290,16 @@
          };
 
          document.getElementById("callLaterClientButton1").onclick = async function () {
+           call_later_datetime = document.getElementById("call-later-datetime").value
+           if (call_later_datetime === '') {
+              alert('Не заполнена дата следующего звонка')
+              return
+           }
+           call_later_datetime_iso = new Date(call_later_datetime).toISOString()
+
            let obj =  {
-               'client_id': '{{ client.client_id }}'
+               'client_id': '{{ client.client_id }}',
+               'call_later_datetime': call_later_datetime_iso
            }
            const response = await fetch("/api/admin/v1/call-later-client/", {
              method: 'POST',

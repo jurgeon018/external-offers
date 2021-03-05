@@ -59,7 +59,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -136,7 +135,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_blocke
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -165,7 +163,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'ACTIVE_LK_HOMEOWNER_PRIOTIY': 5
+        'NO_LK_HOMEOWNER_PRIORITY': 4
     })
     await users_mock.add_stub(
         method='GET',
@@ -204,7 +202,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -253,7 +250,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(
@@ -302,7 +298,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk_
 
     # act
     await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
 
     # assert
     offer_row = await pg.fetchrow(

@@ -1,6 +1,8 @@
 import asyncio
+from datetime import datetime
 
 import pytest
+import pytz
 from mock import ANY
 
 
@@ -341,7 +343,8 @@ async def test_call_later_client__client_exist_send_exceeded_timeout__expected_l
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'client_id': operator_client,
+            'call_later_datetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -374,7 +377,8 @@ async def test_call_later_client__client_exist_with_2_offers__expected_1_message
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'client_id': operator_client,
+            'call_later_datetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -421,7 +425,8 @@ async def test_call_later_client__client_doesnt_exist__expected_0_messages_to_ka
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'client_id': operator_client,
+            'call_later_datetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -458,7 +463,9 @@ async def test_call_later_client__client_exist_with_2_offers_and_operator_test__
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'client_id': operator_client,
+            'call_later_datetime': datetime.now(pytz.utc).isoformat()
+
         },
         expected_status=200
     )

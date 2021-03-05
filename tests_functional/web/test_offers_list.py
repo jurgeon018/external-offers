@@ -1,7 +1,9 @@
 import os
+import re
+from datetime import datetime, timedelta
 
 import pytest
-from cian_json import json
+import pytz
 
 
 async def test_get_offers_list__without_x_real_userid__returns_400(http):
@@ -29,11 +31,19 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
         },
         expected_status=200)
 
+    html = resp.body.decode('utf-8')
+    html_without_dynamic_datetime = re.sub(
+        r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
+        '',
+        html
+    )
+
     if 'UPDATE_HTML_FIXTURES' in os.environ:
-        admin_external_offers_operator_with_client_in_progress_html.write_text(resp.body.decode('utf-8'))
+        admin_external_offers_operator_with_client_in_progress_html.write_text(html_without_dynamic_datetime)
 
     # assert
-    assert resp.body.decode('utf-8') == admin_external_offers_operator_with_client_in_progress_html.read_text('utf-8')
+    assert html_without_dynamic_datetime == (admin_external_offers_operator_with_client_in_progress_html
+                                             .read_text('utf-8'))
 
 
 @pytest.mark.html
@@ -56,11 +66,19 @@ async def test_get_offers_list__operator_with_client_cancelled__returns_no_offer
         },
         expected_status=200)
 
+    html = resp.body.decode('utf-8')
+    html_without_dynamic_datetime = re.sub(
+        r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
+        '',
+        html
+    )
+
     if 'UPDATE_HTML_FIXTURES' in os.environ:
-        admin_external_offers_operator_with_client_cancelled_html.write_text(resp.body.decode('utf-8'))
+        admin_external_offers_operator_with_client_cancelled_html.write_text(html_without_dynamic_datetime)
 
     # assert
-    assert resp.body.decode('utf-8') == admin_external_offers_operator_with_client_cancelled_html.read_text('utf-8')
+    assert html_without_dynamic_datetime == (admin_external_offers_operator_with_client_cancelled_html
+                                             .read_text('utf-8'))
 
 
 @pytest.mark.html
@@ -82,12 +100,19 @@ async def test_get_offers__operator_without_client__returns_no_offers_page(
             'X-Real-UserId': operator_without_clients
         },
         expected_status=200)
+    html = resp.body.decode('utf-8')
+    html_without_dynamic_datetime = re.sub(
+        r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
+        '',
+        html
+    )
 
     if 'UPDATE_HTML_FIXTURES' in os.environ:
-        admin_external_offers_operator_without_client_html.write_text(resp.body.decode('utf-8'))
+        admin_external_offers_operator_without_client_html.write_text(html_without_dynamic_datetime)
 
     # assert
-    assert resp.body.decode('utf-8') == admin_external_offers_operator_without_client_html.read_text('utf-8')
+    assert html_without_dynamic_datetime == (admin_external_offers_operator_without_client_html
+                                             .read_text('utf-8'))
 
 
 async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
@@ -182,7 +207,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
     first_operator_without_offers_in_progress = 60024636
     second_operator_without_offers_in_progress = 60024637
     expected_operator_client = '2'
-    expected_operator_offer = '5'
+    expected_operator_offer = '3'
 
     # act
     await http.request(
@@ -221,8 +246,92 @@ async def test_update_offers_list__second_operator_without_client_update__update
         'SELECT * FROM event_log where operator_user_id=$1',
         [second_operator_without_offers_in_progress]
     )
-    assert offers_event_log_second_operator[0]['offer_id'] == '5'
+    assert offers_event_log_second_operator[0]['offer_id'] == '3'
     assert offers_event_log_second_operator[0]['status'] == 'inProgress'
+
+
+async def test_update_offers_list__exist_suitable_call_later_for_operator_in_queue__set_in_progress(
+        pg,
+        http,
+):
+    # arrange
+    operator_with_call_later = 60024636
+    expected_operator_offer = '1'
+    expected_operator_client = '7'
+    next_call = datetime.now() - timedelta(hours=1)
+
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at,
+            last_call_id
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '7',
+            'callLater',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            'ddd86dec-20f5-4a70-bb3a-077b2754df77'
+            )
+        """
+    )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status,
+            next_call
+
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_with_call_later,
+         'callLater', next_call]
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_with_call_later
+        },
+        expected_status=200)
+
+    # assert
+    offer = await pg.fetchrow(
+        """SELECT * FROM offers_for_call
+           WHERE id=$1 AND status = 'inProgress'""",
+        [expected_operator_offer]
+    )
+    client = await pg.fetchrow(
+        """SELECT * FROM clients
+           WHERE client_id=$1 AND status = 'inProgress'""",
+        [expected_operator_client]
+    )
+    event_log = await pg.fetch(
+        'SELECT * FROM event_log where operator_user_id=$1',
+        [operator_with_call_later]
+    )
+
+    assert offer['id'] == expected_operator_offer
+    assert client['operator_user_id'] == operator_with_call_later
+    assert event_log[0]['offer_id'] == expected_operator_offer
+    assert event_log[0]['status'] == 'inProgress'
 
 
 async def test_decline_client__client_with_cancelled_and_in_progress__only_in_progress_set_declined(
@@ -430,7 +539,7 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
     assert offers_event_log[0]['status'] == 'cancelled'
     assert offers_event_log[1]['offer_id'] == '9'
     assert offers_event_log[1]['status'] == 'cancelled'
-    assert row_client['operator_user_id'] is None
+    assert row_client['operator_user_id'] == 60024649
     assert row_client['status'] == 'waiting'
 
 
@@ -492,18 +601,46 @@ async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
     # assert
     assert not resp.data['success']
     assert resp.data['errors']
-    assert resp.data['errors'][0]['code'] == 'waitingClientMissing'
+    assert resp.data['errors'][0]['code'] == 'offersInProgressExist'
 
 
-async def test_call_later_client__no_operator_and_in_progress__still_no_operator_and_call_later(
+async def test_update_offers_list__exist_no_suitable_client__returns_no_success(
+        http,
+):
+    # arrange
+    operator = 70024649
+
+    # act
+    resp = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        expected_status=200
+    )
+
+    # assert
+    assert not resp.data['success']
+    assert resp.data['errors']
+    assert resp.data['errors'][0]['code'] == 'suitableClientMissing'
+
+
+async def test_call_later_client__operator_and_in_progress__operator_call_later_priority_set(
         pg,
         http,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        runtime_settings
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
-    operator = 60024636
-    operator_client = '2'
+    operator_client = '1'
+    operator = 60024635
+    expected_priority = 10
+    expected_next_call = datetime.now(pytz.utc)
+    await runtime_settings.set({
+        'CALL_LATER_PRIORITY': expected_priority
+    })
 
     # act
     await http.request(
@@ -513,18 +650,25 @@ async def test_call_later_client__no_operator_and_in_progress__still_no_operator
             'X-Real-UserId': operator
         },
         json={
-            'client_id': operator_client
+            'client_id': operator_client,
+            'call_later_datetime': expected_next_call.isoformat()
         },
         expected_status=200
     )
 
     # assert
-    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+    row_client = await pg.fetchrow('SELECT * FROM clients '
                                    'WHERE client_id=$1',
                                    [operator_client])
 
-    assert row_client['operator_user_id'] is None
+    row_offer = await pg.fetchrow('SELECT *, status FROM offers_for_call '
+                                  'WHERE client_id=$1',
+                                  [operator_client])
+
+    assert row_client['operator_user_id'] == operator
     assert row_client['status'] == 'callLater'
+    assert row_client['next_call'] == expected_next_call
+    assert row_offer['priority'] == expected_priority
 
 
 async def test_call_later_client__exist_offers_in_progress_and_cancelled__only_offers_in_progress_set_call_later(
@@ -547,7 +691,8 @@ async def test_call_later_client__exist_offers_in_progress_and_cancelled__only_o
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'client_id': operator_client,
+            'call_later_datetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -630,7 +775,8 @@ async def test_call_offer_list_method__missing_client__return_error(
         },
         json={
             'offer_id': offer_in_progress,
-            'client_id': operator_client
+            'client_id': operator_client,
+            'call_later_datetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )

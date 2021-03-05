@@ -11,6 +11,7 @@ from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Of
 from external_offers.enums import OfferStatus
 from external_offers.mappers import client_waiting_offers_count_mapper, enriched_offer_mapper, offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
+from external_offers.utils import iterate_over_list_by_chunks
 
 
 waiting_offers_counts_cte = (
@@ -176,33 +177,6 @@ async def exists_offers_draft_by_client(*, client_id: str) -> bool:
     return bool(exists)
 
 
-async def set_waiting_offers_in_progress_by_client(
-    *,
-    client_id: str,
-    call_id: str,
-) -> List[str]:
-    sql = (
-        update(
-            offers_for_call
-        ).values(
-            status=OfferStatus.in_progress.value,
-            last_call_id=call_id
-        ).where(
-            and_(
-                offers_for_call.c.client_id == client_id,
-                offers_for_call.c.status == OfferStatus.waiting.value,
-            )
-        ).returning(
-            offers_for_call.c.id
-        )
-    )
-
-    query, params = asyncpgsa.compile_query(sql)
-
-    result = await pg.get().fetch(query, *params)
-    return [r['id'] for r in result]
-
-
 async def set_undrafted_offers_in_progress_by_client(
     *,
     client_id: str,
@@ -230,34 +204,46 @@ async def set_undrafted_offers_in_progress_by_client(
     return [r['id'] for r in result]
 
 
-
 async def set_offers_declined_by_client(*, client_id: str) -> List[str]:
-    return await set_offers_status_by_client(
+    return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.declined
     )
 
 
 async def set_offers_call_missed_by_client(*, client_id: str) -> List[str]:
-    return await set_offers_status_by_client(
+    return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_missed
     )
 
 
 async def set_offers_call_later_by_client(*, client_id: str) -> List[str]:
-    return await set_offers_status_by_client(
+    return await set_offers_status_and_priority_by_client(
         client_id=client_id,
-        status=OfferStatus.call_later
+        status=OfferStatus.call_later,
+        priority=settings.CALL_LATER_PRIORITY
     )
 
 
-async def set_offers_status_by_client(*, client_id: str, status: OfferStatus) -> List[str]:
+async def set_offers_status_and_priority_by_client(
+    *,
+    client_id: str,
+    status: OfferStatus,
+    priority: Optional[int] = None
+) -> List[str]:
+    values = {
+        'status': status.value
+    }
+
+    if priority:
+        values['priority'] = priority
+
     sql = (
         update(
             offers_for_call
         ).values(
-            status=status.value,
+            **values
         ).where(
             and_(
                 offers_for_call.c.client_id == client_id,
@@ -354,22 +340,26 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: str) -> Optional[Li
 
 
 async def set_waiting_offers_priority_by_client_ids(*, client_ids: List[str], priority: int) -> None:
-    sql = (
-        update(
-            offers_for_call
-        ).values(
+    for client_ids_chunk in iterate_over_list_by_chunks(
+        iterable=client_ids,
+        chunk_size=settings.SET_WAITING_OFFERS_PRIORITY_BY_CLIENT_IDS_CHUNK
+    ):
+        sql = (
+            update(
+                offers_for_call
+            ).values(
             priority=priority
-        ).where(
-            and_(
-                offers_for_call.c.client_id.in_(client_ids),
-                offers_for_call.c.status == OfferStatus.waiting.value
+            ).where(
+                and_(
+                    offers_for_call.c.client_id.in_(client_ids_chunk),
+                    offers_for_call.c.status == OfferStatus.waiting.value
+                )
             )
         )
-    )
 
-    query, params = asyncpgsa.compile_query(sql)
+        query, params = asyncpgsa.compile_query(sql)
 
-    await pg.get().execute(query, *params)
+        await pg.get().execute(query, *params)
 
 
 async def get_last_sync_date() -> Optional[datetime]:
