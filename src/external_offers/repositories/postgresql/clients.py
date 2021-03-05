@@ -92,7 +92,11 @@ async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
     return await pg.get().fetchval(query, *params)
 
 
-async def assign_client_to_operator_and_increase_calls_count(*, client_id: str, operator_id: int) -> Optional[Client]:
+async def assign_client_to_operator_and_increase_calls_count(
+    *,
+    client_id: str,
+    operator_id: int
+) -> Optional[Client]:
     sql = (
         update(
             clients
