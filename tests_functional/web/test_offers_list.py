@@ -1,5 +1,3 @@
-import os
-import re
 from datetime import datetime, timedelta
 
 import pytest
@@ -9,110 +7,6 @@ import pytz
 async def test_get_offers_list__without_x_real_userid__returns_400(http):
     # act && assert
     await http.request('GET', '/admin/offers-list/', expected_status=400)
-
-
-@pytest.mark.html
-async def test_get_offers_list__operator_with_client_in_progress__returns_offers_in_progress_page(
-        http,
-        pg,
-        admin_external_offers_operator_with_client_in_progress_html,
-        offers_and_clients_fixture
-):
-    # arrange
-    await pg.execute_scripts(offers_and_clients_fixture)
-    operator_with_client = 60024635
-
-    # act
-    resp = await http.request(
-        'GET',
-        '/admin/offers-list/',
-        headers={
-            'X-Real-UserId': operator_with_client
-        },
-        expected_status=200)
-
-    html = resp.body.decode('utf-8')
-    html_without_dynamic_datetime = re.sub(
-        r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
-        '',
-        html
-    )
-
-    if 'UPDATE_HTML_FIXTURES' in os.environ:
-        admin_external_offers_operator_with_client_in_progress_html.write_text(html_without_dynamic_datetime)
-
-    # assert
-    assert html_without_dynamic_datetime == (admin_external_offers_operator_with_client_in_progress_html
-                                             .read_text('utf-8'))
-
-
-@pytest.mark.html
-async def test_get_offers_list__operator_with_client_cancelled__returns_no_offers_page(
-        http,
-        pg,
-        offers_and_clients_fixture,
-        admin_external_offers_operator_with_client_cancelled_html,
-):
-    # arrange
-    await pg.execute_scripts(offers_and_clients_fixture)
-    operator_with_client = 60024636
-
-    # act
-    resp = await http.request(
-        'GET',
-        '/admin/offers-list/',
-        headers={
-            'X-Real-UserId': operator_with_client
-        },
-        expected_status=200)
-
-    html = resp.body.decode('utf-8')
-    html_without_dynamic_datetime = re.sub(
-        r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
-        '',
-        html
-    )
-
-    if 'UPDATE_HTML_FIXTURES' in os.environ:
-        admin_external_offers_operator_with_client_cancelled_html.write_text(html_without_dynamic_datetime)
-
-    # assert
-    assert html_without_dynamic_datetime == (admin_external_offers_operator_with_client_cancelled_html
-                                             .read_text('utf-8'))
-
-
-@pytest.mark.html
-async def test_get_offers__operator_without_client__returns_no_offers_page(
-        pg,
-        http,
-        admin_external_offers_operator_without_client_html,
-        offers_and_clients_fixture
-):
-    # arrange
-    await pg.execute_scripts(offers_and_clients_fixture)
-    operator_without_clients = 1
-
-    # act
-    resp = await http.request(
-        'GET',
-        '/admin/offers-list/',
-        headers={
-            'X-Real-UserId': operator_without_clients
-        },
-        expected_status=200)
-    html = resp.body.decode('utf-8')
-    html_without_dynamic_datetime = re.sub(
-        r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
-        '',
-        html
-    )
-
-    if 'UPDATE_HTML_FIXTURES' in os.environ:
-        admin_external_offers_operator_without_client_html.write_text(html_without_dynamic_datetime)
-
-    # assert
-    assert html_without_dynamic_datetime == (admin_external_offers_operator_without_client_html
-                                             .read_text('utf-8'))
 
 
 async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
@@ -250,9 +144,11 @@ async def test_update_offers_list__second_operator_without_client_update__update
     assert offers_event_log_second_operator[0]['status'] == 'inProgress'
 
 
-async def test_update_offers_list__exist_suitable_call_later_for_operator_in_queue__set_in_progress(
+@pytest.mark.parametrize('status', ('callLater', 'callMissed'))
+async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queue__set_in_progress(
         pg,
         http,
+        status
 ):
     # arrange
     operator_with_call_later = 60024636
@@ -261,7 +157,7 @@ async def test_update_offers_list__exist_suitable_call_later_for_operator_in_que
     next_call = datetime.now() - timedelta(hours=1)
 
     await pg.execute(
-        """
+        f"""
         INSERT INTO public.offers_for_call(
             id,
             parsed_id,
@@ -275,13 +171,13 @@ async def test_update_offers_list__exist_suitable_call_later_for_operator_in_que
             '1',
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
             '7',
-            'callLater',
+            '{status}',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
             'ddd86dec-20f5-4a70-bb3a-077b2754df77'
             )
-        """
+        """,
     )
     await pg.execute(
         """
@@ -300,7 +196,7 @@ async def test_update_offers_list__exist_suitable_call_later_for_operator_in_que
         """,
         ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
          ['+79812333292'], 'nemoy@gmail.com', operator_with_call_later,
-         'callLater', next_call]
+         status, next_call]
     )
 
     # act
@@ -376,15 +272,25 @@ async def test_decline_client__client_with_cancelled_and_in_progress__only_in_pr
     assert offers_event_log[1]['status'] == 'declined'
 
 
-async def test_call_missed_client__no_operator_and_in_progress__still_no_operator_and_call_missed(
+async def test_call_missed_client__operator_and_in_progress__next_call_and_call_missed_priority_set(
         pg,
         http,
+        runtime_settings,
         offers_and_clients_fixture
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
-    operator = 60024636
-    operator_client = '2'
+    operator = 60024635
+    operator_client = '1'
+    expected_priority = 10
+
+    expected_next_call = datetime.now(pytz.utc) + timedelta(hours=2)
+    expected_next_call_left_border = expected_next_call - timedelta(minutes=1)
+    expected_next_call_right_border = expected_next_call + timedelta(minutes=1)
+
+    await runtime_settings.set({
+        'CALL_MISSED_PRIORITY': expected_priority
+    })
 
     # act
     await http.request(
@@ -400,12 +306,19 @@ async def test_call_missed_client__no_operator_and_in_progress__still_no_operato
     )
 
     # assert
-    row_client = await pg.fetchrow('SELECT operator_user_id, status FROM clients '
+    row_client = await pg.fetchrow('SELECT * FROM clients '
                                    'WHERE client_id=$1',
                                    [operator_client])
 
-    assert row_client['operator_user_id'] is None
+    row_offer = await pg.fetchrow('SELECT * FROM offers_for_call '
+                                  'WHERE client_id=$1',
+                                  [operator_client])
+
+    assert row_client['operator_user_id'] == operator
     assert row_client['status'] == 'callMissed'
+    assert row_offer['status'] == 'callMissed'
+    assert row_offer['priority'] == expected_priority
+    assert expected_next_call_left_border <= row_client['next_call'] < expected_next_call_right_border
 
 
 async def test_call_missed_client__exist_offers_in_progress_and_cancelled__only_offers_in_progress_set_call_missed(
@@ -626,7 +539,7 @@ async def test_update_offers_list__exist_no_suitable_client__returns_no_success(
     assert resp.data['errors'][0]['code'] == 'suitableClientMissing'
 
 
-async def test_call_later_client__operator_and_in_progress__operator_call_later_priority_set(
+async def test_call_later_client__operator_and_in_progress__next_call_call_later_priority_set(
         pg,
         http,
         offers_and_clients_fixture,

@@ -22,7 +22,7 @@ from external_offers.repositories.postgresql import (
     save_event_log_for_offers,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_client_to_call_later_status_set_next_call_and_return,
-    set_client_to_call_missed_status_and_return,
+    set_client_to_call_missed_status_set_next_call_and_return,
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
     set_offer_cancelled_by_offer_id,
@@ -31,6 +31,7 @@ from external_offers.repositories.postgresql import (
     set_offers_declined_by_client,
     set_undrafted_offers_in_progress_by_client,
 )
+from external_offers.utils import get_next_call_date_when_call_missed
 
 
 logger = logging.getLogger(__name__)
@@ -217,8 +218,12 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
         )
 
     async with pg.get().transaction():
-        await set_client_to_call_missed_status_and_return(
-            client_id=client_id
+        next_call = get_next_call_date_when_call_missed(
+            calls_count=client.calls_count
+        )
+        await set_client_to_call_missed_status_set_next_call_and_return(
+            client_id=client_id,
+            next_call=next_call
         )
 
         if offers_ids := await set_offers_call_missed_by_client(

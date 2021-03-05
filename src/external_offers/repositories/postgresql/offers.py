@@ -214,7 +214,8 @@ async def set_offers_declined_by_client(*, client_id: str) -> List[str]:
 async def set_offers_call_missed_by_client(*, client_id: str) -> List[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
-        status=OfferStatus.call_missed
+        status=OfferStatus.call_missed,
+        priority=settings.CALL_MISSED_PRIORITY
     )
 
 
@@ -348,7 +349,7 @@ async def set_waiting_offers_priority_by_client_ids(*, client_ids: List[str], pr
             update(
                 offers_for_call
             ).values(
-            priority=priority
+                priority=priority
             ).where(
                 and_(
                     offers_for_call.c.client_id.in_(client_ids_chunk),

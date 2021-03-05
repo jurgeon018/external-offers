@@ -5,7 +5,8 @@ INSERT INTO public.clients(
     client_phones,
     client_email,
     operator_user_id,
-    status
+    status,
+    calls_count
 ) VALUES (
     '1',
     '32131322',
@@ -13,7 +14,8 @@ INSERT INTO public.clients(
     '{+79812333234}',
     'testemail@gmail.com',
     60024635,
-    'inProgress'
+    'inProgress',
+    1
 ), (
     '2',
     '32131323',
@@ -21,7 +23,8 @@ INSERT INTO public.clients(
     '{+79812333235}',
     'moyemail@gmail.com',
     NULL,
-    'waiting'
+    'waiting',
+    0
 ), (
     '3',
     '32131324',
@@ -29,7 +32,8 @@ INSERT INTO public.clients(
     '{+79812333236}',
     'nemoyemail@gmail.com',
     NULL,
-    'waiting'
+    'waiting',
+    0
 ), (
     '4',
     '32131325',
@@ -37,7 +41,8 @@ INSERT INTO public.clients(
     '{+79812333237}',
     'nemoyemail1234@gmail.com',
     60024638,
-    'waiting'
+    'waiting',
+    0
 ), (
     '5',
     '32131325',
@@ -45,7 +50,8 @@ INSERT INTO public.clients(
     '{+79812333237}',
     'nemoyemail1234@gmail.com',
     60024649,
-    'inProgress'
+    'inProgress',
+    1
 ), (
     '6',
     '32131326',
@@ -53,7 +59,8 @@ INSERT INTO public.clients(
     '{+79812333238}',
     'nemoyemail1234@gmail.com',
     60024659,
-    'inProgress'
+    'inProgress',
+    1
 ), (
     '7',
     '32131327',
@@ -61,7 +68,8 @@ INSERT INTO public.clients(
     '{+79812932338}',
     'gmail@gmail.com',
     70024649,
-    'inProgress'
+    'inProgress',
+    1
 );
 
 INSERT INTO public.offers_for_call(

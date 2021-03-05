@@ -24,6 +24,9 @@ class Client:
     """Идентификатор оператора, который взял клиента в работу"""
     segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    calls_count: int = 0
+    """Количество звонков"""
+
 
 
 @dataclass

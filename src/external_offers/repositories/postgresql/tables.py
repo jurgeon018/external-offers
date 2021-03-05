@@ -32,6 +32,7 @@ clients = sa.Table(
     sa.Column('operator_user_id', sa.BIGINT),
     sa.Column('segment', sa.VARCHAR, nullable=True),
     sa.Column('next_call', sa.TIMESTAMP),
+    sa.Column('calls_count', sa.SMALLINT),
 )
 
 offers_for_call = sa.Table(

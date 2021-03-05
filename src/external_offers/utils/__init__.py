@@ -1,1 +1,2 @@
-from external_offers.utils.utils import iterate_over_list_by_chunks
+from external_offers.utils.iter_utils import iterate_over_list_by_chunks
+from external_offers.utils.next_call import get_next_call_date_when_call_missed

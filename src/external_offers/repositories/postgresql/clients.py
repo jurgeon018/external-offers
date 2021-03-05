@@ -5,12 +5,17 @@ import asyncpgsa
 import pytz
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.mappers import client_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
+
+
+_NO_CALLS = 0
+_ONE_CALL = 1
 
 
 async def get_client_in_progress_by_operator(*, operator_id: int) -> Optional[Client]:
@@ -54,7 +59,10 @@ async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
                 ),
                 and_(
                     clients.c.operator_user_id == operator_id,
-                    offers_for_call.c.status == OfferStatus.call_later.value,
+                    offers_for_call.c.status.in_([
+                        OfferStatus.call_later.value,
+                        OfferStatus.call_missed.value,
+                    ]),
                     clients.c.next_call <= now
                 )
             )
@@ -73,7 +81,8 @@ async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
             clients
         ).values(
             operator_user_id=operator_id,
-            status=ClientStatus.in_progress.value
+            status=ClientStatus.in_progress.value,
+            calls_count=coalesce(clients.c.calls_count, _NO_CALLS) + _ONE_CALL
         ).where(
             clients.c.client_id == first_suitable_offer_client_cte.c.client_id
         ).returning(
@@ -83,13 +92,14 @@ async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
     return await pg.get().fetchval(query, *params)
 
 
-async def assign_client_to_operator(*, client_id: str, operator_id: int) -> Optional[Client]:
+async def assign_client_to_operator_and_increase_calls_count(*, client_id: str, operator_id: int) -> Optional[Client]:
     sql = (
         update(
             clients
         ).values(
             operator_user_id=operator_id,
-            status=ClientStatus.in_progress.value
+            status=ClientStatus.in_progress.value,
+            calls_count=coalesce(clients.c.calls_count, _NO_CALLS) + _ONE_CALL
         ).where(
             clients.c.client_id == client_id
         ).returning(
@@ -158,10 +168,15 @@ async def set_client_to_waiting_status_and_return(*, client_id: str) -> Optional
     )
 
 
-async def set_client_to_call_missed_status_and_return(*, client_id: str) -> Optional[Client]:
-    return await set_client_to_status_and_return(
+async def set_client_to_call_missed_status_set_next_call_and_return(
+    *,
+    client_id: str,
+    next_call: datetime
+) -> Optional[Client]:
+    return await set_client_to_status_and_set_next_call_date_and_return(
         client_id=client_id,
-        status=ClientStatus.call_missed
+        status=ClientStatus.call_missed,
+        next_call=next_call
     )
 
 

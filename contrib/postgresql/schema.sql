@@ -29,6 +29,7 @@ CREATE TABLE offers_for_call
     synced_at     timestamp with time zone not null,
     started_at    timestamp with time zone,
     promocode     varchar
+    priority      smallint
 );
 
 CREATE TABLE clients
@@ -42,7 +43,8 @@ CREATE TABLE clients
     operator_user_id bigint,
     status           client_status_type,
     segment          varchar(1),
-    next_call  timestamp with time zone,
+    next_call        timestamp with time zone,
+    calls_count      smallint
 );
 
 CREATE TABLE event_log
