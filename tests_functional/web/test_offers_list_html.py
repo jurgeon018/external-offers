@@ -3,11 +3,6 @@ import re
 import pytest
 
 
-async def test_get_offers_list__without_x_real_userid__returns_400(http):
-    # act && assert
-    await http.request('GET', '/admin/offers-list/', expected_status=400)
-
-
 @pytest.mark.html
 async def test_get_offers_list__operator_with_client_in_progress__returns_offers_in_progress_page(
         http,
@@ -26,7 +21,8 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
         headers={
             'X-Real-UserId': operator_with_client
         },
-        expected_status=200)
+        expected_status=200
+    )
 
     html = resp.body.decode('utf-8')
     html_without_dynamic_datetime = re.sub(
@@ -61,7 +57,8 @@ async def test_get_offers_list__operator_with_client_cancelled__returns_no_offer
         headers={
             'X-Real-UserId': operator_with_client
         },
-        expected_status=200)
+        expected_status=200
+    )
 
     html = resp.body.decode('utf-8')
     html_without_dynamic_datetime = re.sub(
@@ -96,7 +93,9 @@ async def test_get_offers__operator_without_client__returns_no_offers_page(
         headers={
             'X-Real-UserId': operator_without_clients
         },
-        expected_status=200)
+        expected_status=200
+    )
+
     html = resp.body.decode('utf-8')
     html_without_dynamic_datetime = re.sub(
         r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
