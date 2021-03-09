@@ -714,3 +714,90 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
 
     # assert
     assert f'Не удалось отправить событие аналитики для объявления {offer_id}' in logs.get()
+
+
+async def test_save_offer__account_for_draft_changed__expected_message_to_kafka(
+        pg,
+        http,
+        kafka_service,
+        users_mock,
+        monolith_cian_announcementapi_mock,
+        runtime_settings,
+        save_offer_request_body
+):
+    # arrange
+    operator_user_id = 60024640
+    expected_cian_user_id = 2
+    save_offer_request_body['accountForDraft'] = expected_cian_user_id
+    await runtime_settings.set({
+        'TEST_OPERATOR_IDS': [],
+        'DEFAULT_KAFKA_TIMEOUT': 2
+    })
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at,
+            last_call_id
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '7',
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            'ddd86dec-20f5-4a70-bb3a-077b2754df77'
+            )
+        """
+    )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status,
+            cian_user_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', 60024640, 'inProgress', 1]
+    )
+
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            status=400
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body,
+        headers={
+            'X-Real-UserId': operator_user_id
+        }
+    )
+
+    # assert
+    messages = await kafka_service.wait_messages(
+        topic='preposition-admin.calls',
+        timeout=3.5,
+        count=1
+    )
+
+    assert messages[0].data['userId'] == expected_cian_user_id
+    assert messages[0].data['status'] == 'mainAccountChanged'

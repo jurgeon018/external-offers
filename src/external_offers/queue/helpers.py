@@ -7,7 +7,7 @@ from simple_settings import settings
 
 from external_offers.entities import Client, Offer
 from external_offers.entities.kafka import CallsKafkaMessage
-from external_offers.enums import ClientStatus
+from external_offers.enums import CallStatus
 from external_offers.queue.kafka import kafka_preposition_calls_producer
 
 
@@ -18,7 +18,7 @@ async def send_kafka_calls_analytics_message_if_not_test(
     *,
     client: Client,
     offer: Offer,
-    status: ClientStatus,
+    status: CallStatus,
 ) -> None:
     if client.operator_user_id not in settings.TEST_OPERATOR_IDS:
         try:
@@ -38,7 +38,7 @@ def create_calls_kafka_message(
     *,
     client: Client,
     offer: Offer,
-    status: ClientStatus,
+    status: CallStatus,
 ) -> CallsKafkaMessage:
     now = datetime.now(pytz.utc)
 
@@ -47,7 +47,7 @@ def create_calls_kafka_message(
         source_user_id=client.avito_user_id,
         user_id=client.cian_user_id,
         phone=client.client_phones[0],
-        status=status.value,
+        status=status,
         call_id=offer.last_call_id,
         date=now,
         source=settings.AVITO_SOURCE_NAME

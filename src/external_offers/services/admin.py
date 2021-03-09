@@ -9,7 +9,7 @@ from external_offers.entities.admin import (
     AdminError,
     AdminResponse,
 )
-from external_offers.enums import ClientStatus, OfferStatus
+from external_offers.enums import CallStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid
 from external_offers.queue.helpers import send_kafka_calls_analytics_message_if_not_test
 from external_offers.repositories.postgresql import (
@@ -22,7 +22,7 @@ from external_offers.repositories.postgresql import (
     save_event_log_for_offers,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_client_to_call_later_status_set_next_call_and_return,
-    set_client_to_call_missed_status_and_return,
+    set_client_to_call_missed_status_set_next_call_and_return,
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
     set_offer_cancelled_by_offer_id,
@@ -31,6 +31,7 @@ from external_offers.repositories.postgresql import (
     set_offers_declined_by_client,
     set_undrafted_offers_in_progress_by_client,
 )
+from external_offers.utils import get_next_call_date_when_call_missed
 
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,8 @@ async def update_offers_list(user_id: int) -> AdminResponse:
     async with pg.get().transaction():
         call_id = generate_guid()
         client_id = await assign_suitable_client_to_operator(
-            operator_id=user_id
+            operator_id=user_id,
+            call_id=call_id
         )
         if not client_id:
             return AdminResponse(
@@ -137,7 +139,7 @@ async def delete_offer(request: AdminDeleteOfferRequest, user_id: int) -> AdminR
                 await send_kafka_calls_analytics_message_if_not_test(
                     client=client,
                     offer=offer,
-                    status=ClientStatus.accepted,
+                    status=CallStatus.accepted,
                 )
             else:
                 await set_client_to_waiting_status_and_return(
@@ -182,7 +184,7 @@ async def set_decline_status_for_client(request: AdminDeclineClientRequest, user
                 await send_kafka_calls_analytics_message_if_not_test(
                     client=client,
                     offer=offer,
-                    status=ClientStatus.accepted,
+                    status=CallStatus.accepted,
                 )
                 await set_client_accepted_and_no_operator_if_no_offers_in_progress(
                     client_id=client_id
@@ -191,7 +193,7 @@ async def set_decline_status_for_client(request: AdminDeclineClientRequest, user
                 await send_kafka_calls_analytics_message_if_not_test(
                     client=client,
                     offer=offer,
-                    status=ClientStatus.declined,
+                    status=CallStatus.declined,
                 )
                 await set_client_to_decline_status_and_return(
                     client_id=client_id
@@ -217,8 +219,12 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
         )
 
     async with pg.get().transaction():
-        await set_client_to_call_missed_status_and_return(
-            client_id=client_id
+        next_call = get_next_call_date_when_call_missed(
+            calls_count=client.calls_count
+        )
+        await set_client_to_call_missed_status_set_next_call_and_return(
+            client_id=client_id,
+            next_call=next_call
         )
 
         if offers_ids := await set_offers_call_missed_by_client(
@@ -235,7 +241,7 @@ async def set_call_missed_status_for_client(request: AdminCallMissedClientReques
             await send_kafka_calls_analytics_message_if_not_test(
                 client=client,
                 offer=offer,
-                status=ClientStatus.call_missed,
+                status=CallStatus.call_missed,
             )
 
     return AdminResponse(success=True, errors=[])
@@ -278,7 +284,7 @@ async def set_call_later_status_for_client(request: AdminCallLaterClientRequest,
             await send_kafka_calls_analytics_message_if_not_test(
                 client=client,
                 offer=offer,
-                status=ClientStatus.call_later,
+                status=CallStatus.call_later,
             )
 
     return AdminResponse(success=True, errors=[])

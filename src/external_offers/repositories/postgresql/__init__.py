@@ -1,5 +1,5 @@
 from external_offers.repositories.postgresql.clients import (
-    assign_client_to_operator,
+    assign_client_to_operator_and_increase_calls_count,
     assign_suitable_client_to_operator,
     delete_waiting_clients_by_client_ids,
     get_cian_user_id_by_client_id,
@@ -12,7 +12,7 @@ from external_offers.repositories.postgresql.clients import (
     set_cian_user_id_by_client_id,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_client_to_call_later_status_set_next_call_and_return,
-    set_client_to_call_missed_status_and_return,
+    set_client_to_call_missed_status_set_next_call_and_return,
     set_client_to_decline_status_and_return,
     set_client_to_waiting_status_and_return,
     set_phone_number_by_client_id,

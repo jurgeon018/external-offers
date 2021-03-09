@@ -126,6 +126,7 @@
          {% if (client.client_name) %}<div id="clientInfoClientName">Имя: {{ client.client_name }}</div>{% endif %}
          {% if (client.segment) %}<div id="clientInfoClientSegment">Сегмент: {{ client.segment.value }}</div>{% endif %}
          <div id="clientInfoClientPhone">Телефон: {{ client.client_phones | join(',') }}</div>
+         <div id="clientInfoClientCallsCount">Номер звонка: {% if client.calls_count %} {{ client.calls_count }} {% else %} 0 {% endif %}</div>
          <div class="client-buttons">
             <div class="decline-client-block">
                <button class="decline-client-button" id="declineClientButton1">Отказ</button>

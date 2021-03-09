@@ -32,6 +32,8 @@ clients = sa.Table(
     sa.Column('operator_user_id', sa.BIGINT),
     sa.Column('segment', sa.VARCHAR, nullable=True),
     sa.Column('next_call', sa.TIMESTAMP),
+    sa.Column('calls_count', sa.SMALLINT),
+    sa.Column('last_call_id', sa.VARCHAR),
 )
 
 offers_for_call = sa.Table(
@@ -47,7 +49,7 @@ offers_for_call = sa.Table(
     sa.Column('started_at', sa.TIMESTAMP),
     sa.Column('promocode', sa.VARCHAR),
     sa.Column('priority', sa.SMALLINT),
-    sa.Column('last_call_id', sa.VARCHAR)
+    sa.Column('last_call_id', sa.VARCHAR),
 )
 
 event_log = sa.Table(

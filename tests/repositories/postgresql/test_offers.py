@@ -106,11 +106,11 @@ async def test_set_offers_declined_by_client():
 async def test_set_offers_set_call_missed_by_client():
     # arrange
     query = (
-        'UPDATE offers_for_call SET status=$2 '
-        'WHERE offers_for_call.client_id = $1 AND offers_for_call.status = $3 '
-        'RETURNING offers_for_call.id'
+        'UPDATE offers_for_call SET status=$3, priority=$2 WHERE offers_for_ca'
+        'll.client_id = $1 AND offers_for_call.status = $4 RETURNING offers_for_call.id'
     )
     client_id = '1'
+    priority = 2
     pg.get().fetch.return_value = future([])
 
     # act
@@ -119,4 +119,4 @@ async def test_set_offers_set_call_missed_by_client():
     )
 
     # assert
-    pg.get().fetch.assert_called_with(query, client_id, 'callMissed', 'inProgress')
+    pg.get().fetch.assert_called_with(query, client_id, priority, 'callMissed', 'inProgress')

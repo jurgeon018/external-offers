@@ -28,7 +28,9 @@ CREATE TABLE offers_for_call
     created_at    timestamp with time zone not null,
     synced_at     timestamp with time zone not null,
     started_at    timestamp with time zone,
-    promocode     varchar
+    promocode     varchar,
+    priority      smallint,
+    last_call_id  varchar
 );
 
 CREATE TABLE clients
@@ -42,7 +44,9 @@ CREATE TABLE clients
     operator_user_id bigint,
     status           client_status_type,
     segment          varchar(1),
-    next_call  timestamp with time zone,
+    next_call        timestamp with time zone,
+    calls_count      smallint,
+    last_call_id     varchar
 );
 
 CREATE TABLE event_log
@@ -52,6 +56,7 @@ CREATE TABLE event_log
     operator_user_id bigint,
     status           varchar(10)              not null,
     created_at       timestamp with time zone not null
+    last_call_id     varchar
 );
 
 
@@ -66,5 +71,5 @@ create table parsed_offers
     timestamp           timestamp with time zone not null,
     created_at          timestamp with time zone not null,
     updated_at          timestamp with time zone not null,
-    synced              boolean                  not null,
+    synced              boolean                  not null
 );

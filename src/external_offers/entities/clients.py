@@ -24,6 +24,11 @@ class Client:
     """Идентификатор оператора, который взял клиента в работу"""
     segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    last_call_id: Optional[str] = None
+    """Последний идентификатор звонка"""
+    calls_count: int = 0
+    """Количество звонков"""
+
 
 
 @dataclass

@@ -11,7 +11,7 @@ from simple_settings import settings
 from external_offers import pg
 from external_offers.entities.kafka import CallsKafkaMessage, DraftAnnouncementsKafkaMessage
 from external_offers.entities.save_offer import DealType, OfferType, SaveOfferRequest, SaveOfferResponse
-from external_offers.enums import ClientStatus, OfferStatus, SaveOfferCategory, SaveOfferTerm
+from external_offers.enums import CallStatus, OfferStatus, SaveOfferCategory, SaveOfferTerm
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.helpers.uuid import generate_uppercase_guid
@@ -314,6 +314,22 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             cian_user_id = await get_cian_user_id_by_client_id(
                 client_id=request.client_id
             )
+            if request.account_for_draft and request.account_for_draft != cian_user_id:
+                now = datetime.now(tz=pytz.utc)
+                await kafka_preposition_calls_producer(
+                    message=CallsKafkaMessage(
+                        manager_id=user_id,
+                        source_user_id=client.avito_user_id,
+                        user_id=request.account_for_draft,
+                        phone=phone_number,
+                        status=CallStatus.main_account_changed,
+                        call_id=offer.last_call_id,
+                        date=now,
+                        source=settings.AVITO_SOURCE_NAME
+                    ),
+                    timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                )
+
             cian_user_id = request.account_for_draft or cian_user_id
             if request.create_new_account or not cian_user_id:
                 register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
@@ -524,7 +540,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                             source_user_id=client.avito_user_id,
                             user_id=cian_user_id,
                             phone=phone_number,
-                            status=ClientStatus.accepted.value,
+                            status=CallStatus.accepted,
                             call_id=offer.last_call_id,
                             date=now,
                             source=settings.AVITO_SOURCE_NAME
