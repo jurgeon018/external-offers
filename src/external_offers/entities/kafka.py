@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from external_offers.entities import Offer, ParsedOffer
+from external_offers.enums import CallStatus
 
 
 @dataclass
@@ -15,7 +16,7 @@ class CallsKafkaMessage:
     """Идентификатор клиента на Циане"""
     phone: str
     """Номер телефона клиента"""
-    status: str
+    status: CallStatus
     """Статус звонка"""
     call_id: str
     """Идентификатор звонка"""

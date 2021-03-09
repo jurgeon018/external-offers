@@ -14,4 +14,3 @@ def get_next_call_date_when_call_missed(*, calls_count: int) -> Optional[datetim
     if calls_count == _SECOND_CALL:
         return datetime.now(pytz.utc) + timedelta(days=1)
     return None
-

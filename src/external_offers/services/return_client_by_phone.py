@@ -51,7 +51,8 @@ async def return_client_by_phone(request: ReturnClientByPhoneRequest, user_id: i
         call_id = generate_guid()
         await assign_client_to_operator_and_increase_calls_count(
             client_id=client.client_id,
-            operator_id=user_id
+            operator_id=user_id,
+            call_id=call_id
         )
         if offers_ids := await set_undrafted_offers_in_progress_by_client(
             client_id=client.client_id,

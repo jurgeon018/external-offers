@@ -186,7 +186,7 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
     next_call = datetime.now() - timedelta(hours=1)
 
     await pg.execute(
-        f"""
+        """
         INSERT INTO public.offers_for_call(
             id,
             parsed_id,

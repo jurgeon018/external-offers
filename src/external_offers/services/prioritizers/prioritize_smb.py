@@ -108,7 +108,7 @@ async def prioritize_smb_client(
                 exc.message
             )
             statsd.incr(_METRIC_PRIORITIZE_FAILED)
-            return settings.FAILED_PRIORITY
+            return _CLEAR_CLIENT_PRIORITY
 
     # Получаем количество активных объявлений
     try:
@@ -124,7 +124,7 @@ async def prioritize_smb_client(
             exc.message
         )
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
-        return settings.FAILED_PRIORITY
+        return _CLEAR_CLIENT_PRIORITY
 
     # Приоритет по отсутствию активных объявлений на циане
     if active_response.count == _NO_ACTIVE:

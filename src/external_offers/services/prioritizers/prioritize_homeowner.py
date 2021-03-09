@@ -90,5 +90,5 @@ async def prioritize_homeowner_client(
                 exc.message
             )
             statsd.incr(_METRIC_PRIORITIZE_FAILED)
-            return settings.FAILED_PRIORITY
+            return _CLEAR_CLIENT_PRIORITY
     return settings.ACTIVE_LK_HOMEOWNER_PRIOTIY

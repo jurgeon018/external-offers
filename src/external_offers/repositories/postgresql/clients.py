@@ -35,7 +35,11 @@ async def get_client_in_progress_by_operator(*, operator_id: int) -> Optional[Cl
     return client_mapper.map_from(row) if row else None
 
 
-async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
+async def assign_suitable_client_to_operator(
+    *,
+    operator_id: int,
+    call_id: str
+) -> str:
     now = datetime.now(pytz.utc)
 
     first_suitable_offer_client_cte = (
@@ -82,7 +86,8 @@ async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
         ).values(
             operator_user_id=operator_id,
             status=ClientStatus.in_progress.value,
-            calls_count=coalesce(clients.c.calls_count, _NO_CALLS) + _ONE_CALL
+            calls_count=coalesce(clients.c.calls_count, _NO_CALLS) + _ONE_CALL,
+            last_call_id=call_id
         ).where(
             clients.c.client_id == first_suitable_offer_client_cte.c.client_id
         ).returning(
@@ -95,7 +100,8 @@ async def assign_suitable_client_to_operator(*, operator_id: int) -> str:
 async def assign_client_to_operator_and_increase_calls_count(
     *,
     client_id: str,
-    operator_id: int
+    operator_id: int,
+    call_id: str,
 ) -> Optional[Client]:
     sql = (
         update(
@@ -103,7 +109,8 @@ async def assign_client_to_operator_and_increase_calls_count(
         ).values(
             operator_user_id=operator_id,
             status=ClientStatus.in_progress.value,
-            calls_count=coalesce(clients.c.calls_count, _NO_CALLS) + _ONE_CALL
+            calls_count=coalesce(clients.c.calls_count, _NO_CALLS) + _ONE_CALL,
+            last_call_id=call_id
         ).where(
             clients.c.client_id == client_id
         ).returning(

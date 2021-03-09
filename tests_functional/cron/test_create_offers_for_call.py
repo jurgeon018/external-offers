@@ -522,10 +522,6 @@ async def test_create_offers__exist_suitable_parsed_offer_with_suitable_minimum_
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 3,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
     })
-
-    # act
-    await runner.run_python_command('create-offers-for-call')
-    await asyncio.sleep(1)
     await users_mock.add_stub(
         method='GET',
         path='/v2/get-users-by-phone/',
@@ -533,6 +529,10 @@ async def test_create_offers__exist_suitable_parsed_offer_with_suitable_minimum_
             body={'users': []}
         ),
     )
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+    await asyncio.sleep(1)
 
     # assert
     rows = await pg.fetch(

@@ -508,7 +508,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'FAILED_PRIORITY': 4
     })
     await users_mock.add_stub(
         method='GET',
@@ -528,16 +527,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         """
     )
 
-    client_row = await pg.fetchrow(
-        """
-        SELECT * FROM clients WHERE client_id = $1
-        """,
-        [offer_row['client_id']]
-    )
-
-    assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 4
-    assert client_row['cian_user_id'] is None
+    assert offer_row is None
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multiple_accounts__creates_waiting_offer(
@@ -651,7 +641,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'KEEP_PROPORTION_SMB_PRIORITY': 3,
-        'FAILED_PRIORITY': 4
     })
     await users_mock.add_stub(
         method='GET',
@@ -696,16 +685,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         """
     )
 
-    client_row = await pg.fetchrow(
-        """
-        SELECT * FROM clients WHERE client_id = $1
-        """,
-        [offer_row['client_id']]
-    )
-
-    assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 4
-    assert client_row['cian_user_id'] == 12835367
+    assert offer_row is None
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_homeowner__prioritize_as_no_lk(
