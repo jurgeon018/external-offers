@@ -12,5 +12,11 @@ class ClientStatus(StrEnum):
     """Позвонить позже"""
     call_missed = 'call_missed'
     """Недозвон"""
+    promo_given = 'promo_given'
+    """Выдан промокод"""
+    phone_unavailable = 'phone_unavailable'
+    """Телефон недоступен"""
+    call_interrupted = 'call_interrupted'
+    """Бросили трубку"""
     accepted = 'accepted'
     """Согласие"""

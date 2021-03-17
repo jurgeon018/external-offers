@@ -16,5 +16,11 @@ class CallStatus(StrEnum):
     """Согласие"""
     phone_changed = 'phone_changed'
     """Изменен номер телефона"""
+    promo_given = 'promo_given'
+    """Выдан промокод"""
+    phone_unavailable = 'phone_unavailable'
+    """Телефон недоступен"""
+    call_interrupted = 'call_interrupted'
+    """Бросили трубку"""
     main_account_changed = 'main_account_changed'
     """Изменен основной аккаунт для публикации черновика"""

@@ -27,6 +27,22 @@ class CallsKafkaMessage:
 
 
 @dataclass
+class AlreadyPublishedKafkaMessage:
+    manager_id: int
+    """Идентификатор оператора"""
+    source_object_id: str
+    """Идентификатор спаршенного объявления"""
+    source_user_id: str
+    """Идентификатор клиента в админке"""
+    phone: str
+    """Номер телефона клиента"""
+    call_id: str
+    """Идентификатор звонка"""
+    date: datetime
+    """Дата события"""
+
+
+@dataclass
 class DraftAnnouncementsKafkaMessage:
     manager_id: int
     """Идентификатор оператора"""

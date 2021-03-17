@@ -14,6 +14,14 @@ class OfferStatus(StrEnum):
     """Позвонить позже"""
     cancelled = 'cancelled'
     """Отмена работы по объявлению оператором"""
+    already_published = 'alreadyPublished'
+    """Объявление уже есть на сайте"""
+    promo_given = 'promo_given'
+    """Выдан промокод"""
+    phone_unavailable = 'phone_unavailable'
+    """Телефон недоступен"""
+    call_interrupted = 'call_interrupted'
+    """Бросили трубку"""
     declined = 'declined'
     """Отказ клиента"""
     done = 'done'

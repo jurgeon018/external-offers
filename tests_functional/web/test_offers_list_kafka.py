@@ -281,7 +281,7 @@ async def test_call_missed_client__client_exist_send_exceeded_timeout__expected_
     )
 
     # assert
-    assert f'Не удалось отправить событие аналитики для клиента {operator_client}' in logs.get()
+    assert f'Не удалось отправить событие аналитики звонка для клиента {operator_client}' in logs.get()
 
 
 async def test_decline_client_client__client_exist_send_exceeded_timeout__expected_log_warning(
@@ -315,7 +315,7 @@ async def test_decline_client_client__client_exist_send_exceeded_timeout__expect
     )
 
     # assert
-    assert f'Не удалось отправить событие аналитики для клиента {operator_client}' in logs.get()
+    assert f'Не удалось отправить событие аналитики звонка для клиента {operator_client}' in logs.get()
 
 
 async def test_call_later_client__client_exist_send_exceeded_timeout__expected_log_warning(
@@ -350,7 +350,7 @@ async def test_call_later_client__client_exist_send_exceeded_timeout__expected_l
     )
 
     # assert
-    assert f'Не удалось отправить событие аналитики для клиента {operator_client}' in logs.get()
+    assert f'Не удалось отправить событие аналитики звонка для клиента {operator_client}' in logs.get()
 
 
 async def test_call_later_client__client_exist_with_2_offers__expected_1_messages_to_kafka(
@@ -479,9 +479,17 @@ async def test_call_later_client__client_exist_with_2_offers_and_operator_test__
         )
 
 
-async def test_delete_offer__exist_offers_in_progress__client_accepted_message_if_no_offers_in_progress_and_draft(
+@pytest.mark.parametrize(
+    'method_name',
+    [
+        'delete-offer',
+        'already-published-offer'
+    ]
+)
+async def test_status_offer_methods__exist_offers_in_progress__client_accepted_message_if_no_in_progress_and_draft(
         pg,
         http,
+        method_name,
         kafka_service,
         runtime_settings,
         offers_and_clients_fixture
@@ -498,7 +506,7 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_message_i
     # act
     await http.request(
         'POST',
-        '/api/admin/v1/delete-offer/',
+        f'/api/admin/v1/{method_name}/',
         headers={
             'X-Real-UserId': operator_user_id
         },
@@ -523,17 +531,27 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_message_i
         'timestamp': ANY,
         'userId': None,
         'phone': '+79812932338',
-        'callId': None,
+        'callId': 'last-call-id',
         'status': 'accepted',
         'source': 'avito'
     }
 
 
-async def test_decline_client__exist_draft_client_accepted_message(
+@pytest.mark.parametrize(
+    'method_name',
+    [
+        'decline-client',
+        'call-interrupted-client',
+        'phone-unavailable-client',
+        'promo-given-client'
+    ]
+)
+async def test_change_client_status_methods__exist_draft__client_accepted_message(
         pg,
         http,
         kafka_service,
         runtime_settings,
+        method_name,
         offers_and_clients_fixture
 ):
     # arrange
@@ -543,17 +561,15 @@ async def test_decline_client__exist_draft_client_accepted_message(
     })
     operator_user_id = 70024649
     operator_client = '7'
-    offer_in_progress = '13'
 
     # act
     await http.request(
         'POST',
-        '/api/admin/v1/decline-client/',
+        f'/api/admin/v1/{method_name}/',
         headers={
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': offer_in_progress,
             'client_id': operator_client
         },
         expected_status=200
@@ -573,7 +589,82 @@ async def test_decline_client__exist_draft_client_accepted_message(
         'timestamp': ANY,
         'userId': None,
         'phone': '+79812932338',
-        'callId': None,
+        'callId': 'last-call-id',
         'status': 'accepted',
         'source': 'avito'
+    }
+
+
+async def test_already_published_offer__exist_parsed_offer__already_published_message(
+        pg,
+        http,
+        kafka_service,
+        runtime_settings,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute(
+        """
+        INSERT INTO public.parsed_offers (
+            id,
+            user_segment,
+            source_object_id,
+            source_user_id,
+            source_object_model,
+            is_calltracking,
+            "timestamp",
+            created_at,
+            updated_at
+        ) VALUES (
+            '1d6c7dxc-3057-47cc-b50a-419052dfasf',
+            'c',
+            '1_2931442443',
+            '48f05f430722c915c498113b16ba0e79',
+            '{}',
+            false,
+            now(),
+            now(),
+            now()
+        );
+        """
+    )
+
+    await runtime_settings.set({
+        'TEST_OPERATOR_IDS': [],
+        'ENABLE_SEND_KAFKA_MESSAGE_FOR_ALREADY_PUBLISHED': True
+    })
+    operator_user_id = 70024649
+    operator_client = '7'
+    offer_in_progress = '13'
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/already-published-offer/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'offer_id': offer_in_progress,
+            'client_id': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    messages = await kafka_service.wait_messages(
+        topic='preposition-admin.already-published',
+        timeout=4.5,
+        count=1
+    )
+
+    assert messages[0].data == {
+        'managerId': 70024649,
+        'sourceObjectId': '1_2931442443',
+        'sourceUserId': '32131327',
+        'phone': '+79812932338',
+        'callId': 'last-call-id',
+        'date': ANY,
+        'timestamp': ANY
     }

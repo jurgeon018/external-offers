@@ -6,8 +6,11 @@ CREATE TYPE offer_status_type AS enum (
     'callLater',
     'cancelled',
     'declined',
-    'done'
-    );
+    'alreadyPublished',
+    'phoneUnavailable',
+    'callInterrupted',
+    'promoGiven'
+);
 
 CREATE TYPE client_status_type AS enum (
     'waiting',
@@ -15,8 +18,11 @@ CREATE TYPE client_status_type AS enum (
     'inProgress',
     'callLater',
     'callMissed',
-    'accepted'
-    );
+    'accepted',
+    'phoneUnavailable',
+    'callInterrupted',
+    'promoGiven'
+);
 
 CREATE TABLE offers_for_call
 (
@@ -54,7 +60,7 @@ CREATE TABLE event_log
     id               serial primary key,
     offer_id         varchar                  not null,
     operator_user_id bigint,
-    status           varchar(10)              not null,
+    status           varchar(30)              not null,
     created_at       timestamp with time zone not null
     last_call_id     varchar
 );
