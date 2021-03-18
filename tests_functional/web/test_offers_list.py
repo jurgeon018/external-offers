@@ -355,7 +355,7 @@ async def test_call_missed_client__operator_and_in_progress__next_call_and_call_
     expected_next_call_right_border = expected_next_call + timedelta(minutes=1)
 
     await runtime_settings.set({
-        'CALL_MISSED_PRIORITY_BLOCK': 2
+        'CALL_MISSED_PRIORITY': 2
     })
 
     # act
@@ -667,7 +667,7 @@ async def test_call_later_client__operator_and_in_progress__next_call_call_later
     expected_priority = 100000
     expected_next_call = datetime.now(pytz.utc)
     await runtime_settings.set({
-        'CALL_LATER_PRIORITY_BLOCK': 1
+        'CALL_LATER_PRIORITY': 1
     })
 
     # act

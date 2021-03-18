@@ -19,7 +19,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
-        'WAITING_PRIORITY_BLOCK': 3,
+        'WAITING_PRIORITY': 3,
 
     })
     await users_mock.add_stub(
@@ -164,7 +164,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'NO_LK_HOMEOWNER_PRIORITY': 4,
-        'WAITING_PRIORITY_BLOCK': 3,
+        'WAITING_PRIORITY': 3,
         'HOMEOWNER_PRIORITY': 2
 
     })
@@ -279,7 +279,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'NO_LK_HOMEOWNER_PRIORITY': 4,
-        'WAITING_PRIORITY_BLOCK': 3,
+        'WAITING_PRIORITY': 3,
         'HOMEOWNER_PRIORITY': 2
     })
     await users_mock.add_stub(

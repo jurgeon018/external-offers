@@ -72,7 +72,10 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'NO_LK_SMB_PRIORITY': 1,
         'SMB_PRIORITY':  1,
-        'WAITING_PRIORITY_BLOCK': 3,
+        'WAITING_PRIORITY': 3,
+        'MAIN_REGIONS_PRIORITY': {
+            '4580': 1
+        }
     })
     await users_mock.add_stub(
         method='GET',
@@ -117,7 +120,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 320011
+    assert offer_row['priority'] == 310111
     assert client_row['cian_user_id'] is None
 
 
@@ -245,7 +248,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'NO_ACTIVE_SMB_PRIORITY': 2,
         'SMB_PRIORITY': 1,
-        'WAITING_PRIORITY_BLOCK': 3
+        'WAITING_PRIORITY': 3
     })
     await users_mock.add_stub(
         method='GET',
@@ -323,7 +326,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_smb_without
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'NO_LK_SMB_PRIORITY': 1,
-        'WAITING_PRIORITY_BLOCK': 3,
+        'WAITING_PRIORITY': 3,
         'SMB_PRIORITY': 1
     })
     await users_mock.add_stub(
@@ -440,7 +443,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_ma
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'KEEP_PROPORTION_SMB_PRIORITY': 3,
-        'WAITING_PRIORITY_BLOCK': 3,
+        'WAITING_PRIORITY': 3,
         'SMB_PRIORITY': 1,
     })
     await users_mock.add_stub(
@@ -557,7 +560,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'KEEP_PROPORTION_SMB_PRIORITY': 3,
         'SMB_PRIORITY': 1,
-        'WAITING_PRIORITY_BLOCK': 3
+        'WAITING_PRIORITY': 3
 
     })
     await users_mock.add_stub(
@@ -718,7 +721,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'NO_LK_SMB_PRIORITY': 4,
         'SMB_PRIORITY': 1,
-        'WAITING_PRIORITY_BLOCK': 3
+        'WAITING_PRIORITY': 3
     })
     await users_mock.add_stub(
         method='GET',

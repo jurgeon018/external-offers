@@ -17,6 +17,7 @@ def build_priority_from_blocks(
     client_type_priority: Optional[int] = None,
     account_priority: Optional[int] = None
 ) -> int:
+    """ Составляем финальный приоритет из 4 частей, добиваем до общей длины нулями и приводим к int """
     builded_priority = (
         str(call_status_priority)
         + str(region_priority if region_priority else _EMPTY)
@@ -31,8 +32,18 @@ def build_region_priority_from_region(
     *,
     regions: List[int]
 ) -> int:
+    """
+    Ищем самый приоритетный из регионов. Для основных  - разделение по приоритетам, неосновные - все 1 приоритетом.
+    Затем отступом в 100 доводим до 3-значного числа для соблюдения длины финального приоритета для всех регионов
+    """
     try:
-        regions_priorities = [settings.MAIN_REGIONS_PRIORITY.index(region) for region in regions]
+        regions_priorities = [
+            settings.MAIN_REGIONS_PRIORITY.get(
+                str(region),
+                _SECONDARY_REGION_PRIORITY
+            )
+            for region in regions
+        ]
         region_priority = min(regions_priorities)
     except ValueError:
         region_priority = _SECONDARY_REGION_PRIORITY
@@ -47,7 +58,7 @@ def build_waiting_homeowner_priority(
     account_priority: int
 ) -> int:
     return build_priority_from_blocks(
-        call_status_priority=settings.WAITING_PRIORITY_BLOCK,
+        call_status_priority=settings.WAITING_PRIORITY,
         region_priority=build_region_priority_from_region(
             regions=regions
         ),
@@ -62,7 +73,7 @@ def build_waiting_smb_priority(
     account_priority: int
 ) -> int:
     return build_priority_from_blocks(
-        call_status_priority=settings.WAITING_PRIORITY_BLOCK,
+        call_status_priority=settings.WAITING_PRIORITY,
         client_type_priority=settings.SMB_PRIORITY,
         region_priority=build_region_priority_from_region(
             regions=regions
@@ -72,12 +83,15 @@ def build_waiting_smb_priority(
 
 
 def build_call_later_priority() -> int:
+    """ Не ранжируем недозвоны по регионам, сегментами и аккаунтам, их мало """
     return build_priority_from_blocks(
-        call_status_priority=settings.CALL_LATER_PRIORITY_BLOCK
+        call_status_priority=settings.CALL_LATER_PRIORITY
     )
 
 
 def build_call_missed_priority() -> int:
+    """ Не ранжируем недозвоны по регионам, сегментами и аккаунтам, их мало """
+
     return build_priority_from_blocks(
-        call_status_priority=settings.CALL_MISSED_PRIORITY_BLOCK
+        call_status_priority=settings.CALL_MISSED_PRIORITY
     )

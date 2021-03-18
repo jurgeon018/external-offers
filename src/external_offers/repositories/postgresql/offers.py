@@ -616,10 +616,11 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
 
 
 async def get_offers_regions_by_client_id(*, client_id: str) -> List[int]:
+    _REGION_FIELD = 'region'
     query, params = asyncpgsa.compile_query(
         select(
             [
-                parsed_offers.c.source_object_model['region'].as_integer()
+                parsed_offers.c.source_object_model[_REGION_FIELD].as_integer().label(_REGION_FIELD)
             ]
         ).select_from(
             clients.join(
@@ -639,7 +640,7 @@ async def get_offers_regions_by_client_id(*, client_id: str) -> List[int]:
 
     rows = await pg.get().fetch(query, *params)
 
-    return rows if rows else []
+    return [row[_REGION_FIELD] for row in rows]
 
 
 async def iterate_over_offers_for_call_sorted(
