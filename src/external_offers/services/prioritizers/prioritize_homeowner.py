@@ -11,6 +11,7 @@ from external_offers.helpers.phonenumber import transform_phone_number_to_canoni
 from external_offers.repositories.postgresql import set_cian_user_id_by_client_id
 from external_offers.repositories.users import v2_get_users_by_phone
 from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
+from external_offers.services.prioritizers.build_priority import build_waiting_homeowner_priority
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
     )
 
 
-async def prioritize_homeowner_client(
+async def find_homeowner_client_account_priority(
     *,
     client: Client,
 ) -> int:
@@ -91,4 +92,23 @@ async def prioritize_homeowner_client(
             )
             statsd.incr(_METRIC_PRIORITIZE_FAILED)
             return _CLEAR_CLIENT_PRIORITY
-    return settings.ACTIVE_LK_HOMEOWNER_PRIOTIY
+
+    return settings.ACTIVE_LK_HOMEOWNER_PRIORITY
+
+
+async def prioritize_homeowner_client(
+    *,
+    client: Client,
+    regions: List[int]
+) -> int:
+    account_priority = await find_homeowner_client_account_priority(
+        client=client,
+    )
+
+    if account_priority == _CLEAR_CLIENT_PRIORITY:
+        return account_priority
+
+    return build_waiting_homeowner_priority(
+        regions=regions,
+        account_priority=account_priority
+    )

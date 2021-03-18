@@ -72,7 +72,7 @@ async def assign_suitable_client_to_operator(
             )
         ).order_by(
             nullslast(offers_for_call.c.priority.asc()),
-            offers_for_call.c.created_at.asc()
+            offers_for_call.c.created_at.desc()
         ).limit(
             1
         ).cte(

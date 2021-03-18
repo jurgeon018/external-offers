@@ -70,7 +70,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-        'NO_LK_SMB_PRIORITY': 1
+        'NO_LK_SMB_PRIORITY': 1,
+        'SMB_PRIORITY':  1,
+        'WAITING_PRIORITY_BLOCK': 3,
     })
     await users_mock.add_stub(
         method='GET',
@@ -115,7 +117,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 1
+    assert offer_row['priority'] == 320011
     assert client_row['cian_user_id'] is None
 
 
@@ -241,7 +243,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-        'NO_ACTIVE_SMB_PRIORITY': 2
+        'NO_ACTIVE_SMB_PRIORITY': 2,
+        'SMB_PRIORITY': 1,
+        'WAITING_PRIORITY_BLOCK': 3
     })
     await users_mock.add_stub(
         method='GET',
@@ -298,11 +302,11 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 2
+    assert offer_row['priority'] == 320012
     assert client_row['cian_user_id'] == 12835367
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk__creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_smb_without_lk__creates_waiting_offer(
     pg,
     runtime_settings,
 
@@ -318,7 +322,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk_
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-        'NO_LK_SMB_PRIORITY': 1
+        'NO_LK_SMB_PRIORITY': 1,
+        'WAITING_PRIORITY_BLOCK': 3,
+        'SMB_PRIORITY': 1
     })
     await users_mock.add_stub(
         method='GET',
@@ -346,7 +352,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk_
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 1
+    assert offer_row['priority'] == 320011
     assert client_row['cian_user_id'] is None
 
 
@@ -433,7 +439,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_ma
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'KEEP_PROPORTION_SMB_PRIORITY': 3
+        'KEEP_PROPORTION_SMB_PRIORITY': 3,
+        'WAITING_PRIORITY_BLOCK': 3,
+        'SMB_PRIORITY': 1,
     })
     await users_mock.add_stub(
         method='GET',
@@ -488,7 +496,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_ma
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 3
+    assert offer_row['priority'] == 320013
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -547,7 +555,10 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'KEEP_PROPORTION_SMB_PRIORITY': 3
+        'KEEP_PROPORTION_SMB_PRIORITY': 3,
+        'SMB_PRIORITY': 1,
+        'WAITING_PRIORITY_BLOCK': 3
+
     })
     await users_mock.add_stub(
         method='GET',
@@ -619,7 +630,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 3
+    assert offer_row['priority'] == 320013
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -705,7 +716,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'NO_LK_SMB_PRIORITY': 4
+        'NO_LK_SMB_PRIORITY': 4,
+        'SMB_PRIORITY': 1,
+        'WAITING_PRIORITY_BLOCK': 3
     })
     await users_mock.add_stub(
         method='GET',
@@ -760,5 +773,5 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 4
+    assert offer_row['priority'] == 320014
     assert client_row['cian_user_id'] is None

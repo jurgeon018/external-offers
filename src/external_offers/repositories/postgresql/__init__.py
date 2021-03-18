@@ -43,6 +43,7 @@ from external_offers.repositories.postgresql.offers import (
     get_offer_promocode_by_offer_id,
     get_offers_in_progress_by_operator,
     get_offers_parsed_ids_by_parsed_ids,
+    get_offers_regions_by_client_id,
     get_waiting_offer_counts_by_clients,
     iterate_over_offers_for_call_sorted,
     save_offer_for_call,
