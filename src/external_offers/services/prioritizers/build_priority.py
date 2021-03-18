@@ -36,17 +36,14 @@ def build_region_priority_from_region(
     Ищем самый приоритетный из регионов. Для основных  - разделение по приоритетам, неосновные - все 1 приоритетом.
     Затем отступом в 100 доводим до 3-значного числа для соблюдения длины финального приоритета для всех регионов
     """
-    try:
-        regions_priorities = [
-            settings.MAIN_REGIONS_PRIORITY.get(
-                str(region),
-                _SECONDARY_REGION_PRIORITY
-            )
-            for region in regions
-        ]
-        region_priority = min(regions_priorities)
-    except ValueError:
-        region_priority = _SECONDARY_REGION_PRIORITY
+    regions_priorities = [
+        settings.MAIN_REGIONS_PRIORITY.get(
+            str(region),
+            _SECONDARY_REGION_PRIORITY
+        )
+        for region in regions
+    ]
+    region_priority = min(regions_priorities)
 
     region_priority_with_offset = region_priority + _REGION_PRIORITY_OFFSET
     return region_priority_with_offset
