@@ -26,7 +26,33 @@ class AdminDeclineClientRequest:
 
 
 @dataclass
+class AdminCallInterruptedClientRequest:
+    client_id: str
+    """ID клиента"""
+
+
+@dataclass
+class AdminPhoneUnavailableClientRequest:
+    client_id: str
+    """ID клиента"""
+
+
+@dataclass
+class AdminPromoGivenClientRequest:
+    client_id: str
+    """ID клиента"""
+
+
+@dataclass
 class AdminDeleteOfferRequest:
+    client_id: str
+    """ID клиента"""
+    offer_id: str
+    """ID объявления в админке (!= ID объявления в Циан) """
+
+
+@dataclass
+class AdminAlreadyPublishedOfferRequest:
     client_id: str
     """ID клиента"""
     offer_id: str

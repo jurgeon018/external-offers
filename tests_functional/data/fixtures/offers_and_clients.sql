@@ -6,7 +6,8 @@ INSERT INTO public.clients(
     client_email,
     operator_user_id,
     status,
-    calls_count
+    calls_count,
+    last_call_id
 ) VALUES (
     '1',
     '32131322',
@@ -15,7 +16,8 @@ INSERT INTO public.clients(
     'testemail@gmail.com',
     60024635,
     'inProgress',
-    1
+    1,
+    NULL
 ), (
     '2',
     '32131323',
@@ -24,7 +26,8 @@ INSERT INTO public.clients(
     'moyemail@gmail.com',
     NULL,
     'waiting',
-    0
+    0,
+    NULL
 ), (
     '3',
     '32131324',
@@ -33,7 +36,8 @@ INSERT INTO public.clients(
     'nemoyemail@gmail.com',
     NULL,
     'waiting',
-    0
+    0,
+    NULL
 ), (
     '4',
     '32131325',
@@ -42,7 +46,8 @@ INSERT INTO public.clients(
     'nemoyemail1234@gmail.com',
     60024638,
     'waiting',
-    0
+    0,
+    NULL
 ), (
     '5',
     '32131325',
@@ -51,7 +56,8 @@ INSERT INTO public.clients(
     'nemoyemail1234@gmail.com',
     60024649,
     'inProgress',
-    1
+    1,
+    NULL
 ), (
     '6',
     '32131326',
@@ -60,7 +66,8 @@ INSERT INTO public.clients(
     'nemoyemail1234@gmail.com',
     60024659,
     'inProgress',
-    1
+    1,
+    NULL
 ), (
     '7',
     '32131327',
@@ -69,7 +76,8 @@ INSERT INTO public.clients(
     'gmail@gmail.com',
     70024649,
     'inProgress',
-    1
+    1,
+    'last-call-id'
 );
 
 INSERT INTO public.offers_for_call(
@@ -211,7 +219,7 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
     1,
-    NULL
+    'last-call-id'
 ), (
     14,
     '1d6c7dxc-3057-47cc-b50a-419052da619f',

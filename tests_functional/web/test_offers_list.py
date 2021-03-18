@@ -274,8 +274,19 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
     assert event_log[0]['status'] == 'inProgress'
 
 
-async def test_decline_client__client_with_cancelled_and_in_progress__only_in_progress_set_declined(
+@pytest.mark.parametrize(
+    ['method_name', 'expected_status_for_in_progress'],
+    [
+        ['decline-client', 'declined'],
+        ['call-interrupted-client', 'callInterrupted'],
+        ['phone-unavailable-client', 'phoneUnavailable'],
+        ['promo-given-client', 'promoGiven']
+    ]
+)
+async def test_client_status_change__client_with_cancelled_and_in_progress__only_in_progress_set_new_status(
         pg,
+        method_name,
+        expected_status_for_in_progress,
         http,
         offers_and_clients_fixture
 ):
@@ -289,7 +300,7 @@ async def test_decline_client__client_with_cancelled_and_in_progress__only_in_pr
     # act
     await http.request(
         'POST',
-        '/api/admin/v1/decline-client/',
+        f'/api/admin/v1/{method_name}/',
         headers={
             'X-Real-UserId': operator_user_id
         },
@@ -319,12 +330,12 @@ async def test_decline_client__client_with_cancelled_and_in_progress__only_in_pr
         ]
     )
 
-    assert row_offer_expected_declined['status'] == 'declined'
+    assert row_offer_expected_declined['status'] == expected_status_for_in_progress
     assert row_offer_expected_cancelled['status'] == 'cancelled'
     assert offers_event_log[0]['offer_id'] == '6'
-    assert offers_event_log[0]['status'] == 'declined'
+    assert offers_event_log[0]['status'] == expected_status_for_in_progress
     assert offers_event_log[1]['offer_id'] == '10'
-    assert offers_event_log[1]['status'] == 'declined'
+    assert offers_event_log[1]['status'] == expected_status_for_in_progress
 
 
 async def test_call_missed_client__operator_and_in_progress__next_call_and_call_missed_priority_set(
@@ -539,8 +550,16 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
     assert row_client['status'] == 'waiting'
 
 
+@pytest.mark.parametrize(
+    'method_name',
+    [
+        'delete-offer',
+        'already-published-offer'
+    ]
+)
 async def test_delete_offer__exist_offers_in_progress__client_accepted_if_no_offers_in_progress_and_draft(
         pg,
+        method_name,
         http,
         offers_and_clients_fixture
 ):
@@ -553,7 +572,7 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_if_no_off
     # act
     await http.request(
         'POST',
-        '/api/admin/v1/delete-offer/',
+        f'/api/admin/v1/{method_name}/',
         headers={
             'X-Real-UserId': operator_user_id
         },
@@ -786,9 +805,13 @@ async def test_decline_client__exist_draft__client_accepted(
         'call-missed-client',
         'call-later-client',
         'delete-offer',
+        'call-interrupted-client',
+        'phone-unavailable-client',
+        'promo-given-client',
+        'already-published-offer'
     ]
 )
-async def test_call_offer_list_method__missing_client__return_error(
+async def test_call_offer_list_client_method__missing_client__return_error(
         http,
         method_name,
 ):
@@ -821,8 +844,16 @@ async def test_call_offer_list_method__missing_client__return_error(
     ]
 
 
-async def test_call_delete_offer_method__missing_offer__return_error(
+@pytest.mark.parametrize(
+    'method_name',
+    [
+        'delete-offer',
+        'already-published-offer'
+    ]
+)
+async def test_call_offer_list_offer_method__missing_offer__return_error(
         http,
+        method_name,
         offers_and_clients_fixture,
         pg
 ):
@@ -836,7 +867,7 @@ async def test_call_delete_offer_method__missing_offer__return_error(
     # act
     response = await http.request(
         'POST',
-        '/api/admin/v1/delete-offer/',
+        f'/api/admin/v1/{method_name}/',
         headers={
             'X-Real-UserId': operator_user_id
         },

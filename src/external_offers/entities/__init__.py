@@ -1,9 +1,13 @@
 from external_offers.entities.admin import (
+    AdminAlreadyPublishedOfferRequest,
+    AdminCallInterruptedClientRequest,
     AdminCallLaterClientRequest,
     AdminCallMissedClientRequest,
     AdminDeclineClientRequest,
     AdminDeleteOfferRequest,
     AdminError,
+    AdminPhoneUnavailableClientRequest,
+    AdminPromoGivenClientRequest,
     AdminResponse,
 )
 from external_offers.entities.choose_profile import (

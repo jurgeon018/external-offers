@@ -211,6 +211,27 @@ async def set_offers_declined_by_client(*, client_id: str) -> List[str]:
     )
 
 
+async def set_offers_call_interrupted_by_client(*, client_id: str) -> List[str]:
+    return await set_offers_status_and_priority_by_client(
+        client_id=client_id,
+        status=OfferStatus.call_interrupted
+    )
+
+
+async def set_offers_phone_unavailable_by_client(*, client_id: str) -> List[str]:
+    return await set_offers_status_and_priority_by_client(
+        client_id=client_id,
+        status=OfferStatus.phone_unavailable
+    )
+
+
+async def set_offers_promo_given_by_client(*, client_id: str) -> List[str]:
+    return await set_offers_status_and_priority_by_client(
+        client_id=client_id,
+        status=OfferStatus.promo_given
+    )
+
+
 async def set_offers_call_missed_by_client(*, client_id: str) -> List[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
@@ -286,6 +307,24 @@ async def set_offer_cancelled_by_offer_id(*, offer_id: str) -> None:
             offers_for_call
         ).values(
             status=OfferStatus.cancelled.value,
+        ).where(
+            and_(
+                offers_for_call.c.id == offer_id,
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
+async def set_offer_already_published_by_offer_id(*, offer_id: str) -> None:
+    sql = (
+        update(
+            offers_for_call
+        ).values(
+            status=OfferStatus.already_published.value,
         ).where(
             and_(
                 offers_for_call.c.id == offer_id,

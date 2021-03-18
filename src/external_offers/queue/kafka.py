@@ -2,6 +2,7 @@ from cian_core.kafka import get_kafka_entity_producer
 from cian_kafka import EntityKafkaProducer
 
 from external_offers.entities.kafka import (
+    AlreadyPublishedKafkaMessage,
     CallsKafkaMessage,
     DraftAnnouncementsKafkaMessage,
     OfferForCallKafkaMessage,
@@ -27,4 +28,11 @@ offers_for_call_change_producer: EntityKafkaProducer[OfferForCallKafkaMessage] =
 parsed_offers_change_producer: EntityKafkaProducer[ParsedOfferKafkaMessage] = get_kafka_entity_producer(
     topic='parsed-offers.change',
     message_type=ParsedOfferKafkaMessage,
+)
+
+kafka_preposition_already_published_producer: EntityKafkaProducer[AlreadyPublishedKafkaMessage] = (
+    get_kafka_entity_producer(
+        topic='preposition-admin.already-published',
+        message_type=AlreadyPublishedKafkaMessage,
+    )
 )

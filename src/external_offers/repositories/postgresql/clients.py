@@ -172,6 +172,27 @@ async def set_client_to_decline_status_and_return(*, client_id: str) -> Optional
     )
 
 
+async def set_client_to_call_interrupted_status_and_return(*, client_id: str) -> Optional[Client]:
+    return await set_client_to_status_and_return(
+        client_id=client_id,
+        status=ClientStatus.call_interrupted
+    )
+
+
+async def set_client_to_phone_unavailable_status_and_return(*, client_id: str) -> Optional[Client]:
+    return await set_client_to_status_and_return(
+        client_id=client_id,
+        status=ClientStatus.phone_unavailable
+    )
+
+
+async def set_client_to_promo_given_status_and_return(*, client_id: str) -> Optional[Client]:
+    return await set_client_to_status_and_return(
+        client_id=client_id,
+        status=ClientStatus.promo_given
+    )
+
+
 async def set_client_to_waiting_status_and_return(*, client_id: str) -> Optional[Client]:
     return await set_client_to_status_and_return(
         client_id=client_id,
