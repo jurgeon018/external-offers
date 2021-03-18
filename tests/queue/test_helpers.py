@@ -15,10 +15,9 @@ async def test_send_already_publisher__test_user__returns_without_call(mocker):
         autospec=True
     )
     operator_user_id = 1
-    test_operator_user_ids = [1,]
+    test_operator_user_ids = [1]
     client = mocker.MagicMock()
     client.operator_user_id = operator_user_id
-
 
     # act
     with settings_stub(

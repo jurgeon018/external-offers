@@ -5,8 +5,8 @@ from cian_test_utils import future
 from simple_settings.utils import settings_stub
 
 from external_offers.entities import Client, Offer
-from external_offers.entities.admin import AdminCallInterruptedClientRequest, AdminDeleteOfferRequest
-from external_offers.services.admin import already_published_offer, set_call_interrupted_status_for_client
+from external_offers.entities.admin import AdminDeleteOfferRequest
+from external_offers.services.admin import already_published_offer
 
 
 async def test_already_published_offer__missing_parsed_offer__warning_expected(
