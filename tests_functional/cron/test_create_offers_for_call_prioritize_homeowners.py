@@ -1,5 +1,3 @@
-import asyncio
-
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
@@ -20,7 +18,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'ACTIVE_LK_HOMEOWNER_PRIOTIY': 5
+        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
+        'WAITING_PRIORITY': 3,
+
     })
     await users_mock.add_stub(
         method='GET',
@@ -75,7 +75,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 5
+    assert offer_row['priority'] == 320025
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -96,7 +96,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_blocke
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'ACTIVE_LK_HOMEOWNER_PRIOTIY': 5
+        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5
     })
     await users_mock.add_stub(
         method='GET',
@@ -163,7 +163,10 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'NO_LK_HOMEOWNER_PRIORITY': 4
+        'NO_LK_HOMEOWNER_PRIORITY': 4,
+        'WAITING_PRIORITY': 3,
+        'HOMEOWNER_PRIORITY': 2
+
     })
     await users_mock.add_stub(
         method='GET',
@@ -218,7 +221,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 4
+    assert offer_row['priority'] == 320024
     assert client_row['cian_user_id'] is None
 
 
@@ -260,10 +263,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     assert offer_row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk__creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_without_lk__creates_waiting_offer(
     pg,
     runtime_settings,
-
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
@@ -276,7 +278,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk_
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-        'NO_LK_HOMEOWNER_PRIORITY': 4
+        'NO_LK_HOMEOWNER_PRIORITY': 4,
+        'WAITING_PRIORITY': 3,
+        'HOMEOWNER_PRIORITY': 2
     })
     await users_mock.add_stub(
         method='GET',
@@ -304,5 +308,5 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_without_lk_
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 4
+    assert offer_row['priority'] == 320024
     assert client_row['cian_user_id'] is None

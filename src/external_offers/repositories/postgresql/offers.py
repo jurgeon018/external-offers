@@ -11,6 +11,7 @@ from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Of
 from external_offers.enums import OfferStatus
 from external_offers.mappers import client_waiting_offers_count_mapper, enriched_offer_mapper, offer_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
+from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
 
 
@@ -236,7 +237,7 @@ async def set_offers_call_missed_by_client(*, client_id: str) -> List[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_missed,
-        priority=settings.CALL_MISSED_PRIORITY
+        priority=build_call_missed_priority()
     )
 
 
@@ -244,7 +245,7 @@ async def set_offers_call_later_by_client(*, client_id: str) -> List[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_later,
-        priority=settings.CALL_LATER_PRIORITY
+        priority=build_call_later_priority()
     )
 
 
@@ -612,6 +613,34 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
     query, params = asyncpgsa.compile_query(sql)
     rows = await pg.get().fetch(query, *params)
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
+
+
+async def get_offers_regions_by_client_id(*, client_id: str) -> List[int]:
+    _REGION_FIELD = 'region'
+    query, params = asyncpgsa.compile_query(
+        select(
+            [
+                parsed_offers.c.source_object_model[_REGION_FIELD].as_integer().label(_REGION_FIELD)
+            ]
+        ).select_from(
+            clients.join(
+                offers_for_call.join(
+                    parsed_offers,
+                    offers_for_call.c.parsed_id == parsed_offers.c.id
+                ),
+                offers_for_call.c.client_id == clients.c.client_id
+            )
+        ).where(
+            and_(
+                clients.c.client_id == client_id,
+                offers_for_call.c.status == OfferStatus.waiting.value,
+            )
+        )
+    )
+
+    rows = await pg.get().fetch(query, *params)
+
+    return [row[_REGION_FIELD] for row in rows]
 
 
 async def iterate_over_offers_for_call_sorted(

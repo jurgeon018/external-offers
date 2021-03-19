@@ -22,6 +22,7 @@ from external_offers.repositories.postgresql import (
     get_client_by_client_id,
     get_last_sync_date,
     get_offers_parsed_ids_by_parsed_ids,
+    get_offers_regions_by_client_id,
     get_waiting_offer_counts_by_clients,
     save_client,
     save_offer_for_call,
@@ -35,11 +36,6 @@ logger = logging.getLogger(__name__)
 
 _CLEAR_CLIENT_PRIORITY = -1
 _NO_ACTIVE = 0
-
-_METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
-_METRIC_PRIORITIZE_NO_LK = 'prioritize_client.no_lk'
-_METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
-_METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 
 
 async def clear_waiting_offers_and_clients_with_off_count_limits() -> None:
@@ -66,28 +62,33 @@ async def clear_waiting_offers_and_clients_by_clients_ids(
 async def prioritize_client(
     *,
     client_id: str,
-    client_count: int
+    client_count: int,
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_CLIENT_PRIORITY """
 
     client: Client = await get_client_by_client_id(
         client_id=client_id
     )
+    regions = await get_offers_regions_by_client_id(
+        client_id=client_id
+    )
+
     priority = _CLEAR_CLIENT_PRIORITY
 
     if client and client.segment and client.segment.is_c:
         priority = await prioritize_smb_client(
             client=client,
-            client_count=client_count
+            client_count=client_count,
+            regions=regions
         )
 
     if client and client.segment and client.segment.is_d:
         priority = await prioritize_homeowner_client(
-            client=client
+            client=client,
+            regions=regions
         )
 
     return priority
-
 
 
 async def clear_and_prioritize_waiting_offers() -> None:

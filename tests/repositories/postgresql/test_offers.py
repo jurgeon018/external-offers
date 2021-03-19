@@ -110,7 +110,7 @@ async def test_set_offers_set_call_missed_by_client():
         'll.client_id = $1 AND offers_for_call.status = $4 RETURNING offers_for_call.id'
     )
     client_id = '1'
-    priority = 2
+    priority = 200000
     pg.get().fetch.return_value = future([])
 
     # act

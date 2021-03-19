@@ -13,6 +13,7 @@ from external_offers.repositories.announcements.entities import V2GetUserActiveA
 from external_offers.repositories.postgresql import set_cian_user_id_by_client_id
 from external_offers.repositories.users import v2_get_users_by_phone
 from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
+from external_offers.services.prioritizers.build_priority import build_waiting_smb_priority
 
 
 logger = logging.getLogger(__name__)
@@ -62,7 +63,7 @@ def choose_main_smb_client_profile(user_profiles: List[UserModelV2]) -> SmbClien
     )
 
 
-async def prioritize_smb_client(
+async def find_smb_client_account_priority(
     *,
     client: Client,
     client_count: int
@@ -137,3 +138,23 @@ async def prioritize_smb_client(
         return settings.KEEP_PROPORTION_SMB_PRIORITY
 
     return _CLEAR_CLIENT_PRIORITY
+
+
+async def prioritize_smb_client(
+    *,
+    client: Client,
+    client_count: int,
+    regions: List[int]
+) -> int:
+    account_priority = await find_smb_client_account_priority(
+        client=client,
+        client_count=client_count
+    )
+
+    if account_priority == _CLEAR_CLIENT_PRIORITY:
+        return account_priority
+
+    return build_waiting_smb_priority(
+        regions=regions,
+        account_priority=account_priority
+    )

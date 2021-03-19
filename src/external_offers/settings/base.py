@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 from cian_core.settings.base import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -22,19 +22,41 @@ OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareS
 OFFER_TASK_CREATION_REGIONS: List[int] = []
 OFFER_TASK_CREATION_MINIMUM_OFFERS: int = 1
 OFFER_TASK_CREATION_MAXIMUM_OFFERS: int = 5
-MAXIMUM_ACTIVE_OFFERS_PROPORTION = 1
+MAXIMUM_ACTIVE_OFFERS_PROPORTION: int = 1
 
-CALL_LATER_PRIORITY = 1
-CALL_MISSED_PRIORITY = 2
-NO_LK_SMB_PRIORITY = 3
-NO_ACTIVE_SMB_PRIORITY = 4
-KEEP_PROPORTION_SMB_PRIORITY = 5
-NO_LK_HOMEOWNER_PRIORITY = 6
-ACTIVE_LK_HOMEOWNER_PRIOTIY = 7
-FAILED_PRIORITY = 8
+# Настройки приоритетов в очереди
+# Приоритет собирается из 4 частей в число равной длины для всех заданий(для сквозной сортировки)
 
-OFFER_TASK_CREATION_FILTER_SUBAGENTS = True
-OFFER_TASK_CREATION_FILTER_EMLS = True
+# 1 часть - статус звонка, все новые задания идут с приоритетом 3 в начале, недозвоны - 2, перезвоны - 1
+CALL_LATER_PRIORITY: int = 1
+CALL_MISSED_PRIORITY: int = 2
+WAITING_PRIORITY: int = 3
+
+# 2 часть - регион, основные регионы из ключей настройки ниже ранжируются по значениям, остальные - все вместе
+MAIN_REGIONS_PRIORITY: Dict[str, int] = {
+    '2': 1,
+    '1': 2,
+    '4612': 3,
+    '4557': 4,
+    '4603': 5,
+    '4599': 6,
+    '4623': 7
+}
+
+# 3 часть - сегмент: собственник или smb
+SMB_PRIORITY: int = 1
+HOMEOWNER_PRIORITY: int = 2
+
+# 4 часть - статус учетной записи: нет лк на Циан, нет активных объявлений, соблюдена пропорция заданий в админке
+# и уже активных объявлений у клиента, для smb дополнительный приоритет - активный лк
+NO_LK_SMB_PRIORITY: int = 1
+NO_ACTIVE_SMB_PRIORITY: int = 2
+KEEP_PROPORTION_SMB_PRIORITY: int = 3
+NO_LK_HOMEOWNER_PRIORITY: int = 1
+ACTIVE_LK_HOMEOWNER_PRIORITY: int = 2
+
+OFFER_TASK_CREATION_FILTER_SUBAGENTS: bool = True
+OFFER_TASK_CREATION_FILTER_EMLS: bool = True
 
 SMS_REGISTRATION_TEMPLATE: str = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
 
