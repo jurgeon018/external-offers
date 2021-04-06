@@ -34,22 +34,27 @@ async def run_consumer(runner: Runner, kafka_service: KafkaService, dependencies
     await runner.start_background_python_command('send-parsed-offers')
 
 
+@pytest.mark.parametrize(
+    'category',
+    ['flatSale', 'newBuildingFlatSale']
+)
 async def test_external_offer_callback__new_external_offer__send_publish_message(
     kafka_service,
     queue_service,
     monolith_cian_geoapi_mock,
     monolith_cian_realty_mock,
+    category,
     runtime_settings,
 ):
     # arrange
     await runtime_settings.set({
-        'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale'],
+        'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale', 'newBuildingFlatSale'],
         'MAX_GEOCODE_STATIONS': 3
     })
 
     offer_data = {
         'phones': ['87771114422'],
-        'category': 'flatSale',
+        'category': category,
         'region': 4628,
         'title': 'название',
         'description': 'описание',
@@ -241,7 +246,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'externalUrl': 'http://test'
     }
 
-    assert payload['model']['category'] == 'flatSale'
+    assert payload['model']['category'] == category
     assert payload['model']['floorNumber'] == 3
     assert payload['model']['flatType'] == 'rooms'
     assert payload['model']['roomsCount'] == 5

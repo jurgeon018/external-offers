@@ -55,6 +55,7 @@ DEFAULT_ROOMS_COUNT = 1
 
 SOURCE_CATEGORY_TO_CATEGORY: Dict[str, Category] = {
     'flatSale': Category.flat_sale,
+    'newBuildingFlatSale': Category.new_building_flat_sale,
     'flatRent': Category.flat_rent,
 }
 
