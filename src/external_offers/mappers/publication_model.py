@@ -136,7 +136,6 @@ def map_save_request_to_publication_model(
                     ) for detail in geocode_response.details
                 ]
             ),
-            name='Наименование',
             description=request.description,
             object_guid=generate_uppercase_guid(),
             flat_type=rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms),
