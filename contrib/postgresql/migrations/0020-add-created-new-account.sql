@@ -1,0 +1,1 @@
+ALTER TABLE clients ADD COLUMN main_account_chosen BOOLEAN NOT NULL DEFAULT FALSE;

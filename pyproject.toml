@@ -32,7 +32,7 @@ tornado = "^6.0"
 jinja2 = "^2.11.2"
 asyncpgsa = "^0.26"
 cian-cache = "^1.4.0"
-astroid = "2.4.2"
+sqlalchemy = "<1.4"
 
 [tool.poetry.dev-dependencies]
 cian-lint = "*"

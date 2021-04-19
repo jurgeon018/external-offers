@@ -34,6 +34,7 @@ clients = sa.Table(
     sa.Column('next_call', sa.TIMESTAMP),
     sa.Column('calls_count', sa.SMALLINT),
     sa.Column('last_call_id', sa.VARCHAR),
+    sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
 )
 
 offers_for_call = sa.Table(

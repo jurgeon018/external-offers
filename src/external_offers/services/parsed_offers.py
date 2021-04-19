@@ -6,6 +6,7 @@ from simple_settings import settings
 
 from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferMessage
 from external_offers.helpers import transform_phone_number_to_canonical_format
+from external_offers.mappers.publication_model import geo_type_to_type_mapping
 from external_offers.queue.entities import SourceModel
 from external_offers.queue.producers import external_offers_change_producer
 from external_offers.repositories import postgresql
@@ -27,7 +28,6 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 )
 from external_offers.repositories.monolith_cian_geoapi import v2_geocode
 from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest
-from external_offers.services.save_offer import geo_type_to_type_mapping
 from external_offers.services.undergrounds.get_undergrounds import get_underground_by_coordinates
 
 
@@ -66,6 +66,7 @@ REGION_LOCATION_ID = 2
 def get_rooms_count_from_source_object_model(source_object_model: dict) -> int:
     rooms_count = source_object_model.get(SOURCE_ROOMS_COUNT)
     return rooms_count or DEFAULT_ROOMS_COUNT
+
 
 def get_total_area_from_source_object_model(source_object_model: dict) -> Optional[float]:
     return source_object_model.get(SOURCE_TOTAL_AREA)
