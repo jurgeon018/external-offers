@@ -18,6 +18,7 @@ from external_offers.repositories.postgresql.clients import (
     set_client_to_phone_unavailable_status_and_return,
     set_client_to_promo_given_status_and_return,
     set_client_to_waiting_status_and_return,
+    set_main_cian_user_id_by_client_id,
     set_phone_number_by_client_id,
 )
 from external_offers.repositories.postgresql.event_log import (

@@ -26,9 +26,10 @@ class Client:
     """Сегмент пользователя"""
     last_call_id: Optional[str] = None
     """Последний идентификатор звонка"""
-    calls_count: int = 0
+    calls_count: Optional[int] = 0
     """Количество звонков"""
-
+    main_account_chosen: Optional[bool] = False
+    """Флаг выбора главного аккаунта(аккаунт выбранный при первом сохранении черновика)"""
 
 
 @dataclass

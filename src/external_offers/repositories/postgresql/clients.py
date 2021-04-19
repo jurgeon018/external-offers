@@ -306,12 +306,35 @@ async def get_segment_by_client_id(*, client_id: str) -> Optional[str]:
     return await pg.get().fetchval(query, *params)
 
 
-async def set_cian_user_id_by_client_id(*, cian_user_id: int, client_id: str):
+async def set_main_cian_user_id_by_client_id(
+    *,
+    cian_user_id: int,
+    client_id: str,
+):
     query, params = asyncpgsa.compile_query(
         update(
             clients
         ).values(
-            cian_user_id=cian_user_id
+            cian_user_id=cian_user_id,
+            main_account_chosen=True
+        ).where(
+            clients.c.client_id == client_id,
+        )
+    )
+
+    await pg.get().execute(query, *params)
+
+
+async def set_cian_user_id_by_client_id(
+    *,
+    cian_user_id: int,
+    client_id: str,
+):
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            cian_user_id=cian_user_id,
         ).where(
             clients.c.client_id == client_id,
         )

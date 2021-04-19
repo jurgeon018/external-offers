@@ -130,3 +130,9 @@ async def save_offer_request_body():
         'clientId': '7',
         'description': 'Test'
     }
+
+
+@pytest.fixture
+async def save_offer_request_body_with_create_new_account(save_offer_request_body):
+    save_offer_request_body['createNewAccount'] = True
+    return save_offer_request_body

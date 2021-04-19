@@ -6,10 +6,10 @@ from external_offers.repositories import postgresql
 
 async def test_get_client_in_progress_by_operator():
     # arrange
-    query = ('SELECT clients.client_id, clients.avito_user_id, clients.cian_user_id, clients.client_name, clients.cli'
-             'ent_phones, clients.client_email, clients.status, clients.operator_user_id, clients.segment, clients.ne'
-             'xt_call, clients.calls_count, clients.last_call_id \nFROM clients \nWHERE clients.operator_user_id = $1'
-             ' AND clients.status = $3 \n LIMIT $2')
+    query = ('SELECT clients.client_id, clients.avito_user_id, clients.cian_user_id, clients.client_name, clients'
+             '.client_phones, clients.client_email, clients.status, clients.operator_user_id, clients.segment, cl'
+             'ients.next_call, clients.calls_count, clients.last_call_id, clients.main_account_chosen \nFROM clie'
+             'nts \nWHERE clients.operator_user_id = $1 AND clients.status = $3 \n LIMIT $2')
     operator_id = 1
 
     # act

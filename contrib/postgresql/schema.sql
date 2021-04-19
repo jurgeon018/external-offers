@@ -53,6 +53,7 @@ CREATE TABLE clients
     next_call        timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar
+    main_account_chosen  boolean  not null  default false;
 );
 
 CREATE TABLE event_log

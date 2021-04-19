@@ -350,7 +350,7 @@ async def test_call_missed_client__operator_and_in_progress__next_call_and_call_
     operator_client = '1'
     expected_priority = 200000
 
-    expected_next_call = datetime.now(pytz.utc) + timedelta(hours=2)
+    expected_next_call = datetime.now(pytz.utc) + timedelta(days=1)
     expected_next_call_left_border = expected_next_call - timedelta(minutes=1)
     expected_next_call_right_border = expected_next_call + timedelta(minutes=1)
 
