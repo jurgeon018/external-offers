@@ -52,7 +52,7 @@ CREATE TABLE clients
     segment          varchar(1),
     next_call        timestamp with time zone,
     calls_count      smallint,
-    last_call_id     varchar
+    last_call_id     varchar,
     main_account_chosen  boolean  not null  default false;
 );
 
@@ -62,7 +62,7 @@ CREATE TABLE event_log
     offer_id         varchar                  not null,
     operator_user_id bigint,
     status           varchar(30)              not null,
-    created_at       timestamp with time zone not null
+    created_at       timestamp with time zone not null,
     last_call_id     varchar
 );
 

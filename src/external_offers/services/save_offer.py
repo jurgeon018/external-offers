@@ -68,7 +68,7 @@ def statsd_incr_if_not_test_user(
     *,
     metric: str,
     user_id: int
-):
+) -> None:
     if user_id not in settings.TEST_OPERATOR_IDS:
         statsd.incr(metric)
 
