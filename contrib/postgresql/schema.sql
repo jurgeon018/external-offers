@@ -36,7 +36,8 @@ CREATE TABLE offers_for_call
     started_at    timestamp with time zone,
     promocode     varchar,
     priority      int,
-    last_call_id  varchar
+    last_call_id  varchar,
+    parsed_created_at   timestamp with time zone not null default current_timestamp
 );
 
 CREATE TABLE clients
@@ -53,7 +54,7 @@ CREATE TABLE clients
     next_call        timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar,
-    main_account_chosen  boolean  not null  default false;
+    main_account_chosen  boolean  not null  default false
 );
 
 CREATE TABLE event_log

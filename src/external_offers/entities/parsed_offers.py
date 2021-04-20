@@ -180,6 +180,8 @@ class ParsedOfferForCreation:
     """Контактное лицо"""
     timestamp: datetime
     """Дата отправки"""
+    created_at: datetime
+    """Дата создания"""
     source_user_id: str
     """ID пользователя на внешней площадке"""
     phones: str

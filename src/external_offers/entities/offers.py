@@ -19,6 +19,8 @@ class Offer:
     """Дата создания объявления"""
     synced_at: datetime
     """Дата последней синхронизации объявления"""
+    parsed_created_at: datetime
+    """Дата создания спаршенного объявления"""
     priority: Optional[int] = None
     """Приоритет объявления"""
     offer_cian_id: Optional[int] = None

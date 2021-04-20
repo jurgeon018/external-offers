@@ -58,7 +58,8 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
 
 
 async def set_synced_and_fetch_parsed_offers_chunk(
-    *, last_sync_date: Optional[datetime]
+    *,
+    last_sync_date: Optional[datetime]
 ) -> Optional[List[ParsedOfferForCreation]]:
     po = tables.parsed_offers.alias()
     options = [
@@ -101,6 +102,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
             tables.parsed_offers.c.id,
             tables.parsed_offers.c.source_user_id,
             tables.parsed_offers.c.timestamp,
+            tables.parsed_offers.c.created_at,
             tables.parsed_offers.c.user_segment,
             tables.parsed_offers.c.source_object_model['phones'].label('phones'),
             tables.parsed_offers.c.source_object_model['contact'].label('contact')

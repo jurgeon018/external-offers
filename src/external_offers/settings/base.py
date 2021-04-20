@@ -15,7 +15,7 @@ SAVE_OFFER_MSG: str = (
     'он сможет войти в него по номеру телефона'
 )
 
-ENABLE_LAST_SYNC_DATE_FETCHING = True
+ENABLE_LAST_SYNC_DATE_FETCHING: bool = True
 OFFER_TASK_CREATION_OFFER_FETCH_LIMIT: int = 1000
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
 OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
@@ -23,6 +23,9 @@ OFFER_TASK_CREATION_REGIONS: List[int] = []
 OFFER_TASK_CREATION_MINIMUM_OFFERS: int = 1
 OFFER_TASK_CREATION_MAXIMUM_OFFERS: int = 5
 MAXIMUM_ACTIVE_OFFERS_PROPORTION: int = 1
+
+ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL: bool = False
+CLEAR_WAITING_OFFERS_FOR_CALL_AGE_IN_DAYS: int = 14
 
 # Настройки приоритетов в очереди
 # Приоритет собирается из 4 частей в число равной длины для всех заданий(для сквозной сортировки)
