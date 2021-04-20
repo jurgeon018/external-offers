@@ -1,5 +1,7 @@
 import asyncio
+from datetime import datetime, timedelta
 
+import pytz
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
@@ -106,8 +108,71 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     row = await pg.fetchrow(
         """
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
-        """)
+        """
+    )
     assert row['status'] == 'waiting'
+    assert row['parsed_created_at'] == datetime(2020, 10, 27, 11, 59, 1, 123093, tzinfo=pytz.utc)
+
+
+async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_offer(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+        'ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL': True,
+
+    })
+
+    created_at = datetime.now(pytz.utc) - timedelta(weeks=3)
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call (
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            parsed_created_at,
+            started_at,
+            synced_at,
+            priority,
+            last_call_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        """,
+        ['1', 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6', '1',
+         'waiting', created_at, created_at, None,
+         created_at, 1, None]
+    )
+
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+
+    # assert
+    row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6'
+        """
+    )
+    assert row is None
 
 
 async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__doesnt_create_offer(

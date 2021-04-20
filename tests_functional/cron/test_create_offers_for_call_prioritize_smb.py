@@ -51,7 +51,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
     row = await pg.fetchrow(
         """
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
-        """)
+        """
+    )
     assert row is None
 
 

@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
+import pytz
+from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
@@ -13,6 +15,9 @@ from external_offers.mappers import client_waiting_offers_count_mapper, enriched
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
+
+
+_REGION_FIELD = 'region'
 
 
 waiting_offers_counts_cte = (
@@ -581,6 +586,32 @@ async def delete_waiting_offers_for_call_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
+async def delete_old_waiting_offers_for_call() -> None:
+    max_waiting_offer_age_in_days = runtime_settings.get(
+        'CLEAR_WAITING_OFFERS_FOR_CALL_AGE_IN_DAYS',
+        settings.CLEAR_WAITING_OFFERS_FOR_CALL_AGE_IN_DAYS
+    )
+    clear_border = (
+        datetime.now(pytz.utc)
+        - timedelta(days=max_waiting_offer_age_in_days)
+    )
+
+    sql = (
+        delete(
+            offers_for_call
+        ).where(
+            and_(
+                offers_for_call.c.parsed_created_at <= clear_border,
+                offers_for_call.c.status == OfferStatus.waiting.value
+            )
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
 async def delete_waiting_clients_with_count_off_limit() -> None:
     sql = (
         delete(
@@ -616,7 +647,6 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
 
 
 async def get_offers_regions_by_client_id(*, client_id: str) -> List[int]:
-    _REGION_FIELD = 'region'
     query, params = asyncpgsa.compile_query(
         select(
             [

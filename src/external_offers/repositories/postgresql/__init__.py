@@ -27,6 +27,7 @@ from external_offers.repositories.postgresql.event_log import (
     save_event_log_for_offers,
 )
 from external_offers.repositories.postgresql.offers import (
+    delete_old_waiting_offers_for_call,
     delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_by_client_ids,
     delete_waiting_offers_for_call_by_parsed_ids,

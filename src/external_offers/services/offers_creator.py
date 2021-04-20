@@ -5,6 +5,7 @@ from typing import Dict, List
 
 import pytz
 from cian_core.context import new_operation_id
+from cian_core.runtime_settings import runtime_settings
 from cian_json import json
 from simple_settings import settings
 from tornado import gen
@@ -14,6 +15,7 @@ from external_offers.entities.clients import Client, ClientStatus
 from external_offers.enums import UserSegment
 from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql import (
+    delete_old_waiting_offers_for_call,
     delete_waiting_clients_by_client_ids,
     delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_by_client_ids,
@@ -49,6 +51,12 @@ async def clear_waiting_offers_and_clients_by_clients_ids(
     *,
     clients_ids
 ) -> None:
+    if runtime_settings.get(
+        'ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL',
+        settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL
+    ):
+        await delete_old_waiting_offers_for_call()
+
     await gen.multi([
         delete_waiting_offers_for_call_by_client_ids(
             client_ids=clients_ids
@@ -186,7 +194,8 @@ async def sync_offers_for_call_with_parsed():
                 client_id=client.client_id,
                 status=client.status,
                 created_at=now,
-                synced_at=parsed_offer.timestamp
+                synced_at=parsed_offer.timestamp,
+                parsed_created_at=parsed_offer.created_at
             )
 
             await save_offer_for_call(offer=offer)

@@ -57,6 +57,7 @@ async def test_already_published_offer__missing_parsed_offer__warning_expected(
             client_id='client',
             status='inProgress',
             created_at=datetime.now(pytz.utc),
+            parsed_created_at=datetime.now(pytz.utc),
             synced_at=datetime.now(pytz.utc)
         )
     )
@@ -143,6 +144,7 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
             client_id='client',
             status='inProgress',
             created_at=datetime.now(pytz.utc),
+            parsed_created_at=datetime.now(pytz.utc),
             synced_at=datetime.now(pytz.utc)
         )
     )
