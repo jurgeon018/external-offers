@@ -56,9 +56,10 @@ async def clear_outdated_offers() -> None:
         logger.warning('Проверка наличия обновления отключена')
 
     updated_at_border = get_updated_at_border()
-    deleted_offers_source_ids = await delete_outdated_parsed_offers(
+
+    while deleted_offers_source_ids := await delete_outdated_parsed_offers(
         updated_at_border=updated_at_border
-    )
+    ):
+        await notify_about_deletion(deleted_offers_source_ids)
 
     await delete_waiting_offers_for_call_without_parsed_offers()
-    await notify_about_deletion(deleted_offers_source_ids)

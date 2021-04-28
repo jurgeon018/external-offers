@@ -187,7 +187,17 @@ async def delete_outdated_parsed_offers(
         delete(
             po
         ).where(
-            po.c.updated_at < updated_at_border
+            po.c.id.in_(
+                select(
+                    [
+                        po.c.id
+                    ]
+                ).where(
+                    po.c.updated_at < updated_at_border
+                ).limit(
+                    settings.CLEAR_OUTDATED_PARSED_OFFERS_CHUNK
+                )
+            )
         ).returning(
             po.c.source_object_id
         )
