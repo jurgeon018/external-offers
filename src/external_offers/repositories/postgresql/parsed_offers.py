@@ -189,9 +189,7 @@ async def delete_outdated_parsed_offers(
         ).where(
             po.c.updated_at < updated_at_border
         ).returning(
-            [
-                po.c.source_object_id
-            ]
+            po.c.source_object_id
         )
     )
 
