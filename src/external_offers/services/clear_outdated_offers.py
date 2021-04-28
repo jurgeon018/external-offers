@@ -34,11 +34,11 @@ def get_updated_at_border() -> datetime:
 
 
 
-async def notify_about_deletion(deleted_offers: List[ParsedOffer]) -> None:
-    for deleted_offer in deleted_offers:
+async def notify_about_deletion(deleted_offer_source_ids: List[str]) -> None:
+    for source_object_id in deleted_offer_source_ids:
         with new_operation_id():
             await external_offers_deleted_producer(
-                source_object_id=deleted_offer.source_object_id
+                source_object_id=source_object_id
             )
 
 
@@ -56,9 +56,9 @@ async def clear_outdated_offers() -> None:
         logger.warning('Проверка наличия обновления отключена')
 
     updated_at_border = get_updated_at_border()
-    deleted_offers = await delete_outdated_parsed_offers(
+    deleted_offers_source_ids = await delete_outdated_parsed_offers(
         updated_at_border=updated_at_border
     )
 
     await delete_waiting_offers_for_call_without_parsed_offers()
-    await notify_about_deletion(deleted_offers)
+    await notify_about_deletion(deleted_offers_source_ids)
