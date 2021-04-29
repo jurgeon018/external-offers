@@ -177,23 +177,38 @@ async def get_latest_updated_at() -> Optional[datetime]:
     return await pg.get().fetchval(query, *params)
 
 
-async def delete_outdated_parsed_offers(*, updated_at_border: datetime) -> List[ParsedOffer]:
+async def delete_outdated_parsed_offers(
+    *,
+    updated_at_border: datetime
+) -> List[str]:
     po = tables.parsed_offers.alias()
 
     sql = (
         delete(
             po
         ).where(
-            po.c.updated_at < updated_at_border
+            po.c.id.in_(
+                select(
+                    [
+                        po.c.id
+                    ]
+                ).where(
+                    po.c.updated_at < updated_at_border
+                ).limit(
+                    settings.CLEAR_OUTDATED_PARSED_OFFERS_CHUNK
+                )
+            )
         ).returning(
-            po
+            po.c.source_object_id
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
 
     rows = await pg.get().fetch(query, *params)
-    return [parsed_offer_mapper.map_from(row) for row in rows]
+    return [
+        row['source_object_id'] for row in rows
+    ]
 
 
 async def iterate_over_parsed_offers_sorted(
