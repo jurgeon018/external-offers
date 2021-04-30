@@ -55,7 +55,6 @@ def map_save_request_to_promocode_detail_model(
         service_package_strategy=ServicePackageStrategyModel(
             is_paid=False,
             auto_activate_for_manual_announcements=False,
-            activations_count=1,
             type=StartegyType.publication,
             items=[ServicePackageStrategyItemModel(
                 operation_types=[
