@@ -38,7 +38,7 @@ cron = "0 2 * * *"
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "cron"
 command = "send-latest-parsed-offers-timestamp-diff-to-graphite"
-cron = "*/15 * * * *"
+cron = "0 */2 * * *"
 
 [job.clear-outdated-offers]
 type = "cron"

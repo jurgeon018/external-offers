@@ -11,7 +11,7 @@ from external_offers.repositories.monolith_cian_service.entities.promo_code_grou
     PromoCodeGroupModel,
     ServicePackageStrategyModel,
 )
-from external_offers.repositories.monolith_cian_service.entities.promo_code_group_model import Source
+from external_offers.repositories.monolith_cian_service.entities.promo_code_group_model import Source, SubdivisionType
 from external_offers.repositories.monolith_cian_service.entities.promo_code_group_model import Type as PromoType
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_item_model import (
     DurationInDays,
@@ -48,6 +48,7 @@ def map_save_request_to_promocode_detail_model(
             type=PromoType.service_package,
             for_specific_user_ids=True,
             available_to=(now + timedelta(days=1)),
+            subdivision_type=SubdivisionType.marketing,
             promo_codes_count=1,
             cian_user_ids=str(cian_user_id)
         ),
