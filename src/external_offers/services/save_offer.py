@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Dict, Tuple
 
 import pytz
-from cian_core import runtime_settings
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException, BadRequestException, TimeoutException
 from cian_kafka._producer.exceptions import KafkaProducerError
