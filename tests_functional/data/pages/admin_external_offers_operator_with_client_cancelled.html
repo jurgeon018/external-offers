@@ -213,8 +213,8 @@
 
          async function onClickOfferRowDelete(offer_id, client_id) {
            let obj =  {
-               'offer_id': offer_id,
-               'client_id': client_id
+               'offerId': offer_id,
+               'clientId': client_id
            }
            const response = await fetch("/api/admin/v1/delete-offer/", {
              method: 'POST',
@@ -230,8 +230,8 @@
 
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
            let obj =  {
-               'offer_id': offer_id,
-               'client_id': client_id
+               'offerId': offer_id,
+               'clientId': client_id
            }
            const response = await fetch("/api/admin/v1/already-published-offer/", {
              method: 'POST',

@@ -2,6 +2,5 @@
 .cache/
 .direnv/
 .envrc
-.tox/
 __pycache__/
 .vscode

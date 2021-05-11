@@ -80,7 +80,7 @@ async def test_save_offer__smb_segment_and_publish_as_homeowner__is_by_homeowner
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True
+                    'isAgent': True
                 }
             }
         ),
@@ -90,8 +90,8 @@ async def test_save_offer__smb_segment_and_publish_as_homeowner__is_by_homeowner
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0

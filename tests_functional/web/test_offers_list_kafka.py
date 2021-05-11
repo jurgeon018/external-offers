@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pytest
 import pytz
+from cian_functional_test_utils.pytest_plugin._kafka import KafkaServiceError
 from mock import ANY
 
 
@@ -29,7 +30,7 @@ async def test_decline_client__client_exist_with_2_offers__expected_1_messages_t
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -46,7 +47,6 @@ async def test_decline_client__client_exist_with_2_offers__expected_1_messages_t
         'sourceUserId': '32131326',
         'date': ANY,
         'timestamp': ANY,
-        'userId': None,
         'phone': '+79812333238',
         'callId': '2dddd3b8-3157-47cc-b50a-419052da6197',
         'status': 'declined',
@@ -77,13 +77,13 @@ async def test_decline_client__client_doesnt_exist__expected_0_messages_to_kafka
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=1.5,
@@ -114,7 +114,7 @@ async def test_call_missed_client__client_exist_with_2_offers__expected_1_messag
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -131,7 +131,6 @@ async def test_call_missed_client__client_exist_with_2_offers__expected_1_messag
         'sourceUserId': '32131326',
         'date': ANY,
         'timestamp': ANY,
-        'userId': None,
         'phone': '+79812333238',
         'callId': '2dddd3b8-3157-47cc-b50a-419052da6197',
         'status': 'callMissed',
@@ -162,13 +161,13 @@ async def test_call_missed_client__client_doesnt_exist__expected_0_messages_to_k
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=1.5,
@@ -199,13 +198,13 @@ async def test_call_missed_client__client_exist_with_2_offers_and_operator_test_
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=2.5,
@@ -236,13 +235,13 @@ async def test_decline_client__client_exist_with_2_offers_and_operator_test__exp
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=1.5,
@@ -275,7 +274,7 @@ async def test_call_missed_client__client_exist_send_exceeded_timeout__expected_
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -309,7 +308,7 @@ async def test_decline_client_client__client_exist_send_exceeded_timeout__expect
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -343,8 +342,8 @@ async def test_call_later_client__client_exist_send_exceeded_timeout__expected_l
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client,
-            'call_later_datetime': datetime.now(pytz.utc).isoformat()
+            'clientId': operator_client,
+            'callLaterDatetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -377,8 +376,8 @@ async def test_call_later_client__client_exist_with_2_offers__expected_1_message
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client,
-            'call_later_datetime': datetime.now(pytz.utc).isoformat()
+            'clientId': operator_client,
+            'callLaterDatetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -394,7 +393,6 @@ async def test_call_later_client__client_exist_with_2_offers__expected_1_message
         'sourceUserId': '32131326',
         'date': ANY,
         'timestamp': ANY,
-        'userId': None,
         'phone': '+79812333238',
         'callId': '2dddd3b8-3157-47cc-b50a-419052da6197',
         'status': 'callLater',
@@ -425,14 +423,14 @@ async def test_call_later_client__client_doesnt_exist__expected_0_messages_to_ka
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client,
-            'call_later_datetime': datetime.now(pytz.utc).isoformat()
+            'clientId': operator_client,
+            'callLaterDatetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=1.5,
@@ -463,15 +461,15 @@ async def test_call_later_client__client_exist_with_2_offers_and_operator_test__
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client,
-            'call_later_datetime': datetime.now(pytz.utc).isoformat()
+            'clientId': operator_client,
+            'callLaterDatetime': datetime.now(pytz.utc).isoformat()
 
         },
         expected_status=200
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=1.5,
@@ -511,8 +509,8 @@ async def test_status_offer_methods__exist_offers_in_progress__client_accepted_m
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': offer_in_progress,
-            'client_id': operator_client
+            'offerId': offer_in_progress,
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -529,7 +527,6 @@ async def test_status_offer_methods__exist_offers_in_progress__client_accepted_m
         'sourceUserId': '32131327',
         'date': ANY,
         'timestamp': ANY,
-        'userId': None,
         'phone': '+79812932338',
         'callId': 'last-call-id',
         'status': 'accepted',
@@ -570,7 +567,7 @@ async def test_change_client_status_methods__exist_draft__client_accepted_messag
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -587,7 +584,6 @@ async def test_change_client_status_methods__exist_draft__client_accepted_messag
         'sourceUserId': '32131327',
         'date': ANY,
         'timestamp': ANY,
-        'userId': None,
         'phone': '+79812932338',
         'callId': 'last-call-id',
         'status': 'accepted',
@@ -646,8 +642,8 @@ async def test_already_published_offer__exist_parsed_offer__already_published_me
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': offer_in_progress,
-            'client_id': operator_client
+            'offerId': offer_in_progress,
+            'clientId': operator_client
         },
         expected_status=200
     )

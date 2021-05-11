@@ -227,8 +227,8 @@
 
          async function onClickOfferRowDelete(offer_id, client_id) {
            let obj =  {
-               'offer_id': offer_id,
-               'client_id': client_id
+               'offerId': offer_id,
+               'clientId': client_id
            }
            const response = await fetch("/api/admin/v1/delete-offer/", {
              method: 'POST',
@@ -244,8 +244,8 @@
 
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
            let obj =  {
-               'offer_id': offer_id,
-               'client_id': client_id
+               'offerId': offer_id,
+               'clientId': client_id
            }
            const response = await fetch("/api/admin/v1/already-published-offer/", {
              method: 'POST',
@@ -303,7 +303,7 @@
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
            let obj =  {
-               'client_id': '{{ client.client_id }}'
+               'clientId': '{{ client.client_id }}'
            }
            const response = await fetch("/api/admin/v1/decline-client/", {
              method: 'POST',
@@ -320,7 +320,7 @@
          
          document.getElementById("callMissedClientButton1").onclick = async function () {
            let obj =  {
-               'client_id': '{{ client.client_id }}'
+               'clientId': '{{ client.client_id }}'
            }
            const response = await fetch("/api/admin/v1/call-missed-client/", {
              method: 'POST',
@@ -337,7 +337,7 @@
 
          document.getElementById("promoGivenClientButton").onclick = async function () {
            let obj =  {
-               'client_id': '{{ client.client_id }}'
+               'clientId': '{{ client.client_id }}'
            }
            const response = await fetch("/api/admin/v1/promo-given-client/", {
              method: 'POST',
@@ -354,7 +354,7 @@
 
          document.getElementById("phoneUnavailableClientButton").onclick = async function () {
            let obj =  {
-               'client_id': '{{ client.client_id }}'
+               'clientId': '{{ client.client_id }}'
            }
            const response = await fetch("/api/admin/v1/phone-unavailable-client/", {
              method: 'POST',
@@ -371,7 +371,7 @@
 
          document.getElementById("callInterruptedClientButton").onclick = async function () {
            let obj =  {
-               'client_id': '{{ client.client_id }}'
+               'clientId': '{{ client.client_id }}'
            }
            const response = await fetch("/api/admin/v1/call-interrupted-client/", {
              method: 'POST',
@@ -395,8 +395,8 @@
            call_later_datetime_iso = new Date(call_later_datetime).toISOString()
 
            let obj =  {
-               'client_id': '{{ client.client_id }}',
-               'call_later_datetime': call_later_datetime_iso
+               'clientId': '{{ client.client_id }}',
+               'callLaterDatetime': call_later_datetime_iso
            }
            const response = await fetch("/api/admin/v1/call-later-client/", {
              method: 'POST',

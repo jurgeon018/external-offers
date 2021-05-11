@@ -72,7 +72,7 @@ async def test_save_offer__correct_json__status_ok(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True
+                    'isAgent': True
                 }
             }
         ),
@@ -82,8 +82,8 @@ async def test_save_offer__correct_json__status_ok(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -208,7 +208,7 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -218,8 +218,8 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -405,7 +405,7 @@ async def test_save_offer__geocode_failed__status_geocode_failed(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -492,7 +492,7 @@ async def test_save_offer__create_new_account_passed__cian_user_id_overwritten(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': new_cian_user_id,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -684,7 +684,7 @@ async def test_save_offer__geocode_timeout__logged_timeout(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -772,7 +772,7 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -782,8 +782,8 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -885,7 +885,7 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -895,8 +895,8 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -1011,7 +1011,7 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -1021,8 +1021,8 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -1119,7 +1119,7 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -1129,8 +1129,8 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -1196,7 +1196,7 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -1206,8 +1206,8 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -1289,7 +1289,7 @@ async def test_save_offer__offers_in_progress_left__client_status_in_progress(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -1299,8 +1299,8 @@ async def test_save_offer__offers_in_progress_left__client_status_in_progress(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -1428,7 +1428,7 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -1438,8 +1438,8 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [3, 1],
+                'countryId': 1233,
+                'locationPath': [3, 1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -1523,7 +1523,7 @@ async def test_save_offer__offer_with_free_region__promo_apis_not_called(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -1533,8 +1533,8 @@ async def test_save_offer__offer_with_free_region__promo_apis_not_called(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [3, 4],
+                'countryId': 1233,
+                'locationPath': [3, 4],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -1720,7 +1720,7 @@ async def test_save_offer__create_promo_failed_with_create_new_account__second_c
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -1730,8 +1730,8 @@ async def test_save_offer__create_promo_failed_with_create_new_account__second_c
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0

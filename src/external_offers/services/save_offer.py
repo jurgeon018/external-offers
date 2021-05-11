@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Tuple
 
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException, BadRequestException, TimeoutException
 from cian_kafka._producer.exceptions import KafkaProducerError
@@ -254,7 +255,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             )
 
         # В конце location_path лежит идентификатор региона, используем его
-        if geocode_response.location_path[-1] in settings.REGIONS_WITH_PAID_PUBLICATION:
+        location_path = geocode_response.location_path
+        if location_path and location_path[-1] in runtime_settings.REGIONS_WITH_PAID_PUBLICATION:
             try:  # Создание промокода на бесплатную публикацию объявления
                 promocode = await get_offer_promocode_by_offer_id(
                     offer_id=request.offer_id

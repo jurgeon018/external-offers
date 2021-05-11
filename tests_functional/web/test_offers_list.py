@@ -305,7 +305,7 @@ async def test_client_status_change__client_with_cancelled_and_in_progress__only
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -366,7 +366,7 @@ async def test_call_missed_client__operator_and_in_progress__next_call_and_call_
             'X-Real-UserId': operator
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -413,7 +413,7 @@ async def test_call_missed_client__exist_offers_in_progress_and_cancelled__only_
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -455,7 +455,7 @@ async def test_delete_offer__exist_offers_in_progress__only_one_offer_cancelled(
     await pg.execute_scripts(offers_and_clients_fixture)
     operator = 60024649
     operator_client = '5'
-    offer_id = '8'
+    offerId = '8'
 
     # act
     await http.request(
@@ -465,8 +465,8 @@ async def test_delete_offer__exist_offers_in_progress__only_one_offer_cancelled(
             'X-Real-UserId': operator
         },
         json={
-            'offer_id': offer_id,
-            'client_id': operator_client
+            'offerId': offerId,
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -481,7 +481,7 @@ async def test_delete_offer__exist_offers_in_progress__only_one_offer_cancelled(
     row_offer = await pg.fetchrow(
         'SELECT * FROM offers_for_call WHERE id=$1',
         [
-            offer_id
+            offerId
         ]
     )
 
@@ -498,8 +498,8 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
     await pg.execute_scripts(offers_and_clients_fixture)
     operator_user_id = 60024649
     operator_client = '5'
-    first_offer_id = '8'
-    second_offer_id = '9'
+    first_offerId = '8'
+    second_offerId = '9'
 
     # act
     await http.request(
@@ -509,8 +509,8 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': first_offer_id,
-            'client_id': operator_client
+            'offerId': first_offerId,
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -522,8 +522,8 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': second_offer_id,
-            'client_id': operator_client
+            'offerId': second_offerId,
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -577,8 +577,8 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_if_no_off
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': offer_in_progress,
-            'client_id': operator_client
+            'offerId': offer_in_progress,
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -678,8 +678,8 @@ async def test_call_later_client__operator_and_in_progress__next_call_call_later
             'X-Real-UserId': operator
         },
         json={
-            'client_id': operator_client,
-            'call_later_datetime': expected_next_call.isoformat()
+            'clientId': operator_client,
+            'callLaterDatetime': expected_next_call.isoformat()
         },
         expected_status=200
     )
@@ -726,8 +726,8 @@ async def test_call_later_client__exist_offers_in_progress_and_cancelled__only_o
             'X-Real-UserId': operator_user_id
         },
         json={
-            'client_id': operator_client,
-            'call_later_datetime': datetime.now(pytz.utc).isoformat()
+            'clientId': operator_client,
+            'callLaterDatetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -780,8 +780,8 @@ async def test_decline_client__exist_draft__client_accepted(
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': offer_in_progress,
-            'client_id': operator_client
+            'offerId': offer_in_progress,
+            'clientId': operator_client
         },
         expected_status=200
     )
@@ -828,9 +828,9 @@ async def test_call_offer_list_client_method__missing_client__return_error(
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': offer_in_progress,
-            'client_id': operator_client,
-            'call_later_datetime': datetime.now(pytz.utc).isoformat()
+            'offerId': offer_in_progress,
+            'clientId': operator_client,
+            'callLaterDatetime': datetime.now(pytz.utc).isoformat()
         },
         expected_status=200
     )
@@ -872,8 +872,8 @@ async def test_call_offer_list_offer_method__missing_offer__return_error(
             'X-Real-UserId': operator_user_id
         },
         json={
-            'offer_id': offer_in_progress,
-            'client_id': operator_client
+            'offerId': offer_in_progress,
+            'clientId': operator_client
         },
         expected_status=200
     )

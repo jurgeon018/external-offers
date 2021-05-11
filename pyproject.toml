@@ -35,16 +35,10 @@ cian-cache = "^1.4.0"
 sqlalchemy = "<1.4"
 
 [tool.poetry.dev-dependencies]
-cian-lint = "*"
-cian-functional-test-utils = {version = "^0.64", extras = ["python", "postgres", "kafka", "rabbitmq", "cache"]}
+cian-functional-test-utils = {version = "*", extras = ["python", "postgres", "kafka", "rabbitmq", "cache"]}
 cian-test-utils = "^1.2"
-diff-cover = "*"
-isort = "*"
 pytest = "*"
-pytest-cov = "*"
-pytest-env = "*"
 pytest-mock = "*"
 pytest-tornado = "*"
-tox = "*"
-tox-poetry = "*"
 freezegun = "^1.0.0"
+cian-tools = ">=0.4"
