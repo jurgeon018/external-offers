@@ -85,8 +85,8 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         path='/v2/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -276,7 +276,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'fullName': 'Улица test',
         'isFormingAddress': True,
         'shortName': 'test',
-        'locationTypeId': None,
         'type': 'street'
     }]
     assert payload['model']['building']['floorsCount'] == 10
@@ -284,7 +283,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     assert payload['model']['phones'] == [{
             'number': '7771114422',
             'countryCode': '+7',
-            'sourcePhone': None
     }]
 
 
@@ -338,7 +336,7 @@ async def test_external_offer_callback__new_external_offer_with_coordinates__geo
 
     # assert
     request = await geoapi_stub.get_request()
-    assert request.body == b'{"address":null,"kind":"house","lat":1.0,"lng":2.0}'
+    assert request.body == b'{"kind":"house","lat":1.0,"lng":2.0}'
 
 
 async def test_external_offer_callback__new_external_offer_without_lat__geoapi_not_called(

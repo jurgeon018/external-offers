@@ -11,8 +11,11 @@ from external_offers.repositories.monolith_cian_service.entities.promo_code_grou
     PromoCodeGroupModel,
     ServicePackageStrategyModel,
 )
-from external_offers.repositories.monolith_cian_service.entities.promo_code_group_model import Source, SubdivisionType
-from external_offers.repositories.monolith_cian_service.entities.promo_code_group_model import Type as PromoType
+from external_offers.repositories.monolith_cian_service.entities.promo_code_group_model import (
+    Source,
+    SubdivisionType,
+    Type as PromoType,
+)
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_item_model import (
     DurationInDays,
     ObjectTypeId,
@@ -20,8 +23,6 @@ from external_offers.repositories.monolith_cian_service.entities.service_package
 )
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_model import (
     ServicePackageStrategyItemModel,
-)
-from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_model import (
     Type as StartegyType,
 )
 

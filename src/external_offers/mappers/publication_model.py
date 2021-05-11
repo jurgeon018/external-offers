@@ -98,13 +98,11 @@ def map_save_request_to_publication_model(
                 price=request.price,
                 currency=Currency.rur,
                 deposit=request.deposit,
-                prepay_months=request.prepay_months if request.prepay_months != 0 else None,
+                prepay_months=request.prepay_months if request.prepay_months else None,
                 sale_type=save_offer_sale_type_to_sale_type.get(request.sale_type, None),
-                utilities_terms=[
-                    UtilitiesTerms(
-                        included_in_price=True
-                    )
-                ]
+                utilities_terms=UtilitiesTerms(
+                    included_in_price=True
+                )
             ),
             building=Building(
                 floors_count=request.floors_count

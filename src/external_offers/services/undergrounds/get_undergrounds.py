@@ -10,14 +10,16 @@ from simple_settings import settings
 from external_offers.repositories.monolith_cian_announcementapi.entities import Coordinates, UndergroundInfo
 from external_offers.repositories.monolith_cian_announcementapi.entities.calculated_undergrounds import TransportType
 from external_offers.repositories.monolith_cian_geoapi import v2_undergrounds_get_all
-from external_offers.repositories.monolith_cian_geoapi.entities import UndergroundModelV2
+from external_offers.repositories.monolith_cian_geoapi.entities import UndergroundModelV2, V2UndergroundsGetAll
 from external_offers.repositories.monolith_cian_realty import api_autocomplete_undeground
 from external_offers.repositories.monolith_cian_realty.entities import ApiAutocompleteUndeground
 from external_offers.services.undergrounds.utils import haversine
 
 
 async def get_all_undergrounds() -> List[UndergroundModelV2]:
-    return await v2_undergrounds_get_all()
+    return await v2_undergrounds_get_all(
+        V2UndergroundsGetAll()
+    )
 
 
 get_all_undergrounds_cached = cached(

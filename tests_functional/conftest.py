@@ -114,18 +114,18 @@ async def save_parsed_offer_consumer(runner):
 @pytest.fixture
 async def save_offer_request_body():
     return {
-        'deal_type': 'rent',
-        'offer_type': 'flat',
-        'term_type': 'long',
+        'dealType': 'rent',
+        'offerType': 'flat',
+        'termType': 'long',
         'category': 'room',
         'address': 'ул. просторная 6, квартира 200',
-        'realty_type': 'apartments',
-        'total_area': 120,
+        'realtyType': 'apartments',
+        'totalArea': 120,
         'rooms_count': None,
         'floor_number': 1,
         'floors_count': 5,
         'price': 100000,
-        'sale_type': '',
+        'saleType': '',
         'offerId': '1',
         'clientId': '7',
         'description': 'Test'

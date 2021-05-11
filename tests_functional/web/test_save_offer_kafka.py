@@ -2,6 +2,7 @@ from unittest.mock import ANY
 
 import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
+from cian_functional_test_utils.pytest_plugin._kafka import KafkaServiceError
 
 
 async def test_save_offer__correct_json__expected_message_to_kafka(
@@ -70,7 +71,7 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -80,8 +81,8 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -218,7 +219,7 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -228,8 +229,8 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -295,7 +296,6 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
         'timestamp': ANY,
         'userId': 7777777,
         'phone': '+79812333292',
-        'callId': None,
         'status': 'accepted',
         'source': 'avito'
     }
@@ -375,7 +375,7 @@ async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -385,8 +385,8 @@ async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -439,7 +439,7 @@ async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=1.5,
@@ -511,7 +511,7 @@ async def test_save_offer__correct_json_test_operator__expected_no_message_to_ka
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -521,8 +521,8 @@ async def test_save_offer__correct_json_test_operator__expected_no_message_to_ka
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
@@ -575,7 +575,7 @@ async def test_save_offer__correct_json_test_operator__expected_no_message_to_ka
     )
 
     # assert
-    with pytest.raises(TimeoutError):
+    with pytest.raises(KafkaServiceError):
         await kafka_service.wait_messages(
             topic='preposition-admin.calls',
             timeout=1.5,
@@ -649,7 +649,7 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
                 'userData': {
                     'email': 'testemail@cian.ru',
                     'id': 7777777,
-                    'is_agent': True,
+                    'isAgent': True,
                 }
             }
         ),
@@ -659,8 +659,8 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
         path='/v1/geo/geocode/',
         response=MockResponse(
             body={
-                'country_id': 1233,
-                'location_path': [1],
+                'countryId': 1233,
+                'locationPath': [1],
                 'geo': {
                     'lat': 12.0,
                     'lng': 13.0
