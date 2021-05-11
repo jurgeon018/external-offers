@@ -24,7 +24,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.bargain
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
     FlatType,
-    PropertyType,
+    PropertyType
 )
 from external_offers.repositories.monolith_cian_geoapi import v2_geocode
 from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest

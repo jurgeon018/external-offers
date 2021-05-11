@@ -86,11 +86,11 @@ async def get_underground_by_coordinates(
 
                 undergrounds.append(
                     UndergroundInfo(
-                        cian_id=result.id,
-                        id=None,
+                        cian_id=None,
+                        id=result.id,
                         is_default=True,
                         line_color=result.color,
-                        line_id=result.id,
+                        line_id=None,
                         name=result.name,
                         time=time,
                         transport_type=transport_type
