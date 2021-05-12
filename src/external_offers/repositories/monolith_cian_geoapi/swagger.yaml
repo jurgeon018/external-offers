@@ -49,6 +49,16 @@ definitions:
         description: Если улица обязательна.
         type: boolean
     type: object
+  Geo.Api.App.Geo.Models.GeoCoderWebApi.DistrictDirection:
+    description: Направление района (в основном, используется для округов Москвы)
+    properties:
+      code:
+        description: Код
+        type: string
+      name:
+        description: Название
+        type: string
+    type: object
   Geo.Api.App.Geo.Models.GeoCoderWebApi.GeoCodedRequest:
     properties:
       address:
@@ -101,6 +111,62 @@ definitions:
       text:
         description: Результат яндекса после геокодинга.
         type: string
+    type: object
+  Geo.Api.App.Geo.Models.GeoCoderWebApi.GetDistrictsResponse:
+    description: Ответ на получение районов
+    properties:
+      boundaries:
+        description: Границы райнона
+        type: string
+      direction:
+        $ref: '#/definitions/Geo.Api.App.Geo.Models.GeoCoderWebApi.DistrictDirection'
+        description: Направление района
+      fullName:
+        description: Полное название
+        type: string
+      hasBoundaries:
+        description: Есть ли границы района
+        type: boolean
+      id:
+        description: Id района
+        format: int32
+        type: integer
+      locationFullName:
+        description: Полное название области
+        type: string
+      locationId:
+        description: Ид области
+        format: int32
+        type: integer
+      name:
+        description: Название района
+        type: string
+      nativeName:
+        description: Нативное название
+        type: string
+      parentId:
+        description: Ид родителя
+        format: int32
+        type: integer
+      sortOrder:
+        description: Порядковый номер
+        format: int32
+        type: integer
+      translitName:
+        description: Название в транслите
+        type: string
+      type:
+        description: Тип района
+        enum:
+        - Okrug
+        - Raion
+        - MikroRaion
+        - Poselenie
+        type: string
+        x-MikroRaion: Микрорайон
+        x-Okrug: Округ
+        x-Poselenie: Поселение
+        x-Raion: Район
     type: object
   Geo.Api.App.Underground.Models.UndergroundModelV2:
     description: Модель метро
@@ -218,6 +284,49 @@ info:
   title: monolith-cian-geoapi
   version: v1
 paths:
+  /v1/get-districts-by-child/:
+    get:
+      consumes: []
+      operationId: GeoCoderWebApi_GetDistrictsByChild
+      parameters:
+      - description: Ид
+        format: int32
+        in: query
+        name: id
+        required: false
+        type: integer
+      - description: Тип
+        enum:
+        - Country
+        - Location
+        - Street
+        - Road
+        - District
+        - Underground
+        - House
+        in: query
+        name: geo_type
+        required: false
+        type: string
+        x-Country: Страна
+        x-District: Район
+        x-House: Дом
+        x-Location: Населённый пункт
+        x-Road: Шоссе
+        x-Street: Улица
+        x-Underground: Метро
+      produces:
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Geo.Api.App.Geo.Models.GeoCoderWebApi.GetDistrictsResponse'
+            type: array
+      tags:
+      - GeoCoderWebApi
   /v2/geocode/:
     post:
       consumes:
