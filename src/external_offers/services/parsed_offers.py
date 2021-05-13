@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Optional
 
+from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
@@ -15,12 +16,14 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     BargainTerms,
     Building,
     Coordinates,
+    DistrictInfo,
     ObjectModel,
     Phone,
     SwaggerGeo,
     UtilitiesTerms,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.bargain_terms import Currency
+from external_offers.repositories.monolith_cian_announcementapi.entities.district_info import Type as DistrictType
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
     FlatType,
@@ -28,6 +31,9 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 )
 from external_offers.repositories.monolith_cian_geoapi import v2_geocode
 from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest
+from external_offers.repositories.monolith_cian_geoapi.entities.get_districts_response import Type as GetDistrictsType
+from external_offers.services.districts import get_districts_by_house_id_cached
+from external_offers.services.districts.exceptions import GetDistrictsByHouseError
 from external_offers.services.undergrounds.get_undergrounds import get_underground_by_coordinates
 
 
@@ -57,6 +63,13 @@ SOURCE_CATEGORY_TO_CATEGORY: Dict[str, Category] = {
     'flatSale': Category.flat_sale,
     'newBuildingFlatSale': Category.new_building_flat_sale,
     'flatRent': Category.flat_rent,
+}
+
+GET_DISTRICTS_TYPE_TO_DISTRICT_TYPE = {
+    GetDistrictsType.mikro_raion: DistrictType.mikroraion,
+    GetDistrictsType.raion: DistrictType.raion,
+    GetDistrictsType.okrug: DistrictType.okrug,
+    GetDistrictsType.poselenie: DistrictType.poselenie
 }
 
 CITY_LOCATION_ID = 1
@@ -136,16 +149,19 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
     lat = get_lat_from_source_object_model(source_object_model)
     if not (lat and lng):
         return None
-
     try:
-        geocode_response = await v2_geocode(GeoCodedRequest(
-            kind=DEFAULT_GEOCODE_KIND,
-            lat=lat,
-            lng=lng
-        ))
+        geocode_response = await v2_geocode(
+            GeoCodedRequest(
+                kind=DEFAULT_GEOCODE_KIND,
+                lat=lat,
+                lng=lng
+            )
+        )
     except ApiClientException:
         return None
     address = []
+    house_location_id = None
+
     for detail in geocode_response.details:
         location_type_id = None
         _type = geo_type_to_type_mapping[detail.geo_type.value]
@@ -156,15 +172,42 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
         if _type.is_location and not detail.is_locality:
             location_type_id = REGION_LOCATION_ID
 
-        address.append(AddressInfo(
-            id=detail.id,
-            full_name=detail.full_name,
-            short_name=detail.name,
-            name=detail.name,
-            type=_type,
-            location_type_id=location_type_id,
-            is_forming_address=True,
-        ))
+        if _type.is_house:
+            house_location_id = detail.id
+
+        address.append(
+            AddressInfo(
+                id=detail.id,
+                full_name=detail.full_name,
+                short_name=detail.name,
+                name=detail.name,
+                type=_type,
+                location_type_id=location_type_id,
+                is_forming_address=True,
+            )
+        )
+
+    if not house_location_id:
+        return None
+
+    districts = []
+    try:
+        get_districts_response = await get_districts_by_house_id_cached(
+            house_id=house_location_id
+        )
+        for district in get_districts_response:
+            districts.append(
+                DistrictInfo(
+                    id=district.id,
+                    location_id=district.location_id,
+                    name=district.name,
+                    parent_id=district.parent_id,
+                    type=GET_DISTRICTS_TYPE_TO_DISTRICT_TYPE.get(district.type)
+                )
+            )
+    except GetDistrictsByHouseError:
+        return None
+
     undergrounds = []
     if geocode_response.details:
         undergrounds = await get_underground_by_coordinates(
@@ -183,6 +226,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
         ),
         undergrounds=undergrounds,
         user_input=get_address_from_source_object_model(source_object_model),
+        district=districts,
         address=address
     )
 
@@ -208,7 +252,7 @@ def offer_is_suitable(source_object_model: dict) -> bool:
     return source_object_model.get(SOURCE_CATEGORY) in settings.SUITABLE_CATEGORIES_FOR_REPORTING
 
 
-async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Optional[ObjectModel]:
+async def create_object_model_from_parsed_offer(*, offer: ParsedOfferMessage) -> Optional[ObjectModel]:
     source_object_model = offer.source_object_model
 
     if not offer_is_suitable(source_object_model):
@@ -216,12 +260,12 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
 
     phone_number = get_phone_from_source_object_model(source_object_model)
     if not phone_number:
-        logger.warning('Отсутствует номера телефона у объявления %s', offer.source_object_id)
+        statsd.incr('send-parsed-offers.create-object-model.missing-phone')
         return None
 
     geo = await get_geo_by_source_object_model(source_object_model)
     if not geo:
-        logger.warning('Не удалось получить гео для объявления %s', offer.source_object_id)
+        statsd.incr('send-parsed-offers.create-object-model.geo-failed')
         return None
 
     return ObjectModel(
@@ -229,11 +273,9 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Option
             bargain_terms=BargainTerms(
                 price=get_price_from_source_object_model(source_object_model),
                 currency=Currency.rur,
-                utilities_terms=[
-                    UtilitiesTerms(
-                        included_in_price=True
-                    )
-                ],
+                utilities_terms=UtilitiesTerms(
+                    included_in_price=True
+                ),
             ),
             building=Building(
                 floors_count=get_floors_count_from_source_object_model(source_object_model)
