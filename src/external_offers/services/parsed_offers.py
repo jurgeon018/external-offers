@@ -29,10 +29,11 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
     FlatType,
     PropertyType,
 )
-from external_offers.repositories.monolith_cian_geoapi import v1_get_districts_by_child, v2_geocode
-from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest, V1GetDistrictsByChild
+from external_offers.repositories.monolith_cian_geoapi import v2_geocode
+from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest
 from external_offers.repositories.monolith_cian_geoapi.entities.get_districts_response import Type as GetDistrictsType
-from external_offers.repositories.monolith_cian_geoapi.entities.v1_get_districts_by_child import GeoType
+from external_offers.services.districts import get_districts_by_house_id_cached
+from external_offers.services.districts.exceptions import GetDistrictsByHouseError
 from external_offers.services.undergrounds.get_undergrounds import get_underground_by_coordinates
 
 
@@ -191,11 +192,8 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
 
     districts = []
     try:
-        get_districts_response = await v1_get_districts_by_child(
-            V1GetDistrictsByChild(
-                id=house_location_id,
-                geo_object_type=GeoType.house,
-            )
+        get_districts_response = await get_districts_by_house_id_cached(
+            house_id=house_location_id
         )
         for district in get_districts_response:
             districts.append(
@@ -207,7 +205,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
                     type=GET_DISTRICTS_TYPE_TO_DISTRICT_TYPE.get(district.type)
                 )
             )
-    except ApiClientException:
+    except GetDistrictsByHouseError:
         return None
 
     undergrounds = []

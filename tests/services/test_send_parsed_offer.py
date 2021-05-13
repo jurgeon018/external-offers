@@ -4,6 +4,7 @@ from cian_test_utils import future
 from external_offers.entities.parsed_offers import ParsedOfferMessage
 from external_offers.repositories.monolith_cian_geoapi.entities import Details, GeoCodedResponse
 from external_offers.repositories.monolith_cian_geoapi.entities.details import GeoType
+from external_offers.services.districts.exceptions import GetDistrictsByHouseError
 from external_offers.services.parsed_offers import (
     DEFAULT_ROOMS_COUNT,
     FlatType,
@@ -204,7 +205,7 @@ async def test_send_parsed_offer_change_event__no_house_in_geocode_response__ret
         )
     )
     v1_get_districts_mock = mocker.patch(
-        'external_offers.services.parsed_offers.v1_get_districts_by_child',
+        'external_offers.services.parsed_offers.get_districts_by_house_id_cached',
     )
 
     # act
@@ -244,8 +245,8 @@ async def test_send_parsed_offer_change_event__get_district_failed__returns_none
     )
 
     v1_get_districts_mock = mocker.patch(
-        'external_offers.services.parsed_offers.v1_get_districts_by_child',
-        side_effect=ApiClientException('Error')
+        'external_offers.services.parsed_offers.get_districts_by_house_id_cached',
+        side_effect=GetDistrictsByHouseError()
     )
 
     get_undergrounds_mock = mocker.patch(
