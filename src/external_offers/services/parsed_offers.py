@@ -30,11 +30,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
     PropertyType,
 )
 from external_offers.repositories.monolith_cian_geoapi import v1_get_districts_by_child, v2_geocode
-from external_offers.repositories.monolith_cian_geoapi.entities import (
-    GeoCodedRequest,
-    V1GetDistrictsByChild,
-    get_districts_response,
-)
+from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest, V1GetDistrictsByChild
 from external_offers.repositories.monolith_cian_geoapi.entities.get_districts_response import Type as GetDistrictsType
 from external_offers.repositories.monolith_cian_geoapi.entities.v1_get_districts_by_child import GeoType
 from external_offers.services.undergrounds.get_undergrounds import get_underground_by_coordinates
@@ -152,7 +148,6 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
     lat = get_lat_from_source_object_model(source_object_model)
     if not (lat and lng):
         return None
-
     try:
         geocode_response = await v2_geocode(
             GeoCodedRequest(
@@ -259,7 +254,7 @@ def offer_is_suitable(source_object_model: dict) -> bool:
     return source_object_model.get(SOURCE_CATEGORY) in settings.SUITABLE_CATEGORIES_FOR_REPORTING
 
 
-async def create_object_model_from_parsed_offer(*, offer: ParsedOffer) -> Optional[ObjectModel]:
+async def create_object_model_from_parsed_offer(*, offer: ParsedOfferMessage) -> Optional[ObjectModel]:
     source_object_model = offer.source_object_model
 
     if not offer_is_suitable(source_object_model):

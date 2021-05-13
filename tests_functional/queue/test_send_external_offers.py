@@ -98,26 +98,48 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                         'name': 'test',
                         'isLocality': False,
                         'geoType': 'Location',
-                    },
-                     {
+                    }, {
                         'id': 2,
                         'fullName': 'Город test',
                         'name': 'test',
                         'isLocality': True,
                         'geoType': 'Location',
-                    },
-                     {
+                    }, {
                         'id': 3,
                         'fullName': 'Улица test',
                         'name': 'test',
                         'isLocality': False,
                         'geoType': 'Street',
+                    }, {
+                        'id': 4,
+                        'fullName': '27',
+                        'name': '27',
+                        'isLocality': False,
+                        'geoType': 'House',
                     }
                 ]
             }
         ),
     )
-
+    await monolith_cian_geoapi_mock.add_stub(
+        method='GET',
+        path='/v1/get-districts-by-child/',
+        response=MockResponse(
+            body=[{
+                'id': 1,
+                'locationId': 2,
+                'name': 'Центральный',
+                'parentId': 3,
+                'type': 'Raion',
+            }, {
+                'id': 4,
+                'locationId': 5,
+                'name': 'Приморский',
+                'parentId': 6,
+                'type': 'Okrug',
+            }]
+        )
+    )
     await monolith_cian_geoapi_mock.add_stub(
         method='GET',
         path='/v2/undergrounds/get-all/',
@@ -205,7 +227,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                 'timeByCar': None,
                 'timeByWalk': 5,
             }],
-            repeat=1,
         ), MockResponse(
             body=[{
                 'color': 'test',
@@ -214,7 +235,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                 'timeByCar': 5,
                 'timeByWalk': None,
             }],
-            repeat=1
         ), MockResponse(
             body=[{
                 'color': 'test',
@@ -223,7 +243,6 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
                 'timeByCar': 5,
                 'timeByWalk': None,
             }],
-            repeat=1
         )],
     )
 
@@ -277,252 +296,32 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'isFormingAddress': True,
         'shortName': 'test',
         'type': 'street'
+    }, {
+        'id': 4,
+        'fullName': '27',
+        'name': '27',
+        'isFormingAddress': True,
+        'shortName': '27',
+        'type': 'house',
     }]
+    assert payload['model']['geo']['district'] == [
+        {
+            'id': 1,
+            'locationId': 2,
+            'name': 'Центральный',
+            'parentId': 3,
+            'type': 'raion'
+        }, {
+            'id': 4,
+            'locationId': 5,
+            'name': 'Приморский',
+            'parentId': 6,
+            'type': 'okrug'
+        }
+    ]
     assert payload['model']['building']['floorsCount'] == 10
 
     assert payload['model']['phones'] == [{
             'number': '7771114422',
             'countryCode': '+7',
     }]
-
-
-async def test_external_offer_callback__new_external_offer_with_coordinates__geoapi_called(
-    kafka_service,
-    queue_service,
-    monolith_cian_geoapi_mock,
-    runtime_settings,
-):
-    # arrange
-    await runtime_settings.set({
-        'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale'],
-    })
-
-    offer_data = {
-        'phones': ['87771114422'],
-        'category': 'flatSale',
-        'region': 4628,
-        'title': 'название',
-        'description': 'описание',
-        'address': 'адресф',
-        'lat': 1.0,
-        'lng': 2.0
-    }
-    data = {
-        'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
-        'sourceObjectId': '1_1986816313',
-        'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
-        'userSegment': 'c',
-        'isCalltracking': False,
-        'sourceObjectModel': offer_data,
-        'timestamp': '2020-10-26 13:55:00'
-    }
-    await queue_service.make_tmp_queue(
-        routing_key='external-offers.offers-reporting.v1.changed',
-    )
-    geoapi_stub = await monolith_cian_geoapi_mock.add_stub(
-        method='POST',
-        path='/v2/geocode/',
-        response=MockResponse(
-            status=400
-        ),
-    )
-
-    # act
-    await kafka_service.publish(
-        topic='ml-content-copying.change',
-        message=data
-    )
-    await asyncio.sleep(3)
-
-    # assert
-    request = await geoapi_stub.get_request()
-    assert request.body == b'{"kind":"house","lat":1.0,"lng":2.0}'
-
-
-async def test_external_offer_callback__new_external_offer_without_lat__geoapi_not_called(
-    kafka_service,
-    monolith_cian_geoapi_mock,
-    runtime_settings,
-):
-    # arrange
-    await runtime_settings.set({
-        'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale'],
-    })
-
-    offer_data = {
-        'phones': ['87771114422'],
-        'category': 'flatSale',
-        'region': 4628,
-        'title': 'название',
-        'description': 'описание',
-        'address': 'адресф',
-        'lat': None,
-        'lng': 2.0
-    }
-    data = {
-        'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
-        'sourceObjectId': '1_1986816313',
-        'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
-        'userSegment': 'c',
-        'isCalltracking': False,
-        'sourceObjectModel': offer_data,
-        'timestamp': '2020-10-26 13:55:00'
-    }
-
-    geoapi_stub = await monolith_cian_geoapi_mock.add_stub(
-        method='POST',
-        path='/v2/geocode/',
-        response=MockResponse(
-            status=400
-        ),
-    )
-
-    # act
-    await kafka_service.publish(
-        topic='ml-content-copying.change',
-        message=data
-    )
-    await asyncio.sleep(2)
-
-    # assert
-    with pytest.raises(AssertionError):
-        await geoapi_stub.get_request()
-
-
-async def test_external_offer_callback__new_external_offer_without_lng__geoapi_not_called(
-    kafka_service,
-    monolith_cian_geoapi_mock,
-    runtime_settings,
-):
-    # arrange
-    await runtime_settings.set({
-        'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale'],
-    })
-
-    offer_data = {
-        'phones': ['87771114422'],
-        'category': 'flatSale',
-        'region': 4628,
-        'title': 'название',
-        'description': 'описание',
-        'address': 'адресф',
-        'lat': 1.0,
-        'lng': None
-    }
-    data = {
-        'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
-        'sourceObjectId': '1_1986816313',
-        'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
-        'userSegment': 'c',
-        'isCalltracking': False,
-        'sourceObjectModel': offer_data,
-        'timestamp': '2020-10-26 13:55:00'
-    }
-    geoapi_stub = await monolith_cian_geoapi_mock.add_stub(
-        method='POST',
-        path='/v2/geocode/',
-        response=MockResponse(
-            status=400
-        ),
-    )
-
-    # act
-    await kafka_service.publish(
-        topic='ml-content-copying.change',
-        message=data
-    )
-    await asyncio.sleep(2)
-
-    # assert
-    with pytest.raises(AssertionError):
-        await geoapi_stub.get_request()
-
-
-async def test_external_offer_callback__new_external_offer_without_phones__no_message(
-    kafka_service,
-    queue_service,
-    runtime_settings,
-):
-    # arrange
-    await runtime_settings.set({
-        'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale'],
-    })
-
-    offer_data = {
-        'phones': [],
-        'category': 'flatSale',
-        'region': 4628,
-        'title': 'название',
-        'description': 'описание',
-        'address': 'адресф',
-        'lat': 1.0,
-        'lng': None
-    }
-    data = {
-        'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
-        'sourceObjectId': '1_1986816313',
-        'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
-        'userSegment': 'c',
-        'isCalltracking': False,
-        'sourceObjectModel': offer_data,
-        'timestamp': '2020-10-26 13:55:00'
-    }
-    queue = await queue_service.make_tmp_queue(
-        routing_key='external-offers.offers-reporting.v1.changed',
-    )
-
-    # act
-    await kafka_service.publish(
-        topic='ml-content-copying.change',
-        message=data
-    )
-    await asyncio.sleep(2)
-
-    # assert
-    messages = await queue.get_messages()
-    assert len(messages) == 0
-
-
-async def test_external_offer_callback__new_external_offer_nonsuitable_category__no_message(
-    kafka_service,
-    queue_service,
-    runtime_settings
-):
-    # arrange
-    await runtime_settings.set({
-        'SUITABLE_CATEGORIES_FOR_REPORTING': ['commercialSale'],
-    })
-
-    offer_data = {
-        'phones': [],
-        'category': 'flatSale',
-        'region': 4628,
-        'title': 'название',
-        'description': 'описание',
-        'address': 'адресф',
-        'lat': 1.0,
-        'lng': None
-    }
-    data = {
-        'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
-        'sourceObjectId': '1_1986816313',
-        'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
-        'userSegment': 'c',
-        'isCalltracking': False,
-        'sourceObjectModel': offer_data,
-        'timestamp': '2020-10-26 13:55:00'
-    }
-    queue = await queue_service.make_tmp_queue(
-        routing_key='external-offers.offers-reporting.v1.changed',
-    )
-
-    # act
-    await kafka_service.publish(
-        topic='ml-content-copying.change',
-        message=data
-    )
-    await asyncio.sleep(2)
-
-    # assert
-    messages = await queue.get_messages()
-    assert len(messages) == 0
