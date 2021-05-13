@@ -59,7 +59,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'title': 'название',
         'description': 'описание',
         'isAgency': False,
-        'address': 'адресф',
+        'address': 'адрес',
         'lat': 12.0,
         'lng': 13.0,
         'url': 'http://test',
@@ -273,6 +273,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     assert payload['model']['description'] == 'описание'
     assert not payload['model']['isEnabledCallTracking']
     assert payload['model']['isByHomeOwner']
+    assert payload['model']['geo']['userInput'] == 'адрес'
     assert payload['model']['geo']['address'] == [{
         'id': 1,
         'name': 'test',
