@@ -9,14 +9,9 @@ cian-codegen version: 1.12.2
 
 """
 from dataclasses import dataclass
-from typing import Optional
+from typing import List
 
 
 @dataclass
-class Geo:
-    """Координата"""
-
-    lat: Optional[float] = None
-    """Широта."""
-    lng: Optional[float] = None
-    """Долгота."""
+class V1GetDistrictsByIds:
+    ids: List[int]

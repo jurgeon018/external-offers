@@ -327,6 +327,31 @@ paths:
             type: array
       tags:
       - GeoCoderWebApi
+  /v1/get-districts-by-ids/:
+    get:
+      consumes: []
+      operationId: GeoCoderWebApi_GetDistrictsByIds
+      parameters:
+      - collectionFormat: multi
+        in: query
+        items:
+          format: int32
+          type: integer
+        name: ids
+        required: true
+        type: array
+      produces:
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Geo.Api.App.Geo.Models.GeoCoderWebApi.GetDistrictsResponse'
+            type: array
+      tags:
+      - GeoCoderWebApi
   /v2/geocode/:
     post:
       consumes:

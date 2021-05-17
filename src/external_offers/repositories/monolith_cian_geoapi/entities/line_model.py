@@ -15,6 +15,7 @@ from typing import Optional
 @dataclass
 class LineModel:
     """Модель для линии метро"""
+
     line_color: Optional[str] = None
     """RGB цвет линии метро"""
     line_id: Optional[int] = None

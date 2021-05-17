@@ -8,4 +8,5 @@ To re-generate, run `codegen generate-client monolith-cian-geoapi`
 cian-codegen version: 1.12.2
 
 """
-from ._repo import v1_get_districts_by_child, v2_geocode, v2_undergrounds_get_all
+from ._repo import (v1_get_districts_by_child, v1_get_districts_by_ids,
+                    v2_geocode, v2_undergrounds_get_all)

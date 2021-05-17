@@ -31,6 +31,7 @@ class Type(StrEnum):
 @dataclass
 class GetDistrictsResponse:
     """Ответ на получение районов"""
+
     boundaries: Optional[str] = None
     """Границы райнона"""
     direction: Optional[DistrictDirection] = None

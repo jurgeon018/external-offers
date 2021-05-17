@@ -19,4 +19,5 @@ from .line_model import LineModel
 from .underground_entrance import UndergroundEntrance
 from .underground_model_v2 import UndergroundModelV2
 from .v1_get_districts_by_child import V1GetDistrictsByChild
+from .v1_get_districts_by_ids import V1GetDistrictsByIds
 from .v2_undergrounds_get_all import V2UndergroundsGetAll
