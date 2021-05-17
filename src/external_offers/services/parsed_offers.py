@@ -148,6 +148,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
     lng = get_lng_from_source_object_model(source_object_model)
     lat = get_lat_from_source_object_model(source_object_model)
     if not (lat and lng):
+        statsd.incr('send-parsed-offers.create-object-model.coordinates-missing')
         return None
     try:
         geocode_response = await v2_geocode(
