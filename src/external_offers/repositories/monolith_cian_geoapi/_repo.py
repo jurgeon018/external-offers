@@ -21,21 +21,26 @@ v1_get_districts_by_child = _api.make_client(
     method='GET',
     handle_http_exceptions=True,
     request_schema=entities.V1GetDistrictsByChild,
-    response_schema=List[entities.GetDistrictsResponse]
+    response_schema=List[entities.GetDistrictsResponse],
 )
-
+v1_get_districts_by_ids = _api.make_client(
+    path='/v1/get-districts-by-ids/',
+    method='GET',
+    handle_http_exceptions=True,
+    request_schema=entities.V1GetDistrictsByIds,
+    response_schema=List[entities.GetDistrictsResponse],
+)
 v2_geocode = _api.make_client(
     path='/v2/geocode/',
     method='POST',
     handle_http_exceptions=True,
     request_schema=entities.GeoCodedRequest,
-    response_schema=entities.GeoCodedResponse
+    response_schema=entities.GeoCodedResponse,
 )
-
 v2_undergrounds_get_all = _api.make_client(
     path='/v2/undergrounds/get-all/',
     method='GET',
     handle_http_exceptions=True,
     request_schema=entities.V2UndergroundsGetAll,
-    response_schema=List[entities.UndergroundModelV2]
+    response_schema=List[entities.UndergroundModelV2],
 )

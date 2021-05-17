@@ -19,6 +19,7 @@ from .underground_entrance import UndergroundEntrance
 @dataclass
 class UndergroundModelV2:
     """Модель метро"""
+
     cian_id: Optional[int] = None
     """Идентификатор станции метро Циан"""
     construction_date: Optional[_datetime] = None

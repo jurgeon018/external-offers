@@ -15,6 +15,7 @@ from typing import Optional
 @dataclass
 class UndergroundEntrance:
     """Вход в метро"""
+
     id: Optional[int] = None
     """Id входа в метро"""
     lat: Optional[float] = None

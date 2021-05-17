@@ -77,6 +77,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'sourceObjectModel': offer_data,
         'timestamp': '2020-10-26T13:55:00+00:00'
     }
+    parent_district_id = 6
     queue = await queue_service.make_tmp_queue(
         routing_key='external-offers.offers-reporting.v1.changed',
     )
@@ -126,20 +127,35 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         path='/v1/get-districts-by-child/',
         response=MockResponse(
             body=[{
-                'id': 1,
-                'locationId': 2,
-                'name': 'Центральный',
-                'parentId': 3,
-                'type': 'Raion',
-            }, {
                 'id': 4,
                 'locationId': 5,
-                'name': 'Приморский',
-                'parentId': 6,
+                'name': 'Черная речка',
+                'parentId': parent_district_id,
+                'type': 'Okrug',
+            }, {
+                'id': 5,
+                'locationId': 7,
+                'name': 'Тестовый',
+                'parentId': None,
                 'type': 'Okrug',
             }]
         )
     )
+
+    get_districts_by_ids_stub = await monolith_cian_geoapi_mock.add_stub(
+        method='GET',
+        path='/v1/get-districts-by-ids/',
+        response=MockResponse(
+            body=[{
+                'id': parent_district_id,
+                'locationId': 2,
+                'name': 'Приморский',
+                'parentId': None,
+                'type': 'Raion',
+            }]
+        )
+    )
+
     await monolith_cian_geoapi_mock.add_stub(
         method='GET',
         path='/v2/undergrounds/get-all/',
@@ -258,6 +274,10 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     assert len(messages) == 1
 
     payload = messages[0].payload
+    request = await get_districts_by_ids_stub.get_request()
+
+    assert request.params['ids'] == f'{parent_district_id}'
+
     assert payload['sourceModel'] == {
         'source': 'avito',
         'sourceObjectId': '1_1986816313',
@@ -307,17 +327,21 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     }]
     assert payload['model']['geo']['district'] == [
         {
-            'id': 1,
-            'locationId': 2,
-            'name': 'Центральный',
-            'parentId': 3,
-            'type': 'raion'
-        }, {
             'id': 4,
             'locationId': 5,
-            'name': 'Приморский',
-            'parentId': 6,
+            'name': 'Черная речка',
+            'parentId': parent_district_id,
             'type': 'okrug'
+        }, {
+            'id': 5,
+            'locationId': 7,
+            'name': 'Тестовый',
+            'type': 'okrug'
+        },  {
+            'id': parent_district_id,
+            'locationId': 2,
+            'name': 'Приморский',
+            'type': 'raion'
         }
     ]
     assert payload['model']['building']['floorsCount'] == 10

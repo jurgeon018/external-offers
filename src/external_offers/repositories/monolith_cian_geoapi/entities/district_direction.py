@@ -15,6 +15,7 @@ from typing import Optional
 @dataclass
 class DistrictDirection:
     """Направление района (в основном, используется для округов Москвы)"""
+
     code: Optional[str] = None
     """Код"""
     name: Optional[str] = None
