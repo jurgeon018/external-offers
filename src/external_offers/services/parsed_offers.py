@@ -148,7 +148,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
     lng = get_lng_from_source_object_model(source_object_model)
     lat = get_lat_from_source_object_model(source_object_model)
     if not (lat and lng):
-        statsd.incr('send-parsed-offers.create-object-model.coordinates-missing')
+        statsd.incr('send-parsed-offers.create-object-model.geo.coordinates-missing')
         return None
     try:
         geocode_response = await v2_geocode(
@@ -159,6 +159,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
             )
         )
     except ApiClientException:
+        statsd.incr('send-parsed-offers.create-object-model.geo.geocode-failed')
         return None
     address = []
     house_location_id = None
@@ -189,6 +190,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
         )
 
     if not house_location_id:
+        statsd.incr('send-parsed-offers.create-object-model.geo.house-missing')
         return None
 
     districts = []
@@ -225,6 +227,7 @@ async def get_geo_by_source_object_model(source_object_model: dict) -> Optional[
                     )
                 )
     except GetDistrictsError:
+        statsd.incr('send-parsed-offers.create-object-model.geo.get-districts-failed')
         return None
 
     undergrounds = []
