@@ -14,6 +14,7 @@ from cian_http.api_client import Api
 
 from . import entities
 
+
 _api = Api(microservice_name='monolith-cian-geoapi')
 v1_get_districts_by_child = _api.make_client(
     path='/v1/get-districts-by-child/',

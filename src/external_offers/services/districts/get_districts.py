@@ -6,7 +6,11 @@ from cian_core.runtime_settings import runtime_settings
 from cian_http.exceptions import ApiClientException
 
 from external_offers.repositories.monolith_cian_geoapi import v1_get_districts_by_child, v1_get_districts_by_ids
-from external_offers.repositories.monolith_cian_geoapi.entities import GetDistrictsResponse, V1GetDistrictsByChild, V1GetDistrictsByIds
+from external_offers.repositories.monolith_cian_geoapi.entities import (
+    GetDistrictsResponse,
+    V1GetDistrictsByChild,
+    V1GetDistrictsByIds,
+)
 from external_offers.repositories.monolith_cian_geoapi.entities.v1_get_districts_by_child import GeoType
 from external_offers.services.districts.exceptions import GetDistrictsByHouseError
 

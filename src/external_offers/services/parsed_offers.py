@@ -32,7 +32,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 from external_offers.repositories.monolith_cian_geoapi import v2_geocode
 from external_offers.repositories.monolith_cian_geoapi.entities import GeoCodedRequest
 from external_offers.repositories.monolith_cian_geoapi.entities.get_districts_response import Type as GetDistrictsType
-from external_offers.services.districts import get_districts_by_house_id_cached, get_districts_by_district_ids_cached
+from external_offers.services.districts import get_districts_by_district_ids_cached, get_districts_by_house_id_cached
 from external_offers.services.districts.exceptions import GetDistrictsError
 from external_offers.services.undergrounds.get_undergrounds import get_underground_by_coordinates
 
