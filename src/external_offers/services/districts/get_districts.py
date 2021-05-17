@@ -12,7 +12,7 @@ from external_offers.repositories.monolith_cian_geoapi.entities import (
     V1GetDistrictsByIds,
 )
 from external_offers.repositories.monolith_cian_geoapi.entities.v1_get_districts_by_child import GeoType
-from external_offers.services.districts.exceptions import GetDistrictsByHouseError
+from external_offers.services.districts.exceptions import GetDistrictsByHouseError, GetDistrictsByIdsError
 
 
 async def get_districts_by_house_id(
@@ -50,7 +50,7 @@ async def get_districts_by_district_ids(
             )
         )
     except ApiClientException as exc:
-        raise GetDistrictsByHouseError from exc
+        raise GetDistrictsByIdsError from exc
 
 get_districts_by_district_ids_cached = cached(
     group='external_offers_get_districts_by_ids',
