@@ -48,6 +48,10 @@ class SaveOfferRequest:
     """Опубликовать как собственник"""
     account_for_draft: Optional[int] = None
     """Аккаунт для публикации черновика"""
+    land_status: Optional[str] = None
+    """Тип землепользования для загородки"""
+    land_area: Optional[float] = None
+    """Площадь участка для загородки"""
 
 
 

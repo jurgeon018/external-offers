@@ -10,3 +10,11 @@ class SaveOfferCategory(StrEnum):
     """Комната"""
     bed = 'bed'
     """Койко-место"""
+    house = 'house'
+    """Дом"""
+    cottage = 'cottage'
+    """Коттедж"""
+    townhouse = 'townhouse'
+    """Таунхаус"""
+    land = 'land'
+    """Участок"""

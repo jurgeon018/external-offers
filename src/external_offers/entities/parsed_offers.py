@@ -93,6 +93,10 @@ class ParsedObjectModel:
     """Жилая площадь"""
     description: Optional[str] = None
     """Описание объявления"""
+    land_area: Optional[float] = None
+    """Площадь участка"""
+    land_status: Optional[str] = None
+    """Тип землепользования"""
 
     @property
     def is_rent(self) -> bool:
@@ -169,6 +173,39 @@ class ParsedObjectModel:
             Category.daily_bed_rent,
             Category.daily_flat_rent,
             Category.daily_room_rent
+        ]
+
+    @property
+    def is_suburban(self) -> bool:
+        return self.category in [
+            Category.cottage_sale,
+            Category.house_sale,
+            Category.land_sale,
+            Category.townhouse_sale
+        ]
+
+    @property
+    def is_house(self) -> bool:
+        return self.category in [
+            Category.house_sale,
+        ]
+
+    @property
+    def is_townhouse(self) -> bool:
+        return self.category in [
+            Category.townhouse_sale,
+        ]
+
+    @property
+    def is_cottage(self) -> bool:
+        return self.category in [
+            Category.cottage_sale,
+        ]
+
+    @property
+    def is_land(self) -> bool:
+        return self.category in [
+            Category.land_sale,
         ]
 
 

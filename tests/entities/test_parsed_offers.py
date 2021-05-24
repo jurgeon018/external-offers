@@ -302,3 +302,34 @@ def test_parsed_offer__is_daily_term_rent(category):
     # act
     # assert
     assert offer.is_daily_term_rent is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.house_sale,
+    Category.cottage_sale,
+    Category.land_sale,
+])
+def test_parsed_offer__is_suburban(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='Дом',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        land_area=4,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/')
+
+    # act
+    # assert
+    assert offer.is_suburban is True
