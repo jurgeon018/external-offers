@@ -83,12 +83,12 @@ SOURCE_ID_TO_NAME_MAPPING = {
 
 CITY_LOCATION_ID = 1
 REGION_LOCATION_ID = 2
-_SOURCE_AND_ID_DELIMETER = '_'
-_SOURCE_INDEX = 0
+SOURCE_AND_ID_DELIMETER = '_'
+SOURCE_INDEX = 0
 
 
 def extract_source_from_source_object_id(source_object_id: str) -> str:
-    return source_object_id.split(_SOURCE_AND_ID_DELIMETER)[_SOURCE_INDEX]
+    return source_object_id.split(SOURCE_AND_ID_DELIMETER)[SOURCE_INDEX]
 
 
 def get_rooms_count_from_source_object_model(source_object_model: dict) -> int:
