@@ -308,6 +308,7 @@ def test_parsed_offer__is_daily_term_rent(category):
     Category.house_sale,
     Category.cottage_sale,
     Category.land_sale,
+    Category.townhouse_sale,
 ])
 def test_parsed_offer__is_suburban(category):
     # arrange
@@ -323,7 +324,6 @@ def test_parsed_offer__is_suburban(category):
         town='Рязань',
         contact='Пушкин Птурович',
         total_area=120,
-        land_area=4,
         floor_number=1,
         floors_count=2,
         rooms_count=4,
@@ -333,3 +333,53 @@ def test_parsed_offer__is_suburban(category):
     # act
     # assert
     assert offer.is_suburban is True
+
+
+def test_parsed_offer__house_sale__has_land_area():
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=Category.house_sale,
+        region=4607,
+        title='Дом 230 кв на участке 6 сот.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/')
+
+    # act
+    # assert
+    assert offer.land_area == 6.0
+
+
+def test_parsed_offer__land_sale__has_land_area():
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=Category.land_sale,
+        region=4607,
+        title='Участок 6 сот.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=0,
+        floor_number=0,
+        floors_count=0,
+        rooms_count=0,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/')
+
+    # act
+    # assert
+    assert offer.land_area == 6.0

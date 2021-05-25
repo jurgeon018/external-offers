@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
@@ -93,10 +94,6 @@ class ParsedObjectModel:
     """Жилая площадь"""
     description: Optional[str] = None
     """Описание объявления"""
-    land_area: Optional[float] = None
-    """Площадь участка"""
-    land_status: Optional[str] = None
-    """Тип землепользования"""
 
     @property
     def is_rent(self) -> bool:
@@ -207,6 +204,16 @@ class ParsedObjectModel:
         return self.category in [
             Category.land_sale,
         ]
+
+    @property
+    def land_area(self) -> Optional[float]:
+        if self.is_suburban:
+            land_area = re.findall(r'\d+', self.title)
+            if self.is_land:
+                return float(land_area[0])
+            else:
+                return float(land_area[1])
+        return None
 
 
 @dataclass
