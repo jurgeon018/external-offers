@@ -50,7 +50,8 @@ class SaveOfferRequest:
     """Аккаунт для публикации черновика"""
     land_area: Optional[float] = None
     """Площадь участка для загородки"""
-
+    land_status: Optional[str] = None
+    """Тип землепользования для загородки"""
 
 @dataclass
 class SaveOfferResponse:

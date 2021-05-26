@@ -189,12 +189,24 @@ class ParsedObjectModel:
 
     @property
     def land_area(self) -> Optional[float]:
+        '''
+        Площадь участка для загородки по-другому не получить
+        '''
         if self.is_suburban_sale:
             land_area = re.findall(r'\d+\.\d+|\d+', self.title)
             if land_area:
                 if self.is_land:
                     return float(land_area[0])
                 return float(land_area[1])
+        return None
+
+    @property
+    def land_status(self) -> Optional[str]:
+        if self.is_land:
+            land_status = re.findall(r'\(\w+\)', self.title)
+            if land_status:
+                land_status = re.sub(r'[()]', '', land_status[0])
+                return land_status
         return None
 
 
