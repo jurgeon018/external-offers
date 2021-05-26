@@ -136,3 +136,25 @@ async def save_offer_request_body():
 async def save_offer_request_body_with_create_new_account(save_offer_request_body):
     save_offer_request_body['createNewAccount'] = True
     return save_offer_request_body
+
+
+@pytest.fixture
+async def save_offer_request_body_for_suburban():
+    return {
+        'dealType': 'sale',
+        'offerType': 'suburban',
+        'category': 'land',
+        'address': 'ул. просторная 6, квартира 200',
+        'realtyType': None,
+        'totalArea': 120,
+        'rooms_count': None,
+        'floor_number': None,
+        'floors_count': None,
+        'price': 100000,
+        'saleType': '',
+        'offerId': '1',
+        'clientId': '7',
+        'description': 'Test',
+        'landArea': 6.0,
+        'landStatus': 'individualHousingConstruction'
+    }
