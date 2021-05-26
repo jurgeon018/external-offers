@@ -20,8 +20,8 @@ def build_priority_from_blocks(
     """ Составляем финальный приоритет из 4 частей, добиваем до общей длины нулями и приводим к int """
     builded_priority = (
         str(call_status_priority)
-        + str(region_priority if region_priority else _EMPTY)
         + str(client_type_priority if client_type_priority else _EMPTY)
+        + str(region_priority if region_priority else _EMPTY)
         + str(account_priority if account_priority else _EMPTY)
     ).ljust(_PRIORITY_LENGTH, _ZERO)
 

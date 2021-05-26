@@ -121,7 +121,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 310111
+    assert offer_row['priority'] == 311011
     assert client_row['cian_user_id'] is None
 
 
@@ -306,7 +306,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 320012
+    assert offer_row['priority'] == 312002
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -356,7 +356,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_smb_without
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 320011
+    assert offer_row['priority'] == 312001
     assert client_row['cian_user_id'] is None
 
 
@@ -500,7 +500,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_ma
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 320013
+    assert offer_row['priority'] == 312003
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -634,7 +634,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 320013
+    assert offer_row['priority'] == 312003
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -777,5 +777,5 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 320014
+    assert offer_row['priority'] == 312004
     assert client_row['cian_user_id'] is None
