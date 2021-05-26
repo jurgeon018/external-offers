@@ -203,9 +203,9 @@ class ParsedObjectModel:
     @property
     def land_status(self) -> Optional[str]:
         if self.is_land:
-            land_status = re.findall(r'\(\w+\)', self.title)
-            if land_status:
-                land_status = re.sub(r'[()]', '', land_status[0])
+            land_status_list = re.findall(r'\(\w+\)', self.title)
+            if land_status_list:
+                land_status = re.sub(r'[()]', '', land_status_list[0])
                 return land_status
         return None
 
