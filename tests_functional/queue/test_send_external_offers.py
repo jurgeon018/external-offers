@@ -49,7 +49,8 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     # arrange
     await runtime_settings.set({
         'SUITABLE_CATEGORIES_FOR_REPORTING': ['flatSale', 'newBuildingFlatSale'],
-        'MAX_GEOCODE_STATIONS': 3
+        'MAX_GEOCODE_STATIONS': 3,
+        'SUITABLE_EXTERNAL_SOURCES_FOR_SEND': ['8']
     })
 
     offer_data = {
@@ -70,7 +71,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     }
     data = {
         'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
-        'sourceObjectId': '1_1986816313',
+        'sourceObjectId': '8_1986816313',
         'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
         'userSegment': 'c',
         'isCalltracking': False,
@@ -279,8 +280,8 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     assert request.params['ids'] == f'{parent_district_id}'
 
     assert payload['sourceModel'] == {
-        'source': 'avito',
-        'sourceObjectId': '1_1986816313',
+        'source': 'yandex',
+        'sourceObjectId': '8_1986816313',
         'timestamp': '2020-10-26T13:55:00+00:00',
         'externalUrl': 'http://test'
     }

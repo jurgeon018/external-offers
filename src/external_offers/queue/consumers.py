@@ -6,18 +6,14 @@ from cian_core.runtime_settings import runtime_settings
 from cian_kafka import EntityKafkaConsumerMessage
 
 from external_offers import entities
-from external_offers.services.parsed_offers import save_parsed_offer, send_parsed_offer_change_event
+from external_offers.services.parsed_offers import (
+    extract_source_from_source_object_id,
+    save_parsed_offer,
+    send_parsed_offer_change_event,
+)
 
 
 logger = logging.getLogger(__name__)
-
-
-_SOURCE_AND_ID_DELIMETER = '_'
-_SOURCE_INDEX = 0
-
-
-def extract_source_from_source_object_id(source_object_id: str) -> str:
-    return source_object_id.split(_SOURCE_AND_ID_DELIMETER)[_SOURCE_INDEX]
 
 
 async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOfferMessage]]):
