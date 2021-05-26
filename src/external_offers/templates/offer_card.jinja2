@@ -48,7 +48,7 @@
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="flat" {% if parsed_object_model.is_allow_realty_type %} selected {% endif %}>Жилая</option>
                         <option value="commerce" disabled>Коммерческая</option>
-                        <option value="suburban" {% if parsed_object_model.is_suburban %} selected {% endif %}>Загородная</option>
+                        <option value="suburban" {% if parsed_object_model.is_suburban_sale %} selected {% endif %}>Загородная</option>
                         <option value="newobject" disabled>Новостройки</option>
                     </select>
                 </div>
@@ -77,7 +77,7 @@
                             Койко-место (только аренда)
                         </option>
                     {% endif %}
-                    {% if parsed_object_model.is_suburban %}
+                    {% if parsed_object_model.is_suburban_sale %}
                         <option value="house" {% if parsed_object_model.is_house %}
                                             selected {% endif %}>
                             Дом/дача
@@ -168,7 +168,7 @@
                        placeholder="Общее количество этажей в доме"
                        id="getFloorCount">
             </div>
-            {% if parsed_object_model.is_suburban %}
+            {% if parsed_object_model.is_suburban_sale %}
             <div class="offerLandAreaTitle">
                 <span class="">Площадь участка</span>
             </div>
