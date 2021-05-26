@@ -6,10 +6,10 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     BargainTerms,
     Building,
     GeoCodeAnnouncementResponse,
+    Land,
     ObjectModel,
     Phone,
     PublicationModel,
-    Land,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.address_info import Type
 from external_offers.repositories.monolith_cian_announcementapi.entities.bargain_terms import (
@@ -18,6 +18,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.bargain
     UtilitiesTerms,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.details import GeoType
+from external_offers.repositories.monolith_cian_announcementapi.entities.land import Status
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
     FlatType,
@@ -26,7 +27,6 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.publication_model import Platform
 from external_offers.repositories.monolith_cian_announcementapi.entities.swagger_geo import AddressInfo, Coordinates
-from external_offers.repositories.monolith_cian_announcementapi.entities.land import Status
 
 
 geo_type_to_type_mapping: Dict[GeoType, Type] = {

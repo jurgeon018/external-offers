@@ -538,7 +538,6 @@ def test_parsed_offer__has_land_status(category, expected):
         url='https://www.cian.ru/rent/commercial/225540774/'
     )
 
-
     # act
     # assert
     assert offer.land_status == expected
