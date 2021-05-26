@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Optional
 
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
@@ -72,8 +73,22 @@ GET_DISTRICTS_TYPE_TO_DISTRICT_TYPE = {
     GetDistrictsType.poselenie: DistrictType.poselenie
 }
 
+
+SOURCE_ID_TO_NAME_MAPPING = {
+    '1': runtime_settings.AVITO_SOURCE_NAME,
+    '8': runtime_settings.YANDEX_SOURCE_NAME,
+    '13': runtime_settings.DOMCLICK_SOURCE_NAME,
+}
+
+
 CITY_LOCATION_ID = 1
 REGION_LOCATION_ID = 2
+SOURCE_AND_ID_DELIMETER = '_'
+SOURCE_INDEX = 0
+
+
+def extract_source_from_source_object_id(source_object_id: str) -> str:
+    return source_object_id.split(SOURCE_AND_ID_DELIMETER)[SOURCE_INDEX]
 
 
 def get_rooms_count_from_source_object_model(source_object_model: dict) -> int:
@@ -262,8 +277,10 @@ def get_phone_from_source_object_model(source_object_model: dict) -> Optional[st
 
 
 def create_source_model_from_parsed_offer(*, offer: ParsedOffer) -> SourceModel:
+    source_id = extract_source_from_source_object_id(offer.source_object_id)
+
     return SourceModel(
-        source=settings.AVITO_SOURCE_NAME,
+        source=SOURCE_ID_TO_NAME_MAPPING.get(source_id, runtime_settings.AVITO_SOURCE_NAME),
         source_object_id=offer.source_object_id,
         timestamp=offer.timestamp,
         external_url=offer.source_object_model.get(SOURCE_URL)
