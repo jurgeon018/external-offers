@@ -173,30 +173,12 @@ class ParsedObjectModel:
         ]
 
     @property
-    def is_suburban(self) -> bool:
+    def is_suburban_sale(self) -> bool:
         return self.category in [
             Category.cottage_sale,
             Category.house_sale,
             Category.land_sale,
             Category.townhouse_sale
-        ]
-
-    @property
-    def is_house(self) -> bool:
-        return self.category in [
-            Category.house_sale,
-        ]
-
-    @property
-    def is_townhouse(self) -> bool:
-        return self.category in [
-            Category.townhouse_sale,
-        ]
-
-    @property
-    def is_cottage(self) -> bool:
-        return self.category in [
-            Category.cottage_sale,
         ]
 
     @property
@@ -207,11 +189,11 @@ class ParsedObjectModel:
 
     @property
     def land_area(self) -> Optional[float]:
-        if self.is_suburban:
-            land_area = re.findall(r'\d+', self.title)
-            if self.is_land:
-                return float(land_area[0])
-            else:
+        if self.is_suburban_sale:
+            land_area = re.findall(r'\d+\.\d+|\d+', self.title)
+            if land_area:
+                if self.is_land:
+                    return float(land_area[0])
                 return float(land_area[1])
         return None
 
