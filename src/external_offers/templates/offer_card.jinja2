@@ -177,6 +177,19 @@
                        placeholder="Площать участка в сотках"
                        class="input-control" id="getLandArea">
             </div>
+                {% if parsed_object_model.is_land %}
+                    <div class="offerLandStatusTitle">
+                        <span class="">Тип участка</span>
+                    </div>
+                    <div class="offerLandStatusInput">
+                        <select class="select-control" id="getLandStatus">
+                            <option value="" {% if not parsed_object_model.land_status %} selected {% endif %} disabled>Не выбрано</option>
+                            <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
+                            <option value="gardening" {% if parsed_object_model.land_status == 'СНТ, ДНП' %} selected {% endif %}>Садоводство</option>
+                            <option value="industrialLand" {% if parsed_object_model.land_status == 'промназначения' %} selected {% endif %}>Земля промназначения</option>
+                    </select>
+                    </div>
+                {% endif %}
             {% endif %}
             <div class='table-block-header'>
                 <td><span class="text-header">Условия сделки</span></td>
@@ -357,6 +370,7 @@
         const getUseExistingAccount = $('#getUseExistingAccount');
         const getTransformAccountToSpecialist = $('#getTransformAccountToSpecialist');
         const getLandArea = $('#getLandArea');
+        const getLandStatus = $('#getLandStatus');
 
 
 
@@ -485,6 +499,7 @@
                 offerId: '{{ offer_id }}',
                 clientId: '{{ client.client_id }}',
                 landArea: getNumberOrStrNull(getLandArea.val()),
+                landStatus: getValueOrStrNull(getLandStatus.val()),
             }
             {% if parsed_object_model.is_rent %}
                 let obj_rent = {
