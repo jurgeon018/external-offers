@@ -484,7 +484,7 @@
                 accountForDraft:  getNumberOrStrNull(createNewAccount ? "" : getAccountForDraft.val()),
                 offerId: '{{ offer_id }}',
                 clientId: '{{ client.client_id }}',
-                landArea: parseInt(getLandArea.val),
+                landArea: getNumberOrStrNull(getLandArea.val()),
             }
             {% if parsed_object_model.is_rent %}
                 let obj_rent = {

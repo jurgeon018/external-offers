@@ -49,8 +49,6 @@ class AdminOffersCardPageHandler(PublicHandler):
             operator_id=self.realty_user_id,
             offer_id=offer_id
         )
-        if self.realty_user_id == 73419610:
-            exists = True
         if not exists:
             self.write('Объявление в работе не найдено'.encode('utf-8'))
             return
