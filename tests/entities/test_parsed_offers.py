@@ -27,7 +27,8 @@ def test_parsed_offer__is_flat_sale(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -57,7 +58,8 @@ def test_parsed_offer__is_flat_rent(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -87,7 +89,8 @@ def test_parsed_offer__is_allow_rooms(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -119,7 +122,8 @@ def test_parsed_offer__is_allow_realty_type(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -150,7 +154,8 @@ def test_parsed_offer__is_flat(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -180,7 +185,8 @@ def test_parsed_offer__is_room(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -208,7 +214,8 @@ def test_parsed_offer__is_share(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -237,7 +244,8 @@ def test_parsed_offer__is_bed(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -267,7 +275,8 @@ def test_parsed_offer__is_long_term_rent(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -297,7 +306,8 @@ def test_parsed_offer__is_daily_term_rent(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -328,7 +338,8 @@ def test_parsed_offer__is_suburban_sale(category):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -357,7 +368,8 @@ def test_parsed_offer__is_land_sale(category, expected):
         floors_count=2,
         rooms_count=4,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -407,7 +419,8 @@ def test_parsed_offer__land_sale__has_land_area():
         floors_count=0,
         rooms_count=0,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -432,7 +445,8 @@ def test_parsed_offer__land_sale__has_no_land_area():
         floors_count=0,
         rooms_count=0,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -460,7 +474,8 @@ def test_parsed_offer__land_sale__has_land_area__float(value, expected):
         floors_count=0,
         rooms_count=0,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
@@ -488,8 +503,68 @@ def test_parsed_offer__house_sale__has_land_area__float(value, expected):
         floors_count=0,
         rooms_count=0,
         is_studio=False,
-        url='https://www.cian.ru/rent/commercial/225540774/')
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
 
     # act
     # assert
     assert offer.land_area == expected
+
+
+@pytest.mark.parametrize('category, expected', [
+    (Category.house_sale, None),
+    (Category.cottage_sale, None),
+    (Category.townhouse_sale, None),
+    (Category.land_sale, 'ИЖС'),
+])
+def test_parsed_offer__has_land_status(category, expected):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='Дом 230 кв на участке 6 сот. (ИЖС)',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+
+    # act
+    # assert
+    assert offer.land_status == expected
+
+
+def test_parsed_offer__has_no_land_status():
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=Category.land_sale,
+        region=4607,
+        title='Участок',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.land_status is None
