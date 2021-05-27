@@ -45,10 +45,10 @@
                 <div class="offerTypeTitle"><span class="">Тип недвижимости</span></div>
                 <div class="offerTypeSelect">
                     <select class="select-control" id="getOfferType">
-                        <option value="" disabled>Не выбрано</option>
-                        <option value="flat" selected>Жилая</option>
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="flat" {% if parsed_object_model.is_allow_realty_type %} selected {% endif %}>Жилая</option>
                         <option value="commerce" disabled>Коммерческая</option>
-                        <option value="suburban" disabled>Загородная</option>
+                        <option value="suburban" {% if parsed_object_model.is_suburban_sale %} selected {% endif %}>Загородная</option>
                         <option value="newobject" disabled>Новостройки</option>
                     </select>
                 </div>
@@ -57,6 +57,7 @@
                 <div class="offerCategoryTypeSelect">
 
                     <select class="select-control" id="getCategoryType">
+                    {% if parsed_object_model.is_allow_realty_type %}
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="flat"
                                 {% if parsed_object_model.is_flat %}
@@ -75,6 +76,25 @@
                                             selected {% endif %}>
                             Койко-место (только аренда)
                         </option>
+                    {% endif %}
+                    {% if parsed_object_model.is_suburban_sale %}
+                        <option value="house" {% if parsed_object_model.is_house %}
+                                            selected {% endif %}>
+                            Дом/дача
+                        </option>
+                        <option value="townhouse" {% if parsed_object_model.is_townhouse %}
+                                            selected {% endif %}>
+                            Таунхаус
+                        </option>
+                        <option value="cottage" {% if parsed_object_model.is_cottage %}
+                                            selected {% endif %}>
+                            Коттедж
+                        </option>
+                        <option value="land" {% if parsed_object_model.is_land %}
+                                            selected {% endif %}>
+                            Участок
+                        </option>
+                    {% endif %}
                     </select>
                 </div>
 
@@ -148,6 +168,16 @@
                        placeholder="Общее количество этажей в доме"
                        id="getFloorCount">
             </div>
+            {% if parsed_object_model.is_suburban_sale %}
+            <div class="offerLandAreaTitle">
+                <span class="">Площадь участка</span>
+            </div>
+            <div class="offerLandAreaInput">
+                <input type="number" required value="{{ parsed_object_model.land_area }}"
+                       placeholder="Площать участка в сотках"
+                       class="input-control" id="getLandArea">
+            </div>
+            {% endif %}
             <div class='table-block-header'>
                 <td><span class="text-header">Условия сделки</span></td>
             </div>
@@ -326,6 +356,8 @@
         const getAccountType = $('#getAccountType');
         const getUseExistingAccount = $('#getUseExistingAccount');
         const getTransformAccountToSpecialist = $('#getTransformAccountToSpecialist');
+        const getLandArea = $('#getLandArea');
+
 
 
         $('.ajax-form').on('submit', (event) => {
@@ -452,6 +484,7 @@
                 accountForDraft:  getNumberOrStrNull(createNewAccount ? "" : getAccountForDraft.val()),
                 offerId: '{{ offer_id }}',
                 clientId: '{{ client.client_id }}',
+                landArea: getNumberOrStrNull(getLandArea.val()),
             }
             {% if parsed_object_model.is_rent %}
                 let obj_rent = {

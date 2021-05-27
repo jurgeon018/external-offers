@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
@@ -170,6 +171,31 @@ class ParsedObjectModel:
             Category.daily_flat_rent,
             Category.daily_room_rent
         ]
+
+    @property
+    def is_suburban_sale(self) -> bool:
+        return self.category in [
+            Category.cottage_sale,
+            Category.house_sale,
+            Category.land_sale,
+            Category.townhouse_sale
+        ]
+
+    @property
+    def is_land(self) -> bool:
+        return self.category in [
+            Category.land_sale,
+        ]
+
+    @property
+    def land_area(self) -> Optional[float]:
+        if self.is_suburban_sale:
+            land_area = re.findall(r'\d+\.\d+|\d+', self.title)
+            if land_area:
+                if self.is_land:
+                    return float(land_area[0])
+                return float(land_area[1])
+        return None
 
 
 @dataclass
