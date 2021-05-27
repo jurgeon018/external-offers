@@ -18,7 +18,6 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.bargain
     UtilitiesTerms,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.details import GeoType
-from external_offers.repositories.monolith_cian_announcementapi.entities.land import Status
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
     FlatType,
@@ -37,16 +36,6 @@ geo_type_to_type_mapping: Dict[GeoType, Type] = {
     GeoType.street.value: Type.street,
     GeoType.underground.value: Type.underground,
     GeoType.location.value: Type.location
-}
-
-
-offer_land_status_to_status: Dict[str, Status] = {
-    'individualHousingConstruction': Status.individual_housing_construction,
-    'industrialLand': Status.industrial_land,
-    'farm': Status.farm,
-    'privateFarm': Status.private_farm,
-    'gardening': Status.gardening,
-    'suburbanNonProfitPartnership': Status.suburban_non_profit_partnership,
 }
 
 
@@ -154,7 +143,7 @@ def map_save_request_to_publication_model(
             row_version=0,  # если этот параметр не слать, шарп 500ит
             land=Land(
                 area=request.land_area,
-                status=offer_land_status_to_status.get(request.land_status, None),
+                status=request.land_status,
             )
         ),
         platform=Platform.web_site  # если этот параметр не слать, шарп 500ит

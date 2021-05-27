@@ -8,6 +8,11 @@ from external_offers.enums.user_segment import UserSegment
 from external_offers.helpers.offer_category import get_types
 
 
+RE_LAND_AREA = re.compile(r'\d+\.\d+|\d+')
+RE_LAND_STATUS_WITH_BRACKETS = re.compile(r'\(\w+\)')
+RE_LAND_STATUS_WITHOUT_BRACKETS = re.compile(r'[()]')
+
+
 @dataclass
 class ParsedOfferMessage:
     id: str
@@ -190,10 +195,10 @@ class ParsedObjectModel:
     @property
     def land_area(self) -> Optional[float]:
         """
-        Площадь участка для загородки по-другому не получить
+        Получаем площадь участка для загородки (по-другому не получить)
         """
         if self.is_suburban_sale:
-            land_area = re.findall(r'\d+\.\d+|\d+', self.title)
+            land_area = RE_LAND_AREA.findall(self.title)
             if land_area:
                 if self.is_land:
                     return float(land_area[0])
@@ -202,10 +207,13 @@ class ParsedObjectModel:
 
     @property
     def land_status(self) -> Optional[str]:
+        """
+        Вытаскиеваем регуляркой тип землепользования из тайтла участка
+        """
         if self.is_land:
-            land_status_list = re.findall(r'\(\w+\)', self.title)
+            land_status_list = RE_LAND_STATUS_WITH_BRACKETS.findall(self.title)
             if land_status_list:
-                land_status = re.sub(r'[()]', '', land_status_list[0])
+                land_status = RE_LAND_STATUS_WITHOUT_BRACKETS.sub('', land_status_list[0])
                 return land_status
         return None
 
