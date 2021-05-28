@@ -567,3 +567,34 @@ def test_parsed_offer__has_no_land_status():
     # act
     # assert
     assert offer.land_status is None
+
+
+@pytest.mark.parametrize('unit, expected', [
+    ('га.', 'hectare'),
+    ('сот.', 'sotka'),
+    (None, None),
+])
+def test_parsed_offer__area_unit_type(unit, expected):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=Category.land_sale,
+        region=4607,
+        title=f'Дом 230 кв на участке 6 {unit}',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.land_area_unit == expected

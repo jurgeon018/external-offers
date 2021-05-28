@@ -1782,7 +1782,7 @@ async def test_save_offer__create_promo_failed_with_create_new_account__second_c
     assert len(requests) == 1
 
 
-async def test_save_offer__suburban__status_ok(
+async def test_save_offer__suburban__correct_json__status_ok(
         pg,
         http,
         users_mock,
