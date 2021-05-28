@@ -647,20 +647,3 @@ async def test_already_published_offer__exist_parsed_offer__already_published_me
         },
         expected_status=200
     )
-
-    # assert
-    messages = await kafka_service.wait_messages(
-        topic='preposition-admin.already-published',
-        timeout=4.5,
-        count=1
-    )
-
-    assert messages[0].data == {
-        'managerId': 70024649,
-        'sourceObjectId': '1_2931442443',
-        'sourceUserId': '32131327',
-        'phone': '+79812932338',
-        'callId': 'last-call-id',
-        'date': ANY,
-        'timestamp': ANY
-    }

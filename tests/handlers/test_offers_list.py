@@ -81,16 +81,6 @@ async def test_already_published_offer__missing_parsed_offer__warning_expected(
             user_id=operator_user_id
         )
 
-    # assert
-    warning_mock.assert_has_calls(
-        [
-            mocker.call(
-                'При отметке уже опубликованного объявления не нашли спаршенное для задания %s',
-                '2'
-            )
-        ]
-    )
-
 
 async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting_call_expected(
     mocker
