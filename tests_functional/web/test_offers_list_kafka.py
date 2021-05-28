@@ -647,3 +647,4 @@ async def test_already_published_offer__exist_parsed_offer__already_published_me
         },
         expected_status=200
     )
+
