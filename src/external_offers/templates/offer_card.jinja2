@@ -176,6 +176,11 @@
                 <input type="number" required value="{{ parsed_object_model.land_area }}"
                        placeholder="Площать участка в сотках"
                        class="input-control" id="getLandArea">
+                <select class="select-control" id="getAreaUnit">
+                    <option value="" {% if not parsed_object_model.land_area_unit %} selected {% endif %} disabled>Не выбрано</option>
+                    <option value="sotka" {% if parsed_object_model.land_area_unit == 'sotka' %} selected {% endif %}>Сотка</option>
+                    <option value="hectare" {% if parsed_object_model.land_area_unit == 'hectare' %} selected {% endif %}>Гектар</option>
+                </select>
             </div>
             {% endif %}
             <div class='table-block-header'>
@@ -357,6 +362,7 @@
         const getUseExistingAccount = $('#getUseExistingAccount');
         const getTransformAccountToSpecialist = $('#getTransformAccountToSpecialist');
         const getLandArea = $('#getLandArea');
+        const getAreaUnit = $('#getAreaUnit')
 
 
 
@@ -485,6 +491,7 @@
                 offerId: '{{ offer_id }}',
                 clientId: '{{ client.client_id }}',
                 landArea: getNumberOrStrNull(getLandArea.val()),
+                landAreaUnitType: getValueOrStrNull(getAreaUnit.val()),
             }
             {% if parsed_object_model.is_rent %}
                 let obj_rent = {

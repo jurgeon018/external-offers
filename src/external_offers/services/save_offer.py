@@ -59,6 +59,10 @@ mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (SaveOfferTerm.daily_term, SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.daily_flat_rent,
     (SaveOfferTerm.daily_term, SaveOfferCategory.room, DealType.rent, OfferType.flat): Category.daily_room_rent,
     (SaveOfferTerm.daily_term, SaveOfferCategory.bed, DealType.rent, OfferType.flat): Category.daily_bed_rent,
+    (None, SaveOfferCategory.house, DealType.sale, OfferType.suburban): Category.house_sale,
+    (None, SaveOfferCategory.cottage, DealType.sale, OfferType.suburban): Category.cottage_sale,
+    (None, SaveOfferCategory.townhouse, DealType.sale, OfferType.suburban): Category.townhouse_sale,
+    (None, SaveOfferCategory.land, DealType.sale, OfferType.suburban): Category.land_sale,
 }
 
 

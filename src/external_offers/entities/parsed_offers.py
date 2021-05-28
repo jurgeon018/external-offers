@@ -197,6 +197,15 @@ class ParsedObjectModel:
                 return float(land_area[1])
         return None
 
+    @property
+    def land_area_unit(self) -> Optional[str]:
+        if self.land_area:
+            unit = re.findall(r'сот.|га.', self.title)
+            if unit:
+                area_unit = 'sotka' if unit[0] == 'сот.' else 'hectare'
+                return area_unit
+        return None
+
 
 @dataclass
 class ParsedOfferForCreation:

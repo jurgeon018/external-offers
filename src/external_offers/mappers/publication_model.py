@@ -6,6 +6,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     BargainTerms,
     Building,
     GeoCodeAnnouncementResponse,
+    Land,
     ObjectModel,
     Phone,
     PublicationModel,
@@ -139,7 +140,11 @@ def map_save_request_to_publication_model(
             flat_type=rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms),
             is_by_home_owner=is_by_home_owner,
             is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
-            row_version=0  # если этот параметр не слать, шарп 500ит
+            row_version=0,  # если этот параметр не слать, шарп 500ит
+            land=Land(
+                area=request.land_area,
+                area_unit_type=request.land_area_unit_type
+            )
         ),
         platform=Platform.web_site  # если этот параметр не слать, шарп 500ит
     )

@@ -4,6 +4,7 @@ from typing import Optional
 from external_offers.enums import SaveOfferCategory, SaveOfferTerm
 from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
+from external_offers.repositories.monolith_cian_announcementapi.entities.land import AreaUnitType
 
 
 @dataclass
@@ -50,6 +51,8 @@ class SaveOfferRequest:
     """Аккаунт для публикации черновика"""
     land_area: Optional[float] = None
     """Площадь участка для загородки"""
+    land_area_unit_type: Optional[AreaUnitType] = None
+    """Единицы измерения площади участка"""
 
 
 @dataclass
