@@ -865,12 +865,12 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
             body={'items':[{
-                "userId":12835367,
-                "sanctions":[
+                'userId':12835367,
+                'sanctions':[
                     {
-                        "sanctionId":9072881,
-                        "sanctionName":"Запрет на публикацию объявлений",
-                        "sanctionEnd": None
+                        'sanctionId':9072881,
+                        'sanctionName':'Запрет на публикацию объявлений',
+                        'sanctionEnd': None
                     }
                 ]
             }]}
