@@ -157,4 +157,5 @@ async def save_offer_request_body_for_suburban():
         'description': 'Test',
         'landArea': 6.0,
         'areaUnitType': 'sotka',
+        'landStatus': 'individualHousingConstruction'
     }
