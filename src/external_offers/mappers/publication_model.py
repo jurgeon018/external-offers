@@ -143,7 +143,8 @@ def map_save_request_to_publication_model(
             row_version=0,  # если этот параметр не слать, шарп 500ит
             land=Land(
                 area=request.land_area,
-                area_unit_type=request.land_area_unit_type
+                area_unit_type=request.land_area_unit_type,
+                status=request.land_status,
             )
         ),
         platform=Platform.web_site  # если этот параметр не слать, шарп 500ит
