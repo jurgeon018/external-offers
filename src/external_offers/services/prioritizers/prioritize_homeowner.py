@@ -30,9 +30,20 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
     chosen_profile = None
 
     for profile in user_profiles:
+        source_user_type = profile.external_user_source_type
+
         if profile.state.is_blocked:
             has_bad_account = True
             break
+
+        if (
+            source_user_type
+            and (
+                source_user_type.is_emls
+                or source_user_type.is_sub_agents
+                )
+        ):
+            continue
 
         if (
             profile.state.is_active
