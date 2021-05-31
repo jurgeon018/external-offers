@@ -83,7 +83,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-             body={'items':[]}
+             body={'items': []}
         )
     )
     await users_mock.add_stub(
@@ -264,7 +264,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agen
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-             body={'items':[]}
+             body={'items': []}
         )
     )
     await users_mock.add_stub(
@@ -468,7 +468,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_ma
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-             body={'items':[]}
+             body={'items': []}
         )
     )
     await users_mock.add_stub(
@@ -592,7 +592,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-             body={'items':[]}
+             body={'items': []}
         )
     )
     await users_mock.add_stub(
@@ -783,7 +783,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-             body={'items':[]}
+             body={'items': []}
         )
     )
     await announcements_mock.add_stub(
@@ -864,12 +864,12 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-            body={'items':[{
-                'userId':12835367,
-                'sanctions':[
+            body={'items': [{
+                'userId': 12835367,
+                'sanctions': [
                     {
-                        'sanctionId':9072881,
-                        'sanctionName':'Запрет на публикацию объявлений',
+                        'sanctionId': 9072881,
+                        'sanctionName': 'Запрет на публикацию объявлений',
                         'sanctionEnd': None
                     }
                 ]

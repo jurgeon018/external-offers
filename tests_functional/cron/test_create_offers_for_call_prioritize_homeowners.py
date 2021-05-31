@@ -51,7 +51,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-             body={'items':[]}
+             body={'items': []}
         )
     )
     await announcements_mock.add_stub(
@@ -204,7 +204,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-             body={'items':[]}
+             body={'items': []}
         )
     )
     await announcements_mock.add_stub(
@@ -326,7 +326,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
     assert client_row['cian_user_id'] is None
 
 
-
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sanctions__clears_client(
     pg,
     runtime_settings,
@@ -374,12 +373,12 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
         method='GET',
         path='/v1/sanctions/get-sanctions/',
         response=MockResponse(
-            body={'items':[{
-                'userId':12835367,
-                'sanctions':[
+            body={'items': [{
+                'userId': 12835367,
+                'sanctions': [
                     {
-                        'sanctionId':9072881,
-                        'sanctionName':'Запрет на публикацию объявлений',
+                        'sanctionId': 9072881,
+                        'sanctionName': 'Запрет на публикацию объявлений',
                         'sanctionEnd': None
                     }
                 ]
@@ -398,4 +397,3 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
     )
 
     assert offer_row is None
-

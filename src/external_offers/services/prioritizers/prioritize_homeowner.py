@@ -69,7 +69,7 @@ async def find_homeowner_client_account_priority(
             if not response.users:
                 statsd.incr(_METRIC_PRIORITIZE_NO_LK)
                 return settings.NO_LK_HOMEOWNER_PRIORITY
-            
+
             sanctions_response = await v1_sanctions_get_sanctions(
                 V1SanctionsGetSanctions(
                     user_ids=[user.id for user in response.users],
