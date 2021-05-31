@@ -12,6 +12,7 @@ from cian_http.api_client import Api
 
 from . import entities
 
+
 _api = Api(microservice_name='monolith-cian-profileapi')
 promocode_apply = _api.make_client(
     path='/promocode/apply/',

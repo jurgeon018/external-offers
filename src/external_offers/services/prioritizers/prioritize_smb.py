@@ -10,6 +10,10 @@ from external_offers.entities.clients import Client
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
 from external_offers.repositories.announcements.entities import V2GetUserActiveAnnouncementsCount
+from external_offers.repositories.monolith_cian_profileapi._repo import v1_sanctions_get_sanctions
+from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions_get_sanctions import (
+    V1SanctionsGetSanctions,
+)
 from external_offers.repositories.postgresql import set_cian_user_id_by_client_id
 from external_offers.repositories.users import v2_get_users_by_phone
 from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
@@ -83,6 +87,14 @@ async def find_smb_client_account_priority(
             if not response.users:
                 statsd.incr(_METRIC_PRIORITIZE_NO_LK)
                 return settings.NO_LK_SMB_PRIORITY
+
+            sanctions_response = await v1_sanctions_get_sanctions(
+                V1SanctionsGetSanctions(
+                    user_ids=[user.id for user in response.users],
+                )
+            )
+            if sanctions_response.items:
+                return _CLEAR_CLIENT_PRIORITY
 
             # Выбираем основной активный агентский профиль пользователя
             result = choose_main_smb_client_profile(response.users)
