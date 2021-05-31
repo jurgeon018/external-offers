@@ -41,7 +41,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
                 'userName': None,
                 'creationDate': '2017-01-20T22:22:58.913',
                 'ip': 167772335,
-                'externalUserSourceType': None,
+                'externalUserSourceType': 'emls',
                 'isAgent': False
             }]}
         ),
