@@ -86,13 +86,13 @@ async def find_homeowner_client_account_priority(
 
             if result.has_bad_account:
                 return _CLEAR_CLIENT_PRIORITY
-            
+
             if not result.chosen_profile and result.has_emls_or_subagent:
                 return _CLEAR_CLIENT_PRIORITY
 
             if not result.chosen_profile:
                 return settings.NO_LK_HOMEOWNER_PRIORITY
-            
+
             cian_user_id = result.chosen_profile.cian_user_id
 
             # Обновляем идентификатор клиента
