@@ -212,20 +212,6 @@ async def already_published_offer(
             status=OfferStatus.already_published.value
         )
 
-        if settings.ENABLE_SEND_KAFKA_MESSAGE_FOR_ALREADY_PUBLISHED:
-            parsed_offer = await get_parsed_offer_by_offer_id(
-                offer_id=offer.id
-            )
-            if parsed_offer:
-                await send_kafka_already_published_analytics_message_if_not_test(
-                    offer=offer,
-                    client=client,
-                    parsed_offer=parsed_offer
-                )
-            else:
-                logger.warning('При отметке уже опубликованного объявления '
-                               'не нашли спаршенное для задания %s', offer_id)
-
         exists = await exists_offers_in_progress_by_client(
             client_id=client_id
         )
