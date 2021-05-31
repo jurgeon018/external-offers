@@ -381,7 +381,7 @@ async def test_call_later_client__client_exist_with_2_offers__expected_1_message
         },
         expected_status=200
     )
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
 
     # assert
     messages = await kafka_service.get_messages(

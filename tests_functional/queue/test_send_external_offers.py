@@ -59,6 +59,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         'region': 4628,
         'title': 'название',
         'description': 'описание',
+        'updateDate': '2021-12-29T09:13:08.965324+00:00',
         'isAgency': False,
         'address': 'адрес',
         'lat': 12.0,
@@ -268,7 +269,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
         topic='ml-content-copying.change',
         message=data
     )
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
 
     # assert
     messages = await queue.get_messages()
@@ -294,6 +295,7 @@ async def test_external_offer_callback__new_external_offer__send_publish_message
     assert payload['model']['description'] == 'описание'
     assert not payload['model']['isEnabledCallTracking']
     assert payload['model']['isByHomeOwner']
+    assert payload['model']['editDate'] == '2021-12-29T09:13:08.965324+00:00'
     assert payload['model']['geo']['userInput'] == 'адрес'
     assert payload['model']['geo']['address'] == [{
         'id': 1,

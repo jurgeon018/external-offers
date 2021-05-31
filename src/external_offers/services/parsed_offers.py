@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Dict, Optional
 
 from cian_core.runtime_settings import runtime_settings
@@ -56,6 +57,7 @@ SOURCE_LAT = 'lat'
 SOURCE_LNG = 'lng'
 SOURCE_URL = 'url'
 SOURCE_IS_AGENCY = 'isAgency'
+SOURCE_UPDATE_DATE = 'updateDate'
 
 DEFAULT_GEOCODE_KIND = 'house'
 DEFAULT_ROOMS_COUNT = 1
@@ -143,6 +145,11 @@ def get_address_from_source_object_model(source_object_model: dict) -> Optional[
 def get_is_by_homeowner_from_source_object_model(source_object_model: dict) -> Optional[bool]:
     is_agency = bool(source_object_model.get(SOURCE_IS_AGENCY))
     return not is_agency
+
+
+def get_update_date_from_source_object_model(source_object_model: dict) -> Optional[datetime]:
+    update_date = source_object_model.get(SOURCE_UPDATE_DATE)
+    return update_date and datetime.fromisoformat(update_date)
 
 
 def get_flat_type_from_source_object_model(source_object_model: dict) -> Optional[FlatType]:
@@ -333,6 +340,7 @@ async def create_object_model_from_parsed_offer(*, offer: ParsedOfferMessage) ->
             floor_number=get_floor_number_from_source_object_model(source_object_model),
             category=get_category_from_source_object_model(source_object_model),
             geo=geo,
+            edit_date=get_update_date_from_source_object_model(source_object_model),
             description=get_description_from_source_object_model(source_object_model),
             is_enabled_call_tracking=offer.is_calltracking,
             is_by_home_owner=get_is_by_homeowner_from_source_object_model(source_object_model),
