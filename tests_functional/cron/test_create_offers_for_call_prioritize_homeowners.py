@@ -1,7 +1,7 @@
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_lk__creates_waiting_offer2(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_with_emls__clears_client(
     pg,
     runtime_settings,
     runner,
@@ -67,16 +67,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         """
     )
 
-    client_row = await pg.fetchrow(
-        """
-        SELECT * FROM clients WHERE client_id = $1
-        """,
-        [offer_row['client_id']]
-    )
+    assert offer_row is None
 
-    assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 322005
-    assert client_row['cian_user_id'] == 12835367
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_lk__creates_waiting_offer(

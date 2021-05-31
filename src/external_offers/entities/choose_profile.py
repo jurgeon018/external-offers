@@ -14,7 +14,7 @@ class ClientChooseMainProfileResult:
 
 @dataclass
 class HomeownerClientChooseMainProfileResult(ClientChooseMainProfileResult):
-    ...
+    has_emls_or_subagent: bool
 
 
 @dataclass

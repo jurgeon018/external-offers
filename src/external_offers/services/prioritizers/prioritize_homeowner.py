@@ -27,6 +27,7 @@ _METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> HomeownerClientChooseMainProfileResult:
     """ Ищем активный профиль собственника. Ставим метки заблокированных пользователей """
     has_bad_account = False
+    has_emls_or_subagent = False
     chosen_profile = None
 
     for profile in user_profiles:
@@ -43,6 +44,7 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
                 or source_user_type.is_sub_agents
                 )
         ):
+            has_emls_or_subagent = True
             continue
 
         if (
@@ -53,7 +55,8 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
 
     return HomeownerClientChooseMainProfileResult(
         has_bad_account=has_bad_account,
-        chosen_profile=chosen_profile
+        chosen_profile=chosen_profile,
+        has_emls_or_subagent=has_emls_or_subagent,
     )
 
 
@@ -83,10 +86,13 @@ async def find_homeowner_client_account_priority(
 
             if result.has_bad_account:
                 return _CLEAR_CLIENT_PRIORITY
+            
+            if not result.chosen_profile and result.has_emls_or_subagent:
+                return _CLEAR_CLIENT_PRIORITY
 
             if not result.chosen_profile:
                 return settings.NO_LK_HOMEOWNER_PRIORITY
-
+            
             cian_user_id = result.chosen_profile.cian_user_id
 
             # Обновляем идентификатор клиента
