@@ -1916,3 +1916,98 @@ async def test_save_offer__suburban__correct_json__status_ok(
     offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
     assert offers_event_log[0]['status'] == 'draft'
     assert offers_event_log[0]['offer_id'] == '1'
+
+
+async def test_save_offer__geocode_failed__billing_region_id_is_zero(
+        pg,
+        http,
+        users_mock,
+        runtime_settings,
+        monolith_cian_announcementapi_mock,
+        save_offer_request_body_for_suburban,
+):
+    # arrange
+    user_id = 123123
+    save_offer_request_body_for_suburban['address'] = 'Московская область'
+
+    await runtime_settings.set({
+        'CHECK_BILLING_REGION_ID': True,
+    })
+
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            '1',
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            cian_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        """,
+        ['7', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', user_id, 7, 'inProgress']
+    )
+
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': 7777777,
+                    'isAgent': True,
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            status=200,
+            body={'billingRegionId': 0}
+        ),
+    )
+
+    # act
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body_for_suburban,
+        headers={
+            'X-Real-UserId': user_id
+        }
+    )
+
+    # assert
+    assert response.data['message'] == 'Не удалось обработать переданный в объявлении адрес. Невозможно опубликовать '\
+                                       'объявление с таким адресом, т.к.это не поддерживается биллингом'
