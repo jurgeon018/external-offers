@@ -9,12 +9,12 @@ cian-codegen version: 1.14.2
 
 """
 from dataclasses import dataclass
+from datetime import datetime as _datetime
 from typing import Optional
 
 
 @dataclass
-class ApplyParameters:
-    cian_user_id: Optional[int] = None
-    """Ключ пользователя"""
-    promo_code: Optional[str] = None
-    """Промокод"""
+class UserSanctionItem:
+    sanction_end: Optional[_datetime] = None
+    sanction_id: Optional[int] = None
+    sanction_name: Optional[str] = None

@@ -1,29 +1,101 @@
 definitions:
   Web.ProfileApi.App.PromoCode.Models.ApplyParameters:
     properties:
-      cianUserId: {description: Ключ пользователя, format: int64, type: integer}
-      promoCode: {description: Промокод, type: string}
+      cianUserId:
+        description: Ключ пользователя
+        format: int64
+        type: integer
+      promoCode:
+        description: Промокод
+        type: string
+    type: object
+  Web.ProfileApi.App.Sanctions.Models.GetSanctionsResponse:
+    properties:
+      items:
+        description: Список пользователей с санкциями
+        items:
+          $ref: '#/definitions/Web.ProfileApi.App.Sanctions.Models.UserSanctions'
+        type: array
+    type: object
+  Web.ProfileApi.App.Sanctions.Models.UserSanctionItem:
+    properties:
+      sanctionEnd:
+        format: date-time
+        type: string
+      sanctionId:
+        format: int64
+        type: integer
+      sanctionName:
+        type: string
+    type: object
+  Web.ProfileApi.App.Sanctions.Models.UserSanctions:
+    properties:
+      sanctions:
+        description: Список санкций
+        items:
+          $ref: '#/definitions/Web.ProfileApi.App.Sanctions.Models.UserSanctionItem'
+        type: array
+      userId:
+        description: RealtyId пользователя
+        format: int64
+        type: integer
     type: object
 host: master.monolith-cian-profileapi.dev3.cian.ru
-info: {title: monolith-cian-profileapi, version: v1}
+info:
+  title: monolith-cian-profileapi
+  version: v1
 paths:
   /promocode/apply/:
     post:
-      consumes: [application/json, text/json, application/x-www-form-urlencoded]
-      operationId: PromoCode_Apply
+      consumes:
+      - application/json
+      - text/json
+      - application/x-www-form-urlencoded
+      operationId: PromoCode_ApplyAsync
       parameters:
       - in: body
         name: parameters
         required: true
-        schema: {$ref: '#/definitions/Web.ProfileApi.App.PromoCode.Models.ApplyParameters'}
-      produces: [application/json, text/json]
+        schema:
+          $ref: '#/definitions/Web.ProfileApi.App.PromoCode.Models.ApplyParameters'
+      produces:
+      - application/json
+      - text/json
       responses:
         '200':
           description: OK
-          schema: {type: string}
+          schema:
+            type: string
       summary: Применяет промокод пользователю
-      tags: [PromoCode]
-schemes: [http]
+      tags:
+      - PromoCode
+  /v1/sanctions/get-sanctions/:
+    get:
+      consumes: []
+      operationId: Sanctions_GetSanctions
+      parameters:
+      - collectionFormat: multi
+        description: Список RealtyUserIds пользователей
+        in: query
+        items:
+          format: int64
+          type: integer
+        name: userIds
+        required: true
+        type: array
+      produces:
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Web.ProfileApi.App.Sanctions.Models.GetSanctionsResponse'
+      summary: Получить санкции по пользователям
+      tags:
+      - Sanctions
+schemes:
+- http
 swagger: '2.0'
 x-cian-mq:
   exchanges: {}
