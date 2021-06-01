@@ -9,12 +9,10 @@ cian-codegen version: 1.14.2
 
 """
 from dataclasses import dataclass
-from typing import Optional
+from typing import List
 
 
 @dataclass
-class ApplyParameters:
-    cian_user_id: Optional[int] = None
-    """Ключ пользователя"""
-    promo_code: Optional[str] = None
-    """Промокод"""
+class V1SanctionsGetSanctions:
+    user_ids: List[int]
+    """Список RealtyUserIds пользователей"""
