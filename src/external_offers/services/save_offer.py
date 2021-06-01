@@ -173,6 +173,10 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     category=category
                 )
             )
+            if geocode_response.billing_region_id == 0:
+                raise BadRequestException(
+                    message='Невозможно опубликовать объявление с таким адресом, т.к. это не поддерживается биллингом'
+                )
         except BadRequestException as exc:
             statsd_incr_if_not_test_user(
                 metric='save_offer.error.geocode.badrequest',
