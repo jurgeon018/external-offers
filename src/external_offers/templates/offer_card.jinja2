@@ -188,7 +188,7 @@
                     </div>
                     <div class="offerLandStatusInput">
                         <select class="select-control" id="getLandStatus">
-                            <option value="" {% if not parsed_object_model.land_status %} selected {% endif %} disabled>Не выбрано</option>
+                            <option value="" selected>Не выбрано</option>
                             <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
                             <option value="gardening" {% if parsed_object_model.land_status == 'СНТ, ДНП' %} selected {% endif %}>Садоводство</option>
                             <option value="industrialLand" {% if parsed_object_model.land_status == 'промназначения' %} selected {% endif %}>Земля промназначения</option>
