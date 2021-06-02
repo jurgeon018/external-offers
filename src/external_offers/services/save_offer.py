@@ -173,7 +173,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     category=category
                 )
             )
-            if runtime_settings.CHECK_BILLING_REGION_ID:
+            if runtime_settings.get('CHECK_BILLING_REGION_ID', False):
                 if geocode_response.billing_region_id == 0:
                     raise BadRequestException(
                         message='Невозможно опубликовать объявление с таким адресом, т.к.'
