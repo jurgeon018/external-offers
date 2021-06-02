@@ -29,6 +29,7 @@ command = "save-parsed-offers"
 
 [job.save-parsed-offers.prod]
 cpu = 0.4
+memory = 512
 
 [job.send-parsed-offers]
 type = "consumer"
