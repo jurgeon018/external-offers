@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
@@ -219,6 +219,8 @@ async def iterate_over_parsed_offers_sorted(
     query, params = asyncpgsa.compile_query(
         select(
             [po]
+        ).where(
+            po.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
         ).order_by(
             po.c.created_at.asc(),
             po.c.id.asc()
