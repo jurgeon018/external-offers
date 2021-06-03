@@ -1,0 +1,1 @@
+CREATE INDEX ON clients(avito_user_id);

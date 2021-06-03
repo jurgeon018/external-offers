@@ -81,3 +81,5 @@ create table parsed_offers
     updated_at          timestamp with time zone not null,
     synced              boolean                  not null
 );
+
+CREATE INDEX ON clients(avito_user_id);

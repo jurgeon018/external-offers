@@ -31,8 +31,3 @@ external_offers_change_producer = mq_producer_v2(
     schema=get_entity_schema(AnnouncementMessage),
     routing_key=ExternalOffersV1RoutingKey.changed.value,
 )(_get_announcement_message)
-
-external_offers_deleted_producer = mq_producer_v2(
-    schema=get_entity_schema(AnnouncementDeletedMessage),
-    routing_key=ExternalOffersV1RoutingKey.deleted.value,
-)(_get_announcement_deleted_message)
