@@ -26,13 +26,3 @@ class AnnouncementMessage:
     """Operation id"""
     date: datetime
     """Время отправки"""
-
-
-@dataclass
-class AnnouncementDeletedMessage:
-    source_object_id: str
-    """Идентификатор стороннего объявления"""
-    operation_id: str
-    """Operation id"""
-    date: datetime
-    """Время отправки"""
