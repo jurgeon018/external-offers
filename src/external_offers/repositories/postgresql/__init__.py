@@ -47,6 +47,8 @@ from external_offers.repositories.postgresql.offers import (
     get_offers_parsed_ids_by_parsed_ids,
     get_offers_regions_by_client_id,
     get_waiting_offer_counts_by_clients,
+    get_waiting_offers_for_call,
+    get_waiting_offers_for_call_by_client_id,
     iterate_over_offers_for_call_sorted,
     save_offer_for_call,
     set_offer_already_published_by_offer_id,
@@ -62,8 +64,6 @@ from external_offers.repositories.postgresql.offers import (
     set_offers_promo_given_by_client,
     set_undrafted_offers_in_progress_by_client,
     set_waiting_offers_priority_by_offer_ids,
-    get_waiting_offers_for_call_by_client_id,
-    get_waiting_offers_for_call,
     try_to_lock_offer_and_return_status,
 )
 from external_offers.repositories.postgresql.parsed_offers import (

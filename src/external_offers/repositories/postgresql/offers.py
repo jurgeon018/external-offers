@@ -10,9 +10,14 @@ from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
+from external_offers.entities.offers import OfferForPrioritization
 from external_offers.enums import OfferStatus
-from external_offers.mappers import client_waiting_offers_count_mapper, enriched_offer_mapper, offer_mapper
-from external_offers.mappers import offer_for_prioritization_mapper
+from external_offers.mappers import (
+    client_waiting_offers_count_mapper,
+    enriched_offer_mapper,
+    offer_for_prioritization_mapper,
+    offer_mapper,
+)
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
@@ -403,7 +408,14 @@ async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: List[str], prio
                 )
             )
         )
+
         query, params = asyncpgsa.compile_query(sql)
+        # print("------------")
+        # print("query: ", query)
+        # print("params: ", params)
+        # print("priority: ", priority)
+        # print("offer_ids_chunk: ", offer_ids_chunk)
+        # print("------------")
         await pg.get().execute(query, *params)
 
 
@@ -660,7 +672,7 @@ async def get_waiting_offers_for_call_by_client_id(client_id):
     return waiting_offers_for_call
 
 
-async def get_waiting_offers_for_call():
+async def get_waiting_offers_for_call() -> AsyncGenerator[OfferForPrioritization, None]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
@@ -668,8 +680,13 @@ async def get_waiting_offers_for_call():
             offers_for_call.c.status == OfferStatus.waiting.value,
         )
     )
-    rows = await pg.get().fetchrow(query, *params)
-    return [offer_for_prioritization_mapper.map_from(row) for row in rows]
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=5000,
+    )
+    async for row in cursor:
+        yield offer_for_prioritization_mapper.map_from(row)
 
 
 async def get_offers_regions_by_client_id(*, client_id: str) -> List[int]:
