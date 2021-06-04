@@ -1,6 +1,3 @@
-import asyncio
-
-
 async def test_clear_offers__clearing_disabled__clear_nothing(
     pg,
     runtime_settings,
@@ -441,61 +438,3 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
     # assert
     assert expected_exists
     assert not expected_missing
-
-
-async def test_clear_offers__offer_cleard__send_message_to_queue(
-    pg,
-    runtime_settings,
-    runner,
-    mocker,
-    queue_service
-):
-    # arrange
-    queue = await queue_service.make_tmp_queue(
-        routing_key='external-offers.offers-reporting.v1.deleted',
-    )
-
-    await runtime_settings.set({
-        'ENABLE_OUTDATED_OFFERS_CLEARING': True,
-        'ENABLE_WAS_UPDATE_CHECK': False,
-        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 1
-    })
-
-    await pg.execute(
-        """
-        INSERT INTO public.parsed_offers (
-            id,
-            user_segment,
-            source_object_id,
-            source_user_id, source_object_model,
-            is_calltracking,
-            "timestamp",
-            created_at,
-            updated_at
-        ) VALUES (
-            '2e6c73b8-3057-47cc-b50a-419052da619f',
-            'b',
-            '1_1931442443',
-            '48f05f430722c915c498113b16ba0e79',
-            '{}',
-            false,
-            now() - interval '3 day',
-            now() - interval '3 day',
-            now() - interval '3 day'
-        );
-        """
-    )
-
-    # act
-    await runner.run_python_command('clear-outdated-offers-cron')
-
-    messages = await queue.get_messages()
-    payload = messages[0].payload
-
-    # assert
-    assert len(messages) == 1
-    assert payload == {
-        'operationId': mocker.ANY,
-        'date': mocker.ANY,
-        'sourceObjectId': '1_1931442443'
-    }
