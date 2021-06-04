@@ -7,7 +7,10 @@ async def test_send_offers_for_call_called__offers_for_call_exist__correct_messa
 ):
     await pg.execute_scripts(offers_and_clients_fixture)
 
-    expected_count = await pg.fetchval('SELECT COUNT(*) FROM offers_for_call;')
+    sql = """
+    SELECT COUNT(*) FROM offers_for_call WHERE status IN ('waiting', 'inProgress', 'callMissed', 'callLater');
+    """
+    expected_count = await pg.fetchval(sql)
     await runtime_settings.set({
         'OFFERS_FOR_CALL_FOR_KAFKA_FETCH_LIMIT': 10,
         'DEFAULT_KAFKA_TIMEOUT': 2
