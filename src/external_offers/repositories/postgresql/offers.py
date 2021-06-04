@@ -680,6 +680,13 @@ async def iterate_over_offers_for_call_sorted(
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
+        ).where(
+            offers_for_call.c.status.in_([
+                OfferStatus.waiting.value,
+                OfferStatus.in_progress.value,
+                OfferStatus.call_missed.value,
+                OfferStatus.call_later.value,
+            ])
         ).order_by(
             offers_for_call.c.created_at.asc(),
             offers_for_call.c.id.asc()
