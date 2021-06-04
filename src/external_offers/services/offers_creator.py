@@ -13,6 +13,7 @@ from tornado import gen
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus
 from external_offers.enums import UserSegment
+from external_offers.enums.object_model import Category
 from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql import (
     delete_old_waiting_offers_for_call,
@@ -29,7 +30,9 @@ from external_offers.repositories.postgresql import (
     save_client,
     save_offer_for_call,
     set_synced_and_fetch_parsed_offers_chunk,
-    set_waiting_offers_priority_by_client_ids,
+    set_waiting_offers_priority_by_offer_ids,
+    get_waiting_offers_for_call_by_client_id,
+    get_waiting_offers_for_call,
 )
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 
@@ -38,6 +41,59 @@ logger = logging.getLogger(__name__)
 
 _CLEAR_CLIENT_PRIORITY = -1
 _NO_ACTIVE = 0
+SALE_PRIORITY = str(runtime_settings.SALE_PRIORITY)
+RENT_PRIORITY = str(runtime_settings.RENT_PRIORITY)
+FLAT_PRIORITY = str(runtime_settings.FLAT_PRIORITY)
+SUBURBAN_PRIORITY = str(runtime_settings.SUBURBAN_PRIORITY)
+COMMERCIAL_PRIORITY = str(runtime_settings.COMMERCIAL_PRIORITY)
+
+
+mapping_offer_categories_to_priority = {
+    Category.bed_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.building_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.building_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.business_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.business_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.car_service_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.car_service_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.commercial_land_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.commercial_land_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.cottage_rent: RENT_PRIORITY + SUBURBAN_PRIORITY,
+    Category.cottage_sale: SALE_PRIORITY + SUBURBAN_PRIORITY,
+    Category.daily_bed_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.daily_flat_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.daily_house_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.daily_room_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.domestic_services_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.domestic_services_sale: SALE_PRIORITY + FLAT_PRIORITY,
+    Category.flat_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.flat_sale: SALE_PRIORITY + FLAT_PRIORITY,
+    Category.flat_share_sale: SALE_PRIORITY + FLAT_PRIORITY,
+    Category.free_appointment_object_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.free_appointment_object_sale: SALE_PRIORITY + FLAT_PRIORITY,
+    Category.garage_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.garage_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.house_rent: RENT_PRIORITY + SUBURBAN_PRIORITY,
+    Category.house_sale: SALE_PRIORITY + SUBURBAN_PRIORITY,
+    Category.house_share_rent: RENT_PRIORITY + SUBURBAN_PRIORITY,
+    Category.house_share_sale: SALE_PRIORITY + SUBURBAN_PRIORITY,
+    Category.industry_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.industry_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.land_sale: SALE_PRIORITY + SUBURBAN_PRIORITY,
+    Category.new_building_flat_sale: SALE_PRIORITY + FLAT_PRIORITY,
+    Category.office_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.office_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.public_catering_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.public_catering_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.room_rent: RENT_PRIORITY + FLAT_PRIORITY,
+    Category.room_sale: SALE_PRIORITY + FLAT_PRIORITY,
+    Category.shopping_area_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.shopping_area_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.townhouse_rent: RENT_PRIORITY + SUBURBAN_PRIORITY,
+    Category.townhouse_sale: SALE_PRIORITY + SUBURBAN_PRIORITY,
+    Category.warehouse_rent: RENT_PRIORITY + COMMERCIAL_PRIORITY,
+    Category.warehouse_sale: SALE_PRIORITY + COMMERCIAL_PRIORITY,
+}
 
 
 async def clear_waiting_offers_and_clients_with_off_count_limits() -> None:
@@ -107,18 +163,19 @@ async def clear_and_prioritize_waiting_offers() -> None:
     clients_counts = await get_waiting_offer_counts_by_clients()
 
     clients_priority: Dict[int, List[str]] = defaultdict(list)
+    offers_priority: Dict[int, List[str]] = defaultdict(list)
     to_clear: List[str] = []
 
     for client_count in clients_counts:
         with new_operation_id():
-            priority = await prioritize_client(
+            client_priority = await prioritize_client(
                 client_id=client_count.client_id,
                 client_count=client_count.waiting_offers_count
             )
-        if priority == _CLEAR_CLIENT_PRIORITY:
+        if client_priority == _CLEAR_CLIENT_PRIORITY:
             to_clear.append(client_count.client_id)
         else:
-            clients_priority[priority].append(client_count.client_id)
+            clients_priority[client_count.client_id] = client_priority
 
     logger.warning(
         'После приоритизации %d клиентов будут удалены',
@@ -129,16 +186,26 @@ async def clear_and_prioritize_waiting_offers() -> None:
         clients_ids=to_clear
     )
 
-    for priority, client_ids in clients_priority.items():
+    waiting_offers_for_call = await get_waiting_offers_for_call()
+    for waiting_offer_for_call in waiting_offers_for_call:
+        category = waiting_offer_for_call.category
+        client_id = waiting_offer_for_call.client_id
+        client_priority = clients_priority[client_id]
+        offer_priority = mapping_offer_categories_to_priority[category]
+        final_priority = str(client_priority) + str(offer_priority)
+        offers_priority[final_priority] += waiting_offer_for_call.id
+
+    for final_priority, offer_ids in offers_priority.items():
+
         logger.warning(
-            'После приоритизации для %d клиентов будет задан приоритет %d',
-            len(client_ids),
-            priority
+            'После приоритизации для %d обьявлений будет задан приоритет %d',
+            len(offer_ids),
+            final_priority
         )
 
-        await set_waiting_offers_priority_by_client_ids(
-            client_ids=client_ids,
-            priority=priority
+        await set_waiting_offers_priority_by_offer_ids(
+            offer_ids=offer_ids,
+            priority=final_priority
         )
 
 
@@ -195,9 +262,9 @@ async def sync_offers_for_call_with_parsed():
                 status=client.status,
                 created_at=now,
                 synced_at=parsed_offer.timestamp,
-                parsed_created_at=parsed_offer.created_at
+                parsed_created_at=parsed_offer.created_at,
+                category=parsed_offer.category,
             )
-
             await save_offer_for_call(offer=offer)
 
     await clear_and_prioritize_waiting_offers()

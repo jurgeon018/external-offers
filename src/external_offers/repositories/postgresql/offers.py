@@ -12,6 +12,7 @@ from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
 from external_offers.enums import OfferStatus
 from external_offers.mappers import client_waiting_offers_count_mapper, enriched_offer_mapper, offer_mapper
+from external_offers.mappers import offer_for_prioritization_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
@@ -385,10 +386,10 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: str) -> Optional[Li
     return rows
 
 
-async def set_waiting_offers_priority_by_client_ids(*, client_ids: List[str], priority: int) -> None:
-    for client_ids_chunk in iterate_over_list_by_chunks(
-        iterable=client_ids,
-        chunk_size=settings.SET_WAITING_OFFERS_PRIORITY_BY_CLIENT_IDS_CHUNK
+async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: List[str], priority: int) -> None:
+    for offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=offer_ids,
+        chunk_size=settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):
         sql = (
             update(
@@ -397,14 +398,12 @@ async def set_waiting_offers_priority_by_client_ids(*, client_ids: List[str], pr
                 priority=priority
             ).where(
                 and_(
-                    offers_for_call.c.client_id.in_(client_ids_chunk),
-                    offers_for_call.c.status == OfferStatus.waiting.value
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    offers_for_call.c.id.in_(offer_ids_chunk),
                 )
             )
         )
-
         query, params = asyncpgsa.compile_query(sql)
-
         await pg.get().execute(query, *params)
 
 
@@ -644,6 +643,33 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
     query, params = asyncpgsa.compile_query(sql)
     rows = await pg.get().fetch(query, *params)
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
+
+
+async def get_waiting_offers_for_call_by_client_id(client_id):
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call]
+        ).where(
+            and_(
+                offers_for_call.c.status == OfferStatus.waiting.value,
+                offers_for_call.c.client_id == client_id,
+            )
+        )
+    )
+    waiting_offers_for_call = await pg.get().fetchrow(query, *params)
+    return waiting_offers_for_call
+
+
+async def get_waiting_offers_for_call():
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call]
+        ).where(
+            offers_for_call.c.status == OfferStatus.waiting.value,
+        )
+    )
+    rows = await pg.get().fetchrow(query, *params)
+    return [offer_for_prioritization_mapper.map_from(row) for row in rows]
 
 
 async def get_offers_regions_by_client_id(*, client_id: str) -> List[int]:

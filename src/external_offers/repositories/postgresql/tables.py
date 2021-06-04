@@ -50,6 +50,7 @@ offers_for_call = sa.Table(
     sa.Column('started_at', sa.TIMESTAMP),
     sa.Column('promocode', sa.VARCHAR),
     sa.Column('priority', sa.INT),
+    sa.Column('category', sa.VARCHAR, nullable=True),
     sa.Column('last_call_id', sa.VARCHAR),
     sa.Column('parsed_created_at', sa.TIMESTAMP, nullable=False),
 )

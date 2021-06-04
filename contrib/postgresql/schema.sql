@@ -36,6 +36,7 @@ CREATE TABLE offers_for_call
     started_at    timestamp with time zone,
     promocode     varchar,
     priority      int,
+    category      varchar,
     last_call_id  varchar,
     parsed_created_at   timestamp with time zone not null default current_timestamp
 );
