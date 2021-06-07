@@ -7,7 +7,10 @@ async def test_send_parsed_offers_called__parsed_offers_exist__correct_messages_
 ):
     await pg.execute_scripts(parsed_offers_fixture)
 
-    expected_count = await pg.fetchval('SELECT COUNT(*) FROM parsed_offers;')
+    sql = '''
+    SELECT COUNT(*) FROM parsed_offers WHERE created_at >= now() - interval '1 days';
+    '''
+    expected_count = await pg.fetchval(sql)
     await runtime_settings.set({
         'PARSED_OFFERS_FOR_KAFKA_FETCH_LIMIT': 10,
         'DEFAULT_KAFKA_TIMEOUT': 2

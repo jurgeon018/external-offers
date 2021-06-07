@@ -26,7 +26,6 @@ MAXIMUM_ACTIVE_OFFERS_PROPORTION: int = 1
 
 ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL: bool = False
 CLEAR_WAITING_OFFERS_FOR_CALL_AGE_IN_DAYS: int = 14
-CLEAR_OUTDATED_PARSED_OFFERS_CHUNK: int = 10000
 
 # Настройки приоритетов в очереди
 # Приоритет собирается из 4 частей в число равной длины для всех заданий(для сквозной сортировки)
