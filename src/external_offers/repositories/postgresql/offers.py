@@ -410,12 +410,6 @@ async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: List[str], prio
         )
 
         query, params = asyncpgsa.compile_query(sql)
-        # print("------------")
-        # print("query: ", query)
-        # print("params: ", params)
-        # print("priority: ", priority)
-        # print("offer_ids_chunk: ", offer_ids_chunk)
-        # print("------------")
         await pg.get().execute(query, *params)
 
 
