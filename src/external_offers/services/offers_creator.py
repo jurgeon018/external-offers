@@ -43,7 +43,6 @@ _CLEAR_CLIENT_PRIORITY = -1
 _NO_ACTIVE = 0
 
 
-
 async def clear_waiting_offers_and_clients_with_off_count_limits() -> None:
     await gen.multi([
         delete_waiting_clients_with_count_off_limit(),

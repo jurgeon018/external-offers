@@ -31,7 +31,7 @@ offer_type_to_object_type: Dict[OfferType, ObjectTypeId] = {
     OfferType.commercial: ObjectTypeId.commercial,
     OfferType.flat: ObjectTypeId.flat,
     OfferType.suburban: ObjectTypeId.suburbian,
-    OfferType.newobject: ObjectTypeId.flat
+    OfferType.newobject: ObjectTypeId.flat,
 }
 
 
@@ -65,7 +65,9 @@ def map_save_request_to_promocode_detail_model(
                 polygon_ids=settings.PROMOCODE_POLYGONS,
                 duration_in_days=DurationInDays.thirty if settings.ENABLE_THIRTY_DURATION else DurationInDays.seven,
                 debit_count=1,
-                object_type_id=offer_type_to_object_type[request.offer_type]
+                # object_type_id=offer_type_to_object_type[request.offer_type]
+                object_type_id=ObjectTypeId.any,
+
             )]
         )
     )

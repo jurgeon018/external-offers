@@ -651,21 +651,6 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
 
 
-async def get_waiting_offers_for_call_by_client_id(client_id):
-    query, params = asyncpgsa.compile_query(
-        select(
-            [offers_for_call]
-        ).where(
-            and_(
-                offers_for_call.c.status == OfferStatus.waiting.value,
-                offers_for_call.c.client_id == client_id,
-            )
-        )
-    )
-    waiting_offers_for_call = await pg.get().fetchrow(query, *params)
-    return waiting_offers_for_call
-
-
 async def get_waiting_offers_for_call() -> AsyncGenerator[OfferForPrioritization, None]:
     query, params = asyncpgsa.compile_query(
         select(
@@ -677,7 +662,7 @@ async def get_waiting_offers_for_call() -> AsyncGenerator[OfferForPrioritization
     cursor = await pg.get().cursor(
         query,
         *params,
-        prefetch=5000,
+        prefetch=runtime_settings.WAITING_OFFERS_FOR_CALL_PREFETCH,
     )
     async for row in cursor:
         yield offer_for_prioritization_mapper.map_from(row)

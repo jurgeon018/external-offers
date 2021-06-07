@@ -39,8 +39,11 @@ class Offer:
 @dataclass
 class OfferForPrioritization:
     id: str
+    """Идентификатор объявления для публикации"""
     client_id: str
+    """Идентификатор клиента"""
     category: Category
+    """Категория обьявления"""
 
 
 @dataclass
