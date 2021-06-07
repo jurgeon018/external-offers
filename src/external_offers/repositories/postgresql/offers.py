@@ -394,7 +394,7 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: str) -> Optional[Li
 async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: List[str], priority: int) -> None:
     for offer_ids_chunk in iterate_over_list_by_chunks(
         iterable=offer_ids,
-        chunk_size=settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
+        chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):
         sql = (
             update(
