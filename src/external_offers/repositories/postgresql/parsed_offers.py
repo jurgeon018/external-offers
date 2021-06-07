@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
@@ -180,7 +180,7 @@ async def get_latest_updated_at() -> Optional[datetime]:
 async def delete_outdated_parsed_offers(
     *,
     updated_at_border: datetime
-) -> List[str]:
+) -> None:
     po = tables.parsed_offers.alias()
 
     sql = (
@@ -194,21 +194,14 @@ async def delete_outdated_parsed_offers(
                     ]
                 ).where(
                     po.c.updated_at < updated_at_border
-                ).limit(
-                    settings.CLEAR_OUTDATED_PARSED_OFFERS_CHUNK
                 )
             )
-        ).returning(
-            po.c.source_object_id
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
 
-    rows = await pg.get().fetch(query, *params)
-    return [
-        row['source_object_id'] for row in rows
-    ]
+    await pg.get().execute(query, *params)
 
 
 async def iterate_over_parsed_offers_sorted(
@@ -219,6 +212,8 @@ async def iterate_over_parsed_offers_sorted(
     query, params = asyncpgsa.compile_query(
         select(
             [po]
+        ).where(
+            po.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
         ).order_by(
             po.c.created_at.asc(),
             po.c.id.asc()
