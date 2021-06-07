@@ -138,6 +138,8 @@ async def clear_and_prioritize_waiting_offers() -> None:
             category = waiting_offer_for_call.category
             client_id = waiting_offer_for_call.client_id
             offer_id = waiting_offer_for_call.id
+            if clients_priority.get(client_id) is None:
+                continue
             final_priority = str(clients_priority[client_id]) + str(mapping_offer_categories_to_priority[category])
             offers_priority[int(final_priority)].append(offer_id)
 
