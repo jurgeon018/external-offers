@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Optional
 
 from external_offers.enums import OfferStatus
+from external_offers.enums.object_model import Category
 
 
 @dataclass
@@ -31,6 +32,18 @@ class Offer:
     """Последний идентификатор звонка"""
     started_at: Optional[datetime] = None
     """Дата попадания объявления в работу"""
+    category: Optional[str] = None
+    """Категория обьявления"""
+
+
+@dataclass
+class OfferForPrioritization:
+    id: str
+    """Идентификатор объявления для публикации"""
+    client_id: str
+    """Идентификатор клиента"""
+    category: Category
+    """Категория обьявления"""
 
 
 @dataclass

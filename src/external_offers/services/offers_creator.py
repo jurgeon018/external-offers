@@ -10,6 +10,7 @@ from cian_json import json
 from simple_settings import settings
 from tornado import gen
 
+from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus
 from external_offers.enums import UserSegment
@@ -26,12 +27,14 @@ from external_offers.repositories.postgresql import (
     get_offers_parsed_ids_by_parsed_ids,
     get_offers_regions_by_client_id,
     get_waiting_offer_counts_by_clients,
+    get_waiting_offers_for_call,
     save_client,
     save_offer_for_call,
     set_synced_and_fetch_parsed_offers_chunk,
-    set_waiting_offers_priority_by_client_ids,
+    set_waiting_offers_priority_by_offer_ids,
 )
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
+from external_offers.services.prioritizers.prioritize_offer import mapping_offer_categories_to_priority
 
 
 logger = logging.getLogger(__name__)
@@ -106,19 +109,20 @@ async def clear_and_prioritize_waiting_offers() -> None:
 
     clients_counts = await get_waiting_offer_counts_by_clients()
 
-    clients_priority: Dict[int, List[str]] = defaultdict(list)
+    clients_priority: Dict[int, int] = {}
+    offers_priority: Dict[int, List[str]] = defaultdict(list)
     to_clear: List[str] = []
 
     for client_count in clients_counts:
         with new_operation_id():
-            priority = await prioritize_client(
+            client_priority = await prioritize_client(
                 client_id=client_count.client_id,
                 client_count=client_count.waiting_offers_count
             )
-        if priority == _CLEAR_CLIENT_PRIORITY:
+        if client_priority == _CLEAR_CLIENT_PRIORITY:
             to_clear.append(client_count.client_id)
         else:
-            clients_priority[priority].append(client_count.client_id)
+            clients_priority[client_count.client_id] = client_priority
 
     logger.warning(
         'После приоритизации %d клиентов будут удалены',
@@ -129,15 +133,25 @@ async def clear_and_prioritize_waiting_offers() -> None:
         clients_ids=to_clear
     )
 
-    for priority, client_ids in clients_priority.items():
+    async with pg.get().transaction():
+        async for waiting_offer_for_call in get_waiting_offers_for_call():
+            category = waiting_offer_for_call.category
+            client_id = waiting_offer_for_call.client_id
+            offer_id = waiting_offer_for_call.id
+            if clients_priority.get(client_id) is not None:
+                final_priority = str(clients_priority[client_id]) + str(mapping_offer_categories_to_priority[category])
+                offers_priority[int(final_priority)].append(offer_id)
+
+    for priority, offer_ids in offers_priority.items():
+
         logger.warning(
-            'После приоритизации для %d клиентов будет задан приоритет %d',
-            len(client_ids),
+            'После приоритизации для %d обьявлений будет задан приоритет %d',
+            len(offer_ids),
             priority
         )
 
-        await set_waiting_offers_priority_by_client_ids(
-            client_ids=client_ids,
+        await set_waiting_offers_priority_by_offer_ids(
+            offer_ids=offer_ids,
             priority=priority
         )
 
@@ -195,9 +209,9 @@ async def sync_offers_for_call_with_parsed():
                 status=client.status,
                 created_at=now,
                 synced_at=parsed_offer.timestamp,
-                parsed_created_at=parsed_offer.created_at
+                parsed_created_at=parsed_offer.created_at,
+                category=parsed_offer.category,
             )
-
             await save_offer_for_call(offer=offer)
 
     await clear_and_prioritize_waiting_offers()

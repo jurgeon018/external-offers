@@ -243,3 +243,5 @@ class ParsedOfferForCreation:
     """Номера телефонов в виде JSON списка"""
     user_segment: str
     """Сегмент пользователя"""
+    category: str
+    """Категория"""

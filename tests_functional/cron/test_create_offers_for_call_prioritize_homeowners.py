@@ -84,7 +84,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
-        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_CATEGORIES': [
+            'flatSale', 'flatRent', 'officeRent', 'houseRent', 'officeSale', 'houseSale'
+        ],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -152,7 +154,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 322005
+    assert offer_row['priority'] == 32200512
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -236,7 +238,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
-        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_CATEGORIES': [
+            'flatSale', 'flatRent', 'officeRent', 'houseRent', 'officeSale', 'houseSale'
+        ],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -305,7 +309,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 322004
+    assert offer_row['priority'] == 32200412
     assert client_row['cian_user_id'] is None
 
 
@@ -358,7 +362,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
-        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_CATEGORIES': [
+            'flatSale', 'flatRent', 'officeRent', 'houseRent', 'officeSale', 'houseSale'
+        ],
         'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -392,7 +398,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 322004
+    assert offer_row['priority'] == 32200412
     assert client_row['cian_user_id'] is None
 
 
