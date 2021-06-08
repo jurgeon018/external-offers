@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List, Optional
 
 from external_offers.enums import ClientStatus, UserSegment
@@ -30,6 +31,8 @@ class Client:
     """Количество звонков"""
     main_account_chosen: bool = False
     """Флаг выбора главного аккаунта(аккаунт выбранный при первом сохранении черновика)"""
+    next_call: Optional[datetime] = None
+    """Дата следующего звонка клиенту"""
 
 
 @dataclass

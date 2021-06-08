@@ -385,7 +385,7 @@ async def test_create_offers__exist_parsed_offer_synced__doesnt_create_offer(
     assert row is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__created_offer_inherited_client_status(
+async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,
@@ -433,7 +433,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
         SELECT * FROM offers_for_call WHERE parsed_id = '894ff03a-573c-4bac-8599-28f17e68a0d8'
         """
     )
-    assert row['status'] == 'inProgress'
+    assert row is None
 
 
 async def test_create_offers__exist_suitable_parsed_offer_with_declined_client__doesnt_create_offer(
