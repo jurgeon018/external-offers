@@ -20,6 +20,7 @@ from external_offers.repositories.postgresql import (
     delete_waiting_clients_by_client_ids,
     delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_by_client_ids,
+    delete_offers_without_client_phones,
     delete_waiting_offers_for_call_with_count_off_limit,
     get_client_by_avito_user_id,
     get_client_by_client_id,
@@ -59,14 +60,14 @@ async def clear_waiting_offers_and_clients_by_clients_ids(
         settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL
     ):
         await delete_old_waiting_offers_for_call()
-
     await gen.multi([
         delete_waiting_offers_for_call_by_client_ids(
             client_ids=clients_ids
         ),
         delete_waiting_clients_by_client_ids(
             client_ids=clients_ids
-        )
+        ),
+        delete_offers_without_client_phones(),
     ])
 
 

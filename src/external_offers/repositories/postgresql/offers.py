@@ -513,6 +513,26 @@ async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: List[str])
     await pg.get().execute(query, *params)
 
 
+async def delete_offers_without_client_phones() -> None:
+    offers_and_clients = outerjoin(
+            left=offers_for_call,
+            right=clients,
+            onclause=offers_for_call.c.client_id == clients.c.client_id
+    )
+
+    sql = (
+        delete(
+            offers_and_clients
+        ).where(
+            offers_and_clients.c.client_phones == []
+        )
+    )
+
+    query, params = asyncpgsa.compile_query(sql)
+
+    await pg.get().execute(query, *params)
+
+
 async def delete_waiting_offers_for_call_by_parsed_ids(*, parsed_ids: List[str]) -> None:
     sql = (
         delete(
