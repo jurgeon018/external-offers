@@ -520,11 +520,19 @@ async def delete_offers_without_client_phones() -> None:
             onclause=offers_for_call.c.client_id == clients.c.client_id
     )
 
+    '''
+    DELETE FROM offers_for_call
+    OUTER JOIN 
+    WHERE offers_for_call
+    '''
     sql = (
         delete(
             offers_and_clients
         ).where(
-            offers_and_clients.c.client_phones == []
+            or_(
+                offers_and_clients.c.client_phones == [],
+                offers_and_clients.c.client_phones.is_(None),
+            )
         )
     )
 
