@@ -30,7 +30,6 @@ from external_offers.repositories.postgresql.offers import (
     delete_old_waiting_offers_for_call,
     delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_by_client_ids,
-    delete_offers_without_client_phones,
     delete_waiting_offers_for_call_by_parsed_ids,
     delete_waiting_offers_for_call_with_count_off_limit,
     delete_waiting_offers_for_call_without_parsed_offers,

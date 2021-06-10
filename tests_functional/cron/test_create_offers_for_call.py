@@ -309,7 +309,10 @@ async def test_create_offers__exist_parsed_offer_without_phones__doesnt_create_o
     # assert
     row = await pg.fetchrow(
         """
-        SELECT * FROM offers_for_call WHERE parsed_id = '2e6c73b8-3057-47cc-b50a-419052da619f'
+        SELECT * FROM offers_for_call
+        WHERE parsed_id = '2e6c73b8-3057-47cc-b50a-419052da619f'
+        OR    parsed_id = '3e6c73b8-3057-47cc-b50a-419052da619f'
+        OR    parsed_id = '4e6c73b8-3057-47cc-b50a-419052da619f';
         """
     )
     assert row is None
@@ -678,41 +681,6 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_maximum_exceed
     row = await pg.fetchrow(
         """
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
-        """
-    )
-    assert row is None
-
-
-async def test_create_offers__exist_parsed_offer_with_empty_phone__doesnt_create_offer(
-    pg,
-    runtime_settings,
-    runner,
-    parsed_offers_fixture_for_offers_for_call_test,
-    users_mock
-):
-    # arrange
-    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
-    await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
-        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
-        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
-        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-    })
-    await users_mock.add_stub(
-        method='GET',
-        path='/v2/get-users-by-phone/',
-        response=MockResponse(
-            body={'users': []}
-        ),
-    )
-
-    # act
-    await runner.run_python_command('create-offers-for-call')
-
-    # assert
-    row = await pg.fetchrow(
-        """
-        SELECT * FROM offers_for_call WHERE parsed_id = '3e6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
     assert row is None
