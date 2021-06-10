@@ -307,7 +307,7 @@ async def test_create_offers__exist_parsed_offer_without_phones__doesnt_create_o
     await runner.run_python_command('create-offers-for-call')
 
     # assert
-    row = await pg.fetchrow(
+    row = await pg.fetch(
         """
         SELECT * FROM offers_for_call
         WHERE parsed_id = '2e6c73b8-3057-47cc-b50a-419052da619f'
@@ -315,6 +315,7 @@ async def test_create_offers__exist_parsed_offer_without_phones__doesnt_create_o
         OR    parsed_id = '4e6c73b8-3057-47cc-b50a-419052da619f';
         """
     )
+
     assert row is None
 
 
