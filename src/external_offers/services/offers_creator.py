@@ -59,14 +59,13 @@ async def clear_waiting_offers_and_clients_by_clients_ids(
         settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL
     ):
         await delete_old_waiting_offers_for_call()
-
     await gen.multi([
         delete_waiting_offers_for_call_by_client_ids(
             client_ids=clients_ids
         ),
         delete_waiting_clients_by_client_ids(
             client_ids=clients_ids
-        )
+        ),
     ])
 
 
