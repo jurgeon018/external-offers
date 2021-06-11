@@ -179,7 +179,7 @@ async def sync_offers_for_call_with_parsed():
                 avito_user_id=parsed_offer.source_user_id
             )
             if client:
-                if not(client.status.is_waiting or client.next_call is not None):
+                if not client.status.is_waiting:
                     continue
             else:
                 client_phones = json.loads(parsed_offer.phones)

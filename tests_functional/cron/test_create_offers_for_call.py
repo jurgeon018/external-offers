@@ -407,12 +407,15 @@ async def test_create_offers__exist_suitable_parsed_offer_with_existing_client__
             client_phones,
             client_email,
             operator_user_id,
-            status
+            status,
+            next_call
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         """,
         ['5', '555bb598767308327e1dffbe7241486c', 'Иван Петров',
-         ['+79812333292'], 'nemoy@gmail.com', 60024640, 'inProgress']
+         ['+79812333292'], 'nemoy@gmail.com', 60024640, 'accepted',
+         datetime.now(),
+         ]
     )
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
