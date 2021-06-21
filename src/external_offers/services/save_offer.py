@@ -28,6 +28,8 @@ from external_offers.repositories.monolith_cian_profileapi import promocode_appl
 from external_offers.repositories.monolith_cian_profileapi.entities import ApplyParameters
 from external_offers.repositories.monolith_cian_service import api_promocodes_create_promocode_group
 from external_offers.repositories.monolith_cian_service.entities import CreatePromocodeGroupResponse
+from external_offers.repositories.sms._repo import v2_send_sms
+from external_offers.repositories.sms.entities.send_sms_request_v2 import SendSmsRequestV2, MessageType
 from external_offers.repositories.postgresql import (
     get_client_by_client_id,
     get_offer_by_offer_id,
@@ -358,6 +360,23 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 ))
 
                 if updated:
+                    if is_by_home_owner:
+                        template = runtime_settings.SMS_HOMEOWNER_TEMPLATE
+                        message_type = MessageType.b2bHomeownerWelcomeInstruction
+                    else:
+                        template = runtime_settings.SMS_SMB_INSTRUCTION_TEMPLATE
+                        message_type = MessageType.b2bSmbWelcomeInstruction
+                    # TODO: get phone
+                    phone = ""
+                    v2_send_sms(
+                        SendSmsRequestV2(
+                            message_type=message_type,
+                            phone=phone,
+                            text=template,
+                            deferred_send_date=None,
+                            transaction_id=None,
+                        )
+                    )
                     await kafka_preposition_calls_producer(
                         message=CallsKafkaMessage(
                             manager_id=user_id,
@@ -378,3 +397,4 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             status=SaveOfferStatus.ok,
             message='Объявление успешно создано'
         )
+
