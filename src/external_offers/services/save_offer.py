@@ -366,12 +366,10 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     else:
                         template = runtime_settings.SMS_SMB_INSTRUCTION_TEMPLATE
                         message_type = MessageType.b2bSmbWelcomeInstruction
-                    # TODO: get phone
-                    phone = ""
                     v2_send_sms(
                         SendSmsRequestV2(
                             message_type=message_type,
-                            phone=phone,
+                            phone=phone_number,
                             text=template,
                             deferred_send_date=None,
                             transaction_id=None,
