@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 import pytz
 from cian_core.runtime_settings import runtime_settings
@@ -219,6 +219,16 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 user_segment = await get_segment_by_client_id(
                     client_id=request.client_id
                 )
+
+                segment_to_is_by_homeowner: Dict[Any, bool] = {
+                    'a': False,
+                    'b': False,
+                    'c': False,
+                    'd': True
+                }
+                is_by_home_owner = (request.publish_as_homeowner
+                    if request.publish_as_homeowner is not None
+                    else segment_to_is_by_homeowner.get(user_segment, False))
                 add_draft_result: AddDraftResult = await v2_announcements_draft(
                     map_save_request_to_publication_model(
                         request=request,
@@ -226,7 +236,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         geocode_response=geocode_response,
                         phone_number=phone_number,
                         category=category,
-                        user_segment=user_segment
+                        is_by_home_owner=is_by_home_owner,
                     )
                 )
                 offer_cian_id = add_draft_result.realty_object_id
