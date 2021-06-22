@@ -14,7 +14,8 @@ async def test_save_offer__correct_json__status_ok(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 123123
@@ -150,7 +151,8 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 12345
@@ -438,6 +440,7 @@ async def test_save_offer__create_new_account_passed__cian_user_id_overwritten(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_users_by_phone_mock,
 ):
     # arrange
     await pg.execute(
@@ -623,6 +626,7 @@ async def test_save_offer__geocode_timeout__logged_timeout(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     user_id = 123123
@@ -719,7 +723,8 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     user_id = 123123
 
@@ -831,7 +836,8 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     user_id = 123123
@@ -958,6 +964,7 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     user_id = 123123
@@ -1061,6 +1068,7 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     await runtime_settings.set({
@@ -1172,6 +1180,7 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         monolith_cian_service_mock,
         offers_and_clients_fixture,
         save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     client_id = '5'
@@ -1365,7 +1374,8 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 123123
@@ -1667,7 +1677,8 @@ async def test_save_offer__create_promo_failed_with_create_new_account__second_c
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        save_offer_request_body_with_create_new_account
+        save_offer_request_body_with_create_new_account,
+        get_users_by_phone_mock
 ):
     user_id = 123123
 
@@ -1789,7 +1800,8 @@ async def test_save_offer__suburban__correct_json__status_ok(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body_for_suburban
+        save_offer_request_body_for_suburban,
+        get_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 123123

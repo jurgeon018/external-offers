@@ -7,7 +7,8 @@ async def test_save_offer__register_user_by_phone_called_success__cian_user_id_s
         users_mock,
         monolith_cian_announcementapi_mock,
         offers_and_clients_fixture,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -113,7 +114,8 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
         monolith_cian_announcementapi_mock,
         monolith_cian_service_mock,
         offers_and_clients_fixture,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
@@ -281,7 +283,8 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
         monolith_cian_service_mock,
         offers_and_clients_fixture,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_users_by_phone_mock
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)

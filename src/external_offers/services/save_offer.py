@@ -42,8 +42,8 @@ from external_offers.repositories.postgresql import (
     set_offer_promocode_by_offer_id,
     try_to_lock_offer_and_return_status,
 )
-from external_offers.repositories.users import v1_register_user_by_phone
-from external_offers.repositories.users.entities import RegisterUserByPhoneRequest, RegisterUserByPhoneResponse
+from external_offers.repositories.users import v1_register_user_by_phone, v2_get_users_by_phone
+from external_offers.repositories.users.entities import RegisterUserByPhoneRequest, RegisterUserByPhoneResponse, V2GetUsersByPhone
 
 
 category_mapping_key = Tuple[SaveOfferTerm, SaveOfferCategory, DealType, OfferType]
@@ -130,7 +130,9 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
                 cian_user_id = request.account_for_draft or cian_user_id
                 if request.create_new_account or not cian_user_id:
-                    if not phone_number_has_been_registered_recently(phone_number):
+                    # cian_user_id = 12835367
+                    # if True:
+                    if not (cian_user_id := await cian_user_id_of_recently_registrated_account(phone_number)):
                         register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
                             RegisterUserByPhoneRequest(
                                 phone=phone_number,
@@ -371,18 +373,16 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
 
-from external_offers.repositories.users import v2_get_users_by_phone
-from external_offers.repositories.users.entities import V2GetUsersByPhone
-
-
-async def phone_number_has_been_registered_recently(phone_number):
+async def cian_user_id_of_recently_registrated_account(phone_number):
     response = await v2_get_users_by_phone(
         V2GetUsersByPhone(
             phone=phone_number
         )
     )
     users = response.users or []
+    minutes = runtime_settings.RECENTLY_REGISTRATION_CHECK_DELAY
+    dt = datetime.utcnow() - timedelta(minutes=minutes)
     for user in users:
-        if user.creation_date >= datetime.now() - timedelta(hours=2):
-            return True
-    return False
+        if user.creation_date >= dt:
+            return user.cian_user_id
+    return None

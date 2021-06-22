@@ -3,6 +3,11 @@
 from asyncio import sleep
 from pathlib import Path
 
+from external_offers.settings.base import RECENTLY_REGISTRATION_CHECK_DELAY
+from cian_functional_test_utils.pytest_plugin import MockResponse
+from datetime import datetime, timedelta
+
+
 import pytest
 
 
@@ -159,3 +164,34 @@ async def save_offer_request_body_for_suburban():
         'areaUnitType': 'sotka',
         'landStatus': 'individualHousingConstruction'
     }
+
+
+@pytest.fixture
+async def get_users_by_phone_mock(users_mock):
+    creationDate = datetime.utcnow() - timedelta(minutes=RECENTLY_REGISTRATION_CHECK_DELAY - 1)
+    creationDate = datetime.strftime(creationDate, '%Y-%m-%d %H:%M:%S.%f')
+
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': [{
+                'id': 12835367,
+                'cianUserId': 12835367,
+                'mainAnnouncementsRegionId': 2,
+                'email': 'forias@yandex.ru',
+                'state': 'active',
+                'stateChangeReason': None,
+                'secretCode': '8321',
+                'birthday': '0001-01-01T00:00:00+02:31',
+                'firstName': 'Александровна',
+                'lastName': 'Ирина',
+                'city': None,
+                'userName': None,
+                'creationDate': creationDate,
+                'ip': 167772335,
+                'externalUserSourceType': None,
+                'isAgent': False
+            }]}
+        ),
+    )
