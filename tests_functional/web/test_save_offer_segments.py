@@ -21,7 +21,7 @@ async def test_save_offer__smb_segment_and_publish_as_homeowner__is_by_homeowner
         segment,
         publish_as_homeowner,
         is_by_homeowner,
-        get_users_by_phone_mock,
+        get_old_users_by_phone_mock,
 ):
     # arrange
     operator_user_id = 123123

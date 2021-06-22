@@ -15,7 +15,7 @@ async def test_save_offer__correct_json__expected_message_to_kafka(
         monolith_cian_profileapi_mock,
         runtime_settings,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 60024640
@@ -164,7 +164,7 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
         monolith_cian_profileapi_mock,
         runtime_settings,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 60024640
@@ -595,7 +595,7 @@ async def test_save_offer__kafka_publish_timeout__expected_log_warning(
         runtime_settings,
         logs,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 60024640

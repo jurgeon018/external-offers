@@ -15,7 +15,7 @@ async def test_save_offer__correct_json__status_ok(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 123123
@@ -152,7 +152,7 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 12345
@@ -440,7 +440,7 @@ async def test_save_offer__create_new_account_passed__cian_user_id_overwritten(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock,
+        get_old_users_by_phone_mock,
 ):
     # arrange
     await pg.execute(
@@ -626,7 +626,7 @@ async def test_save_offer__geocode_timeout__logged_timeout(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     user_id = 123123
@@ -724,7 +724,7 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     user_id = 123123
 
@@ -837,7 +837,7 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     user_id = 123123
@@ -964,7 +964,7 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     user_id = 123123
@@ -1068,7 +1068,7 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     await runtime_settings.set({
@@ -1180,7 +1180,7 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         monolith_cian_service_mock,
         offers_and_clients_fixture,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     client_id = '5'
@@ -1375,7 +1375,7 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 123123
@@ -1678,7 +1678,7 @@ async def test_save_offer__create_promo_failed_with_create_new_account__second_c
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body_with_create_new_account,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     user_id = 123123
 
@@ -1801,7 +1801,7 @@ async def test_save_offer__suburban__correct_json__status_ok(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body_for_suburban,
-        get_users_by_phone_mock
+        get_old_users_by_phone_mock
 ):
     # arrange
     operator_user_id = 123123
@@ -2023,3 +2023,32 @@ async def test_save_offer__geocode_failed__billing_region_id_is_zero(
     # assert
     assert response.data['message'] == 'Не удалось обработать переданный в объявлении адрес. Невозможно опубликовать '\
                                        'объявление с таким адресом, т.к.это не поддерживается биллингом'
+
+
+async def test_save_offer__recent_user_exists__v1_register_user_by_phone_is_not_called(
+        pg,
+        http,
+        runtime_settings,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_profileapi_mock,
+        get_recent_users_by_phone_mock,
+        save_offer_request_body_with_create_new_account,
+):
+    # arrange
+    stub = get_recent_users_by_phone_mock
+    user_id = 123123
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body_with_create_new_account,
+        headers={
+            'X-Real-UserId': user_id
+        }
+    )
+
+    # assert
+    requests = await get_recent_users_by_phone_mock.get_requests()
+    assert len(requests) == 0

@@ -12,7 +12,7 @@ async def test_save_offer__multiple_save_offer_requests__second_returns_already_
         monolith_cian_announcementapi_mock,
         offers_and_clients_fixture,
         save_offer_request_body,
-        get_users_by_phone_mock,
+        get_old_users_by_phone_mock,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
