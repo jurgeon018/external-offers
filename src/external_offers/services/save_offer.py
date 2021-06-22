@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Tuple
 
 import pytz
@@ -130,13 +130,14 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
                 cian_user_id = request.account_for_draft or cian_user_id
                 if request.create_new_account or not cian_user_id:
-                    register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
-                        RegisterUserByPhoneRequest(
-                            phone=phone_number,
-                            sms_template=settings.SMS_REGISTRATION_TEMPLATE
+                    if not phone_number_has_been_registered_recently(phone_number):
+                        register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
+                            RegisterUserByPhoneRequest(
+                                phone=phone_number,
+                                sms_template=settings.SMS_REGISTRATION_TEMPLATE
+                            )
                         )
-                    )
-                    cian_user_id = register_response.user_data.id
+                        cian_user_id = register_response.user_data.id
 
                 await set_main_cian_user_id_by_client_id(
                     cian_user_id=cian_user_id,
@@ -368,3 +369,20 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             status=SaveOfferStatus.ok,
             message='Объявление успешно создано'
         )
+
+
+from external_offers.repositories.users import v2_get_users_by_phone
+from external_offers.repositories.users.entities import V2GetUsersByPhone
+
+
+async def phone_number_has_been_registered_recently(phone_number):
+    response = await v2_get_users_by_phone(
+        V2GetUsersByPhone(
+            phone=phone_number
+        )
+    )
+    users = response.users or []
+    for user in users:
+        if user.creation_date >= datetime.now() - timedelta(hours=2):
+            return True
+    return False
