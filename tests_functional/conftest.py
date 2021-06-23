@@ -7,8 +7,6 @@ from pathlib import Path
 import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
-from external_offers.settings.base import RECENTLY_REGISTRATION_CHECK_DELAY
-
 
 @pytest.fixture(autouse=True, scope='session')
 async def start(pg):
@@ -191,8 +189,9 @@ def v2_get_users_by_phone_response(minutes):
 @pytest.fixture
 async def get_recent_users_by_phone_mock(
     users_mock,
+    runtime_settings,
 ):
-    minutes = RECENTLY_REGISTRATION_CHECK_DELAY - 1
+    minutes = 120 - 1
 
     await users_mock.add_stub(
         method='GET',
@@ -206,8 +205,9 @@ async def get_recent_users_by_phone_mock(
 @pytest.fixture
 async def get_old_users_by_phone_mock(
     users_mock,
+    runtime_settings,
 ):
-    minutes = RECENTLY_REGISTRATION_CHECK_DELAY + 1
+    minutes = 120 + 1
 
     stub = await users_mock.add_stub(
         method='GET',

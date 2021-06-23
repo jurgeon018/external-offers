@@ -11,13 +11,17 @@ async def test_save_offer__correct_json__status_ok(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body,
-        get_old_users_by_phone_mock
+        get_old_users_by_phone_mock,
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
@@ -148,6 +152,7 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
@@ -155,6 +160,9 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 12345
     offer_id = '1'
     client_id = '1'
@@ -629,6 +637,9 @@ async def test_save_offer__geocode_timeout__logged_timeout(
         get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await runtime_settings.set({
@@ -713,8 +724,8 @@ async def test_save_offer__geocode_timeout__logged_timeout(
     )
 
     # assert
-    assert any([f'Таймаут при обработке переданного адреса "{address}" для объявления {offer_id}' in line
-                for line in logs.get_lines()])
+    assert any((f'Таймаут при обработке переданного адреса "{address}" для объявления {offer_id}' in line
+                for line in logs.get_lines()))
 
 
 async def test_save_offer__create_promo_failed__status_promo_creation_failed(
@@ -833,6 +844,7 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
@@ -840,6 +852,9 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await pg.execute(
@@ -962,11 +977,15 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
         get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await pg.execute(
@@ -1072,6 +1091,9 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
 ):
     # arrange
     await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
+    await runtime_settings.set({
         'MONOLITH_CIAN_ANNOUNCEMENTAPI_TIMEOUT': 1
     })
     user_id = 123123
@@ -1175,6 +1197,7 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         http,
         pg,
         users_mock,
+        runtime_settings,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         monolith_cian_service_mock,
@@ -1183,6 +1206,9 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     client_id = '5'
     offer_id = '8'
     user_id = 123123
@@ -1378,6 +1404,9 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
 
@@ -1674,12 +1703,16 @@ async def test_save_offer__save_missing_offer__returns_error(
 async def test_save_offer__create_promo_failed_with_create_new_account__second_call_registration_not_called(
         pg,
         http,
+        runtime_settings,
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body_with_create_new_account,
         get_old_users_by_phone_mock
 ):
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await pg.execute(
@@ -1797,6 +1830,7 @@ async def test_save_offer__suburban__correct_json__status_ok(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
@@ -1804,6 +1838,9 @@ async def test_save_offer__suburban__correct_json__status_ok(
         get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
@@ -2028,6 +2065,7 @@ async def test_save_offer__geocode_failed__billing_region_id_is_zero(
 async def test_save_offer__recent_user_exists__v1_register_user_by_phone_is_not_called(
         pg,
         http,
+        runtime_settings,
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
@@ -2036,6 +2074,9 @@ async def test_save_offer__recent_user_exists__v1_register_user_by_phone_is_not_
         get_recent_users_by_phone_mock,
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
@@ -2160,6 +2201,7 @@ async def test_save_offer__recent_user_exists__v1_register_user_by_phone_is_not_
 async def test_save_offer__old_user_exists__client_is_registered(
         pg,
         http,
+        runtime_settings,
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
@@ -2168,6 +2210,9 @@ async def test_save_offer__old_user_exists__client_is_registered(
         get_old_users_by_phone_mock,
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
