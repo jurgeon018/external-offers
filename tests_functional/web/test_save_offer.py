@@ -2167,7 +2167,6 @@ async def test_save_offer__old_user_exists__client_is_registered(
         save_offer_request_body_for_suburban,
         get_old_users_by_phone_mock,
 ):
-
     # arrange
     operator_user_id = 123123
     client_id = '1'
