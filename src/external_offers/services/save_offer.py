@@ -89,6 +89,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             offer_id=request.offer_id
         )
 
+
         if not offer:
             return SaveOfferResponse(
                 status=SaveOfferStatus.missing_offer,

@@ -2028,27 +2028,267 @@ async def test_save_offer__geocode_failed__billing_region_id_is_zero(
 async def test_save_offer__recent_user_exists__v1_register_user_by_phone_is_not_called(
         pg,
         http,
-        runtime_settings,
+        users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
+        save_offer_request_body_for_suburban,
         get_recent_users_by_phone_mock,
-        save_offer_request_body_with_create_new_account,
 ):
     # arrange
-    stub = get_recent_users_by_phone_mock
-    user_id = 123123
+    operator_user_id = 123123
+    client_id = '1'
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            $1,
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """,
+        [
+            client_id
+        ]
+    )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [client_id, '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
+    )
+
+    save_offer_request_body_for_suburban['clientId'] = client_id
+
+    stub = await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': 7777777,
+                    'isAgent': True
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            body={
+                'countryId': 1233,
+                'locationPath': [1],
+                'geo': {
+                    'lat': 12.0,
+                    'lng': 13.0
+                },
+                'details': []
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='POST',
+        path='/v2/announcements/draft/',
+        response=MockResponse(
+            body={
+                'realtyObjectId': 1243433,
+            }
+        ),
+    )
+    await monolith_cian_service_mock.add_stub(
+        method='POST',
+        path='/api/promocodes/create-promocode-group',
+        response=MockResponse(
+            body={
+                'id': 1,
+                'promocodes': [
+                    {
+                        'promocode': 'TESTTEST'
+                    }
+                ]
+            }
+        ),
+    )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='POST',
+        path='/promocode/apply/',
+        response=MockResponse(
+            body='success'
+        ),
+    )
 
     # act
     await http.request(
         'POST',
         '/api/admin/v1/save-offer/',
-        json=save_offer_request_body_with_create_new_account,
+        json=save_offer_request_body_for_suburban,
         headers={
-            'X-Real-UserId': user_id
+            'X-Real-UserId': operator_user_id
         }
     )
 
     # assert
-    requests = await get_recent_users_by_phone_mock.get_requests()
+    requests = await stub.get_requests()
     assert len(requests) == 0
+
+
+async def test_save_offer__old_user_exists__client_is_registered(
+        pg,
+        http,
+        users_mock,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_profileapi_mock,
+        save_offer_request_body_for_suburban,
+        get_old_users_by_phone_mock,
+):
+
+    # arrange
+    operator_user_id = 123123
+    client_id = '1'
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            $1,
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """,
+        [
+            client_id
+        ]
+    )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [client_id, '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
+    )
+
+    save_offer_request_body_for_suburban['clientId'] = client_id
+
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': 7777776,
+                    'isAgent': True
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            body={
+                'countryId': 1233,
+                'locationPath': [1],
+                'geo': {
+                    'lat': 12.0,
+                    'lng': 13.0
+                },
+                'details': []
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='POST',
+        path='/v2/announcements/draft/',
+        response=MockResponse(
+            body={
+                'realtyObjectId': 1243433,
+            }
+        ),
+    )
+    await monolith_cian_service_mock.add_stub(
+        method='POST',
+        path='/api/promocodes/create-promocode-group',
+        response=MockResponse(
+            body={
+                'id': 1,
+                'promocodes': [
+                    {
+                        'promocode': 'TESTTEST'
+                    }
+                ]
+            }
+        ),
+    )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='POST',
+        path='/promocode/apply/',
+        response=MockResponse(
+            body='success'
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body_for_suburban,
+        headers={
+            'X-Real-UserId': operator_user_id
+        }
+    )
+
+    # assert
+    client = await pg.fetchrow(
+        """
+        SELECT * FROM clients WHERE cian_user_id = '7777776';
+        """
+    )
+    assert client is not None

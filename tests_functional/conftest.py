@@ -194,14 +194,13 @@ async def get_recent_users_by_phone_mock(
 ):
     minutes = RECENTLY_REGISTRATION_CHECK_DELAY - 1
 
-    stub = await users_mock.add_stub(
+    await users_mock.add_stub(
         method='GET',
         path='/v2/get-users-by-phone/',
         response=MockResponse(
             body=v2_get_users_by_phone_response(minutes)
         ),
     )
-    return stub
 
 
 @pytest.fixture
@@ -210,10 +209,11 @@ async def get_old_users_by_phone_mock(
 ):
     minutes = RECENTLY_REGISTRATION_CHECK_DELAY + 1
 
-    await users_mock.add_stub(
+    stub = await users_mock.add_stub(
         method='GET',
         path='/v2/get-users-by-phone/',
         response=MockResponse(
             body=v2_get_users_by_phone_response(minutes)
         ),
     )
+    return stub
