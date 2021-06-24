@@ -2195,7 +2195,13 @@ async def test_save_offer__recent_user_exists__v1_register_user_by_phone_is_not_
 
     # assert
     requests = await stub.get_requests()
+    client = await pg.fetchrow(
+        """
+        SELECT * FROM clients WHERE cian_user_id = '12835367';
+        """
+    )
     assert len(requests) == 0
+    assert client is not None
 
 
 async def test_save_offer__old_user_exists__client_is_registered(

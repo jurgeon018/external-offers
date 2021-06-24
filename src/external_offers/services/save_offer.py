@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Tuple, Union
+from typing import Dict, Optional, Tuple
 
 import pytz
 from cian_core.runtime_settings import runtime_settings
@@ -379,7 +379,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
 async def cian_user_id_of_recently_registrated_account(
     phone_number: str
-) -> Union[int, None]:
+) -> Optional[int]:
     response = await v2_get_users_by_phone(
         V2GetUsersByPhone(
             phone=phone_number
