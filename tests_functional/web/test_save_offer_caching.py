@@ -5,11 +5,16 @@ async def test_save_offer__register_user_by_phone_called_success__cian_user_id_s
         http,
         pg,
         users_mock,
+        runtime_settings,
         monolith_cian_announcementapi_mock,
         offers_and_clients_fixture,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
     cian_user_id = 77777
@@ -110,12 +115,17 @@ async def test_save_offer__add_draft_called_success__offer_cian_id_saved(
         http,
         pg,
         users_mock,
+        runtime_settings,
         monolith_cian_announcementapi_mock,
         monolith_cian_service_mock,
         offers_and_clients_fixture,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     await pg.execute_scripts(offers_and_clients_fixture)
     user_id = 123123
     cian_user_id = 77777
@@ -281,7 +291,8 @@ async def test_save_offer__create_promo_called_success__promocode_saved(
         monolith_cian_service_mock,
         offers_and_clients_fixture,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)

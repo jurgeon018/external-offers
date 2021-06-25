@@ -11,12 +11,17 @@ async def test_save_offer__correct_json__status_ok(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock,
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
@@ -147,12 +152,17 @@ async def test_save_offer__correct_json__offer_status_changed_to_draft(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 12345
     offer_id = '1'
     client_id = '1'
@@ -438,6 +448,7 @@ async def test_save_offer__create_new_account_passed__cian_user_id_overwritten(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_old_users_by_phone_mock,
 ):
     # arrange
     await pg.execute(
@@ -623,8 +634,12 @@ async def test_save_offer__geocode_timeout__logged_timeout(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await runtime_settings.set({
@@ -709,8 +724,8 @@ async def test_save_offer__geocode_timeout__logged_timeout(
     )
 
     # assert
-    assert any([f'Таймаут при обработке переданного адреса "{address}" для объявления {offer_id}' in line
-                for line in logs.get_lines()])
+    assert any((f'Таймаут при обработке переданного адреса "{address}" для объявления {offer_id}' in line
+                for line in logs.get_lines()))
 
 
 async def test_save_offer__create_promo_failed__status_promo_creation_failed(
@@ -719,7 +734,8 @@ async def test_save_offer__create_promo_failed__status_promo_creation_failed(
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     user_id = 123123
 
@@ -828,12 +844,17 @@ async def test_save_offer__promo_apply_failed__status_promo_activation_failed(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await pg.execute(
@@ -956,10 +977,15 @@ async def test_save_offer__announcements_draft_failed__status_draft_failed(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await pg.execute(
@@ -1061,8 +1087,12 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
         users_mock,
         monolith_cian_announcementapi_mock,
         save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     await runtime_settings.set({
         'MONOLITH_CIAN_ANNOUNCEMENTAPI_TIMEOUT': 1
     })
@@ -1167,13 +1197,18 @@ async def test_save_offer__no_offers_in_progress_left__client_status_accepted(
         http,
         pg,
         users_mock,
+        runtime_settings,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         monolith_cian_service_mock,
         offers_and_clients_fixture,
         save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     client_id = '5'
     offer_id = '8'
     user_id = 123123
@@ -1365,9 +1400,13 @@ async def test_save_offer__offer_with_paid_region__promo_apis_called(
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body
+        save_offer_request_body,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
 
@@ -1664,11 +1703,16 @@ async def test_save_offer__save_missing_offer__returns_error(
 async def test_save_offer__create_promo_failed_with_create_new_account__second_call_registration_not_called(
         pg,
         http,
+        runtime_settings,
         users_mock,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
-        save_offer_request_body_with_create_new_account
+        save_offer_request_body_with_create_new_account,
+        get_old_users_by_phone_mock
 ):
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     user_id = 123123
 
     await pg.execute(
@@ -1786,12 +1830,17 @@ async def test_save_offer__suburban__correct_json__status_ok(
         pg,
         http,
         users_mock,
+        runtime_settings,
         monolith_cian_service_mock,
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
-        save_offer_request_body_for_suburban
+        save_offer_request_body_for_suburban,
+        get_old_users_by_phone_mock
 ):
     # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
@@ -2011,3 +2060,285 @@ async def test_save_offer__geocode_failed__billing_region_id_is_zero(
     # assert
     assert response.data['message'] == 'Не удалось обработать переданный в объявлении адрес. Невозможно опубликовать '\
                                        'объявление с таким адресом, т.к.это не поддерживается биллингом'
+
+
+async def test_save_offer__recent_user_exists__v1_register_user_by_phone_is_not_called(
+        pg,
+        http,
+        runtime_settings,
+        users_mock,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_profileapi_mock,
+        save_offer_request_body_for_suburban,
+        get_recent_users_by_phone_mock,
+):
+    # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
+    operator_user_id = 123123
+    client_id = '1'
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            $1,
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """,
+        [
+            client_id
+        ]
+    )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [client_id, '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
+    )
+
+    save_offer_request_body_for_suburban['clientId'] = client_id
+
+    stub = await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': 7777777,
+                    'isAgent': True
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            body={
+                'countryId': 1233,
+                'locationPath': [1],
+                'geo': {
+                    'lat': 12.0,
+                    'lng': 13.0
+                },
+                'details': []
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='POST',
+        path='/v2/announcements/draft/',
+        response=MockResponse(
+            body={
+                'realtyObjectId': 1243433,
+            }
+        ),
+    )
+    await monolith_cian_service_mock.add_stub(
+        method='POST',
+        path='/api/promocodes/create-promocode-group',
+        response=MockResponse(
+            body={
+                'id': 1,
+                'promocodes': [
+                    {
+                        'promocode': 'TESTTEST'
+                    }
+                ]
+            }
+        ),
+    )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='POST',
+        path='/promocode/apply/',
+        response=MockResponse(
+            body='success'
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body_for_suburban,
+        headers={
+            'X-Real-UserId': operator_user_id
+        }
+    )
+
+    # assert
+    requests = await stub.get_requests()
+    client = await pg.fetchrow(
+        """
+        SELECT * FROM clients WHERE cian_user_id = '12835367';
+        """
+    )
+    assert len(requests) == 0
+    assert client is not None
+
+
+async def test_save_offer__old_user_exists__client_is_registered(
+        pg,
+        http,
+        runtime_settings,
+        users_mock,
+        monolith_cian_service_mock,
+        monolith_cian_announcementapi_mock,
+        monolith_cian_profileapi_mock,
+        save_offer_request_body_for_suburban,
+        get_old_users_by_phone_mock,
+):
+    # arrange
+    await runtime_settings.set({
+        'RECENTLY_REGISTRATION_CHECK_DELAY': 120
+    })
+    operator_user_id = 123123
+    client_id = '1'
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '1',
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            $1,
+            'inProgress',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """,
+        [
+            client_id
+        ]
+    )
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            avito_user_id,
+            client_name,
+            client_phones,
+            client_email,
+            operator_user_id,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        [client_id, '555bb598767308327e1dffbe7241486c', 'Иван Петров',
+         ['+79812333292'], 'nemoy@gmail.com', operator_user_id, 'inProgress']
+    )
+
+    save_offer_request_body_for_suburban['clientId'] = client_id
+
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/register-user-by-phone/',
+        response=MockResponse(
+            body={
+                'hasManyAccounts': False,
+                'isRegistered': True,
+                'userData': {
+                    'email': 'testemail@cian.ru',
+                    'id': 7777776,
+                    'isAgent': True
+                }
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='GET',
+        path='/v1/geo/geocode/',
+        response=MockResponse(
+            body={
+                'countryId': 1233,
+                'locationPath': [1],
+                'geo': {
+                    'lat': 12.0,
+                    'lng': 13.0
+                },
+                'details': []
+            }
+        ),
+    )
+    await monolith_cian_announcementapi_mock.add_stub(
+        method='POST',
+        path='/v2/announcements/draft/',
+        response=MockResponse(
+            body={
+                'realtyObjectId': 1243433,
+            }
+        ),
+    )
+    await monolith_cian_service_mock.add_stub(
+        method='POST',
+        path='/api/promocodes/create-promocode-group',
+        response=MockResponse(
+            body={
+                'id': 1,
+                'promocodes': [
+                    {
+                        'promocode': 'TESTTEST'
+                    }
+                ]
+            }
+        ),
+    )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='POST',
+        path='/promocode/apply/',
+        response=MockResponse(
+            body='success'
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/save-offer/',
+        json=save_offer_request_body_for_suburban,
+        headers={
+            'X-Real-UserId': operator_user_id
+        }
+    )
+
+    # assert
+    client = await pg.fetchrow(
+        """
+        SELECT * FROM clients WHERE cian_user_id = '7777776';
+        """
+    )
+    assert client is not None

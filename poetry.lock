@@ -427,7 +427,7 @@ description = "Фреймворк функциональных тестов"
 name = "cian-functional-test-utils"
 optional = false
 python-versions = ">=3.8"
-version = "0.69.0"
+version = "0.70.0"
 
 [package.dependencies]
 aiohttp = ">=3.6"
@@ -2324,6 +2324,19 @@ url = "https://nexus.cian.tech/repository/cian/simple"
 
 [[package]]
 category = "main"
+description = "Typing stubs for pytz"
+name = "types-pytz"
+optional = false
+python-versions = "*"
+version = "2021.1.0"
+
+[package.source]
+reference = "cian"
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+
+[[package]]
+category = "main"
 description = "Backported and Experimental Type Hints for Python 3.5+"
 name = "typing-extensions"
 optional = false
@@ -2488,7 +2501,7 @@ type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
 
 [metadata]
-content-hash = "862d6931a323bd9b9ac45c7fa1f6cf61496c9e00f785e326cf8a39e23a5abb72"
+content-hash = "383cceac155d06bd2191075d0f6b07acbb7dfc8353b8406bd06267a57cd64d19"
 lock-version = "1.1"
 python-versions = "^3.9"
 
@@ -2628,8 +2641,8 @@ cian-features = [
     {file = "cian_features-1.0.0-py3-none-any.whl", hash = "md5:6ea994718d8117100e621151695537a9"},
 ]
 cian-functional-test-utils = [
-    {file = "cian-functional-test-utils-0.69.0.tar.gz", hash = "md5:98c3a5c07c7093747af8d765f95d22f2"},
-    {file = "cian_functional_test_utils-0.69.0-py3-none-any.whl", hash = "md5:ac220a87c609a65ada9f7013841b7e96"},
+    {file = "cian-functional-test-utils-0.70.0.tar.gz", hash = "md5:ee07732ffbd9124f1fe218e71c94b5f2"},
+    {file = "cian_functional_test_utils-0.70.0-py3-none-any.whl", hash = "md5:2d2967c65d9c869be0060aec787f92a8"},
 ]
 cian-helpers = [
     {file = "cian-helpers-1.1.0.tar.gz", hash = "md5:6e833fb63cf3cc6e20f80d598a4808a5"},
@@ -3566,6 +3579,10 @@ typed-ast = [
     {file = "typed_ast-1.4.3-cp39-cp39-win32.whl", hash = "sha256:209596a4ec71d990d71d5e0d312ac935d86930e6eecff6ccc7007fe54d703808"},
     {file = "typed_ast-1.4.3-cp39-cp39-win_amd64.whl", hash = "sha256:9c6d1a54552b5330bc657b7ef0eae25d00ba7ffe85d9ea8ae6540d2197a3788c"},
     {file = "typed_ast-1.4.3.tar.gz", hash = "sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65"},
+]
+types-pytz = [
+    {file = "types-pytz-2021.1.0.tar.gz", hash = "sha256:addfa2a1a27b324b6beb422faa4737962532bbab3793481d5bdebbffb8f9f243"},
+    {file = "types_pytz-2021.1.0-py3-none-any.whl", hash = "sha256:ec9555397f91518b2cf028ed837a69e388763c6a5e58abffaf37732f9c581a46"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.0-py2-none-any.whl", hash = "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497"},
