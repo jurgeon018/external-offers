@@ -62,7 +62,7 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
             status='inProgress',
             created_at=datetime.now(pytz.utc),
             parsed_created_at=datetime.now(pytz.utc),
-            synced_at=datetime.now(pytz.utc)
+            synced_at=datetime.now(pytz.utc),
         )
     )
     exist_mock.return_value = future(False)

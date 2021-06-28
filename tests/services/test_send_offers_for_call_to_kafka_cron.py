@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 from cian_kafka import KafkaProducerError
 from cian_test_utils import future
 
+from external_offers import pg
 from external_offers.services.send_offers_for_call_to_kafka import send_offers_for_call_to_kafka
 
 
@@ -17,6 +18,7 @@ async def test_send_offers_for_call__kafka_error__expect_warning(mocker):
     logger_mock = mocker.patch('external_offers.services.send_offers_for'
                                '_call_to_kafka.logger')
 
+    pg.get().fetch.return_value = future(None)
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()
     iterate_return_value.__aiter__.return_value = [
@@ -51,7 +53,7 @@ async def test_send_offers_for_call__producer_success_and_failed__expect_statsd_
 
     statsd_incr_mock = mocker.patch('external_offers.services.send_offers_for'
                                     '_call_to_kafka.statsd.incr')
-
+    pg.get().fetch.return_value = future(None)
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()
     iterate_return_value.__aiter__.return_value = [

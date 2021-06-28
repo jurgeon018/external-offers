@@ -34,6 +34,8 @@ class Offer:
     """Дата попадания объявления в работу"""
     category: Optional[str] = None
     """Категория обьявления"""
+    synced_with_kafka: bool = False
+    """Было отправлено в кафку"""
 
 
 @dataclass
