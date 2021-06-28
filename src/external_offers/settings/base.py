@@ -127,7 +127,7 @@ OFFER_TASK_CREATION_FILTER_SUBAGENTS: bool = True
 OFFER_TASK_CREATION_FILTER_EMLS: bool = True
 
 SMS_REGISTRATION_TEMPLATE: str = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
-
+RECENTLY_REGISTRATION_CHECK_DELAY: int = 120
 PROMOCODE_GROUP_NAME: str = 'packageForAvitoImmigrant_test'
 PROMOCODE_POLYGONS: List[int] = [2000]
 

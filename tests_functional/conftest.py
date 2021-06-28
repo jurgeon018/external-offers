@@ -1,9 +1,11 @@
 # pylint: disable=redefined-outer-name
 
 from asyncio import sleep
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
+from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -159,3 +161,59 @@ async def save_offer_request_body_for_suburban():
         'areaUnitType': 'sotka',
         'landStatus': 'individualHousingConstruction'
     }
+
+
+def v2_get_users_by_phone_response(minutes):
+    creationDate = datetime.utcnow() - timedelta(minutes=minutes)
+    creationDate = datetime.strftime(creationDate, '%Y-%m-%d %H:%M:%S.%f')
+    return {'users': [{
+        'id': 12835367,
+        'cianUserId': 12835367,
+        'mainAnnouncementsRegionId': 2,
+        'email': 'forias@yandex.ru',
+        'state': 'active',
+        'stateChangeReason': None,
+        'secretCode': '8321',
+        'birthday': '0001-01-01T00:00:00+02:31',
+        'firstName': 'Александровна',
+        'lastName': 'Ирина',
+        'city': None,
+        'userName': None,
+        'creationDate': creationDate,
+        'ip': 167772335,
+        'externalUserSourceType': None,
+        'isAgent': False
+    }]}
+
+
+@pytest.fixture
+async def get_recent_users_by_phone_mock(
+    users_mock,
+    runtime_settings,
+):
+    minutes = 120 - 1
+
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body=v2_get_users_by_phone_response(minutes)
+        ),
+    )
+
+
+@pytest.fixture
+async def get_old_users_by_phone_mock(
+    users_mock,
+    runtime_settings,
+):
+    minutes = 120 + 1
+
+    stub = await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body=v2_get_users_by_phone_response(minutes)
+        ),
+    )
+    return stub
