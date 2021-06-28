@@ -1,6 +1,6 @@
 import logging
-from datetime import datetime
-from typing import Dict, Tuple
+from datetime import datetime, timedelta
+from typing import Dict, Optional, Tuple
 
 import pytz
 from cian_core.runtime_settings import runtime_settings
@@ -42,8 +42,12 @@ from external_offers.repositories.postgresql import (
     set_offer_promocode_by_offer_id,
     try_to_lock_offer_and_return_status,
 )
-from external_offers.repositories.users import v1_register_user_by_phone
-from external_offers.repositories.users.entities import RegisterUserByPhoneRequest, RegisterUserByPhoneResponse
+from external_offers.repositories.users import v1_register_user_by_phone, v2_get_users_by_phone
+from external_offers.repositories.users.entities import (
+    RegisterUserByPhoneRequest,
+    RegisterUserByPhoneResponse,
+    V2GetUsersByPhone,
+)
 
 
 category_mapping_key = Tuple[SaveOfferTerm, SaveOfferCategory, DealType, OfferType]
@@ -84,6 +88,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         offer = await get_offer_by_offer_id(
             offer_id=request.offer_id
         )
+
 
         if not offer:
             return SaveOfferResponse(
@@ -129,14 +134,16 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     )
 
                 cian_user_id = request.account_for_draft or cian_user_id
+
                 if request.create_new_account or not cian_user_id:
-                    register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
-                        RegisterUserByPhoneRequest(
-                            phone=phone_number,
-                            sms_template=settings.SMS_REGISTRATION_TEMPLATE
+                    if not (cian_user_id := await cian_user_id_of_recently_registrated_account(phone_number)):
+                        register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
+                            RegisterUserByPhoneRequest(
+                                phone=phone_number,
+                                sms_template=runtime_settings.SMS_REGISTRATION_TEMPLATE
+                            )
                         )
-                    )
-                    cian_user_id = register_response.user_data.id
+                        cian_user_id = register_response.user_data.id
 
                 await set_main_cian_user_id_by_client_id(
                     cian_user_id=cian_user_id,
@@ -368,3 +375,20 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             status=SaveOfferStatus.ok,
             message='Объявление успешно создано'
         )
+
+
+async def cian_user_id_of_recently_registrated_account(
+    phone_number: str
+) -> Optional[int]:
+    response = await v2_get_users_by_phone(
+        V2GetUsersByPhone(
+            phone=phone_number
+        )
+    )
+    users = response.users or []
+    minutes = runtime_settings.RECENTLY_REGISTRATION_CHECK_DELAY
+    dt = datetime.utcnow() - timedelta(minutes=minutes)
+    for user in users:
+        if user.creation_date >= dt:
+            return user.cian_user_id
+    return None

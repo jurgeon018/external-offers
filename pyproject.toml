@@ -33,6 +33,7 @@ jinja2 = "^2.11.2"
 asyncpgsa = "^0.26"
 cian-cache = "^1.4.0"
 sqlalchemy = "<1.4"
+types-pytz = "^2021.1.0"
 
 [tool.poetry.dev-dependencies]
 cian-functional-test-utils = {version = "*", extras = ["python", "postgres", "kafka", "rabbitmq", "cache"]}
