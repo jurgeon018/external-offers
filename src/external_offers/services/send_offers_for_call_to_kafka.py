@@ -1,6 +1,7 @@
 import logging
 import uuid
 from datetime import datetime
+from typing import List
 
 import pytz
 from cian_core.statsd import statsd
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 async def send_offers_for_call_to_kafka():
     async with pg.get().transaction():
 
-        offer_ids = []
+        offer_ids: List[int] = []
 
         async for offer in iterate_over_offers_for_call_sorted(
             prefetch=settings.OFFERS_FOR_CALL_FOR_KAFKA_FETCH_LIMIT
@@ -47,4 +48,5 @@ async def send_offers_for_call_to_kafka():
             statsd.incr(
                 stat='send-offers-for-call-to-kafka.success',
             )
+
         await sync_offers_for_call_with_kafka_by_ids(offer_ids)

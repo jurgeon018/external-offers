@@ -734,14 +734,28 @@ async def iterate_over_offers_for_call_sorted(
 
 
 async def sync_offers_for_call_with_kafka_by_ids(offer_ids):
-    sql = (
-        update(
-            offers_for_call
-        ).values(
-            synced_with_kafka=True
-        ).where(
-            offers_for_call.c.id.in_(offer_ids)
+    non_final_statuses = [
+        OfferStatus.waiting.value,
+        OfferStatus.in_progress.value,
+        OfferStatus.call_missed.value,
+        OfferStatus.call_later.value,
+    ]
+    for offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=offer_ids,
+        chunk_size=runtime_settings.SYNC_OFFERS_FOR_CALL_WITH_KAFKA_BY_IDS_CHUNK
+    ):
+        sql = (
+            update(
+                offers_for_call
+            ).values(
+                synced_with_kafka=True
+            ).where(
+                and_(
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                    # проставляет флаг только заданиям в финальных статусах
+                    offers_for_call.c.status.notin_(non_final_statuses),
+                )
+            )
         )
-    )
-    query, params = asyncpgsa.compile_query(sql)
-    await pg.get().fetch(query, *params)
+        query, params = asyncpgsa.compile_query(sql)
+        await pg.get().fetch(query, *params)
