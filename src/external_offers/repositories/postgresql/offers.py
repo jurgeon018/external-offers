@@ -5,7 +5,7 @@ import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
-from sqlalchemy import and_, delete, func, or_, outerjoin, over, select, update
+from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
@@ -699,16 +699,26 @@ async def iterate_over_offers_for_call_sorted(
     *,
     prefetch=settings.DEFAULT_PREFETCH,
 ) -> AsyncGenerator[Offer, None]:
+    non_final_statuses = [
+        OfferStatus.waiting.value,
+        OfferStatus.in_progress.value,
+        OfferStatus.call_missed.value,
+        OfferStatus.call_later.value,
+    ]
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
         ).where(
-            offers_for_call.c.status.in_([
-                OfferStatus.waiting.value,
-                OfferStatus.in_progress.value,
-                OfferStatus.call_missed.value,
-                OfferStatus.call_later.value,
-            ])
+            or_(
+                # все обьявления в нефинальных статусах отправляются в кафку повторно
+                offers_for_call.c.status.in_(non_final_statuses),
+                # все обьявления с финальным статусом отправляются в кафку единажды
+                # (отправляются только те, которые еще не были отправлены в кафку)
+                and_(
+                    offers_for_call.c.status.notin_(non_final_statuses),
+                    not_(offers_for_call.c.synced_with_kafka),
+                ),
+            )
         ).order_by(
             offers_for_call.c.created_at.asc(),
             offers_for_call.c.id.asc()
@@ -721,3 +731,31 @@ async def iterate_over_offers_for_call_sorted(
     )
     async for row in cursor:
         yield offer_mapper.map_from(row)
+
+
+async def sync_offers_for_call_with_kafka_by_ids(offer_ids):
+    non_final_statuses = [
+        OfferStatus.waiting.value,
+        OfferStatus.in_progress.value,
+        OfferStatus.call_missed.value,
+        OfferStatus.call_later.value,
+    ]
+    for offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=offer_ids,
+        chunk_size=runtime_settings.SYNC_OFFERS_FOR_CALL_WITH_KAFKA_BY_IDS_CHUNK
+    ):
+        sql = (
+            update(
+                offers_for_call
+            ).values(
+                synced_with_kafka=True
+            ).where(
+                and_(
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                    # проставляет флаг только заданиям в финальных статусах
+                    offers_for_call.c.status.notin_(non_final_statuses),
+                )
+            )
+        )
+        query, params = asyncpgsa.compile_query(sql)
+        await pg.get().fetch(query, *params)

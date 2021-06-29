@@ -38,6 +38,7 @@ CREATE TABLE offers_for_call
     priority      int,
     category      varchar,
     last_call_id  varchar,
+    synced_with_kafka   boolean                  not null default false,
     parsed_created_at   timestamp with time zone not null default current_timestamp
 );
 
