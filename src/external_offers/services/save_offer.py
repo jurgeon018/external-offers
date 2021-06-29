@@ -410,13 +410,15 @@ async def send_sms(
     else:
         message_type = MessageType.b2b_smb_welcome_instruction.value
         text = runtime_settings.SMB_WELCOME_INSTRUCTION
-    v2_send_sms(
-        SendSmsRequestV2(
-            message_type=message_type,
-            phone=phone_number,
-            text=text,
-        )
-    )
+    print('message_type:', message_type)
+    print('text:', text)
+    # v2_send_sms(
+    #     SendSmsRequestV2(
+    #         message_type=message_type,
+    #         phone=phone_number,
+    #         text=text,
+    #     )
+    # )
 
 
 async def cian_user_id_of_recently_registrated_account(

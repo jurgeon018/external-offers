@@ -2342,3 +2342,4 @@ async def test_save_offer__old_user_exists__client_is_registered(
         """
     )
     assert client is not None
+
