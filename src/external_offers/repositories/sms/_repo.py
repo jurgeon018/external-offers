@@ -12,6 +12,7 @@ from cian_http.api_client import Api
 
 from . import entities
 
+
 _api = Api(microservice_name='sms')
 v2_send_sms = _api.make_client(
     path='/v2/send-sms/',

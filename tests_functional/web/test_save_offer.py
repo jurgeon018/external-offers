@@ -68,13 +68,12 @@ async def test_save_offer__correct_json__status_ok(
 
     save_offer_request_body['clientId'] = client_id
 
-
     sms_stub = await sms_mock.add_stub(
         method='POST',
         path='/v2/send-sms/',
         response=MockResponse(
             body={
-                "sms_id": 1,
+                'sms_id': 1,
             }
         ),
     )
@@ -2355,4 +2354,3 @@ async def test_save_offer__old_user_exists__client_is_registered(
         """
     )
     assert client is not None
-

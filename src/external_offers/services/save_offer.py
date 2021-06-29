@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple, Any
+from typing import Any, Dict, Optional, Tuple
 
 import pytz
 from cian_core.runtime_settings import runtime_settings
@@ -17,8 +17,6 @@ from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.mappers import map_save_request_to_promocode_detail_model, map_save_request_to_publication_model
 from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer
-from external_offers.repositories.sms import v2_send_sms
-from external_offers.repositories.sms.entities.send_sms_request_v2 import SendSmsRequestV2, MessageType
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     AddDraftResult,
@@ -44,6 +42,8 @@ from external_offers.repositories.postgresql import (
     set_offer_promocode_by_offer_id,
     try_to_lock_offer_and_return_status,
 )
+from external_offers.repositories.sms import v2_send_sms
+from external_offers.repositories.sms.entities.send_sms_request_v2 import MessageType, SendSmsRequestV2
 from external_offers.repositories.users import v1_register_user_by_phone, v2_get_users_by_phone
 from external_offers.repositories.users.entities import (
     RegisterUserByPhoneRequest,
@@ -409,7 +409,7 @@ def send_sms(
                 text=text,
             )
         )
-    except Exception as exc:
+    except ApiClientException as exc:
         logger.warning(
             'Ошибка при отправке инструкции по смс на номер %s: %s',
             phone_number,
