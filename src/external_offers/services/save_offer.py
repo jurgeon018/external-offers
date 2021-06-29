@@ -348,8 +348,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
         updated = await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
-        if updated:
-            send_sms(phone_number, is_by_home_owner)
+        # if updated:
+        await send_instruction(is_by_home_owner, phone_number)
 
         statsd_incr_if_not_test_user(
             metric='save_offer.success',
@@ -391,18 +391,24 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
 
-def send_sms(
-    phone_number: str,
-    is_by_home_owner: bool
-) -> None:
+async def send_instruction(is_by_home_owner: str, phone_number: str):
     if is_by_home_owner:
         message_type = MessageType.b2b_homeowner_welcome_instruction
         text = runtime_settings.HOMEOWNER_WELCOME_INSTRUCTION
     else:
         message_type = MessageType.b2b_smb_welcome_instruction
         text = runtime_settings.SMB_WELCOME_INSTRUCTION
+
+    await send_sms(message_type, text, phone_number)
+
+
+async def send_sms(
+    message_type: str,
+    text: str,
+    phone_number: str,
+) -> None:
     try:
-        v2_send_sms(
+        await v2_send_sms(
             SendSmsRequestV2(
                 message_type=message_type,
                 phone=phone_number,

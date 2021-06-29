@@ -1,6 +1,8 @@
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
+from external_offers.settings.base import SMB_WELCOME_INSTRUCTION
+
 
 async def test_save_offer__without_x_real_userid__returns_400(http):
     # act && assert
@@ -140,6 +142,12 @@ async def test_save_offer__correct_json__status_ok(
         ),
     )
 
+    expected_data = {
+        'messageType': 'b2bSmbWelcomeInstruction',
+        'phone': '+79812333292',
+        'text': SMB_WELCOME_INSTRUCTION,
+    }
+
     # act
     response = await http.request(
         'POST',
@@ -156,8 +164,8 @@ async def test_save_offer__correct_json__status_ok(
     offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
     assert offers_event_log[0]['status'] == 'draft'
     assert offers_event_log[0]['offer_id'] == '1'
-    requests = await sms_stub.get_requests()
-    assert len(requests) == 1
+    request = await sms_stub.get_request()
+    assert request.data == expected_data
 
 
 async def test_save_offer__correct_json__offer_status_changed_to_draft(
