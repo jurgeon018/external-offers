@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Dict
 
 from external_offers.entities.save_offer import SaveOfferRequest
 from external_offers.helpers.uuid import generate_uppercase_guid
@@ -72,13 +72,6 @@ save_offer_sale_type_to_sale_type: Dict[str, SaleType] = {
     'alternative': SaleType.alternative
 }
 
-segment_to_is_by_homeowner: Dict[Any, bool] = {
-    'a': False,
-    'b': False,
-    'c': False,
-    'd': True
-}
-
 
 def map_save_request_to_publication_model(
     *,
@@ -87,12 +80,8 @@ def map_save_request_to_publication_model(
     geocode_response: GeoCodeAnnouncementResponse,
     phone_number: str,
     category: Category,
-    user_segment: Optional[str]
+    is_by_home_owner: bool
 ) -> PublicationModel:
-    is_by_home_owner = (request.publish_as_homeowner
-                        if request.publish_as_homeowner is not None
-                        else segment_to_is_by_homeowner.get(user_segment, False))
-
     return PublicationModel(
         model=ObjectModel(
             bargain_terms=BargainTerms(

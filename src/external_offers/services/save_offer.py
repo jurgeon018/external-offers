@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Any
 
 import pytz
 from cian_core.runtime_settings import runtime_settings
@@ -17,6 +17,8 @@ from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.mappers import map_save_request_to_promocode_detail_model, map_save_request_to_publication_model
 from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer
+from external_offers.repositories.sms import v2_send_sms
+from external_offers.repositories.sms.entities.send_sms_request_v2 import SendSmsRequestV2, MessageType
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     AddDraftResult,
@@ -226,6 +228,16 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 user_segment = await get_segment_by_client_id(
                     client_id=request.client_id
                 )
+                segment_to_is_by_homeowner: Dict[Any, bool] = {
+                    'a': False,
+                    'b': False,
+                    'c': False,
+                    'd': True
+                }
+                is_by_home_owner = (request.publish_as_homeowner
+                                    if request.publish_as_homeowner is not None
+                                    else segment_to_is_by_homeowner.get(user_segment, False))
+
                 add_draft_result: AddDraftResult = await v2_announcements_draft(
                     map_save_request_to_publication_model(
                         request=request,
@@ -233,7 +245,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         geocode_response=geocode_response,
                         phone_number=phone_number,
                         category=category,
-                        user_segment=user_segment
+                        is_by_home_owner=is_by_home_owner,
                     )
                 )
                 offer_cian_id = add_draft_result.realty_object_id
@@ -336,6 +348,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
         updated = await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
+        if updated:
+            send_sms(phone_number, is_by_home_owner)
 
         statsd_incr_if_not_test_user(
             metric='save_offer.success',
@@ -375,6 +389,25 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             status=SaveOfferStatus.ok,
             message='Объявление успешно создано'
         )
+
+
+async def send_sms(
+    phone_number: str,
+    is_by_home_owner: bool
+) -> None:
+    if is_by_home_owner:
+        message_type = MessageType.b2b_homeowner_welcome_instruction.value
+        text = runtime_settings.HOMEOWNER_WELCOME_INSTRUCTION
+    else:
+        message_type = MessageType.b2b_smb_welcome_instruction.value
+        text = runtime_settings.SMB_WELCOME_INSTRUCTION
+    v2_send_sms(
+        SendSmsRequestV2(
+            message_type=message_type,
+            phone=phone_number,
+            text=text,
+        )
+    )
 
 
 async def cian_user_id_of_recently_registrated_account(
