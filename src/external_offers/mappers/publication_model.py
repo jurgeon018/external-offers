@@ -80,7 +80,11 @@ def map_save_request_to_publication_model(
     geocode_response: GeoCodeAnnouncementResponse,
     phone_number: str,
     category: Category,
+<<<<<<< HEAD
     is_by_home_owner: bool
+=======
+    is_by_home_owner: Optional[bool],
+>>>>>>> 6b2e87fb2635423393d4c3fe7c8261c2fc527433
 ) -> PublicationModel:
     return PublicationModel(
         model=ObjectModel(

@@ -30,6 +30,8 @@ from external_offers.repositories.monolith_cian_profileapi import promocode_appl
 from external_offers.repositories.monolith_cian_profileapi.entities import ApplyParameters
 from external_offers.repositories.monolith_cian_service import api_promocodes_create_promocode_group
 from external_offers.repositories.monolith_cian_service.entities import CreatePromocodeGroupResponse
+from external_offers.repositories.sms._repo import v2_send_sms
+from external_offers.repositories.sms.entities.send_sms_request_v2 import SendSmsRequestV2, MessageType
 from external_offers.repositories.postgresql import (
     get_client_by_client_id,
     get_offer_by_offer_id,
@@ -349,8 +351,15 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
         updated = await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
         if updated:
-            send_sms(phone_number, is_by_home_owner)
-
+            try:
+                send_sms(phone_number, is_by_home_owner)
+            except ApiClientException as exc:
+                logger.warning(
+                    'Ошибка при отправке инструкции по смс для объявления %s: %s',
+                    request.offer_id,
+                    exc.message
+                )
+        
         statsd_incr_if_not_test_user(
             metric='save_offer.success',
             user_id=user_id
