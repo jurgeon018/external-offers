@@ -16,6 +16,7 @@ async def test_save_offer__correct_json__status_ok(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body,
+        sms_mock,
         get_old_users_by_phone_mock,
 ):
     # arrange
@@ -67,6 +68,16 @@ async def test_save_offer__correct_json__status_ok(
 
     save_offer_request_body['clientId'] = client_id
 
+
+    sms_stub = await sms_mock.add_stub(
+        method='POST',
+        path='/v2/send-sms/',
+        response=MockResponse(
+            body={
+                "sms_id": 1,
+            }
+        ),
+    )
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -146,6 +157,8 @@ async def test_save_offer__correct_json__status_ok(
     offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
     assert offers_event_log[0]['status'] == 'draft'
     assert offers_event_log[0]['offer_id'] == '1'
+    requests = await sms_stub.get_requests()
+    assert len(requests) == 1
 
 
 async def test_save_offer__correct_json__offer_status_changed_to_draft(

@@ -30,8 +30,6 @@ from external_offers.repositories.monolith_cian_profileapi import promocode_appl
 from external_offers.repositories.monolith_cian_profileapi.entities import ApplyParameters
 from external_offers.repositories.monolith_cian_service import api_promocodes_create_promocode_group
 from external_offers.repositories.monolith_cian_service.entities import CreatePromocodeGroupResponse
-from external_offers.repositories.sms._repo import v2_send_sms
-from external_offers.repositories.sms.entities.send_sms_request_v2 import SendSmsRequestV2, MessageType
 from external_offers.repositories.postgresql import (
     get_client_by_client_id,
     get_offer_by_offer_id,
@@ -351,15 +349,8 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
         updated = await set_client_accepted_and_no_operator_if_no_offers_in_progress(client_id=request.client_id)
         if updated:
-            try:
-                send_sms(phone_number, is_by_home_owner)
-            except ApiClientException as exc:
-                logger.warning(
-                    'Ошибка при отправке инструкции по смс для объявления %s: %s',
-                    request.offer_id,
-                    exc.message
-                )
-        
+            send_sms(phone_number, is_by_home_owner)
+
         statsd_incr_if_not_test_user(
             metric='save_offer.success',
             user_id=user_id
@@ -400,25 +391,30 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
         )
 
 
-async def send_sms(
+def send_sms(
     phone_number: str,
     is_by_home_owner: bool
 ) -> None:
     if is_by_home_owner:
-        message_type = MessageType.b2b_homeowner_welcome_instruction.value
+        message_type = MessageType.b2b_homeowner_welcome_instruction
         text = runtime_settings.HOMEOWNER_WELCOME_INSTRUCTION
     else:
-        message_type = MessageType.b2b_smb_welcome_instruction.value
+        message_type = MessageType.b2b_smb_welcome_instruction
         text = runtime_settings.SMB_WELCOME_INSTRUCTION
-    print('message_type:', message_type)
-    print('text:', text)
-    # v2_send_sms(
-    #     SendSmsRequestV2(
-    #         message_type=message_type,
-    #         phone=phone_number,
-    #         text=text,
-    #     )
-    # )
+    try:
+        v2_send_sms(
+            SendSmsRequestV2(
+                message_type=message_type,
+                phone=phone_number,
+                text=text,
+            )
+        )
+    except Exception as exc:
+        logger.warning(
+            'Ошибка при отправке инструкции по смс на номер %s: %s',
+            phone_number,
+            exc.message
+        )
 
 
 async def cian_user_id_of_recently_registrated_account(
