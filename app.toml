@@ -1,10 +1,10 @@
 name = "external-offers"
 team = "b2b"
-
 [runtime]
 name = "python"
 version = "3.9"
 features.preset = "v2"
+features.disabled = ["mypy_ci_fail"]
 
 [[dependency]]
 type = "postgres"
@@ -59,3 +59,4 @@ cron = "0 7 * * *"
 type = "cron"
 command = "send-offers-for-call-to-kafka-cron"
 cron = "0 7 * * *"
+
