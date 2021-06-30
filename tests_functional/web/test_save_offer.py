@@ -1,7 +1,15 @@
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
-from external_offers.settings.base import SMB_WELCOME_INSTRUCTION
+
+SMB_WELCOME_INSTRUCTION: str = """
+Ваше объявление ожидает бесплатной публикации на Циан:
+1)Зайдите в кабинет my.cian.ru в раздел «Мои объявления.beta», вкладка «Неактивные»
+2)Отредактируйте объект: проверьте данные, загрузите фото
+3)Выберите тариф за 0₽
+4)Сохраните изменения
+Готово!
+"""
 
 
 async def test_save_offer__without_x_real_userid__returns_400(http):

@@ -4,7 +4,25 @@ from simple_settings.utils import settings_stub
 from src.external_offers.repositories.sms.entities.send_sms_request_v2 import MessageType
 
 from external_offers.services.save_offer import send_instruction, send_sms, statsd_incr_if_not_test_user
-from external_offers.settings.base import HOMEOWNER_WELCOME_INSTRUCTION, SMB_WELCOME_INSTRUCTION
+
+
+SMB_WELCOME_INSTRUCTION: str = """
+Ваше объявление ожидает бесплатной публикации на Циан:
+1)Зайдите в кабинет my.cian.ru в раздел «Мои объявления.beta», вкладка «Неактивные»
+2)Отредактируйте объект: проверьте данные, загрузите фото
+3)Выберите тариф за 0₽
+4)Сохраните изменения
+Готово!
+"""
+
+HOMEOWNER_WELCOME_INSTRUCTION: str = """
+Ваше объявление ожидает бесплатной публикации на Циан:
+1)Зайдите на my.cian.ru в раздел «Сводка», восстановите объявление с отметкой «В архиве»
+3)Отредактируйте объект: проверьте данные, загрузите фото
+4)Выберите тариф за 0₽
+5)Сохраните
+Готово!
+"""
 
 
 def test_save_offer__not_test_operator_user_id__statsd_incr_not_called(mocker):
