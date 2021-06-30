@@ -52,6 +52,7 @@ offers_for_call = sa.Table(
     sa.Column('priority', sa.INT),
     sa.Column('category', sa.VARCHAR, nullable=True),
     sa.Column('last_call_id', sa.VARCHAR),
+    sa.Column('synced_with_kafka', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('parsed_created_at', sa.TIMESTAMP, nullable=False),
 )
 
