@@ -53,7 +53,13 @@ def test_save_offer__test_operator_user_id__statsd_incr_not_called(mocker):
     assert not statsd_incr_mock.called
 
 
-async def test_save_offer__is_by_home_owner__homeowner_instruction_is_sent(mocker):
+async def test_save_offer__is_by_home_owner__homeowner_instruction_is_sent(
+    mocker,
+    fake_settings,
+):
+    await fake_settings.set(
+        HOMEOWNER_WELCOME_INSTRUCTION=HOMEOWNER_WELCOME_INSTRUCTION
+    )
     send_sms_mock = mocker.patch(
         'external_offers.services.save_offer.send_sms',
         return_value=future(),
@@ -70,7 +76,13 @@ async def test_save_offer__is_by_home_owner__homeowner_instruction_is_sent(mocke
     )
 
 
-async def test_save_offer__is_not_by_home_owner__smb_instruction_is_sent(mocker):
+async def test_save_offer__is_not_by_home_owner__smb_instruction_is_sent(
+    mocker,
+    fake_settings,
+):
+    await fake_settings.set(
+        SMB_WELCOME_INSTRUCTION=SMB_WELCOME_INSTRUCTION
+    )
     send_sms_mock = mocker.patch(
         'external_offers.services.save_offer.send_sms',
         return_value=future()
