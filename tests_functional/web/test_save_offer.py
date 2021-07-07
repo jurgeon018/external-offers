@@ -2,6 +2,16 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
+SMB_WELCOME_INSTRUCTION: str = """
+Ваше объявление ожидает бесплатной публикации на Циан:\n
+1)Зайдите в кабинет my.cian.ru в раздел «Мои объявления.beta», вкладка «Неактивные»\n
+2)Отредактируйте объект: проверьте данные, загрузите фото\n
+3)Выберите тариф за 0Р\n
+4)Сохраните\n
+Готово!
+"""
+
+
 async def test_save_offer__without_x_real_userid__returns_400(http):
     # act && assert
     await http.request('POST', '/api/admin/v1/save-offer/', expected_status=400)
@@ -16,6 +26,7 @@ async def test_save_offer__correct_json__status_ok(
         monolith_cian_announcementapi_mock,
         monolith_cian_profileapi_mock,
         save_offer_request_body,
+        sms_mock,
         get_old_users_by_phone_mock,
 ):
     # arrange
@@ -67,6 +78,15 @@ async def test_save_offer__correct_json__status_ok(
 
     save_offer_request_body['clientId'] = client_id
 
+    sms_stub = await sms_mock.add_stub(
+        method='POST',
+        path='/v2/send-sms/',
+        response=MockResponse(
+            body={
+                'sms_id': 1,
+            }
+        ),
+    )
     await users_mock.add_stub(
         method='POST',
         path='/v1/register-user-by-phone/',
@@ -130,6 +150,12 @@ async def test_save_offer__correct_json__status_ok(
         ),
     )
 
+    expected_data = {
+        'messageType': 'b2bSmbWelcomeInstruction',
+        'phone': '+79812333292',
+        'text': SMB_WELCOME_INSTRUCTION,
+    }
+
     # act
     response = await http.request(
         'POST',
@@ -146,6 +172,8 @@ async def test_save_offer__correct_json__status_ok(
     offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
     assert offers_event_log[0]['status'] == 'draft'
     assert offers_event_log[0]['offer_id'] == '1'
+    request = await sms_stub.get_request()
+    assert request.data == expected_data
 
 
 async def test_save_offer__correct_json__offer_status_changed_to_draft(

@@ -127,6 +127,23 @@ OFFER_TASK_CREATION_FILTER_SUBAGENTS: bool = True
 OFFER_TASK_CREATION_FILTER_EMLS: bool = True
 
 SMS_REGISTRATION_TEMPLATE: str = 'Создана учетная запись на ЦИАН. Для входа используйте номер телефона'
+SMB_WELCOME_INSTRUCTION: str = """
+Ваше объявление ожидает бесплатной публикации на Циан:\n
+1)Зайдите в кабинет my.cian.ru в раздел «Мои объявления.beta», вкладка «Неактивные»\n
+2)Отредактируйте объект: проверьте данные, загрузите фото\n
+3)Выберите тариф за 0Р\n
+4)Сохраните\n
+Готово!
+"""
+HOMEOWNER_WELCOME_INSTRUCTION: str = """
+Ваше объявление ожидает бесплатной публикации на Циан:\n
+1)Зайдите на my.cian.ru в раздел «Сводка»\n
+2)Отредактируйте объявление с отметкой «Черновик»: проверьте данные, загрузите фото\n
+3)Выберите тариф за 0Р\n
+4)Сохраните\n
+Готово!
+"""
+
 RECENTLY_REGISTRATION_CHECK_DELAY: int = 120
 PROMOCODE_GROUP_NAME: str = 'packageForAvitoImmigrant_test'
 PROMOCODE_POLYGONS: List[int] = [2000]

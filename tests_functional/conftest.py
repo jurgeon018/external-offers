@@ -72,6 +72,11 @@ async def users_mock(http_mock_service):
 
 
 @pytest.fixture(scope='session')
+async def sms_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('sms')
+
+
+@pytest.fixture(scope='session')
 async def monolith_cian_service_mock(http_mock_service):
     yield await http_mock_service.make_microservice_mock('monolith-cian-service')
 
