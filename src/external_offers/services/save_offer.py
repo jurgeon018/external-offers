@@ -52,7 +52,7 @@ from external_offers.repositories.users.entities import (
 from external_offers.services.sms import send_sms
 
 
-category_mapping_key = Tuple[SaveOfferTerm, SaveOfferCategory, DealType, OfferType]
+category_mapping_key = Tuple[Optional[SaveOfferTerm], SaveOfferCategory, DealType, OfferType]
 mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (SaveOfferTerm.long_term, SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.flat_rent,
     (None, SaveOfferCategory.flat, DealType.sale, OfferType.flat): Category.flat_sale,

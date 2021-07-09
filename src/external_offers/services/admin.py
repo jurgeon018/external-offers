@@ -16,10 +16,7 @@ from external_offers.entities.admin import (
 )
 from external_offers.enums import CallStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid
-from external_offers.queue.helpers import (
-    send_kafka_already_published_analytics_message_if_not_test,
-    send_kafka_calls_analytics_message_if_not_test,
-)
+from external_offers.queue.helpers import send_kafka_calls_analytics_message_if_not_test
 from external_offers.repositories.postgresql import (
     assign_suitable_client_to_operator,
     exists_offers_draft_by_client,
@@ -27,7 +24,6 @@ from external_offers.repositories.postgresql import (
     exists_offers_in_progress_by_operator,
     get_client_by_client_id,
     get_offer_by_offer_id,
-    get_parsed_offer_by_offer_id,
     save_event_log_for_offers,
     set_client_accepted_and_no_operator_if_no_offers_in_progress,
     set_client_to_call_interrupted_status_and_return,

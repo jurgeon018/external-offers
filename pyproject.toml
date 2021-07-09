@@ -18,11 +18,11 @@ url = "https://nexus.cian.tech/repository/cian/simple/"
 default = true
 
 [tool.poetry.dependencies]
-cian-core = {version = "^1.20", extras = ['postgres', 'kafka', 'graphite', 'cache']}
+cian-core = {version = "^1.44", extras = ['postgres', 'kafka', 'graphite', 'cache']}
 cian-kafka = "^1.2"
 cian-entities = "^1.8"
 cian-enum = "^1.1"
-cian-http = "^0.21"
+cian-http = "^0.25"
 cian-schemas = "^2.8"
 cian-web = "^2.2"
 click = "^7.0"

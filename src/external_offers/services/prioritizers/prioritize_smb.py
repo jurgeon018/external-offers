@@ -38,6 +38,9 @@ def choose_main_smb_client_profile(user_profiles: List[UserModelV2]) -> SmbClien
     chosen_profile = None
 
     for profile in user_profiles:
+        if not profile.state:
+            continue
+
         source_user_type = profile.external_user_source_type
 
         if profile.state.is_blocked:

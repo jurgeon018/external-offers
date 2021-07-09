@@ -28,7 +28,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.publica
 from external_offers.repositories.monolith_cian_announcementapi.entities.swagger_geo import AddressInfo, Coordinates
 
 
-geo_type_to_type_mapping: Dict[GeoType, Type] = {
+geo_type_to_type_mapping: Dict[str, Type] = {
     GeoType.house.value: Type.house,
     GeoType.country.value: Type.country,
     GeoType.district.value: Type.district,

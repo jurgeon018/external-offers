@@ -70,7 +70,6 @@ from external_offers.repositories.postgresql.parsed_offers import (
     delete_outdated_parsed_offers,
     get_lastest_event_timestamp,
     get_latest_updated_at,
-    get_parsed_offer_by_offer_id,
     get_parsed_offer_object_model_by_offer_id,
     iterate_over_parsed_offers_sorted,
     save_parsed_offer,

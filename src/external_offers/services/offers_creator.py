@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import pytz
 from cian_core.context import new_operation_id
@@ -40,7 +40,6 @@ from external_offers.services.prioritizers.prioritize_offer import mapping_offer
 logger = logging.getLogger(__name__)
 
 _CLEAR_CLIENT_PRIORITY = -1
-_NO_ACTIVE = 0
 
 
 async def clear_waiting_offers_and_clients_with_off_count_limits() -> None:
@@ -76,7 +75,7 @@ async def prioritize_client(
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_CLIENT_PRIORITY """
 
-    client: Client = await get_client_by_client_id(
+    client: Optional[Client] = await get_client_by_client_id(
         client_id=client_id
     )
     regions = await get_offers_regions_by_client_id(

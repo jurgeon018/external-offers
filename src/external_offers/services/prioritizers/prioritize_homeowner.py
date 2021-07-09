@@ -35,6 +35,9 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
     chosen_profile = None
 
     for profile in user_profiles:
+        if not profile.state:
+            continue
+
         source_user_type = profile.external_user_source_type
 
         if profile.state.is_blocked:
