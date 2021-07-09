@@ -23,80 +23,122 @@
     <div class="main-block">
     <form class="ajax-form">
         <div class="offerForm">
-                <div class="offerDealTypeTitle"><span class="">Тип сделки</span></div>
-                <div class="offerDealTypeSelect">
-                    <select class="select-control" id="getDealType">
-                        <option value="not_selected" disabled>Не выбрано</option>
-                        <option value="rent" {% if parsed_object_model.is_rent %}selected{% endif %}>Аренда</option>
-                        <option value="sale" {% if parsed_object_model.is_sale %}selected{% endif %}>Продажа</option>
-                    </select>
-                </div>
 
-                {% if parsed_object_model.is_rent %}
-                    <div class="offerTermTypeTitle"><span class="">Срок аренды</span></div>
-                    <div class="offerTermTypeSelect">
-                        <select class="select-control" id="getTermType">
-                            <option value="long" {% if parsed_object_model.is_long_term_rent %}selected{% endif %}>Долгосрочная</option>
-                            <option value="daily" {% if parsed_object_model.is_daily_term_rent %}selected{% endif %}>Посуточная</option>
-                        </select>
-                    </div>
-                {% endif %}
+            <div class="offerDealTypeTitle"><span class="">Тип сделки</span></div>
+            <div class="offerDealTypeSelect">
+                <select class="select-control" id="getDealType">
+                    <option value="not_selected" disabled>Не выбрано</option>
+                    <option value="rent" {% if parsed_object_model.is_rent %}selected{% endif %}>Аренда</option>
+                    <option value="sale" {% if parsed_object_model.is_sale %}selected{% endif %}>Продажа</option>
+                </select>
+            </div>
 
-                <div class="offerTypeTitle"><span class="">Тип недвижимости</span></div>
-                <div class="offerTypeSelect">
-                    <select class="select-control" id="getOfferType">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="flat" {% if parsed_object_model.is_allow_realty_type %} selected {% endif %}>Жилая</option>
-                        <option value="commerce" disabled>Коммерческая</option>
-                        <option value="suburban" {% if parsed_object_model.is_suburban_sale %} selected {% endif %}>Загородная</option>
-                        <option value="newobject" disabled>Новостройки</option>
-                    </select>
-                </div>
+            {# parsed_object_model.is_rent #}
+            <div class="offerTermTypeTitle" style="display: {% if parsed_object_model.is_rent %}block{% else %}none{% endif %};">
+                <span class="">Срок аренды</span>
+            </div>
+            <div class="offerTermTypeSelect" style="display: {% if parsed_object_model.is_rent %}block{% else %}none{% endif %};">
+                <select class="select-control" id="getTermType">
+                    <option value="" selected disabled>Не выбрано</option>
+                    <option value="long" {% if parsed_object_model.is_long_term_rent and parsed_object_model.is_rent %}selected{% endif %}>
+                        Долгосрочная
+                    </option>
+                    <option value="daily" {% if parsed_object_model.is_daily_term_rent and parsed_object_model.is_rent %}selected{% endif %}>
+                        Посуточная
+                    </option>
+                </select>
+            </div>
 
-                <div class="offerCategoryTypeTitle"><span class="">Объект</span></div>
-                <div class="offerCategoryTypeSelect">
+            <div class="offerTypeTitle"><span class="">Тип недвижимости</span></div>
+            <div class="offerTypeSelect">
+                <select class="select-control" id="getOfferType">
+                    <option value="" selected disabled>Не выбрано</option>
+                    <option value="flat" {% if parsed_object_model.is_allow_realty_type %} selected {% endif %}>Жилая</option>
+                    <option value="commerce" disabled>Коммерческая</option>
+                    <option value="suburban" {% if parsed_object_model.is_suburban_sale %} selected {% endif %}>Загородная</option>
+                    <option value="newobject" disabled>Новостройки</option>
+                </select>
+            </div>
 
-                    <select class="select-control" id="getCategoryType">
-                    {% if parsed_object_model.is_allow_realty_type %}
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="flat"
-                                {% if parsed_object_model.is_flat %}
-                                selected {% endif %}>Квартира
-                        </option>
-                        <option value="room"
-                                {% if parsed_object_model.is_room %}
-                                selected {% endif %}>Комната
-                        </option>
-                        <option value="flat_share" {% if parsed_object_model.is_flat_share %}
-                                                   selected {% endif %}>
-                            Доля
-                            в квартире
-                        </option>
-                        <option value="bed" {% if parsed_object_model.is_bed %} 
-                                            selected {% endif %}>
-                            Койко-место (только аренда)
-                        </option>
-                    {% endif %}
-                    {% if parsed_object_model.is_suburban_sale %}
-                        <option value="house" {% if parsed_object_model.is_house %}
-                                            selected {% endif %}>
-                            Дом/дача
-                        </option>
-                        <option value="townhouse" {% if parsed_object_model.is_townhouse %}
-                                            selected {% endif %}>
-                            Таунхаус
-                        </option>
-                        <option value="cottage" {% if parsed_object_model.is_cottage %}
-                                            selected {% endif %}>
-                            Коттедж
-                        </option>
-                        <option value="land" {% if parsed_object_model.is_land %}
-                                            selected {% endif %}>
-                            Участок
-                        </option>
-                    {% endif %}
-                    </select>
-                </div>
+            <div class="offerCategoryTypeTitle"><span class="">Объект</span></div>
+            <div class="offerCategoryTypeSelect">
+                <select class="select-control" id="getCategoryType">
+                    <option value="" selected disabled>
+                        Не выбрано
+                    </option>
+                    {# parsed_object_model.is_allow_realty_type #}
+                    <option value="flat"
+                            class="is_allow_realty_type_option"
+                            style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %} none {% endif %};"
+                            {% if parsed_object_model.is_flat %} selected {% endif %}
+                    >
+                        Квартира
+                    </option>
+                    <option value="room"
+                            class="is_allow_realty_type_option"
+                            style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %} none {% endif %};"
+                            {% if parsed_object_model.is_room %} selected {% endif %}
+                    >
+                        Комната
+                    </option>
+                    <option value="flat_share"
+                            class="is_allow_realty_type_option"
+                            style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %} none {% endif %};"
+                            {% if parsed_object_model.is_share %} selected {% endif %}
+                    >
+                        Доля в квартире
+                    </option>
+                    <option value="bed"
+                            class="is_allow_realty_type_option"
+                            style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %} none {% endif %};"
+                            {% if parsed_object_model.is_bed %}  selected {% endif %}
+                    >
+                        Койко-место (только аренда)
+                    </option>
+
+                    {# parsed_object_model.is_suburban_sale #}
+                    <option value="house"
+                            class="is_suburban_sale_option"
+                            style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};" 
+                            {% if parsed_object_model.is_house %} selected {% endif %}
+                    >
+                        Дом/дача
+                    </option>
+                    <option value="townhouse"
+                            class="is_suburban_sale_option"
+                            style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};" 
+                            {% if parsed_object_model.is_townhouse %} selected {% endif %}
+                    >
+                        Таунхаус
+                    </option>
+                    <option value="cottage"
+                            class="is_suburban_sale_option"
+                            style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};" 
+                            {% if parsed_object_model.is_cottage %} selected {% endif %}
+                    >
+                        Коттедж
+                    </option>
+                    <option value="land"
+                            class="is_suburban_sale_option"
+                            style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};" 
+                            {% if parsed_object_model.is_land %} selected {% endif %}
+                    >
+                        Участок
+                    </option>
+
+                </select>
+            </div>
+
+            <div>
+                <input
+                    style="display: none;"
+                    name="updateOfferCategory"
+                    class="updateOfferCategory"
+                    id="updateOfferCategory"
+                    type="button"
+                    value="Обновить категорию"
+                />
+            </div>
 
             <div class='table-block-header'>
                 <span class="text-header">Адрес</span>
@@ -114,18 +156,17 @@
                 <span class="text-header">Об объекте</span>
             </div>
 
-            {% if parsed_object_model.is_allow_realty_type %}
-                <div class="offerRealtyTypeTitle">
-                    <span class="">Тип жилья</span>
-                </div>
-                <div class="offerCategoryTypeSelect">
-                    <select class="select-control" id="getRealtyType">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="flat">Квартира</option>
-                        <option value="apartments">Апартаменты</option>
-                    </select>
-                </div>
-            {% endif %}
+            {# parsed_object_model.is_allow_realty_type #}
+            <div class="offerRealtyTypeTitle" style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %}none{% endif %};">
+                <span class="">Тип жилья</span>
+            </div>
+            <div class="offerCategoryTypeSelect" style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %}none{% endif %};">
+                <select class="select-control" id="getRealtyType">
+                    <option value="" selected disabled>Не выбрано</option>
+                    <option value="flat">Квартира</option>
+                    <option value="apartments">Апартаменты</option>
+                </select>
+            </div>
 
             <div class="offerTotalAreaTitle">
                 <span class="">Общая площадь</span>
@@ -136,24 +177,23 @@
                        class="input-control" id="getTotalArea">
             </div>
 
-            {% if parsed_object_model.is_allow_rooms %}
-                <div class="offerRoomsCountTitle">
-                    <span class="">Количество комнат</span>
-                </div>
-                <div class="offerRoomsCountSelect">
-                    <select class="select-control" id="getRoomsCount">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="room1">1</option>
-                        <option value="room2">2</option>
-                        <option value="room3">3</option>
-                        <option value="room4">4</option>
-                        <option value="room5">5</option>
-                        <option value="room6_plus">6+</option>
-                        <option value="open_plan">свободная планировка</option>
-                        <option value="studio">студия</option>
-                    </select>
-                </div>
-            {% endif %}
+            {# parsed_object_model.is_allow_rooms #}
+            <div class="offerRoomsCountTitle" style="display: {% if parsed_object_model.is_allow_rooms %}block{% else %}none{% endif %};">
+                <span class="">Количество комнат</span>
+            </div>
+            <div class="offerRoomsCountSelect" style="display: {% if parsed_object_model.is_allow_rooms %}block{% else %}none{% endif %};">
+                <select class="select-control" id="getRoomsCount">
+                    <option value="" selected disabled>Не выбрано</option>
+                    <option value="room1">1</option>
+                    <option value="room2">2</option>
+                    <option value="room3">3</option>
+                    <option value="room4">4</option>
+                    <option value="room5">5</option>
+                    <option value="room6_plus">6+</option>
+                    <option value="open_plan">свободная планировка</option>
+                    <option value="studio">студия</option>
+                </select>
+            </div>
 
             <div class="offerFloorNumberTitle">
                 <span class="">Этаж (необязательно)</span>
@@ -168,34 +208,35 @@
                        placeholder="Общее количество этажей в доме"
                        id="getFloorCount">
             </div>
-            {% if parsed_object_model.is_suburban_sale %}
-            <div class="offerLandAreaTitle">
+            
+            {# parsed_object_model.is_suburban_sale #}
+            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
                 <span class="">Площадь участка</span>
             </div>
-            <div class="offerLandAreaInput">
+            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
                 <input type="number" required value="{{ parsed_object_model.land_area }}"
-                       placeholder="Площать участка в сотках"
-                       class="input-control" id="getLandArea">
+                    placeholder="Площать участка в сотках"
+                    class="input-control" id="getLandArea">
                 <select class="select-control" id="getAreaUnit">
                     <option value="" {% if not parsed_object_model.land_area_unit %} selected {% endif %} disabled>Не выбрано</option>
                     <option value="sotka" {% if parsed_object_model.land_area_unit == 'sotka' %} selected {% endif %}>Сотка</option>
                     <option value="hectare" {% if parsed_object_model.land_area_unit == 'hectare' %} selected {% endif %}>Гектар</option>
                 </select>
             </div>
-                {% if parsed_object_model.is_land %}
-                    <div class="offerLandStatusTitle">
-                        <span class="">Тип участка</span>
-                    </div>
-                    <div class="offerLandStatusInput">
-                        <select class="select-control" id="getLandStatus">
-                            <option value="" selected>Не выбрано</option>
-                            <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
-                            <option value="gardening" {% if parsed_object_model.land_status == 'СНТ, ДНП' %} selected {% endif %}>Садоводство</option>
-                            <option value="industrialLand" {% if parsed_object_model.land_status == 'промназначения' %} selected {% endif %}>Земля промназначения</option>
-                    </select>
-                    </div>
-                {% endif %}
-            {% endif %}
+
+            {# parsed_object_model.is_land and parsed_object_model.is_suburban_sale #}
+            <div class="offerLandStatusTitle" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+                <span class="">Тип участка</span>
+            </div>
+            <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+                <select class="select-control" id="getLandStatus">
+                    <option value="" selected>Не выбрано</option>
+                    <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
+                    <option value="gardening" {% if parsed_object_model.land_status == 'СНТ, ДНП' %} selected {% endif %}>Садоводство</option>
+                    <option value="industrialLand" {% if parsed_object_model.land_status == 'промназначения' %} selected {% endif %}>Земля промназначения</option>
+            </select>
+            </div>
+            
             <div class='table-block-header'>
                 <td><span class="text-header">Условия сделки</span></td>
             </div>
@@ -206,38 +247,35 @@
                     value="{{ parsed_object_model.price }}" type="number" id="getPrice">
             </div>
 
-            {% if parsed_object_model.is_rent %}
-                <div class="offerDepositTitle">
-                        <span class="">Залог</span>
-                </div>
-                <div class="offerDepositInput">
-                    <input class="input-control" required placeholder="Залог собственнику"
-                        type="number" id="getDeposit">
-                </div>
-            {% endif %}
+            {# parsed_object_model.is_rent #}
+            <div class="offerDepositTitle" style="display: {% if parsed_object_model.is_rent %} block {% else %} none {% endif %};">
+                    <span class="">Залог</span>
+            </div>
+            <div class="offerDepositInput" style="display: {% if parsed_object_model.is_rent %} block {% else %} none {% endif %};">
+                <input class="input-control" required placeholder="Залог собственнику"
+                    type="number" id="getDeposit">
+            </div>
 
-            {% if parsed_object_model.is_long_term_rent %}
-                <div class="offerPrepayMonthsTitle">
-                        <span class="">Предоплата</span>
-                </div>
-                <div class="offerPrepayMonthsInput">
-                    <input class="input-control" required placeholder="Предоплата (от 1 до 12 месяцев)"
-                        type="number" id="getPrepayMonths">
-                </div>
-            {% endif %}
+            {# parsed_object_model.is_long_term_rent #}
+            <div class="offerPrepayMonthsTitle" style="display: {% if parsed_object_model.is_long_term_rent %} block {% else %} none {% endif %}">
+                    <span class="">Предоплата</span>
+            </div>
+            <div class="offerPrepayMonthsInput" style="display: {% if parsed_object_model.is_long_term_rent %} block {% else %} none {% endif %}">
+                <input class="input-control" required placeholder="Предоплата (от 1 до 12 месяцев)"
+                    type="number" id="getPrepayMonths">
+            </div>
 
-            {% if parsed_object_model.is_sale %}
-                <div class="offerSaleTypeTitle">
-                        <span class="">Тип продажи</span>
-                </div>
-                <div class="offerSaleTypeSelect">
-                    <select class="select-control" id="getSaleType">
-                        <option value="" selected disabled>Не выбрано</option>
-                        <option value="free">Свободная продажа</option>
-                        <option value="alternative">Альтернатива</option>
-                    </select>
-                </div>
-            {% endif %}
+            {# parsed_object_model.is_sale #}
+            <div class="offerSaleTypeTitle" style="display: {% if parsed_object_model.is_sale %} block {% else %} none {% endif%};">
+                    <span class="">Тип продажи</span>
+            </div>
+            <div class="offerSaleTypeSelect" style="display: {% if parsed_object_model.is_sale %} block {% else %} none {% endif%};">
+                <select class="select-control" id="getSaleType">
+                    <option value="" selected disabled>Не выбрано</option>
+                    <option value="free">Свободная продажа</option>
+                    <option value="alternative">Альтернатива</option>
+                </select>
+            </div>
 
             <div class='table-block-header'>
                 <span class="text-header">Дополнительно</span>
@@ -253,92 +291,92 @@
             </div>
         </div>
             {% if not exist_drafts %}
-            <div class="clientForm">
-                <div class='client-table-block-header'>
-                    <span class="text-header">Личный кабинет</span>
-                </div>
-                <div class="changeClientPhoneTitle">
-                    <span class="">Номер телефона</span>
-                </div>
+                <div class="clientForm">
+                    <div class='client-table-block-header'>
+                        <span class="text-header">Личный кабинет</span>
+                    </div>
+                    <div class="changeClientPhoneTitle">
+                        <span class="">Номер телефона</span>
+                    </div>
 
-                <div id="clientPhoneNumberInput" class="client-form-phone-input">
-                    <input class="input-control" placeholder="Реальный телефон владельца"
-                           value="{{ client.client_phones[0] }}"
-                           type="string"
-                           id="getPhoneNumber"
-                           style="float: left">
-                </div>
-                <div id="clientPhoneNumberBtn">
-                    <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
-                </div>
-                <div id="accountCheckboxesBlock" >
-                <div id="useExistingAccountRadio" style="float: left;">
-                    <input type="radio" style="float: left;" name="account" id="getUseExistingAccount" checked>
-                </div>
-                <div id="useExistingAccountTitle" style="float: left;">
-                    <span class="">Использовать существующий ЛК</span>
-                </div>
-                <div id="createNewAccountRadio" style="float: left;">
-                    <input type="radio" style="float: left;" name="account" id="getCreateNewAccount">
-                </div>
-                <div id="createNewAccountTitle" style="float: left;">
-                    <span class="">Создать новый ЛК</span>
-                </div>
+                    <div id="clientPhoneNumberInput" class="client-form-phone-input">
+                        <input class="input-control" placeholder="Реальный телефон владельца"
+                            value="{{ client.client_phones[0] }}"
+                            type="string"
+                            id="getPhoneNumber"
+                            style="float: left">
+                    </div>
+                    <div id="clientPhoneNumberBtn">
+                        <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
+                    </div>
+                    <div id="accountCheckboxesBlock" >
+                    <div id="useExistingAccountRadio" style="float: left;">
+                        <input type="radio" style="float: left;" name="account" id="getUseExistingAccount" checked>
+                    </div>
+                    <div id="useExistingAccountTitle" style="float: left;">
+                        <span class="">Использовать существующий ЛК</span>
+                    </div>
+                    <div id="createNewAccountRadio" style="float: left;">
+                        <input type="radio" style="float: left;" name="account" id="getCreateNewAccount">
+                    </div>
+                    <div id="createNewAccountTitle" style="float: left;">
+                        <span class="">Создать новый ЛК</span>
+                    </div>
+
+                    </div>
+
+                    <div id="createNewAccountSpacer">
+                    </div>
+                    <div id="accountForDraftTitle">
+                        <span class="">Выбранный ЛК</span>
+                    </div>
+                    <div id="accountForDraftSelect">
+                        <select class="select-control" id="getAccountForDraft">
+                            <option value="" selected disabled>Не выбрано</option>
+                            {% for client_account in client_accounts %}
+                                <option value={{ client_account.cian_user_id }}>{{ client_account.email }} {% if client_account.is_agent %}Специалист{% else %}Собственник{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="accountForDraftSpacer"></div>
+
+                    <div id="accountTypeTitle">
+                        <span class="">Тип ЛК</span>
+                    </div>
+                    <div id="accountTypeSelect">
+                        <select class="select-control" id="getAccountType">
+                            <option selected value="realtor">Специалист</option>
+                            <option value="homeowner">Собственник</option>
+                        </select>
+                    </div>
+                    <div id="accountTypeSpacer"></div>
+
+                    <div id="transformAccountToSpecialistTitleBlock" >
+                    <div id="transformAccountToSpecialistCheckboxTitle" style="float: left;">
+                        <span class="">Превратить в специалиста</span>
+                    </div>
+                    </div>
+
+                    <div id="transformAccountToSpecialistCheckboxBlock">
+                    <div id="transformAccountToSpecialistCheckbox" style="float: left;">
+                        <input type="checkbox" style="float: left;" name="account" id="getTransformAccountToSpecialist" checked>
+                    </div>
+                    <div id="transformAccountToSpecialistMessage" style="float: left;">
+                        <span class="">Это действие не может быть отменено позже!</span>
+                    </div>
+                    </div>
 
                 </div>
-
-                <div id="createNewAccountSpacer">
-                </div>
-                <div id="accountForDraftTitle">
-                    <span class="">Выбранный ЛК</span>
-                </div>
-                <div id="accountForDraftSelect">
-                    <select class="select-control" id="getAccountForDraft">
-                        <option value="" selected disabled>Не выбрано</option>
-                        {% for client_account in client_accounts %}
-                            <option value={{ client_account.cian_user_id }}>{{ client_account.email }} {% if client_account.is_agent %}Специалист{% else %}Собственник{% endif %}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div id="accountForDraftSpacer"></div>
-
-                <div id="accountTypeTitle">
-                    <span class="">Тип ЛК</span>
-                </div>
-                <div id="accountTypeSelect">
-                    <select class="select-control" id="getAccountType">
-                        <option selected value="realtor">Специалист</option>
-                        <option value="homeowner">Собственник</option>
-                    </select>
-                </div>
-                <div id="accountTypeSpacer"></div>
-
-                <div id="transformAccountToSpecialistTitleBlock" >
-                <div id="transformAccountToSpecialistCheckboxTitle" style="float: left;">
-                    <span class="">Превратить в специалиста</span>
-                </div>
-                </div>
-
-                <div id="transformAccountToSpecialistCheckboxBlock">
-                <div id="transformAccountToSpecialistCheckbox" style="float: left;">
-                    <input type="checkbox" style="float: left;" name="account" id="getTransformAccountToSpecialist" checked>
-                </div>
-                <div id="transformAccountToSpecialistMessage" style="float: left;">
-                    <span class="">Это действие не может быть отменено позже!</span>
-                </div>
-                </div>
-
-            </div>
             {% endif %}
     </form>
     </div>
 
     <div class="footer-block">
         <div>
-                <div class="text-info">{{ info_message }}</div>
-                <div class="save-offer-button-block">
-                    <button id="saveOfferBtn" type="button" class="btn">Сохранить объявление</button>
-                </div>
+            <div class="text-info">{{ info_message }}</div>
+            <div class="save-offer-button-block">
+                <button id="saveOfferBtn" type="button" class="btn">Сохранить объявление</button>
+            </div>
         </div>
     </div>
 </div>  
@@ -354,9 +392,13 @@
         const saveOfferBtn = $('#saveOfferBtn');
         const updateClientPhoneBtn = $('#updateClientPhoneNumberBtn');
         const getDealType = $('#getDealType');
+        const getTermType = $('#getTermType');
         const getOfferType = $('#getOfferType');
         const getCategoryType = $('#getCategoryType');
-        const getTermType = $('#getTermType');
+        const initialDealTypeValue = getDealType.val()
+        const initialTermTypeValue = getTermType.val()
+        const initialOfferTypeValue = getOfferType.val()
+        const initialCategoryTypeValue = getCategoryType.val()
         const getAddress = $('#getAddress');
         const getRealtyType = $('#getRealtyType');
         const getTotalArea = $('#getTotalArea');
@@ -377,7 +419,9 @@
         const getLandArea = $('#getLandArea');
         const getAreaUnit = $('#getAreaUnit')
         const getLandStatus = $('#getLandStatus');
-
+        const updateOfferCategoryBtn = $('#updateOfferCategory');
+        const is_allow_realty_type_options = $(".is_allow_realty_type_option")
+        const is_suburban_sale_options = $(".is_suburban_sale_option")
 
 
         $('.ajax-form').on('submit', (event) => {
@@ -457,6 +501,46 @@
             } else {
                 transform_account_title_block.style.display = 'none'
                 transform_account_checkbox_block.style.display = 'none'
+            }
+        }
+        
+        function toggleUpdateOfferCategoryBtn() {
+            if(
+                initialDealTypeValue == getDealType.val() && 
+                initialTermTypeValue == getTermType.val() && 
+                initialOfferTypeValue == getOfferType.val() && 
+                initialCategoryTypeValue == getCategoryType.val()
+            )
+            {
+                updateOfferCategoryBtn.css({'display': 'none'})
+            }else{
+                updateOfferCategoryBtn.css({'display': 'block'})
+            }
+
+        }
+
+        function updateFields() {
+            // toggle TermType
+            if(getDealType.val() == 'rent'){
+                // show TermType
+                $(".offerTermTypeTitle").css({'display':'block'});
+                $(".offerTermTypeSelect").css({'display':'block'});
+            }else if(getDealType.val() == 'sale'){
+                // hide TermType
+                $(".offerTermTypeTitle").css({'display':'none'});
+                $(".offerTermTypeSelect").css({'display':'none'});
+                $(".offerTermTypeSelect").val("").change();
+            }
+            // toggle CategoryType
+            if(getOfferType.val() == 'flat'){
+                // show is_allow_realty_type_options and hide is_suburban_sale_options
+                {# TODO: пофиксить баг в селекте с этими опциями #}
+                is_allow_realty_type_options.show()
+                is_suburban_sale_options.hide()
+            }else if(getOfferType.val() == 'suburban'){
+                // show is_suburban_sale_options and hide is_allow_realty_type_options
+                is_suburban_sale_options.show()
+                is_allow_realty_type_options.hide()
             }
         }
 
@@ -544,6 +628,66 @@
             });
         };
 
+        const updateOfferCategory = () => {
+            // console.log(getTermType.val())
+            // console.log("{{parsed_object_model.is_rent}}")
+            // if(getTermType.val() == ""){
+            //     if("{{parsed_object_model.is_rent}}" == 'True'){
+            //         let termType = getTermType.val()
+            //     }else{
+            //         let termType = null;
+            //     }
+            // }else if(getTermType.val() != ""){
+            //     if("{{parsed_object_model.is_rent}}" == 'True'){
+            //         let termType = getTermType.val()
+            //     }else{
+            //         let termType = null;
+            //     }
+            // }
+            let termType = getTermType.val()
+            let obj = {
+                offerId: '{{offer_id}}',
+                dealType: getDealType.val(),
+                termType: termType,
+                offerType: getOfferType.val(),
+                categoryType: getCategoryType.val(),
+            }
+            $.post("/api/admin/v1/update-offer-category/", 
+                DEBUG ? JSON.stringify(obj) : obj
+            ).then((response) => {
+                if(response.success == true){
+                    location.reload();
+                    // alert('reload', response.message);
+                    // location.reload();
+                }else{
+                    alert(response.message)
+                }
+            });
+        }
+
+        getDealType.change(() => {
+            toggleUpdateOfferCategoryBtn()
+            updateFields()
+        })
+
+        getTermType.change(() => {
+            toggleUpdateOfferCategoryBtn()
+            updateFields()
+        })
+
+        getOfferType.change(() => {
+            toggleUpdateOfferCategoryBtn()
+            updateFields()
+        })
+
+        getCategoryType.change(() => {
+            toggleUpdateOfferCategoryBtn()
+            updateFields()
+        })
+
+        updateOfferCategoryBtn.click(() => {
+            updateOfferCategory()
+        })
 
         saveOfferBtn.click(() => {
             saveOffer()
@@ -560,6 +704,7 @@
         getUseExistingAccount.click(() => {
             onClickUseExistingAccountRadio()
         })
+
         updateClientPhoneBtn.click(function() {
             if (getPhoneNumber.val() === "") {
                 alert('Телефон обязательный параметр!')

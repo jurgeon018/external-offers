@@ -7,6 +7,7 @@ from external_offers.services import admin
 from external_offers.services.return_client_by_phone import return_client_by_phone
 from external_offers.services.save_offer import save_offer_public
 from external_offers.services.update_client_phone import update_client_phone_public
+from external_offers.services.update_offer_category import update_offer_category_public
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
@@ -98,6 +99,13 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.ReturnClientByPhoneRequest,
         response_schema=entities.ReturnClientByPhoneResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-offer-category/$', get_handler(
+        service=update_offer_category_public,
+        method='POST',
+        request_schema=entities.UpdateOfferCategoryRequest,
+        response_schema=entities.UpdateOfferCategoryResponse,
         base_handler_cls=PublicHandler,
     )),
 ]

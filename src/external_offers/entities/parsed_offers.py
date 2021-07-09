@@ -187,6 +187,29 @@ class ParsedObjectModel:
         ]
 
     @property
+    def is_house(self) -> bool:
+        return self.category in [
+            Category.house_rent,
+            Category.house_sale,
+            Category.house_share_rent,
+            Category.house_share_sale,
+        ]
+
+    @property
+    def is_cottage(self) -> bool:
+        return self.category in [
+            Category.cottage_rent,
+            Category.cottage_sale,
+        ]
+
+    @property
+    def is_townhouse(self) -> bool:
+        return self.category in [
+            Category.townhouse_rent,
+            Category.townhouse_sale,
+        ]
+
+    @property
     def is_land(self) -> bool:
         return self.category in [
             Category.land_sale,

@@ -1,15 +1,14 @@
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
-
 import asyncpgsa
 import pytz
 from cian_json import json
 from simple_settings import settings
 from sqlalchemy import JSON, func
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, delete, not_, select, update
-
+from sqlalchemy.sql import and_, delete, func, not_, select, update
 from external_offers import pg
+from external_offers.enums.object_model import Category
 from external_offers.entities.parsed_offers import (
     ParsedObjectModel,
     ParsedOffer,
@@ -228,3 +227,46 @@ async def iterate_over_parsed_offers_sorted(
     )
     async for row in cursor:
         yield parsed_offer_mapper.map_from(row)
+
+
+async def update_offer_categories_by_offer_id(
+    *,
+    offer_id: str,
+    category: Category,
+) -> None:
+
+    po = tables.parsed_offers
+    ofc = tables.offers_for_call
+
+    query, params = asyncpgsa.compile_query(
+        update(
+            ofc
+        ).values(
+            category = category.value,
+        ).where(
+            ofc.c.id == offer_id
+        )
+    )
+    await pg.get().fetchrow(query, *params)
+
+    query, params = asyncpgsa.compile_query(
+        select([po.c.id])
+        .select_from(
+            po.join(
+                ofc,
+                po.c.id == ofc.c.parsed_id
+            )
+        ).where(
+            ofc.c.id == offer_id
+        )
+    )
+    parsed_offer = await pg.get().fetchrow(query, *params)
+    parsed_offer_id = parsed_offer['id']
+
+    query = f"""
+    UPDATE parsed_offers
+    SET source_object_model = jsonb_set(source_object_model, '{{category}}', '"{category.value}"')
+    WHERE id = '{parsed_offer_id}';
+    """
+
+    await pg.get().execute(query)#, *params)
