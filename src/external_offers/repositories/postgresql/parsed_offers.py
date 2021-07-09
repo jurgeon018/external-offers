@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
+
 import asyncpgsa
 import pytz
 from cian_json import json
@@ -7,14 +8,15 @@ from simple_settings import settings
 from sqlalchemy import JSON, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, delete, func, not_, select, update
+
 from external_offers import pg
-from external_offers.enums.object_model import Category
 from external_offers.entities.parsed_offers import (
     ParsedObjectModel,
     ParsedOffer,
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
+from external_offers.enums.object_model import Category
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
     parsed_offer_for_creation_mapper,
@@ -234,6 +236,7 @@ async def update_offer_categories_by_offer_id(
     offer_id: str,
     category: Category,
 ) -> None:
+    # raise Exception('Error!')
 
     po = tables.parsed_offers
     ofc = tables.offers_for_call
@@ -242,7 +245,7 @@ async def update_offer_categories_by_offer_id(
         update(
             ofc
         ).values(
-            category = category.value,
+            category=category.value,
         ).where(
             ofc.c.id == offer_id
         )
@@ -269,4 +272,4 @@ async def update_offer_categories_by_offer_id(
     WHERE id = '{parsed_offer_id}';
     """
 
-    await pg.get().execute(query)#, *params)
+    await pg.get().execute(query)

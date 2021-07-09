@@ -81,7 +81,7 @@
                     >
                         Комната
                     </option>
-                    <option value="flat_share"
+                    <option value="share"
                             class="is_allow_realty_type_option"
                             style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %} none {% endif %};"
                             {% if parsed_object_model.is_share %} selected {% endif %}
@@ -533,12 +533,9 @@
             }
             // toggle CategoryType
             if(getOfferType.val() == 'flat'){
-                // show is_allow_realty_type_options and hide is_suburban_sale_options
-                {# TODO: пофиксить баг в селекте с этими опциями #}
                 is_allow_realty_type_options.show()
                 is_suburban_sale_options.hide()
             }else if(getOfferType.val() == 'suburban'){
-                // show is_suburban_sale_options and hide is_allow_realty_type_options
                 is_suburban_sale_options.show()
                 is_allow_realty_type_options.hide()
             }
@@ -629,22 +626,26 @@
         };
 
         const updateOfferCategory = () => {
-            // console.log(getTermType.val())
-            // console.log("{{parsed_object_model.is_rent}}")
-            // if(getTermType.val() == ""){
-            //     if("{{parsed_object_model.is_rent}}" == 'True'){
-            //         let termType = getTermType.val()
-            //     }else{
-            //         let termType = null;
-            //     }
-            // }else if(getTermType.val() != ""){
-            //     if("{{parsed_object_model.is_rent}}" == 'True'){
-            //         let termType = getTermType.val()
-            //     }else{
-            //         let termType = null;
-            //     }
-            // }
-            let termType = getTermType.val()
+            console.log("parsed_object_model.is_rent: {{parsed_object_model.is_rent}}")
+            console.log("getTermType initial value: ", getTermType.val())
+            console.log("getDealType initial value: ", getDealType.val())
+            console.log("getOfferType initial value: ", getOfferType.val())
+            console.log("getCategoryType initial value: ", getCategoryType.val())
+            let termType = getTermType.val();
+            // validate dealType and termType
+            if(getDealType.val() == 'rent' && !getTermType.val()){
+                alert('Выберите срок аренды.')
+                return null
+            }
+            else if(getDealType.val() == 'sale'){
+                console.log('тут меняется termType на null')
+                termType = null;
+            }
+            console.log("getTermType new value: ", getTermType.val())
+            console.log("termType new value: ", termType)
+            console.log("getDealType new value: ", getDealType.val())
+            console.log("getOfferType new value: ", getOfferType.val())
+            console.log("getCategoryType new value: ", getCategoryType.val())
             let obj = {
                 offerId: '{{offer_id}}',
                 dealType: getDealType.val(),
@@ -656,8 +657,7 @@
                 DEBUG ? JSON.stringify(obj) : obj
             ).then((response) => {
                 if(response.success == true){
-                    location.reload();
-                    // alert('reload', response.message);
+                    alert(`${response.message}`);
                     // location.reload();
                 }else{
                     alert(response.message)
