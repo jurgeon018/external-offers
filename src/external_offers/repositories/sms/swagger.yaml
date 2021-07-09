@@ -1,0 +1,473 @@
+definitions:
+  WebApi.Models.SendSmsRequestV2:
+    description: Запрос на отправку sms.
+    properties:
+      deferredSendDate:
+        description: Дата отложенной отправки
+        format: date-time
+        type: string
+      messageType:
+        description: Тип отправляемого смс-сообщения
+        enum:
+        - applySanction
+        - secretCode
+        - objectConfirmationRequest
+        - publicProfileModeration
+        - removePartyAction
+        - userWarning
+        - rejectedAnnouncementCheckedOnOffences
+        - hiddenOffenceWarning
+        - sanctionRemoved
+        - announcementModerated
+        - realtorModeratorReport
+        - zovChanged
+        - akkVerificationStatusChanged
+        - userIdentificationStatusChanged
+        - userBonusesChanged
+        - announcementRelevanceCheck
+        - validationCode
+        - dealRentDocumentValidationError
+        - dealRentNeedVerification
+        - dealRequestsProcess
+        - tenantInterestedInOfferRentSmsNotification
+        - dailyTenantInterestedInOfferRentSmsNotification
+        - smsMessageAfterFormStatusChanged
+        - auctionPointsBurnDown
+        - dealPaymentByRenterSmsNotification
+        - userRegistration
+        - billingPromotion
+        - sleeperNotification
+        - deniedOrDeletePremiumAnn
+        - deniedOrDeleteTop3Ann
+        - confirmationCode
+        - scheduledNotification
+        - rejectPayment
+        - upcomingInsufficienFunds
+        - zeroBalanceNoOverdraft
+        - zeroBalanceWithinOverdraft
+        - overdraftExpired
+        - incomingPayment
+        - addFormPollInvitation
+        - mobileRegistrationSms
+        - packageActivated
+        - dealApplySmsNotification
+        - homeownerDeletedOfferWithUnprocessedForms
+        - homeownerDeactivatedOfferWithUnprocessedForms
+        - scoringCompletedToRenterSmsNotification
+        - formPublishedSmsNotification
+        - financeAuthenticationCode
+        - financeMarketingCommunication
+        - financeMortgageApprove
+        - financeAfterApplicationSent
+        - financeCabinetCreated
+        - financeDefault
+        - keycloak
+        - deniedOrDeletedTop3OrPremium
+        - contractToRenterSmsNotification
+        - paymentStatusToHomeownerSmsNotification
+        - cancelContractToHomeownerSmsNotification
+        - sdaysnimiHomeownerShouldSetMeters
+        - sdaysnimiRentPaid
+        - sdaysnimiRentPaymentWithMeters
+        - sdaysnimiRentPaymentWithoutMeters
+        - sdaysnimiRentPaymentLastDay
+        - sdaysnimiRentReceiptLink
+        - sdaysnimiRenterIsWaitingDecision
+        - sdaysnimiRentersAreWaitingDecision
+        - sdaysnimiRenterStillDidNotGetDecision
+        - sdaysnimiRentersStillDidNotGetDecision
+        - spamPhoneNumberBlockedForDay
+        - sdaysnimiMoreRentersAreInterestedInOffer
+        - sdaysnimiDealActivated
+        - sdaysnimiIdentificationFarewell
+        - sdaysnimiIdentificationWarning
+        - sdaysnimiOfferAndIdentificationFarewell
+        - sdaysnimiOfferAndIdentificationWarning
+        - sdaysnimiOfferFarewell
+        - sdaysnimiOfferWarning
+        - sdaysnimiRenterAcceptContract
+        - renterScoringError
+        - renterScoringSuccess
+        - sdaysnimiScheduledShowDate
+        - sdaysnimiShowDateRemember
+        - sdaysnimiShowDateHomeownerRemember
+        - sdaysnimiRenterContractPaymentReminder
+        - sdaysnimiHomeownerContractPaymentReminder
+        - sdaysnimiRenterContractPaymentExpire
+        - sdaysnimiHomeownerContractPaymentExpire
+        - sdaysnimiUnprocessedFormsWarning
+        - sdaysnimiOfferRelevanceConfirmation
+        - sdaysnimiDealWasAutomaticallyDeactivated
+        - sdaysnimiLiquidOfferInviteV1
+        - sdaysnimiLiquidOfferInviteV2
+        - sdaysnimiAutoSearchForRenterDeactivated
+        - sdaysnimiSimilarOffersAfterDeclinedForm
+        - sdaysnimiOfferWasAutomaticallyArchived
+        - sdaysnimiHomeownerShowDateScheduledSmsNotification
+        - mobileAppLink
+        - sdaySnimiDealSubscriptionPayment
+        - sdaysnimiFirstViewOfferInvite
+        - sdaysnimiDealSubscriptionPaymentRequired
+        - sdaysnimiDealSubscriptionWarning
+        - sdaysnimiDealSubscriptionFarewell
+        - sdaysnimiHomeownerTaxReminder
+        - sdaysnimiHomeownerPublishedForFreeWithUnprocessedForms
+        - sdaysnimiSanctionedDealForms
+        - sdaysnimiFormsCountLimitExceededForTrial
+        - sdaysnimiForceHomeownerFlow
+        - sdaysnimiIdentificationAndOffencesWarning
+        - sdaysnimiIdentificationAndOffencesFarewell
+        - sdaysnimiOffencesWarning
+        - sdaysnimiOffencesFarewell
+        - sdaysnimiPriceLimitExceeded
+        - sdaysnimiDealV2ServiceActivationWarning
+        - SdaysnimiDealV2ServiceActivationFarewell
+        - sdaysnimiDealV2ServiceActivationPaymentWarning
+        - sdaysnimiBankIsNotBound
+        - sdaysnimiOfferReport
+        - sdaysnimiInnRequired
+        - sdaysnimiCandidateInBlacklist
+        - sdaysnimiRenterPaidTheRentForHomeowner
+        - sdaysnimiHomeownerChecksRequiredAfterRenterPayment
+        - sdaysnimiRenterIdentificationRequiredAfterPayment
+        - sdaysnimiWaitRenterContractSignAfterIdentification
+        - sdaysnimiRenterCancelContract
+        - sdaysnimiRenterNotSignContractForHomeowner
+        - sdaysnimiRenterPaymentRefundForHomeowner
+        - sdaysnimiIdentificationRequiredAfterRenterPayment
+        - sdaysnimiIdentificationErrorAfterRenterPayment
+        - sdaysnimiIdentificationSuccessWaitForHomeownerChecks
+        - sdaysnimiContractReadyForSigning
+        - sdaysnimiHomeownerCancelContract
+        - sdaysnimiRenterPaymentRefundCauseHomeowner
+        - sdaysnimiRenterPaymentRefund
+        - b2bSmbWelcomeInstruction
+        - b2bHomeownerWelcomeInstruction
+        - e2EDealPaymentLink
+        type: string
+        x-SdaysnimiDealV2ServiceActivationFarewell: "Сервис Сдай/Сними отключен, так\
+          \ как вы не произвели оплату. Ваше объявление не опубликовано.\r\nДля публикации\
+          \ объявления перейдите в личный кабинет http://my.cian.ru/"
+        x-addFormPollInvitation: Приглашение к опросу по форме подачи
+        x-akkVerificationStatusChanged: Cообщение об изменении статуса проверки АКК
+        x-announcementModerated: Объявление промодерировано
+        x-announcementRelevanceCheck: Cообщение о проверке актуальности объявления
+        x-applySanction: Применение санкции
+        x-auctionPointsBurnDown: Аукцион - В ближайшие дни на вашем аккаунте закончатся
+          баллы на Аукцион
+        x-b2bHomeownerWelcomeInstruction: Инструкция для собственника. Ваше объявление
+          ожидает публикации на Циан
+        x-b2bSmbWelcomeInstruction: Инструкция для агента. Ваше объявление ожидает
+          публикации на Циан
+        x-billingPromotion: Бонусные акции биллинга
+        x-cancelContractToHomeownerSmsNotification: СМС уведомление собу об отмене
+          контракта
+        x-confirmationCode: Код подтверждения
+        x-contractToRenterSmsNotification: Смс со ссылкой на контракт для арендатора
+        x-dailyTenantInterestedInOfferRentSmsNotification: Ежедневная смс заинтересованности
+          в предложении аренды
+        x-dealApplySmsNotification: Смс об успешной оплате сделки в аренде
+        x-dealPaymentByRenterSmsNotification: Смс об оплате комиссии сделки арендатором
+        x-dealRentDocumentValidationError: Сделка в аренде - ошибка валидации документов
+        x-dealRentNeedVerification: Сделка в аренде - нужна валидация
+        x-dealRequestsProcess: Сделка - разные смс (текст динамический)
+        x-deniedOrDeletePremiumAnn: Запрещено или удалено премиум объявление
+        x-deniedOrDeleteTop3Ann: Запрещено или удалено top3 объявление
+        x-deniedOrDeletedTop3OrPremium: TOP-3 или Премиум объявление удалено/отклонено
+        x-e2EDealPaymentLink: Ваш риелтор заполнил анкету на проведение электронной
+          сделки и просит вас оплатить услуг %link%
+        x-financeAfterApplicationSent: 'Финансы: заявка принята'
+        x-financeAuthenticationCode: 'Финансы: коды авторизации'
+        x-financeCabinetCreated: 'Финансы: ЛК создан'
+        x-financeDefault: 'Финансы: другое'
+        x-financeMarketingCommunication: 'Финансы: коммунакация'
+        x-financeMortgageApprove: 'Финансы: Ипотека одобрена'
+        x-formPublishedSmsNotification: Смс о публикации анкеты сделки в аренде
+        x-hiddenOffenceWarning: Уведомление о скрытом нарушении
+        x-homeownerDeactivatedOfferWithUnprocessedForms: Смс о том, что собственник
+          снял объявление с публикации с непросмотренными анкетами
+        x-homeownerDeletedOfferWithUnprocessedForms: Смс о том, что собственник удалил
+          объявление с непросмотренными анкетами
+        x-incomingPayment: Уведомление о входящем платеже
+        x-keycloak: Двухфакторная аунтентификация для Keycloak
+        x-mobileAppLink: Ссылка на мобильное приложение
+        x-mobileRegistrationSms: Смс с логином и паролем после авторегистрации
+        x-objectConfirmationRequest: Требование о подтверждении
+        x-overdraftExpired: Истёк срок кредита у пользователей с 1-м дневным кредитом
+        x-packageActivated: Тариф пользователя активирован
+        x-paymentStatusToHomeownerSmsNotification: СМС уведомление собу о статусе
+          платежа
+        x-publicProfileModeration: Модерация публичного профиля
+        x-realtorModeratorReport: Отчёт о жалобах для риэлторов-модераторов
+        x-rejectPayment: Платёж аккаунта отклонён
+        x-rejectedAnnouncementCheckedOnOffences: Отклоненное объявление проверено
+          на видимые нарушения
+        x-removePartyAction: Лишаем пользователя траста
+        x-renterScoringError: "СМС-уведомление\r\nК сожалению, при проверке документов\
+          \ произошла ошибка. Повторно загрузить документы %ссылка%"
+        x-renterScoringSuccess: "СМС-уведомление\r\nДокументы проверены! Теперь вы\
+          \ можете ознакомиться с договором аренды и подписать его онлайн %ссылка%"
+        x-sanctionRemoved: Снятие санкции
+        x-scheduledNotification: Назначенное уведомление
+        x-scoringCompletedToRenterSmsNotification: Смс об заврешении скоринга
+        x-sdaySnimiDealSubscriptionPayment: СМС-уведомление "Завтра заканчивается
+          действие услуги «Сдай/Сними», для продолжения оплатите следующие 7 дней
+          %ссылка на оплату%"
+        x-sdaysnimiAutoSearchForRenterDeactivated: СМС-уведомление "Действие услуги
+          «Автоматический подбор квартир» закончилось"
+        x-sdaysnimiBankIsNotBound: Для получения арендных платежей необходимо ваше
+          разрешение. Подробности в личном кабинете %ссылка на ЛК%
+        x-sdaysnimiCandidateInBlacklist: Сервис Сдай/Сними был отключён от вашего
+          объявления. Теперь оно опубликовано на общих условиях
+        x-sdaysnimiContractReadyForSigning: Договор готов! Подпишите его  %link%
+        x-sdaysnimiDealActivated: 'СМС-уведомление "Мы подключили к вашему объявлению
+          сервис “Сдай / Сними“: https://promo.cian.ru/sday-snimi-how-to. Для собственников
+          квартир он бесплатен"'
+        x-sdaysnimiDealSubscriptionFarewell: СМС-уведомление "Ваше объявление отключено
+          от Сдай/Сними, т.к. вы не оплатили размещение. Вы можете подключиться заново
+          из вашего личного кабинета"
+        x-sdaysnimiDealSubscriptionPaymentRequired: СМС-уведомление "Мы получили вашу
+          заявку на подключение, чтобы активировать сервис вам необходимо оплатить
+          299₽ за неделю размещения %ссылка на оплату%"
+        x-sdaysnimiDealSubscriptionWarning: СМС-уведомление "Ваше объявление неактивно
+          на сайте. Для его активации вам нужно оплатить 7 дней размещения %ссылка
+          на оплату%"
+        x-sdaysnimiDealV2ServiceActivationPaymentWarning: Ваше объявление не активно
+          на сайте. Для активации объявления с сервисом Сдай/Сними оплатите 990₽ по
+          ссылке %ссылка на оплату%
+        x-sdaysnimiDealV2ServiceActivationWarning: Ваше объявление всё еще не активно
+          на сайте. Для активации объявления оплатите 990₽ в вашем личном кабинете
+          http://my.cian.ru/
+        x-sdaysnimiDealWasAutomaticallyDeactivated: СМС-уведомление "Услуга Сдай /
+          Сними отключена. Если вы хотите заново подключить услугу, вы можете сделать
+          это в личном кабинете"
+        x-sdaysnimiFirstViewOfferInvite: СМС-уведомление "Если вас беспокоят навязчивые
+          звонки, мы можем принимать их за вас. Это бесплатно %ссылка на промо%"
+        x-sdaysnimiForceHomeownerFlow: Вы подключили сервис Сдай/Сними от Циан. Теперь
+          загрузите недостающие паспортные данные, чтобы мы могли составить договор
+          аренды. %ссылка на ЛК%
+        x-sdaysnimiFormsCountLimitExceededForTrial: Ваше объявление получило %кол-во
+          анкет% анкет от арендаторов. Для просмотра остальных анкет, оплатите следующие
+          7 дней %ссылка на оплату%
+        x-sdaysnimiHomeownerCancelContract: Собственник передумал :( вернули вам деньги
+          - проверьте, пожалуйста
+        x-sdaysnimiHomeownerChecksRequiredAfterRenterPayment: Вам перевели оплату;
+          получите ее - настройте профиль в течение 5 дней
+        x-sdaysnimiHomeownerContractPaymentExpire: "СМС-уведомление\r\n%Имя арендатора%\
+          \ не произвел оплату по договору. Договор аренды расторгнут. Вы можете выбрать\
+          \ другого арендатора %ссылка на страницу с выбором арендатора%"
+        x-sdaysnimiHomeownerContractPaymentReminder: "СМС-уведомление\r\n%Имя арендатора%\
+          \ пока не оплатил аренду. Если оплата не будет проведена до %чч% %дд%, договор\
+          \ будет автоматически расторгнут."
+        x-sdaysnimiHomeownerPublishedForFreeWithUnprocessedForms: СМС-уведомление
+          "Теперь вы можете связаться с собственником квартиры %ссылка на объявление%
+          по номеру телефона в объявлении"
+        x-sdaysnimiHomeownerShouldSetMeters: СМС уведомление собственнику "Укажите
+          сумму по счетчикам"
+        x-sdaysnimiHomeownerShowDateScheduledSmsNotification: СМС-уведомление "Сегодня
+          в %чч:мм% у вас назначен показ квартиры. Если вы хотите отменить показ,
+          пожалуйста, предупредите арендатора %номер телефона арендатора%"
+        x-sdaysnimiHomeownerTaxReminder: СМС-уведомление "Напоминаем, что с 12.%ММ%
+          по 25.%ММ% вам необходимо проверить сумму начисленных налогов и оплатить
+          их в личном кабинете https://lknpd.nalog.ru/ или приложении Мой налог"
+        x-sdaysnimiIdentificationAndOffencesFarewell: "Мы не смогли подключить услугу\
+          \ Сдай/Сними, т.к. вы не прошли идентификацию и не исправили нарушения.\
+          \ Ваше объявление не опубликовано.\r\nПожалуйста, пройдите идентификацию\
+          \ и исправьте нарушения. После этого снова подключитесь к сервису Сдай/Сними"
+        x-sdaysnimiIdentificationAndOffencesWarning: Чтобы опубликовать объявление
+          и подключиться к сервису Сдай/Сними, пожалуйста, пройдите идентификацию
+          и исправьте нарушения
+        x-sdaysnimiIdentificationErrorAfterRenterPayment: С паспортом что-то не так,
+          попробуйте добавить его ещё раз. Если не получается, звоните на %телефон
+          колцентра%
+        x-sdaysnimiIdentificationFarewell: "Услуга Сдай / Сними отключена, т.к. вы\
+          \ не прошли идентификацию.\r\nПосле ее прохождения можете снова оставить\
+          \ заявку на услугу.\r\nБудут вопросы, звоните +7-499-288-80-23"
+        x-sdaysnimiIdentificationRequiredAfterRenterPayment: Получили оплату; давайте
+          подпишем договор - добавьте паспорт в профиль
+        x-sdaysnimiIdentificationSuccessWaitForHomeownerChecks: С паспортом всё хорошо;
+          ждём, пока собственник настроит свой профиль
+        x-sdaysnimiIdentificationWarning: "Пройдите идентификацию, чтобы мы могли\
+          \ опубликовать ваше объявление. \r\nЗайдите в личном кабинете во вкладку\
+          \ «Профиль», нажмите «Пройти проверку» и загрузите документы. \r\nБудут\
+          \ вопросы, звоните +7-499-288-80-23"
+        x-sdaysnimiInnRequired: Нужен ваш ИНН, укажите его в личном кабинете
+        x-sdaysnimiLiquidOfferInviteV1: "СМС-уведомление \"Слишком много звонков?\
+          \ Циан может принимать звонки за вас и отправлять вам анкеты арендаторов.\r\
+          \nЭто бесплатно https://www.cian.ru/arenda-oplata/\""
+        x-sdaysnimiLiquidOfferInviteV2: "СМС-уведомление \"Слишком много звонков?\
+          \ Циан может принимать звонки за вас и отправлять вам анкеты арендаторов.\r\
+          \nЭто бесплатно http://promo.cian.ru/arenda-bez-riska-apps\""
+        x-sdaysnimiMoreRentersAreInterestedInOffer: СМС-уведомление "Вашей квартирой
+          заинтересовались ещё N арендаторов"
+        x-sdaysnimiOffencesFarewell: "Мы не смогли подключить услугу Сдай/Сними, т.к.\
+          \ в объявлении не были исправлены нарушения. Ваше объявление не опубликовано.\r\
+          \nПожалуйста, исправьте нарушения и снова подключитесь к сервису Сдай/сними"
+        x-sdaysnimiOffencesWarning: В вашем объявлении выявлены нарушения, пожалуйста,
+          зайдите в личный кабинет и исправьте их, чтобы объявление опубликовалось
+        x-sdaysnimiOfferAndIdentificationFarewell: "Услуга Сдай / Сними отключена,\
+          \ т.к. вы не прошли идентификацию и не разместили объявление. \r\nМожете\
+          \ снова оставить заявку на услугу. \r\nБудут вопросы, звоните +7-499-288-80-23"
+        x-sdaysnimiOfferAndIdentificationWarning: "Услуга Сдай / Сними подключена.\
+          \ \r\nЧтобы ее активировать, разместите объявление на Циан и пройдите идентификацию\
+          \ в разделе «Профиль» в личном кабинете. \r\nБудут вопросы, звоните +7-499-288-80-23"
+        x-sdaysnimiOfferFarewell: "Услуга Сдай / Сними отключена, т.к. вы не разместили\
+          \ объявление. \r\nМожете снова оставить заявку на услугу. \r\nБудут вопросы,\
+          \ звоните +7-499-288-80-23"
+        x-sdaysnimiOfferRelevanceConfirmation: СМС-уведомление "Здравствуйте! Пожалуйста,
+          подтвердите актуальность вашего объявления на Циан по ссылке"
+        x-sdaysnimiOfferReport: Подготовили для вас аналитический отчет по вашей квартире.
+          Посмотрите его по ссылке %ссылка на калькулятор недвижимости%
+        x-sdaysnimiOfferWarning: "Услуга Сдай / Сними подключена. \r\nЧтобы ее активировать,\
+          \ разместите объявление на Циан. \r\nБудут вопросы, звоните +7-499-288-80-23"
+        x-sdaysnimiOfferWasAutomaticallyArchived: СМС-уведомление "Ваше объявление
+          было автоматически снято с показа. Если его требуется восстановить, обратитесь
+          в службу поддержки по телефону +7-499-288-80-23"
+        x-sdaysnimiPriceLimitExceeded: К сожалению, нам не удастся подключить сервис
+          Сдай/Сними для вас. Сервис предназначен для квартир дешевле %лимит% ₽
+        x-sdaysnimiRentPaid: СМС уведомление собственнику \"Арендатор оплатил аренду
+          за этот месяц\"
+        x-sdaysnimiRentPaymentLastDay: СМС уведомление \"Оплата ещё не была произведена\"
+        x-sdaysnimiRentPaymentWithMeters: СМС уведомление \"Cобственник уже внес данные
+          по счетчикам\"
+        x-sdaysnimiRentPaymentWithoutMeters: СМС уведомление \"Собственник еще не
+          внес данные по счетчикам\"
+        x-sdaysnimiRentReceiptLink: СМС уведомление со ссылкой на чек после оплаты
+          аренды
+        x-sdaysnimiRenterAcceptContract: "СМС-уведомление\r\nПоздравляем! %Имя арендатора%\
+          \ подписал(а) договор аренды.\r\nВ ближайшее время ожидайте оплату аренды\
+          \ по договору, мы вышлем вам смс"
+        x-sdaysnimiRenterCancelContract: Арендатор передумал, и нам пришлось вернуть
+          ему деньги; выберите другого
+        x-sdaysnimiRenterContractPaymentExpire: "СМС-уведомление\r\nВы не провели\
+          \ оплату за аренду по договору. Договор аренды расторгнут. Вы можете запросить\
+          \ повторное подписание договора связавшись напрямую с собственником."
+        x-sdaysnimiRenterContractPaymentReminder: "СМС-уведомление\r\nУспейте оплатить\
+          \ аренду по договору до %чч% %дд%, иначе договор аренды будет автоматически\
+          \ расторгнут"
+        x-sdaysnimiRenterIdentificationRequiredAfterPayment: Получили оплату от арендатора;
+          проверяем паспорт
+        x-sdaysnimiRenterIsWaitingDecision: СМС уведомление "Арендатор всё ещё ждёт
+          вашего решения"
+        x-sdaysnimiRenterNotSignContractForHomeowner: Арендатор так и не подписал
+          договор - вернули ему деньги
+        x-sdaysnimiRenterPaidTheRentForHomeowner: Перевели оплату аренды, деньги могут
+          идти пару дней - зависит от банка
+        x-sdaysnimiRenterPaymentRefund: 'Отменили сделку и вернули вам деньги: вы
+          не успели подписать договор'
+        x-sdaysnimiRenterPaymentRefundCauseHomeowner: Собственник не настроил профиль,
+          сделка отменена; вернули вам деньги
+        x-sdaysnimiRenterPaymentRefundForHomeowner: 'Пришлось вернуть деньги арендатору:
+          вы не настроили свой профиль'
+        x-sdaysnimiRenterStillDidNotGetDecision: СМС уведомление "Арендатор так и
+          не получил решения по анкете"
+        x-sdaysnimiRentersAreWaitingDecision: СМС уведомление "У вас N потенциальных
+          арендаторов"
+        x-sdaysnimiRentersStillDidNotGetDecision: СМС уведомление "Арендаторы ждут
+          вашего решения больше 24 часов"
+        x-sdaysnimiSanctionedDealForms: Мы обнаружили, что объявление, на которое
+          вы откликались, недостоверно. Не переводите деньги и будьте осторожны. %адрес
+          объявления, без города% %ссылка на объявление%
+        x-sdaysnimiScheduledShowDate: "СМС-уведомление\r\nВы записаны на показ квартиры\
+          \ в (дата время). Адрес квартиры: (адрес). Телефон собственника для связи:\
+          \ (телефон)"
+        x-sdaysnimiShowDateHomeownerRemember: "СМС-уведомление\r\nНовая запись на\
+          \ просмотр квартиры %дата время%. Телефон арендатора %номер%"
+        x-sdaysnimiShowDateRemember: "СМС-уведомление\r\nВы записаны на показ квартиры\
+          \ (дата время). Если вы не сможете приехать, пожалуйста, позвоните нам +7-499-288-80-23\
+          \ и отмените показ"
+        x-sdaysnimiSimilarOffersAfterDeclinedForm: СМС-уведомление "Отправить вашу
+          анкету на похожие квартиры?"
+        x-sdaysnimiUnprocessedFormsWarning: СМС-уведомление "Здравствуйте! У вас есть
+          непросмотренные анкеты арендаторов"
+        x-sdaysnimiWaitRenterContractSignAfterIdentification: С паспортом арендатора
+          всё хорошо; ждём подписания договора
+        x-secretCode: Отправка секретного кода
+        x-sleeperNotification: Нотификация для тарифа "спящий"
+        x-smsMessageAfterFormStatusChanged: Смс после установки статуса анкеты
+        x-spamPhoneNumberBlockedForDay: СМС уведомление "Номер телефона заблокирован
+          за спам на 1 сутки"
+        x-tenantInterestedInOfferRentSmsNotification: Смс заинтересованности в предложении
+          аренды
+        x-upcomingInsufficienFunds: "Уведомление о приближении баланса пользователя\
+          \ к нулю.\r\nЧтобы в размещении объявлений не возникало перерывов, пожалуйста,\
+          \ пополните счёт"
+        x-userBonusesChanged: Cообщение об изменении количества бонусов пользователя
+        x-userIdentificationStatusChanged: Cообщение об изменении статуса идентификации
+          пользователя
+        x-userRegistration: Регистрация пользователя
+        x-userWarning: Предупреждение
+        x-validationCode: Код валидации
+        x-zeroBalanceNoOverdraft: "Если в ходе биллинга был достигнут, либо преодолён\
+          \ нулевой баланс,\r\nобычным пользователям, у которых нет кредита (овердрафта),\
+          \ а также тех, у которых овердрафт меньше 1 дней"
+        x-zeroBalanceWithinOverdraft: В ходе биллинга был преодолён нулевой баланс,
+          пользователям у которых есть 1-дневный кредит
+        x-zovChanged: Cообщение об изменении ЗОВ
+      phone:
+        description: "Номер телефона.\r\nНапример, \"79101234567\""
+        type: string
+      text:
+        description: "Текст sms-сообщения.\r\nНе более 250 символов."
+        maxLength: 250
+        type: string
+      transactionId:
+        description: "Идентификатор транзакции\r\nПредотвращает повторную отправку\
+          \ sms"
+        format: uuid
+        type: string
+    required:
+    - messageType
+    - phone
+    - text
+    type: object
+  WebApi.Models.SendSmsResponseV2:
+    description: Ответ на отправку sms
+    properties:
+      smsId:
+        description: Идентификатор sms
+        format: int64
+        type: integer
+    required:
+    - smsId
+    type: object
+host: master.sms.dev3.cian.ru
+info:
+  title: sms
+  version: v1
+paths:
+  /v2/send-sms/:
+    post:
+      consumes:
+      - application/json-patch+json
+      - application/json
+      - text/json
+      - application/*+json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/WebApi.Models.SendSmsRequestV2'
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Models.SendSmsResponseV2'
+      summary: "Отправляет смс на указанный номер с указанным текстом.\r\nТолько для\
+        \ внутреннего межсерверного взаимодействия."
+      tags:
+      - Sms
+schemes:
+- http
+swagger: '2.0'
+x-cian-kafka-mq:
+  spec-version: '1.0'
+  topics: []
+x-cian-mq:
+  exchanges: {}
+  spec-version: '1.0'
