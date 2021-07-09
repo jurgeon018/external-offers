@@ -5,7 +5,7 @@ import asyncpgsa
 import pytz
 from cian_json import json
 from simple_settings import settings
-from sqlalchemy import JSON, func
+from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, delete, func, not_, select, update
 
