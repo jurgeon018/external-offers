@@ -1,5 +1,7 @@
 import json
+
 import pytest
+
 
 mapping_offer_params_to_category = {
     ("long", "flat", "rent", "flat"): "flatRent",
