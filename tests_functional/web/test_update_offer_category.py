@@ -1,12 +1,23 @@
 import json
-
 import pytest
-from cian_test_utils import future
 
-from external_offers.entities.save_offer import DealType, OfferType
-from external_offers.enums import SaveOfferCategory, SaveOfferTerm
-from external_offers.services.save_offer import mapping_offer_params_to_category
-
+mapping_offer_params_to_category = {
+    ("long", "flat", "rent", "flat"): "flatRent",
+    (None, "flat", "sale", "flat"): "flatSale",
+    (None, "bed", "sale", "flat"): "flatShareSale",
+    (None, "share", "sale", "flat"): "flatShareSale",
+    ("long", "bed", "rent", "flat"): "bedRent",
+    ("long", "share", "rent", "flat"): "roomRent",
+    ("long", "room", "rent", "flat"): "roomRent",
+    (None, "room", "sale", "flat"): "roomSale",
+    ("daily", "flat", "rent", "flat"): "dailyFlatRent",
+    ("daily", "room", "rent", "flat"): "dailyRoomRent",
+    ("daily", "bed", "rent", "flat"): "dailyBedRent",
+    (None, "house", "sale", "suburban"): "houseSale",
+    (None, "cottage", "sale", "suburban"): "cottageSale",
+    (None, "townhouse", "sale", "suburban"): "townhouseSale",
+    (None, "land", "sale", "suburban"): "landSale",
+}
 
 async def test_update_offer_category__non_valid_parameters__categories_not_changed(
     http,
@@ -39,10 +50,10 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
         json={
             'offerId': offer_id,
             # wrong parameters
-            'termType': SaveOfferTerm.daily_term.value,
-            'categoryType': SaveOfferCategory.land.value,
-            'dealType': DealType.sale.value,
-            'offerType': OfferType.suburban.value,
+            'termType': "daily",
+            'categoryType': "land",
+            'dealType': "sale",
+            'offerType': "suburban",
         },
         headers={
             'X-Real-UserId': user_id
@@ -77,7 +88,6 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
 )
 async def test_update_offer_category__valid_parameters__categories_are_changed(
     http,
-    runtime_settings,
     pg,
     offers_and_clients_fixture,
     parsed_offers_fixture,
@@ -90,11 +100,11 @@ async def test_update_offer_category__valid_parameters__categories_are_changed(
     offer_id = "1"
     user_id = 1
     term_type = offer_params[0]
-    category_type = offer_params[1].value
-    deal_type = offer_params[2].value
-    offer_type = offer_params[3].value
+    category_type = offer_params[1]
+    deal_type = offer_params[2]
+    offer_type = offer_params[3]
     if offer_params[0] is not None:
-        term_type = term_type.value
+        term_type = term_type
     # act
     response = await http.request(
         'POST',
@@ -128,5 +138,5 @@ async def test_update_offer_category__valid_parameters__categories_are_changed(
     body = json.loads(response.body.decode('utf-8'))
 
     assert body['success'] == True
-    assert offer_for_call['category'] == expected_category.value
-    assert source_object_model['category'] == expected_category.value
+    assert offer_for_call['category'] == expected_category
+    assert source_object_model['category'] == expected_category
