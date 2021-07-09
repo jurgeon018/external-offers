@@ -77,6 +77,7 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
 )
 async def test_update_offer_category__valid_parameters__categories_are_changed(
     http,
+    runtime_settings,
     pg,
     offers_and_clients_fixture,
     parsed_offers_fixture,
