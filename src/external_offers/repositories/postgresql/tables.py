@@ -34,6 +34,7 @@ clients = sa.Table(
     sa.Column('next_call', sa.TIMESTAMP),
     sa.Column('calls_count', sa.SMALLINT),
     sa.Column('last_call_id', sa.VARCHAR),
+    sa.Column('synced_with_grafana', sa.BOOLEAN, nullable=True, default=None),
     sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
 )
 
@@ -53,6 +54,7 @@ offers_for_call = sa.Table(
     sa.Column('category', sa.VARCHAR, nullable=True),
     sa.Column('last_call_id', sa.VARCHAR),
     sa.Column('synced_with_kafka', sa.BOOLEAN, nullable=False, default=False),
+    sa.Column('synced_with_grafana', sa.BOOLEAN, nullable=True, default=None),
     sa.Column('parsed_created_at', sa.TIMESTAMP, nullable=False),
 )
 

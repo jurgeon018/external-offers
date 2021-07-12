@@ -45,6 +45,51 @@ def send_latest_parsed_offers_timestamp_diff_to_graphite():
     IOLoop.current().run_sync(send_parsed_offers_timestamp_diff_to_graphite)
 
 
+async def send_waiting_offers_and_clients_amount_to_grahite():
+    from cian_core.statsd import statsd
+    from external_offers.repositories.postgresql.offers import (
+        sync_waiting_clients_with_grafana,
+        sync_waiting_offers_with_grafana,
+    )
+
+    # TODO: ?? перенести из крона в sync_offers_for_call_with_parsed
+    # после clear_and_prioritize_waiting_offers()??
+    waiting_clients = await sync_waiting_clients_with_grafana()
+    waiting_offers = await sync_waiting_offers_with_grafana()
+    waiting_clients_count = len(waiting_clients)
+    waiting_offers_count = len(waiting_offers)
+    statsd.incr('waiting_clients.count', count=waiting_clients_count)
+    statsd.incr('waiting_offers.count', count=waiting_offers_count)
+
+
+async def send_in_progress_offers_and_clients_amount_to_graphite():
+    from cian_core.statsd import statsd
+    # TODO: ?? перенести из крона в update_offers_list
+    # в то место в котором клиент и задание присваиваются оператору?
+
+    non_waiting_offers_count = ...
+    non_waiting_clients_count = ...
+    non_waiting_offers_percentage = ...
+    non_waiting_clients_percentage = ...
+
+    statsd.incr('non_waiting_offers.count', count=non_waiting_offers_count)
+    statsd.incr('non_waiting_clients.count', count=non_waiting_clients_count)
+    statsd.incr('non_waiting_offers.percentage', count=non_waiting_offers_percentage)
+    statsd.incr('non_waiting_clients.percentage', count=non_waiting_clients_percentage)
+
+
+@cli.command()
+def send_waiting_offers_and_clients_amount_to_grahite_cron():
+    """ Отправить в grafana количество заданий в ожидании и клиентов в ожидании в очереди в начале дня """
+    IOLoop.current().run_sync(send_waiting_offers_and_clients_amount_to_grahite)
+
+
+@cli.command()
+def send_in_progress_offers_and_clients_amount_to_graphite_cron():
+    """ Отправить в grafana количество заданий и клиентов которых взяли в работу за день """
+    IOLoop.current().run_sync(send_in_progress_offers_and_clients_amount_to_graphite)
+
+
 @cli.command()
 def send_parsed_offers_to_kafka_cron():
     """ Отправить записи из таблицы parsed_offers в кафку """

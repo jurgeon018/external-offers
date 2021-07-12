@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
+from external_offers.enums.client_status import ClientStatus
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
@@ -649,6 +650,41 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
     query, params = asyncpgsa.compile_query(sql)
     rows = await pg.get().fetch(query, *params)
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
+
+
+async def sync_waiting_clients_with_grafana() -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            [clients],
+        ).values(
+            synced_with_grafana=True,
+        ).where(
+            # TODO:
+            # признак для клиента берем по любому заданию,
+            # если заданий больше 1
+            clients.c.status == ClientStatus.waiting.value, 
+        ).returning(
+            clients.c.client_id
+        )
+    )
+    result = await pg.get().fetch(query, *params)
+    return [r['client_id'] for r in result]
+
+
+async def sync_waiting_offers_with_grafana() -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            [offers_for_call],
+        ).values(
+            synced_with_grafana=True,
+        ).where(
+            offers_for_call.c.status == OfferStatus.waiting.value, 
+        ).returning(
+            offers_for_call.c.id
+        )
+    )
+    result = await pg.get().fetch(query, *params)
+    return [r['id'] for r in result]
 
 
 async def get_waiting_offers_for_call() -> AsyncGenerator[OfferForPrioritization, None]:
