@@ -60,3 +60,12 @@ type = "cron"
 command = "send-offers-for-call-to-kafka-cron"
 cron = "0 7 * * *"
 
+[job.send-waiting-offers-and-clients-amount-to-grafana-cron]
+type = "cron"
+command = "send-waiting-offers-and-clients-amount-to-grafana-cron"
+cron = "0 8 * * *"
+
+[job.send-in-progress-offers-and-clients-amount-to-grafana-cron]
+type = "cron"
+command = "send-in-progress-offers-and-clients-amount-to-grafana-cron"
+cron = "0 21 * * *"

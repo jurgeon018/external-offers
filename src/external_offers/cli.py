@@ -10,6 +10,7 @@ from external_offers.services.offers_creator import sync_offers_for_call_with_pa
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
 from external_offers.services.send_offers_for_call_to_kafka import send_offers_for_call_to_kafka
 from external_offers.services.send_parsed_offers_to_kafka import send_parsed_offers_to_kafka
+from external_offers.services.send_offers_for_call_to_grafana import 
 from external_offers.web.urls import urlpatterns
 
 
@@ -45,49 +46,63 @@ def send_latest_parsed_offers_timestamp_diff_to_graphite():
     IOLoop.current().run_sync(send_parsed_offers_timestamp_diff_to_graphite)
 
 
-async def send_waiting_offers_and_clients_amount_to_grahite():
+async def send_waiting_offers_and_clients_amount_to_grafana():
     from cian_core.statsd import statsd
     from external_offers.repositories.postgresql.offers import (
         sync_waiting_clients_with_grafana,
         sync_waiting_offers_with_grafana,
     )
-
-    # TODO: ?? перенести из крона в sync_offers_for_call_with_parsed
-    # после clear_and_prioritize_waiting_offers()??
-    waiting_clients = await sync_waiting_clients_with_grafana()
-    waiting_offers = await sync_waiting_offers_with_grafana()
-    waiting_clients_count = len(waiting_clients)
-    waiting_offers_count = len(waiting_offers)
-    statsd.incr('waiting_clients.count', count=waiting_clients_count)
-    statsd.incr('waiting_offers.count', count=waiting_offers_count)
+    waiting_clients_count = await sync_waiting_clients_with_grafana()
+    waiting_offers_count = await sync_waiting_offers_with_grafana()
+    print('waiting_clients_count', waiting_clients_count)
+    print('waiting_offers_count', waiting_offers_count)
+    # statsd.incr('waiting_clients.count', count=waiting_clients_count)
+    # statsd.incr('waiting_offers.count', count=waiting_offers_count)
 
 
-async def send_in_progress_offers_and_clients_amount_to_graphite():
+async def send_in_progress_offers_and_clients_amount_to_grafana():
     from cian_core.statsd import statsd
-    # TODO: ?? перенести из крона в update_offers_list
-    # в то место в котором клиент и задание присваиваются оператору?
+    from external_offers import pg
+    from external_offers.repositories.postgresql.offers import (
+        get_synced_offers_count,
+        get_synced_clients_count,
+        get_non_waiting_synced_offers_count,
+        get_non_waiting_synced_clients_count,
+        unsync_clients_with_grafana,
+        unsync_offers_with_grafana,
+    )
 
-    non_waiting_offers_count = ...
-    non_waiting_clients_count = ...
-    non_waiting_offers_percentage = ...
-    non_waiting_clients_percentage = ...
+    synced_offers_count = await get_synced_offers_count()
+    synced_clients_count = await get_synced_clients_count()
+    non_waiting_synced_offers_count = await get_non_waiting_synced_offers_count()
+    non_waiting_synced_clients_count = await get_non_waiting_synced_clients_count()
 
-    statsd.incr('non_waiting_offers.count', count=non_waiting_offers_count)
-    statsd.incr('non_waiting_clients.count', count=non_waiting_clients_count)
-    statsd.incr('non_waiting_offers.percentage', count=non_waiting_offers_percentage)
-    statsd.incr('non_waiting_clients.percentage', count=non_waiting_clients_percentage)
+    # non_waiting_synced_offers_percentage = non_waiting_synced_offers_count / synced_offers_count * 100
+    # non_waiting_synced_clients_percentage = non_waiting_synced_clients_count / synced_clients_count * 100
+    print("synced_offers_count: ", synced_offers_count)
+    print("synced_clients_count: ", synced_clients_count)
+    print("non_waiting_synced_offers_count: ", non_waiting_synced_offers_count)
+    print("non_waiting_synced_clients_count: ", non_waiting_synced_clients_count)
+    # print("non_waiting_synced_offers_percentage: ", non_waiting_synced_offers_percentage)
+    # print("non_waiting_synced_clients_percentage: ", non_waiting_synced_clients_percentage)
+    # statsd.incr('non_waiting_offers.count', count=non_waiting_synced_offers_count)
+    # statsd.incr('non_waiting_synced_clients.count', count=non_waiting_synced_clients_count)
+    # statsd.incr('non_waiting_offers.percentage', count=non_waiting_synced_offers_percentage)
+    # statsd.incr('non_waiting_synced_clients.percentage', count=non_waiting_synced_clients_percentage)
+    await unsync_clients_with_grafana()
+    await unsync_offers_with_grafana()
 
 
 @cli.command()
-def send_waiting_offers_and_clients_amount_to_grahite_cron():
+def send_waiting_offers_and_clients_amount_to_grafana_cron():
     """ Отправить в grafana количество заданий в ожидании и клиентов в ожидании в очереди в начале дня """
-    IOLoop.current().run_sync(send_waiting_offers_and_clients_amount_to_grahite)
+    IOLoop.current().run_sync(send_waiting_offers_and_clients_amount_to_grafana)
 
 
 @cli.command()
-def send_in_progress_offers_and_clients_amount_to_graphite_cron():
+def send_in_progress_offers_and_clients_amount_to_grafana_cron():
     """ Отправить в grafana количество заданий и клиентов которых взяли в работу за день """
-    IOLoop.current().run_sync(send_in_progress_offers_and_clients_amount_to_graphite)
+    IOLoop.current().run_sync(send_in_progress_offers_and_clients_amount_to_grafana)
 
 
 @cli.command()
