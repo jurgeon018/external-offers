@@ -1,0 +1,3 @@
+
+ALTER TABLE offers_for_call ADD COLUMN synced_with_grafana BOOLEAN NULL DEFAULT FALSE;
+ALTER TABLE clients ADD COLUMN synced_with_grafana BOOLEAN NULL DEFAULT FALSE;

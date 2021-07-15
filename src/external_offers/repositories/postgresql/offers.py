@@ -652,100 +652,6 @@ async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
 
 
-async def sync_waiting_clients_with_grafana() -> None:
-    row = await pg.get().fetchrow("""
-        WITH rows AS (
-            UPDATE clients
-            SET synced_with_grafana = TRUE
-            WHERE synced_with_grafana IS NOT TRUE
-            AND status = 'waiting'
-            AND client_id IN (
-                SELECT client_id
-                FROM offers_for_call
-                GROUP BY client_id
-                HAVING COUNT(1) > 1
-            )
-            RETURNING client_id
-        )
-        SELECT COUNT(client_id) FROM rows;
-    """)
-    return row['count']
-
-
-async def sync_waiting_offers_with_grafana() -> None:
-    row = await pg.get().fetchrow("""
-        WITH rows AS (
-            UPDATE offers_for_call
-            SET synced_with_grafana = TRUE
-            WHERE synced_with_grafana IS NOT TRUE
-            AND status = 'waiting'
-            AND client_id IN (
-                SELECT client_id
-                FROM offers_for_call
-                GROUP BY client_id
-                HAVING count(1) > 1
-            )
-            RETURNING id
-        )
-        SELECT COUNT(id) FROM rows;
-    """)
-    return row['count']
-
-
-async def unsync_offers_with_grafana() -> None:
-    await pg.get().execute("""
-        UPDATE offers_for_call
-        SET synced_with_grafana = FALSE
-        WHERE synced_with_grafana IS TRUE
-    """)
-
-
-async def unsync_clients_with_grafana() -> None:
-    await pg.get().execute("""
-        UPDATE clients
-        SET synced_with_grafana = FALSE
-        WHERE synced_with_grafana IS TRUE
-    """)
-
-
-async def get_non_waiting_synced_offers_count() -> None:
-    row = await pg.get().fetchrow("""
-        SELECT COUNT(*)
-        FROM offers_for_call
-        WHERE synced_with_grafana IS TRUE 
-        AND status <> 'waiting';
-    """)
-    return row['count']
-
-
-async def get_non_waiting_synced_clients_count() -> None:
-    row = await pg.get().fetchrow("""
-        SELECT COUNT(*)
-        FROM clients
-        WHERE synced_with_grafana IS TRUE 
-        AND status <> 'waiting';
-    """)
-    return row['count']
-
-
-async def get_synced_offers_count() -> None:
-    row = await pg.get().fetchrow("""
-        SELECT COUNT(*)
-        FROM offers_for_call
-        WHERE synced_with_grafana IS TRUE;
-    """)
-    return row['count']
-
-
-async def get_synced_clients_count() -> None:
-    row = await pg.get().fetchrow("""
-        SELECT COUNT(*)
-        FROM clients
-        WHERE synced_with_grafana IS TRUE;
-    """)
-    return row['count']
-
-
 async def get_waiting_offers_for_call() -> AsyncGenerator[OfferForPrioritization, None]:
     query, params = asyncpgsa.compile_query(
         select(
@@ -854,3 +760,93 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids):
         )
         query, params = asyncpgsa.compile_query(sql)
         await pg.get().fetch(query, *params)
+
+
+async def sync_waiting_clients_with_grafana() -> None:
+    ''' клиенты в ожидании, у которых больше 1 задания'''
+    row = await pg.get().fetchrow("""
+        WITH rows AS (
+            UPDATE clients
+            SET synced_with_grafana = TRUE
+            WHERE synced_with_grafana IS NOT TRUE
+            AND status = 'waiting'
+            AND client_id IN (
+                SELECT client_id
+                FROM offers_for_call
+                GROUP BY client_id
+                HAVING COUNT(1) > 1
+            )
+            RETURNING client_id
+        )
+        SELECT COUNT(client_id) FROM rows;
+    """)
+    return row['count']
+
+
+async def sync_waiting_offers_with_grafana() -> None:
+    ''' задания в ожидании, у клиентов которых больше 1 задания'''
+    row = await pg.get().fetchrow("""
+        WITH rows AS (
+            UPDATE offers_for_call
+            SET synced_with_grafana = TRUE
+            WHERE synced_with_grafana IS NOT TRUE
+            AND status = 'waiting'
+            AND client_id IN (
+                SELECT client_id
+                FROM offers_for_call
+                GROUP BY client_id
+                HAVING count(1) > 1
+            )
+            RETURNING id
+        )
+        SELECT COUNT(id) FROM rows;
+    """)
+    return row['count']
+
+
+async def get_non_waiting_synced_offers_count() -> None:
+    row = await pg.get().fetchrow("""
+        SELECT COUNT(*) FROM offers_for_call
+        WHERE synced_with_grafana IS TRUE 
+        AND status <> 'waiting';
+    """)
+    return row['count']
+
+
+async def get_non_waiting_synced_clients_count() -> None:
+    row = await pg.get().fetchrow("""
+        SELECT COUNT(*) FROM clients
+        WHERE synced_with_grafana IS TRUE 
+        AND status <> 'waiting';
+    """)
+    return row['count']
+
+
+async def get_synced_offers_count() -> None:
+    row = await pg.get().fetchrow("""
+        SELECT COUNT(*) FROM offers_for_call
+        WHERE synced_with_grafana IS TRUE;
+    """)
+    return row['count']
+
+
+async def get_synced_clients_count() -> None:
+    row = await pg.get().fetchrow("""
+        SELECT COUNT(*) FROM clients
+        WHERE synced_with_grafana IS TRUE;
+    """)
+    return row['count']
+
+
+async def unsync_offers_with_grafana() -> None:
+    await pg.get().execute("""
+        UPDATE offers_for_call SET synced_with_grafana = NULL
+        WHERE synced_with_grafana IS TRUE;
+    """)
+
+
+async def unsync_clients_with_grafana() -> None:
+    await pg.get().execute("""
+        UPDATE clients SET synced_with_grafana = NULL
+        WHERE synced_with_grafana IS TRUE;
+    """)
