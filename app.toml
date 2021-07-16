@@ -67,5 +67,5 @@ cron = "0 8 * * *"
 
 [job.send-non-waiting-offers-and-clients-amount-to-grafana-cron]
 type = "cron"
-command = "send-non-waiting-offers-and-clients-amount-to-grafana-cron"
+command = "send-processed-offers-and-clients-amount-to-grafana-cron"
 cron = "0 21 * * *"

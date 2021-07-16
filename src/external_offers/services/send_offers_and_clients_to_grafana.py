@@ -1,141 +1,118 @@
 from cian_core.statsd import statsd
 from external_offers import pg
 from external_offers.repositories.postgresql.offers import (
-    get_synced_offers_count,
-    get_synced_clients_count,
-    get_non_waiting_synced_offers_count,
-    get_non_waiting_synced_clients_count,
-    unsync_clients_with_grafana,
-    unsync_offers_with_grafana,
-    sync_waiting_clients_with_grafana,
-    sync_waiting_offers_with_grafana,
+    get_synced_objects_count,
+    get_processed_synced_objects_count,
+    unsync_objects_with_grafana,
+    sync_waiting_objects_with_grafana,
+    get_unsynced_waiting_objects_count,
+    get_segmented_objects,
 )
 
-# TODO: сегментировать:
+async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
+    # synced_with_grafana - поле, по которому вечером определяется,
+    # было ли обьявление отправлено в графану утром в статусе ожидания.
 
-async def send_waiting_offers_and_clients_amount_to_grafana():
     # количество клиентов и заданий в ожидании в начале дня, которые будут отправлены в графану 
-    waiting_clients_count = await sync_waiting_clients_with_grafana()
-    waiting_offers_count = await sync_waiting_offers_with_grafana()
+    waiting_clients_count = await get_unsynced_waiting_objects_count('clients')
+    waiting_offers_count = await get_unsynced_waiting_objects_count('offers_for_call')
+
     # отправка метрик в графану
-    await send_segments_to_grafana('waiting_clients', count=waiting_clients_count)
-    await send_segments_to_grafana('waiting_offers', count=waiting_offers_count)
+    statsd.incr('waiting_clients.count', count=waiting_clients_count)
+    await send_segments_count_to_grafana('waiting_clients.count')
+
+    statsd.incr( 'waiting_offers.count', count=waiting_offers_count)
+    await send_segments_count_to_grafana('waiting_offers.count')
+
+    # синхронизация клиентов с заданий с графаной(проставляем synced_with_grafana = TRUE)
+    await sync_waiting_objects_with_grafana('clients')
+    await sync_waiting_objects_with_grafana('offers_for_call')
 
 
-async def send_non_waiting_offers_and_clients_amount_to_grafana():
-
+async def send_processed_offers_and_clients_amount_to_grafana() -> None:
     # количество всех клиентов и заданий в ожидании, которые попали в графану утром
-    synced_clients_count = await get_synced_clients_count()
-    synced_offers_count = await get_synced_offers_count()
+    synced_clients_count = await get_synced_objects_count('clients')
+    synced_offers_count = await get_synced_objects_count('offers_for_call')
 
     # количество обработаных клиентов и заданий в конце дня.
-    # обработаные - те, которые утром попали в графану в ожидании, и в течении дня их статус поменялся)
-    non_waiting_synced_clients_count = await get_non_waiting_synced_clients_count()
-    non_waiting_synced_offers_count = await get_non_waiting_synced_offers_count()
+    # обработаные - те, которые утром попали в графану в ожидании, и в течении дня их статус поменялся
+    processed_synced_clients_count = await get_processed_synced_objects_count('clients')
+    processed_synced_offers_count = await get_processed_synced_objects_count('offers_for_call')
 
     # процент обработаных клиентов и заданий в конце дня
-    non_waiting_synced_offers_percentage = await get_synced_percentage(synced_offers_count, non_waiting_synced_offers_count)
-    non_waiting_synced_clients_percentage = await get_synced_percentage(synced_clients_count, non_waiting_synced_clients_count)
+    processed_synced_offers_percentage = await get_synced_percentage(
+        synced_offers_count,
+        processed_synced_offers_count
+    )
+    processed_synced_clients_percentage = await get_synced_percentage(
+        synced_clients_count,
+        processed_synced_clients_count
+    )
 
     # отправка метрик в графану
-    await send_segments_to_grafana('non_waiting_offers', count=non_waiting_synced_offers_count)
-    await send_segments_to_grafana('non_waiting_clients', count=non_waiting_synced_clients_count)
-    statsd.incr(f'non_waiting_clients.percentage', count=non_waiting_synced_clients_percentage)
-    statsd.incr(f'non_waiting_offers.percentage', count=non_waiting_synced_offers_percentage)
+    statsd.incr('processed_offers.count', count=processed_synced_offers_count)
+    await send_segments_count_to_grafana('processed_offers.count')
+    statsd.incr('processed_clients.count',count=processed_synced_clients_count)
+    await send_segments_count_to_grafana('processed_clients.count')
 
-    # проставляем клиентам и заданиям synced_with_grafana = NULL
-    await unsync_clients_with_grafana()
-    await unsync_offers_with_grafana()
+    statsd.incr(
+        'processed_clients.percentage',
+        count=processed_synced_clients_percentage
+    )
+    await send_segments_count_to_grafana(
+        'processed_clients.percentage'
+    )
+    statsd.incr(
+        'processed_offers.percentage',
+        count=processed_synced_offers_percentage
+    )
+    await send_segments_count_to_grafana(
+        'processed_offers.percentage'
+    )
+
+    # в конце дня проставляем клиентам и заданиям synced_with_grafana = NULL
+    await unsync_objects_with_grafana('clients')
+    await unsync_objects_with_grafana('offers_for_call')
 
 
-async def send_segments_to_grafana(key, count, rate=1):
-    statsd.incr(f'{key}.count', count=count)
-    # for segmented_key, segmented_count in get_segmentation(key).items():
-    #     statsd.incr(segmented_key, count=segmented_count, rate=rate)
+async def get_count(obj) -> str:
+    try:
+        count = get_synced_percentage(
+            obj['synced_count'],
+            obj['processed_synced_count'],
+        )
+    except KeyError:
+        count = obj['count']
+    return count
 
 
-async def get_segmentation(key):
-    result = {}
-    regions = await get_regions(key)
-    segments = await get_segments(key)
-    categories = await get_categories(key)
+async def send_segments_count_to_grafana(metric: str):
+    regions: list = await get_segmented_objects(metric, 'regions')
+    user_segments: list = await get_segmented_objects(metric, 'user_segments')
+    categories: list = await get_segmented_objects(metric, 'categories')
+    print('regions:', regions)
+    print('user_segments:', user_segments)
+    print('categories:', categories)
     for region in regions:
-        region_name = region['region']
-        region_count = region['count']
-        result[f'{key}.count.region_{region_name}'] = region_count
-    for segment in segments:
-        segment_name = segment['segment']
-        segment_count = segment['count']
-        result[f'{key}.count.segment_{segment_name}'] = segment_count
+        name = region['region']
+        count = get_count(region)
+        statsd.incr(f'{metric}.region.{name}', count=count)
+    for segment in user_segments:
+        name = segment['segment']
+        count = get_count(segment)
+        statsd.incr(f'{metric}.segment.{name}', count=count)
     for category in categories:
-        category_name = category['segment']
-        category_count = category['count']
-        result[f'{key}.count.category_{category_name}'] = category_count
-    return result
+        name = category['category']
+        count = get_count(category)
+        statsd.incr(f'{metric}.category.{name}', count=count)
 
 
-async def get_synced_percentage(synced_count, non_waiting_synced_count):
-    # synced_count - количество в ожидании утром
-    # non_waiting_synced_count - количество обработаных в течении дня
-    if synced_count == 0 or non_waiting_synced_count == 0:
-        non_waiting_synced_percentage = 0
+async def get_synced_percentage(synced_count, processed_synced_count) -> int:
+    # synced_count - количество синхронизированых с графаной утром(утром они были в ожидании)
+    # processed_synced_count - количество обработаных в течении дня
+    if synced_count == 0 or processed_synced_count == 0:
+        processed_synced_percentage = 0
     else:
-        non_waiting_synced_percentage = non_waiting_synced_count / synced_count * 100
-    return int(non_waiting_synced_percentage)
+        processed_synced_percentage = processed_synced_count / synced_count * 100
+    return int(processed_synced_percentage)
 
-
-async def get_regions(key):
-    default_regions_query = """
-        SELECT source_object_model->'region', COUNT(source_object_model->'region')
-        FROM parsed_offers
-        WHERE id IN (
-            SELECT parsed_id FROM offers_for_call
-        )
-        GROUP BY source_object_model->'region';
-    """
-    if key == 'waiting_clients':
-        regions = 'TODO ...'
-    elif key == 'waiting_offers':
-        regions = 'TODO ...'
-    elif key == 'non_waiting_offers':
-        regions = 'TODO ...'
-    elif key == 'non_waiting_clients':
-        regions = 'TODO ...'
-    return regions 
-
-
-async def get_segments(key):
-    default_segments_query = """
-        SELECT user_segment, COUNT(user_segment)
-        FROM parsed_offers
-        WHERE id IN (
-            SELECT parsed_id FROM offers_for_call
-        )
-        GROUP BY user_segment;
-    """
-    if key == 'waiting_clients':
-        segments = 'TODO ...'
-    elif key == 'waiting_offers':
-        segments = 'TODO ...'
-    elif key == 'non_waiting_offers':
-        segments = 'TODO ...'
-    elif key == 'non_waiting_clients':
-        segments = 'TODO ...'
-    return segments 
-
-
-async def get_categories(key):
-    default_categories_query = """
-        SELECT category, COUNT(category)
-        FROM offers_for_call
-        GROUP BY category;
-    """
-    if key == 'waiting_clients':
-        categories = 'TODO ...'
-    elif key == 'waiting_offers':
-        categories = 'TODO ...'
-    elif key == 'non_waiting_offers':
-        categories = 'TODO ...'
-    elif key == 'non_waiting_clients':
-        categories = 'TODO ...'
-    return categories 

@@ -12,7 +12,7 @@ from external_offers.services.send_offers_for_call_to_kafka import send_offers_f
 from external_offers.services.send_parsed_offers_to_kafka import send_parsed_offers_to_kafka
 from external_offers.services.send_offers_and_clients_to_grafana import (
     send_waiting_offers_and_clients_amount_to_grafana,
-    send_non_waiting_offers_and_clients_amount_to_grafana,
+    send_processed_offers_and_clients_amount_to_grafana,
 )
 from external_offers.web.urls import urlpatterns
 
@@ -56,9 +56,9 @@ def send_waiting_offers_and_clients_amount_to_grafana_cron():
 
 
 @cli.command()
-def send_non_waiting_offers_and_clients_amount_to_grafana_cron():
+def send_processed_offers_and_clients_amount_to_grafana_cron():
     """ Отправить в grafana количество заданий и клиентов которых взяли в работу за день """
-    IOLoop.current().run_sync(send_non_waiting_offers_and_clients_amount_to_grafana)
+    IOLoop.current().run_sync(send_processed_offers_and_clients_amount_to_grafana)
 
 
 @cli.command()
