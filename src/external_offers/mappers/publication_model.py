@@ -104,6 +104,7 @@ def map_save_request_to_publication_model(
             floor_number=request.floor_number,
             category=category,
             cian_user_id=cian_user_id,
+            user_id=cian_user_id,
             phones=[
                 Phone(
                     number=phone_number[2:],
