@@ -49,6 +49,11 @@ def parsed_offers_fixture_for_offers_for_call_test(database_fixture_folder):
 
 
 @pytest.fixture
+def segmentation_rows_fixture(database_fixture_folder):
+    return database_fixture_folder / 'segmentation_rows.sql'
+
+
+@pytest.fixture
 def admin_external_offers_operator_without_client_html(pages_folder):
     return (pages_folder /
             'admin_external_offers_operator_without_client.html')

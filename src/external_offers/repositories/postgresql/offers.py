@@ -23,7 +23,9 @@ from external_offers.mappers import (
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
-
+from external_offers.services.grafana_metric import (
+    get_clients_with_more_than_1_offer_query,
+)
 
 _REGION_FIELD = 'region'
 
@@ -765,17 +767,7 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids):
 
 # grafana 
 
-
-async def get_clients_with_more_than_1_offer_query():
-    return """
-            SELECT client_id
-            FROM offers_for_call as ofc
-            GROUP BY ofc.client_id
-            HAVING COUNT(1) > 1
-    """
-
-
-async def get_unsynced_waiting_objects_count(table_name) -> str:
+async def get_unsynced_waiting_objects_count(table_name: str) -> str:
     ''' получить количество заданий в ожидании, у клиентов которых больше 1 задания'''
     clients_with_more_than_1_offer_query = await get_clients_with_more_than_1_offer_query() 
     row = await pg.get().fetchrow(f"""
@@ -787,7 +779,7 @@ async def get_unsynced_waiting_objects_count(table_name) -> str:
     return row['count']
 
 
-async def sync_waiting_objects_with_grafana(table_name) -> None:
+async def sync_waiting_objects_with_grafana(table_name: str) -> None:
     clients_with_more_than_1_offer_query = await get_clients_with_more_than_1_offer_query() 
     await pg.get().execute(f"""
         UPDATE {table_name}
@@ -798,7 +790,7 @@ async def sync_waiting_objects_with_grafana(table_name) -> None:
     """)
 
 
-async def get_processed_synced_objects_count(table_name) -> str:
+async def get_processed_synced_objects_count(table_name: str) -> str:
     row = await pg.get().fetchrow(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana IS TRUE
@@ -807,7 +799,7 @@ async def get_processed_synced_objects_count(table_name) -> str:
     return row['count']
 
 
-async def get_synced_objects_count(table_name) -> str:
+async def get_synced_objects_count(table_name: str) -> str:
     row = await pg.get().fetchrow(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana IS TRUE;
@@ -815,7 +807,7 @@ async def get_synced_objects_count(table_name) -> str:
     return row['count']
 
 
-async def unsync_objects_with_grafana(table_name) -> None:
+async def unsync_objects_with_grafana(table_name: str) -> None:
     await pg.get().execute(f"""
         UPDATE {table_name}
         SET synced_with_grafana = NULL
@@ -823,134 +815,15 @@ async def unsync_objects_with_grafana(table_name) -> None:
     """)
 
 
-# grafana segmentation
-
-
-segment_types_to_field_names_mapper = {
-    "regions": "parsed_offers.source_object_model->>'region'",
-    "user_segments": 'parsed_offers.user_segment',
-    "categories": 'category',
-}
-
-
-async def transform_list_into_dict(lst) -> dict:
-    dct = {}
-    for element in lst:
-        key = element['name']
-        value = element['count']
-        dct[key] = value
-    return dct
-
-
-async def build_segmented_query(field_name: str, query: str) -> str:
-    return f"""
-        SELECT {field_name}, COUNT({field_name})
+async def fetch_segmented_objects(field_name, field_alias, status_query):
+    segmentation_query = f"""
+        SELECT {field_name} AS {field_alias}, COUNT({field_name}) AS count
         FROM offers_for_call as ofc
         JOIN clients
             ON clients.client_id = ofc.client_id
         JOIN parsed_offers
             ON parsed_offers.id = ofc.parsed_id
-        {query}
+        {status_query}
         GROUP BY {field_name};
     """
-
-
-async def get_segmented_objects_for_percentage(metric, segment_type) -> list:
-        if metric == 'processed_clients.percentage':
-            synced_count_query = """
-            WHERE clients.synced_with_grafana IS TRUE
-            """
-            processed_synced_count_query = """
-            WHERE clients.synced_with_grafana IS TRUE
-            AND clients.status <> 'waiting'
-            """
-        elif metric == 'processed_offers.percentage':
-            synced_count_query = """
-            WHERE ofc.synced_with_grafana IS TRUE
-            """
-            processed_synced_count_query = """
-            WHERE ofc.synced_with_grafana IS TRUE
-            AND client.status <> 'waiting' 
-            """
-
-        field_name = segment_types_to_field_names_mapper[segment_type]
-
-        segmented_synced_count_query: str = await build_segmented_query(
-            field_name, synced_count_query
-        )
-        segmented_synced_count: list = await pg.get().fetch(
-            segmented_synced_count_query
-        )
-        synced_count: dict = await transform_list_into_dict(
-            segmented_synced_count
-        )
-
-        processed_segmented_synced_count_query: str = await build_segmented_query(
-            field_name, processed_synced_count_query
-        )
-        processed_segmented_synced_count: list = await pg.get().fetch(
-            processed_segmented_synced_count_query
-        )
-        processed_synced_count: dict = await transform_list_into_dict(
-            processed_segmented_synced_count
-        )
-
-        segmented_objects_for_percentage = []
-        for synced_name, synced_count in synced_count.items():
-            processed_synced_name = processed_synced_count[synced_name]
-            processed_synced_count = processed_synced_count[synced_name]
-            assert synced_count == synced_name
-            name = synced_count  
-            segmented_objects_for_percentage.append({
-                'name': name,
-                'synced_name': synced_name,
-                'synced_count': synced_count,
-                'processed_synced_name': processed_synced_name,
-                'processed_synced_count': processed_synced_count,
-            })
-        print("segmented_objects_for_percentage:", segmented_objects_for_percentage)
-        return segmented_objects_for_percentage
-
-
-async def get_segmented_objects(metric: str, segment_type: str) -> list:
-
-    if metric in ["processed_clients.percentage", "processed_offers.percentage"]:
-        return await get_segmented_objects_for_percentage(metric, segment_type):
-
-    clients_with_more_than_1_offer_query = await get_clients_with_more_than_1_offer_query()
-    if metric == "waiting_offers.count":
-        status_query = f"""
-        WHERE ofc.synced_with_grafana IS NOT TRUE
-        AND ofc.status = 'waiting'
-        AND ofc.client_id IN ({clients_with_more_than_1_offer_query})
-        """
-    elif metric == "waiting_clients.count":
-        status_query = f"""
-        WHERE clients.synced_with_grafana IS NOT TRUE
-        AND clients.status = 'waiting'
-        AND clients.client_id IN ({clients_with_more_than_1_offer_query})
-        """
-    elif metric == "processed_offers.count":
-        status_query = f"""
-        WHERE ofc.synced_with_grafana IS TRUE
-        AND ofc.status <> 'waiting'
-        """
-    elif metric == "processed_clients.count":
-        status_query = f"""
-        WHERE clients.synced_with_grafana IS TRUE
-        AND clients.status <> 'waiting'
-        """
-    segment_types_to_field_names_mapper = {
-        "regions": "parsed_offers.source_object_model->>'region'",
-        "user_segments": 'parsed_offers.user_segment',
-        "categories": 'category',
-    }
-    field_name = segment_types_to_field_names_mapper[segment_type]
-    segmentated_query = await build_segmented_query(field_name, status_query)
-    
-    print('------')
-    print("segment_type: ", segment_type)
-    print("metric: ", metric)
-    print("segmentated_query: ", segmentated_query)
-    print('------')
-    return await pg.get().fetch(segmentated_query)
+    return pg.get().fetch(segmentation_query)
