@@ -29,10 +29,3 @@ parsed_offers_change_producer: EntityKafkaProducer[ParsedOfferKafkaMessage] = ge
     topic='parsed-offers.change',
     message_type=ParsedOfferKafkaMessage,
 )
-
-kafka_preposition_already_published_producer: EntityKafkaProducer[AlreadyPublishedKafkaMessage] = (
-    get_kafka_entity_producer(
-        topic='preposition-admin.already-published',
-        message_type=AlreadyPublishedKafkaMessage,
-    )
-)

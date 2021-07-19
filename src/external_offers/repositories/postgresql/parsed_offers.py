@@ -135,26 +135,6 @@ async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optiona
     return parsed_object_model_mapper.map_from(json.loads(row['source_object_model'])) if row else None
 
 
-async def get_parsed_offer_by_offer_id(*, offer_id: str) -> Optional[ParsedOffer]:
-    po = tables.parsed_offers.alias()
-    ofc = tables.offers_for_call.alias()
-
-    query, params = asyncpgsa.compile_query(
-        select([po])
-        .select_from(
-            po.join(
-                ofc,
-                po.c.id == ofc.c.parsed_id
-            )
-        )
-        .where(ofc.c.id == offer_id)
-    )
-
-    row = await pg.get().fetchrow(query, *params)
-
-    return parsed_offer_mapper.map_from(row) if row else None
-
-
 async def get_lastest_event_timestamp() -> Optional[datetime]:
     po = tables.parsed_offers.alias()
     query, params = asyncpgsa.compile_query(
