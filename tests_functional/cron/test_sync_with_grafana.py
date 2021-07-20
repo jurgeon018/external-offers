@@ -9,7 +9,7 @@ import pytest
         UPDATE clients SET status = 'waiting';
         UPDATE offers_for_call SET status = 'waiting';
         """,
-    
+
         # была обработана часть обьявлений, часть обьявлений в ожидании
         """
         UPDATE offers_for_call SET status = 'inProgress'
@@ -31,7 +31,6 @@ async def test_sync_with_grafana(
     segmentation_rows_fixture,
     operators_actions,
 ):
-    print('\n\n\n\n\n\n\n\n\n')
     # arrange
     await pg.execute_scripts(segmentation_rows_fixture)
     synced_offers_sql = """
@@ -68,7 +67,7 @@ async def test_sync_with_grafana(
     expected_synced_clients_after_sync = await pg.fetchval(expected_synced_clients_after_sync_sql)
     synced_offers_before_sync = await pg.fetchval(synced_offers_sql)
     synced_clients_before_sync = await pg.fetchval(synced_clients_sql)
-    
+
     # act
     # утренний крон
     await runner.run_python_command('send-waiting-offers-and-clients-amount-to-grafana-cron')
@@ -84,7 +83,7 @@ async def test_sync_with_grafana(
 
     synced_offers_after_unsync = await pg.fetchval(synced_offers_sql)
     synced_clients_after_unsync = await pg.fetchval(synced_clients_sql)
-    
+
     # assert
     assert synced_offers_before_sync == 0
     assert synced_clients_before_sync == 0
@@ -92,4 +91,3 @@ async def test_sync_with_grafana(
     assert synced_clients_after_sync == expected_synced_clients_after_sync
     assert synced_offers_after_unsync == 0
     assert synced_clients_after_unsync == 0
-    print('\n\n\n\n\n\n\n\n\n')

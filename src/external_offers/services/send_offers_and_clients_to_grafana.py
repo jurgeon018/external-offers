@@ -1,7 +1,5 @@
 from cian_core.statsd import statsd
 
-from external_offers import pg
-from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
 from external_offers.repositories.postgresql.offers import (
     get_processed_synced_objects_count,
@@ -26,13 +24,12 @@ async def send_segments_count_to_grafana(metric: GrafanaMetric):
                 f'{metric}.{segment_type}.{segmented_object.segment_name}', 
                 count=segmented_object.segment_count
             )
-  
 
 
 async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
     # synced_with_grafana - поле, по которому вечером определяется,
     # было ли обьявление отправлено в графану утром в статусе ожидания.
-    
+
     waiting_clients_count = await get_unsynced_waiting_objects_count('clients')
     waiting_offers_count = await get_unsynced_waiting_objects_count('offers_for_call')
 
@@ -69,7 +66,7 @@ async def send_processed_offers_and_clients_amount_to_grafana() -> None:
     # отправка метрик в графану
     statsd.incr(GrafanaMetric.processed_offers_count, count=processed_synced_offers_count)
     await send_segments_count_to_grafana(GrafanaMetric.processed_offers_count)
-    statsd.incr(GrafanaMetric.processed_clients_count,count=processed_synced_clients_count)
+    statsd.incr(GrafanaMetric.processed_clients_count, count=processed_synced_clients_count)
     await send_segments_count_to_grafana(GrafanaMetric.processed_clients_count)
 
     statsd.incr(

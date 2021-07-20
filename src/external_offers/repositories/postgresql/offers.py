@@ -8,13 +8,11 @@ from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 
-import external_offers
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
 from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.enums import OfferStatus
-from external_offers.enums.client_status import ClientStatus
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
 from external_offers.mappers import (
     client_waiting_offers_count_mapper,
@@ -765,7 +763,7 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids):
         await pg.get().fetch(query, *params)
 
 
-# grafana 
+# grafana
 
 async def get_clients_with_more_than_1_offer_query():
     return """
@@ -777,8 +775,8 @@ async def get_clients_with_more_than_1_offer_query():
 
 
 async def get_unsynced_waiting_objects_count(table_name: str) -> str:
-    ''' получить количество заданий в ожидании, у клиентов которых больше 1 задания'''
-    clients_with_more_than_1_offer_query = await get_clients_with_more_than_1_offer_query() 
+    """ получить количество заданий в ожидании, у клиентов которых больше 1 задания"""
+    clients_with_more_than_1_offer_query = await get_clients_with_more_than_1_offer_query()
     row = await pg.get().fetchrow(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana IS NOT TRUE
