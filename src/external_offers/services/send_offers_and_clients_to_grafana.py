@@ -1,5 +1,6 @@
 from cian_core.statsd import statsd
 from external_offers import pg
+from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.repositories.postgresql.offers import (
     get_synced_objects_count,
     get_processed_synced_objects_count,
@@ -19,24 +20,28 @@ async def send_segments_count_to_grafana(metric: GrafanaMetric):
     user_segments = await get_segmented_objects(metric, GrafanaSegmentType.user_segment)
     categories = await get_segmented_objects(metric, GrafanaSegmentType.category)
     # print()
+    # print('----------------------------')
     # print('metric: ', metric)
     # print('regions:', regions)
     # print('user_segments:', user_segments)
     # print('categories:', categories)
-    # print()
     # print('----------------------------')
+    # print()
     for region in regions:
-        name = region[GrafanaSegmentType.region]
-        count = region['count']
-        statsd.incr(f'{metric}.region.{name}', count=count)
+        statsd.incr(
+            f'{metric}.{GrafanaSegmentType.region}.{region.segment_name}', 
+            count=region.segment_count
+        )
     for user_segment in user_segments:
-        name = user_segment[GrafanaSegmentType.user_segment]
-        count = user_segment['count']
-        statsd.incr(f'{metric}.user_segment.{name}', count=count)
+        statsd.incr(
+            f'{metric}.{GrafanaSegmentType.user_segment}.{user_segment.segment_name}', 
+            count=user_segment.segment_count
+        )
     for category in categories:
-        name = category[GrafanaSegmentType.category]
-        count = category['count']
-        statsd.incr(f'{metric}.category.{name}', count=count)
+        statsd.incr(
+            f'{metric}.{GrafanaSegmentType.category}.{category.segment_name}', 
+            count=category.segment_count
+        )
 
 
 async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
@@ -49,7 +54,6 @@ async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
     print('-----------')
     print('waiting_clients_count:', waiting_clients_count)
     print('waiting_offers_count:', waiting_offers_count)
-    print('-----------')
 
     # отправка метрик в графану
     statsd.incr(GrafanaMetric.waiting_clients_count, count=waiting_clients_count)
@@ -57,6 +61,8 @@ async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
 
     statsd.incr(GrafanaMetric.waiting_offers_count, count=waiting_offers_count)
     await send_segments_count_to_grafana(GrafanaMetric.waiting_offers_count)
+
+    print('-----------')
 
     # синхронизация клиентов с заданий с графаной(проставляем synced_with_grafana = TRUE)
     await sync_waiting_objects_with_grafana('clients')
@@ -81,6 +87,7 @@ async def send_processed_offers_and_clients_amount_to_grafana() -> None:
         synced_clients_count,
         processed_synced_clients_count
     )
+    print('--------------')
     print("synced_clients_count:", synced_clients_count)
     print("synced_offers_count:", synced_offers_count)
     print("processed_synced_clients_count:", processed_synced_clients_count)
@@ -107,6 +114,7 @@ async def send_processed_offers_and_clients_amount_to_grafana() -> None:
     await send_segments_count_to_grafana(
         GrafanaMetric.processed_offers_percentage
     )
+    print('--------------')
 
     # в конце дня проставляем клиентам и заданиям synced_with_grafana = NULL
     await unsync_objects_with_grafana('clients')

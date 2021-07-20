@@ -4,25 +4,25 @@ import pytest
 @pytest.mark.parametrize(
     'operators_actions',
     [
-        # # небыло обработано ниодного обьявления, все обьявления в ожидании
-        # """
-        # UPDATE clients SET status = 'waiting';
-        # UPDATE offers_for_call SET status = 'waiting';
-        # """,
+        # небыло обработано ниодного обьявления, все обьявления в ожидании
+        """
+        UPDATE clients SET status = 'waiting';
+        UPDATE offers_for_call SET status = 'waiting';
+        """,
+    
+        # была обработана часть обьявлений, часть обьявлений в ожидании
+        """
+        UPDATE offers_for_call SET status = 'inProgress'
+            WHERE status='waiting' AND client_id::Integer % 2 = 0;
+        UPDATE clients SET status = 'inProgress'
+            WHERE status='waiting' AND client_id::Integer % 2 = 0;
+        """,
 
         # было обработано все обьявления, нет ниодного обьявления в ожидании
         """
         UPDATE offers_for_call SET status = 'inProgress';
         UPDATE clients SET status = 'inProgress';
         """,
-    
-        # # была обработана часть обьявлений, часть обьявлений в ожидании
-        # """
-        # UPDATE offers_for_call SET status = 'inProgress'
-        #     WHERE status='waiting' AND client_id::Integer % 2 = 0;
-        # UPDATE clients SET status = 'inProgress'
-        #     WHERE status='waiting' AND client_id::Integer % 2 = 0;
-        # """,
     ]
 )
 async def test_sync_with_grafana(
@@ -31,6 +31,7 @@ async def test_sync_with_grafana(
     segmentation_rows_fixture,
     operators_actions,
 ):
+    print('\n\n\n\n\n\n\n\n\n')
     # arrange
     await pg.execute_scripts(segmentation_rows_fixture)
     synced_offers_sql = """
@@ -79,15 +80,16 @@ async def test_sync_with_grafana(
     synced_clients_after_sync = await pg.fetchval(synced_clients_sql)
 
     # вечерний крон
-    # await runner.run_python_command('send-processed-offers-and-clients-amount-to-grafana-cron')
+    await runner.run_python_command('send-processed-offers-and-clients-amount-to-grafana-cron')
 
-    # synced_offers_after_unsync = await pg.fetchval(synced_offers_sql)
-    # synced_clients_after_unsync = await pg.fetchval(synced_clients_sql)
+    synced_offers_after_unsync = await pg.fetchval(synced_offers_sql)
+    synced_clients_after_unsync = await pg.fetchval(synced_clients_sql)
     
     # assert
     assert synced_offers_before_sync == 0
     assert synced_clients_before_sync == 0
     assert synced_offers_after_sync == expected_synced_offers_after_sync
     assert synced_clients_after_sync == expected_synced_clients_after_sync
-    # assert synced_offers_after_unsync == 0
-    # assert synced_clients_after_unsync == 0
+    assert synced_offers_after_unsync == 0
+    assert synced_clients_after_unsync == 0
+    print('\n\n\n\n\n\n\n\n\n')
