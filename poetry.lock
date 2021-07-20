@@ -229,6 +229,19 @@ url = "https://nexus.cian.tech/repository/cian/simple"
 reference = "cian"
 
 [[package]]
+name = "brotli"
+version = "1.0.9"
+description = "Python bindings for the Brotli compression library"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
 name = "cached-property"
 version = "1.5.2"
 description = "A decorator for caching properties in classes."
@@ -320,7 +333,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-core"
-version = "1.43.0"
+version = "1.47.0"
 description = ""
 category = "main"
 optional = false
@@ -330,10 +343,11 @@ python-versions = ">=3.8.1"
 aiohttp = ">=3.7"
 anyio = ">=1.2.1,<3"
 attrs = "*"
-cached-property = "*"
+brotli = ">=1.0,<2"
+cached_property = "*"
 cian-cache = {version = ">=1.3.0", optional = true, markers = "extra == \"cache\""}
 cian-features = ">=1,<2"
-cian-http = ">=0.20"
+cian-http = ">=0.25"
 cian-json = "*"
 cian-kafka = {version = ">=1.2.0", extras = ["entity"], optional = true, markers = "extra == \"kafka\""}
 cian-lock = {version = "*", optional = true, markers = "extra == \"cache\""}
@@ -344,7 +358,7 @@ cian-settings = ">=2.0.0,<3.0.0"
 cian-swagger = ">=1.11"
 cian-web = ">=2.2.2"
 furl = "*"
-google-cloud-profiler = ">=2,<3"
+google-cloud-profiler = ">=3,<4"
 google-python-cloud-debugger = {version = ">=102.15,<103", markers = "sys_platform == \"linux\""}
 graphyte = {version = "*", optional = true, markers = "extra == \"graphite\""}
 jaeger-client = ">=4.3,<5"
@@ -500,7 +514,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-http"
-version = "0.21.1"
+version = "0.25.0"
 description = "CIAN async http library"
 category = "main"
 optional = false
@@ -509,17 +523,18 @@ python-versions = "*"
 [package.dependencies]
 asyncmc = "*"
 attrs = "*"
-cian-schemas = ">=2.5.0"
-jaeger-client = "*"
+cian-schemas = ">=2.15.0"
+jaeger-client = {version = "*", markers = "python_version >= \"3.7\""}
 msgpack = "*"
 opentracing = ">=2.0,<3.0"
-pycurl = "*"
+pycurl = {version = "*", markers = "sys_platform != \"win32\""}
 six = "*"
 statsd = "*"
 tornado = "*"
 ujson = "*"
 
 [package.extras]
+docs = ["furo", "sphinx", "sphinx-autodoc-typehints"]
 test = ["cian-lint", "freezegun", "mock", "pytest", "pytest-cov", "pytest-mock", "pytest-tornado", "diff-cover", "python-consul", "lovely-pytest-docker"]
 
 [package.source]
@@ -640,7 +655,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-rabbitmq"
-version = "3.1.2"
+version = "3.2.0"
 description = "Cian Python RabbitMQ Library"
 category = "main"
 optional = false
@@ -738,7 +753,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-swagger"
-version = "1.12.1"
+version = "1.14.0"
 description = ""
 category = "main"
 optional = false
@@ -748,7 +763,7 @@ python-versions = "*"
 attributes-doc = ">=0.1.1"
 cian-entities = ">=1.7"
 cian-enum = ">=1.1"
-cian-http = ">=0.19"
+cian-http = ">=0.24"
 cian-schemas = ">=2.14"
 cian-web = {version = ">=2.4", markers = "python_version >= \"3\""}
 marshmallow = "<3"
@@ -1061,16 +1076,16 @@ reference = "cian"
 
 [[package]]
 name = "google-api-python-client"
-version = "1.12.8"
+version = "2.13.0"
 description = "Google API Client Library for Python"
 category = "main"
 optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
+python-versions = ">=3.6"
 
 [package.dependencies]
 google-api-core = ">=1.21.0,<2dev"
-google-auth = ">=1.16.0"
-google-auth-httplib2 = ">=0.0.3"
+google-auth = ">=1.16.0,<2dev"
+google-auth-httplib2 = ">=0.1.0"
 httplib2 = ">=0.15.0,<1dev"
 six = ">=1.13.0,<2dev"
 uritemplate = ">=3.0.0,<4dev"
@@ -1124,14 +1139,14 @@ reference = "cian"
 
 [[package]]
 name = "google-cloud-profiler"
-version = "2.0.6"
+version = "3.0.5"
 description = "Google Cloud Profiler Python Agent"
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-google-api-python-client = "<1.12.0 || >1.12.0,<2"
+google-api-python-client = "<1.12.0 || >1.12.0,<2.0.2 || >2.0.2"
 google-auth = ">=1.0.0"
 google-auth-httplib2 = "*"
 protobuf = "*"
@@ -2508,7 +2523,7 @@ reference = "cian"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "383cceac155d06bd2191075d0f6b07acbb7dfc8353b8406bd06267a57cd64d19"
+content-hash = "4689be2b77ee01df09fd00e31f639b643f4cc630be11bfab7666369269cd9f58"
 
 [metadata.files]
 aiohttp = [
@@ -2609,6 +2624,40 @@ backoff = [
     {file = "backoff-1.11.1-py2.py3-none-any.whl", hash = "sha256:61928f8fa48d52e4faa81875eecf308eccfb1016b018bb6bd21e05b5d90a96c5"},
     {file = "backoff-1.11.1.tar.gz", hash = "sha256:ccb962a2378418c667b3c979b504fdeb7d9e0d29c0579e3b13b86467177728cb"},
 ]
+brotli = [
+    {file = "Brotli-1.0.9-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:268fe94547ba25b58ebc724680609c8ee3e5a843202e9a381f6f9c5e8bdb5c70"},
+    {file = "Brotli-1.0.9-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:c2415d9d082152460f2bd4e382a1e85aed233abc92db5a3880da2257dc7daf7b"},
+    {file = "Brotli-1.0.9-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:5913a1177fc36e30fcf6dc868ce23b0453952c78c04c266d3149b3d39e1410d6"},
+    {file = "Brotli-1.0.9-cp27-cp27m-win32.whl", hash = "sha256:afde17ae04d90fbe53afb628f7f2d4ca022797aa093e809de5c3cf276f61bbfa"},
+    {file = "Brotli-1.0.9-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:7cb81373984cc0e4682f31bc3d6be9026006d96eecd07ea49aafb06897746452"},
+    {file = "Brotli-1.0.9-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:db844eb158a87ccab83e868a762ea8024ae27337fc7ddcbfcddd157f841fdfe7"},
+    {file = "Brotli-1.0.9-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:c83aa123d56f2e060644427a882a36b3c12db93727ad7a7b9efd7d7f3e9cc2c4"},
+    {file = "Brotli-1.0.9-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:6b2ae9f5f67f89aade1fab0f7fd8f2832501311c363a21579d02defa844d9296"},
+    {file = "Brotli-1.0.9-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:68715970f16b6e92c574c30747c95cf8cf62804569647386ff032195dc89a430"},
+    {file = "Brotli-1.0.9-cp35-cp35m-win32.whl", hash = "sha256:defed7ea5f218a9f2336301e6fd379f55c655bea65ba2476346340a0ce6f74a1"},
+    {file = "Brotli-1.0.9-cp35-cp35m-win_amd64.whl", hash = "sha256:88c63a1b55f352b02c6ffd24b15ead9fc0e8bf781dbe070213039324922a2eea"},
+    {file = "Brotli-1.0.9-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:503fa6af7da9f4b5780bb7e4cbe0c639b010f12be85d02c99452825dd0feef3f"},
+    {file = "Brotli-1.0.9-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:40d15c79f42e0a2c72892bf407979febd9cf91f36f495ffb333d1d04cebb34e4"},
+    {file = "Brotli-1.0.9-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:93130612b837103e15ac3f9cbacb4613f9e348b58b3aad53721d92e57f96d46a"},
+    {file = "Brotli-1.0.9-cp36-cp36m-win32.whl", hash = "sha256:61a7ee1f13ab913897dac7da44a73c6d44d48a4adff42a5701e3239791c96e14"},
+    {file = "Brotli-1.0.9-cp36-cp36m-win_amd64.whl", hash = "sha256:1c48472a6ba3b113452355b9af0a60da5c2ae60477f8feda8346f8fd48e3e87c"},
+    {file = "Brotli-1.0.9-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:3b78a24b5fd13c03ee2b7b86290ed20efdc95da75a3557cc06811764d5ad1126"},
+    {file = "Brotli-1.0.9-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:9d12cf2851759b8de8ca5fde36a59c08210a97ffca0eb94c532ce7b17c6a3d1d"},
+    {file = "Brotli-1.0.9-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:6c772d6c0a79ac0f414a9f8947cc407e119b8598de7621f39cacadae3cf57d12"},
+    {file = "Brotli-1.0.9-cp37-cp37m-win32.whl", hash = "sha256:f909bbbc433048b499cb9db9e713b5d8d949e8c109a2a548502fb9aa8630f0b1"},
+    {file = "Brotli-1.0.9-cp37-cp37m-win_amd64.whl", hash = "sha256:97f715cf371b16ac88b8c19da00029804e20e25f30d80203417255d239f228b5"},
+    {file = "Brotli-1.0.9-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:160c78292e98d21e73a4cc7f76a234390e516afcd982fa17e1422f7c6a9ce9c8"},
+    {file = "Brotli-1.0.9-cp38-cp38-manylinux1_i686.whl", hash = "sha256:b663f1e02de5d0573610756398e44c130add0eb9a3fc912a09665332942a2efb"},
+    {file = "Brotli-1.0.9-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:5b6ef7d9f9c38292df3690fe3e302b5b530999fa90014853dcd0d6902fb59f26"},
+    {file = "Brotli-1.0.9-cp38-cp38-win32.whl", hash = "sha256:35a3edbe18e876e596553c4007a087f8bcfd538f19bc116917b3c7522fca0429"},
+    {file = "Brotli-1.0.9-cp38-cp38-win_amd64.whl", hash = "sha256:269a5743a393c65db46a7bb982644c67ecba4b8d91b392403ad8a861ba6f495f"},
+    {file = "Brotli-1.0.9-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:5cb1e18167792d7d21e21365d7650b72d5081ed476123ff7b8cac7f45189c0c7"},
+    {file = "Brotli-1.0.9-cp39-cp39-manylinux1_i686.whl", hash = "sha256:16d528a45c2e1909c2798f27f7bf0a3feec1dc9e50948e738b961618e38b6a7b"},
+    {file = "Brotli-1.0.9-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:56d027eace784738457437df7331965473f2c0da2c70e1a1f6fdbae5402e0389"},
+    {file = "Brotli-1.0.9-cp39-cp39-win32.whl", hash = "sha256:cfc391f4429ee0a9370aa93d812a52e1fee0f37a81861f4fdd1f4fb28e8547c3"},
+    {file = "Brotli-1.0.9-cp39-cp39-win_amd64.whl", hash = "sha256:854c33dad5ba0fbd6ab69185fec8dab89e13cda6b7d191ba111987df74f38761"},
+    {file = "Brotli-1.0.9.zip", hash = "sha256:4d1b810aa0ed773f81dceda2cc7b403d01057458730e309856356d4ef4188438"},
+]
 cached-property = [
     {file = "cached-property-1.5.2.tar.gz", hash = "sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130"},
     {file = "cached_property-1.5.2-py2.py3-none-any.whl", hash = "sha256:df4f613cf7ad9a588cc381aaf4a512d26265ecebd5eb9e1ba12f1319eb85a6a0"},
@@ -2634,8 +2683,8 @@ cian-cache = [
     {file = "cian_cache-1.4.1-py3-none-any.whl", hash = "md5:6fba7799cae5a011635e94a305ea7664"},
 ]
 cian-core = [
-    {file = "cian-core-1.43.0.tar.gz", hash = "md5:ce43ad9c3dca139ec9fb3f8d91075b9c"},
-    {file = "cian_core-1.43.0-py3-none-any.whl", hash = "md5:965313cfd97e9c8c47cd152ffae5f1c4"},
+    {file = "cian-core-1.47.0.tar.gz", hash = "md5:65a3d3856b62b7a3236f251a422244b7"},
+    {file = "cian_core-1.47.0-cp36-cp36m-linux_x86_64.whl", hash = "md5:c9156e3f06b2f43ef44426756da64e03"},
 ]
 cian-entities = [
     {file = "cian-entities-1.9.1.tar.gz", hash = "md5:2f414deb246dae2bcaf0625faa966826"},
@@ -2657,8 +2706,8 @@ cian-helpers = [
     {file = "cian-helpers-1.1.0.tar.gz", hash = "md5:6e833fb63cf3cc6e20f80d598a4808a5"},
 ]
 cian-http = [
-    {file = "cian-http-0.21.1.tar.gz", hash = "md5:694db85e7773226c8f175caa5291b62f"},
-    {file = "cian_http-0.21.1-py2.py3-none-any.whl", hash = "md5:7305e060c8c13a894252b330a7dca7b4"},
+    {file = "cian-http-0.25.0.tar.gz", hash = "md5:b7ed525542118be979bf2bd31312ae93"},
+    {file = "cian_http-0.25.0-py2.py3-none-any.whl", hash = "md5:a953ec8859ec55966d8ec50eca58ca6e"},
 ]
 cian-json = [
     {file = "cian-json-0.0.1.tar.gz", hash = "md5:8cbc50188a0d948bbf7e46550f5b3720"},
@@ -2681,8 +2730,8 @@ cian-pg = [
     {file = "cian_pg-0.4.1-py3-none-any.whl", hash = "md5:1abfa3bde82478485f7d369e02e27dae"},
 ]
 cian-rabbitmq = [
-    {file = "cian-rabbitmq-3.1.2.tar.gz", hash = "md5:91c59938b3099661d739ea827095470a"},
-    {file = "cian_rabbitmq-3.1.2-py2.py3-none-any.whl", hash = "md5:e2369d2c181a53181781a7a8ffbc14ae"},
+    {file = "cian-rabbitmq-3.2.0.tar.gz", hash = "md5:cb78f664d0f708c67df8c872599c71b3"},
+    {file = "cian_rabbitmq-3.2.0-py2.py3-none-any.whl", hash = "md5:5cae8d83cdbe31a60a4c77423c52362e"},
 ]
 cian-redis = [
     {file = "cian-redis-1.1.0.tar.gz", hash = "md5:40054c558093e2f709a280d517cb4552"},
@@ -2697,8 +2746,8 @@ cian-settings = [
     {file = "cian_settings-2.2.0-py3-none-any.whl", hash = "md5:8a81706294a8c625cc934cc1ca9a0bcd"},
 ]
 cian-swagger = [
-    {file = "cian-swagger-1.12.1.tar.gz", hash = "md5:cb8e637e061fa3f5444b0457977b7b06"},
-    {file = "cian_swagger-1.12.1-py3-none-any.whl", hash = "md5:cd53cbe55a465c5d71b098eb51f0c0a5"},
+    {file = "cian-swagger-1.14.0.tar.gz", hash = "md5:983ca435ca9c1717093dabeca5f96963"},
+    {file = "cian_swagger-1.14.0-py3-none-any.whl", hash = "md5:bbdbf088e6f50930c790617e631126d4"},
 ]
 cian-test-utils = [
     {file = "cian-test-utils-1.7.1.tar.gz", hash = "md5:70ced63ca41c06536439b37731418cf0"},
@@ -2831,8 +2880,8 @@ google-api-core = [
     {file = "google_api_core-1.31.0-py2.py3-none-any.whl", hash = "sha256:a9f979b5c6a9cad31a4120ca6be712df76adc32336a7bf4bc2f4331a1b527fe7"},
 ]
 google-api-python-client = [
-    {file = "google-api-python-client-1.12.8.tar.gz", hash = "sha256:f3b9684442eec2cfe9f9bb48e796ef919456b82142c7528c5fd527e5224f08bb"},
-    {file = "google_api_python_client-1.12.8-py2.py3-none-any.whl", hash = "sha256:3c4c4ca46b5c21196bec7ee93453443e477d82cbfa79234d1ce0645f81170eaf"},
+    {file = "google-api-python-client-2.13.0.tar.gz", hash = "sha256:345bb7249ac9af93a6c75e4adb93a41139459945aee61e611a5c8e5b146cbef7"},
+    {file = "google_api_python_client-2.13.0-py2.py3-none-any.whl", hash = "sha256:b3874333cabc5ce46dcda2da48f1b258e227a9ae61688211e277e11270386307"},
 ]
 google-auth = [
     {file = "google-auth-1.33.0.tar.gz", hash = "sha256:9bd25d835c01ca3dd9045ea0b50f036e3fe3868ee2c5a9773a661925bbdf46ca"},
@@ -2843,7 +2892,7 @@ google-auth-httplib2 = [
     {file = "google_auth_httplib2-0.1.0-py2.py3-none-any.whl", hash = "sha256:31e49c36c6b5643b57e82617cb3e021e3e1d2df9da63af67252c02fa9c1f4a10"},
 ]
 google-cloud-profiler = [
-    {file = "google-cloud-profiler-2.0.6.tar.gz", hash = "sha256:4896fd7187043de3e01da0393004e275946be03cc74ac74681f4c74f2ba5fb52"},
+    {file = "google-cloud-profiler-3.0.5.tar.gz", hash = "sha256:b7910549db5bdc9055e9c0c467d518104c9e0b61364b193234aabc21fbe91c45"},
 ]
 google-python-cloud-debugger = [
     {file = "google_python_cloud_debugger-102.15-cp38-cp38-manylinux2014_aarch64.whl", hash = "md5:324f34365a52d8afb91f1e547ef070ff"},

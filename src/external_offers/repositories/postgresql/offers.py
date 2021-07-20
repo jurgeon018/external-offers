@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import AsyncGenerator, List, Optional
+from typing import AsyncGenerator, Optional
 
 import asyncpgsa
 import pytz
@@ -57,7 +57,7 @@ async def save_offer_for_call(*, offer: Offer) -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_offers_in_progress_by_operator(*, operator_id: int) -> List[Offer]:
+async def get_offers_in_progress_by_operator(*, operator_id: int) -> list[Offer]:
     query = """
         SELECT
             ofc.*
@@ -77,7 +77,7 @@ async def get_offers_in_progress_by_operator(*, operator_id: int) -> List[Offer]
     return [offer_mapper.map_from(row) for row in rows]
 
 
-async def get_enriched_offers_in_progress_by_operator(*, operator_id: int) -> List[EnrichedOffer]:
+async def get_enriched_offers_in_progress_by_operator(*, operator_id: int) -> list[EnrichedOffer]:
     query = """
         SELECT
             ofc.*,
@@ -195,7 +195,7 @@ async def set_undrafted_offers_in_progress_by_client(
     *,
     client_id: str,
     call_id: str,
-) -> List[str]:
+) -> list[str]:
     sql = (
         update(
             offers_for_call
@@ -218,35 +218,35 @@ async def set_undrafted_offers_in_progress_by_client(
     return [r['id'] for r in result]
 
 
-async def set_offers_declined_by_client(*, client_id: str) -> List[str]:
+async def set_offers_declined_by_client(*, client_id: str) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.declined
     )
 
 
-async def set_offers_call_interrupted_by_client(*, client_id: str) -> List[str]:
+async def set_offers_call_interrupted_by_client(*, client_id: str) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_interrupted
     )
 
 
-async def set_offers_phone_unavailable_by_client(*, client_id: str) -> List[str]:
+async def set_offers_phone_unavailable_by_client(*, client_id: str) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.phone_unavailable
     )
 
 
-async def set_offers_promo_given_by_client(*, client_id: str) -> List[str]:
+async def set_offers_promo_given_by_client(*, client_id: str) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.promo_given
     )
 
 
-async def set_offers_call_missed_by_client(*, client_id: str) -> List[str]:
+async def set_offers_call_missed_by_client(*, client_id: str) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_missed,
@@ -254,7 +254,7 @@ async def set_offers_call_missed_by_client(*, client_id: str) -> List[str]:
     )
 
 
-async def set_offers_call_later_by_client(*, client_id: str) -> List[str]:
+async def set_offers_call_later_by_client(*, client_id: str) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_later,
@@ -267,7 +267,7 @@ async def set_offers_status_and_priority_by_client(
     client_id: str,
     status: OfferStatus,
     priority: Optional[int] = None
-) -> List[str]:
+) -> list[str]:
     values = {
         'status': status.value
     }
@@ -379,7 +379,7 @@ async def get_offer_by_offer_id(*, offer_id: str) -> Optional[Offer]:
     return offer_mapper.map_from(row) if row else None
 
 
-async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: str) -> Optional[List[str]]:
+async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: list[str]) -> Optional[list[str]]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.parsed_id]
@@ -393,7 +393,7 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: str) -> Optional[Li
     return rows
 
 
-async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: List[str], priority: int) -> None:
+async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: list[str], priority: int) -> None:
     for offer_ids_chunk in iterate_over_list_by_chunks(
         iterable=offer_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
@@ -498,7 +498,7 @@ async def try_to_lock_offer_and_return_status(*, offer_id: str) -> Optional[str]
     return status
 
 
-async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: List[str]) -> None:
+async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: list[str]) -> None:
     sql = (
         delete(
             offers_for_call
@@ -515,7 +515,7 @@ async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: List[str])
     await pg.get().execute(query, *params)
 
 
-async def delete_waiting_offers_for_call_by_parsed_ids(*, parsed_ids: List[str]) -> None:
+async def delete_waiting_offers_for_call_by_parsed_ids(*, parsed_ids: list[str]) -> None:
     sql = (
         delete(
             offers_for_call
@@ -639,7 +639,7 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_waiting_offer_counts_by_clients() -> List[ClientWaitingOffersCount]:
+async def get_waiting_offer_counts_by_clients() -> list[ClientWaitingOffersCount]:
     sql = (
         select(
             [waiting_offers_counts_cte]
@@ -670,7 +670,7 @@ async def get_waiting_offers_for_call() -> AsyncGenerator[OfferForPrioritization
         yield offer_for_prioritization_mapper.map_from(row)
 
 
-async def get_offers_regions_by_client_id(*, client_id: str) -> List[int]:
+async def get_offers_regions_by_client_id(*, client_id: str) -> list[int]:
     query, params = asyncpgsa.compile_query(
         select(
             [
@@ -735,7 +735,7 @@ async def iterate_over_offers_for_call_sorted(
         yield offer_mapper.map_from(row)
 
 
-async def sync_offers_for_call_with_kafka_by_ids(offer_ids):
+async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
     non_final_statuses = [
         OfferStatus.waiting.value,
         OfferStatus.in_progress.value,

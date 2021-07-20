@@ -4,7 +4,7 @@ from cian_core.web import Application
 from tornado.ioloop import IOLoop
 
 from external_offers import entities, setup
-from external_offers.queue.consumers import save_parsed_offers_callback, send_change_event
+from external_offers.queue.consumers import save_parsed_offers_callback
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
@@ -79,17 +79,6 @@ register_kafka_consumer(
     topic='ml-content-copying.change',
     group_id='external-offers.save-external-offers',
     callback=save_parsed_offers_callback,
-    default_max_bulk_size=25,
-    message_type=entities.ParsedOfferMessage
-)
-
-
-# [ML] преобразовать объявления с внешних площадок в object_model и оповестить
-register_kafka_consumer(
-    command=cli.command('send-parsed-offers'),
-    topic='ml-content-copying.change',
-    group_id='external-offers.transform-external-offers',
-    callback=send_change_event,
     default_max_bulk_size=25,
     message_type=entities.ParsedOfferMessage
 )
