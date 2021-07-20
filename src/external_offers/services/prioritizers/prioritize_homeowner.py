@@ -24,8 +24,6 @@ _CLEAR_CLIENT_PRIORITY = -1
 
 _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
 _METRIC_PRIORITIZE_NO_LK = 'prioritize_client.no_lk'
-_METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
-_METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 
 
 def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> HomeownerClientChooseMainProfileResult:
