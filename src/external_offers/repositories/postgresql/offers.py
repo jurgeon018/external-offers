@@ -1,21 +1,21 @@
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
+
 import asyncpgsa
-import external_offers
-from external_offers.enums.client_status import ClientStatus
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 
+import external_offers
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
+from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.enums import OfferStatus
-from external_offers.enums.grafana_metric import GrafanaSegmentType, GrafanaMetric
-from external_offers.entities.grafana_metric import SegmentedObject
-
+from external_offers.enums.client_status import ClientStatus
+from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
 from external_offers.mappers import (
     client_waiting_offers_count_mapper,
     enriched_offer_mapper,

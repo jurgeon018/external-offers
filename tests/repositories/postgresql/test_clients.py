@@ -4,7 +4,6 @@ from external_offers import pg
 from external_offers.repositories import postgresql
 
 
-
 async def test_get_client_in_progress_by_operator():
     # arrange
     query = ('SELECT clients.client_id, clients.avito_user_id, clients.cian_user_id, clients.client_name, clients'

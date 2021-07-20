@@ -3,7 +3,6 @@ import asyncio
 import pytest
 from cian_functional_test_utils import DependencyType
 from cian_functional_test_utils.pytest_plugin import KafkaService, MockResponse, Runner
-
 from confluent_kafka.admin import AdminClient
 from confluent_kafka.cimpl import NewTopic
 

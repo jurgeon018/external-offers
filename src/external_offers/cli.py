@@ -8,12 +8,12 @@ from external_offers.queue.consumers import save_parsed_offers_callback, send_ch
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
+from external_offers.services.send_offers_and_clients_to_grafana import (
+    send_processed_offers_and_clients_amount_to_grafana,
+    send_waiting_offers_and_clients_amount_to_grafana,
+)
 from external_offers.services.send_offers_for_call_to_kafka import send_offers_for_call_to_kafka
 from external_offers.services.send_parsed_offers_to_kafka import send_parsed_offers_to_kafka
-from external_offers.services.send_offers_and_clients_to_grafana import (
-    send_waiting_offers_and_clients_amount_to_grafana,
-    send_processed_offers_and_clients_amount_to_grafana,
-)
 from external_offers.web.urls import urlpatterns
 
 
