@@ -14,32 +14,19 @@ from external_offers.services.grafana_metric import get_segmented_objects, get_s
 
 
 async def send_segments_count_to_grafana(metric: GrafanaMetric):
-    regions = await get_segmented_objects(metric, GrafanaSegmentType.region)
-    user_segments = await get_segmented_objects(metric, GrafanaSegmentType.user_segment)
-    categories = await get_segmented_objects(metric, GrafanaSegmentType.category)
-    # print()
-    # print('----------------------------')
-    # print('metric: ', metric)
-    # print('regions:', regions)
-    # print('user_segments:', user_segments)
-    # print('categories:', categories)
-    # print('----------------------------')
-    # print()
-    for region in regions:
-        statsd.incr(
-            f'{metric}.{GrafanaSegmentType.region}.{region.segment_name}', 
-            count=region.segment_count
-        )
-    for user_segment in user_segments:
-        statsd.incr(
-            f'{metric}.{GrafanaSegmentType.user_segment}.{user_segment.segment_name}', 
-            count=user_segment.segment_count
-        )
-    for category in categories:
-        statsd.incr(
-            f'{metric}.{GrafanaSegmentType.category}.{category.segment_name}', 
-            count=category.segment_count
-        )
+    segment_types = [
+        GrafanaSegmentType.region,
+        GrafanaSegmentType.user_segment,
+        GrafanaSegmentType.category,
+    ]
+    for segment_type in segment_types:
+        segmented_objects = await get_segmented_objects(metric, segment_type)
+        for segmented_object in segmented_objects:
+            statsd.incr(
+                f'{metric}.{segment_type}.{segmented_object.segment_name}', 
+                count=segmented_object.segment_count
+            )
+  
 
 
 async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
