@@ -13,9 +13,9 @@ import pytest
         # была обработана часть обьявлений, часть обьявлений в ожидании
         """
         UPDATE offers_for_call SET status = 'inProgress'
-            WHERE status='waiting' AND client_id::Integer % 2 = 0;
+            WHERE status='waiting' AND random() > 0.5;
         UPDATE clients SET status = 'inProgress'
-            WHERE status='waiting' AND client_id::Integer % 2 = 0;
+            WHERE status='waiting' AND random() > 0.5;
         """,
 
         # было обработано все обьявления, нет ниодного обьявления в ожидании

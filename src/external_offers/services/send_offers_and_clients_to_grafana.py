@@ -11,7 +11,7 @@ from external_offers.repositories.postgresql.offers import (
 from external_offers.services.grafana_metric import get_segmented_objects, get_synced_percentage
 
 
-async def send_segments_count_to_grafana(metric: GrafanaMetric):
+async def send_segments_count_to_grafana(metric: GrafanaMetric) -> None:
     segment_types = [
         GrafanaSegmentType.region,
         GrafanaSegmentType.user_segment,
