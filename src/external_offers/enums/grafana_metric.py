@@ -1,7 +1,8 @@
-from cian_enum import NoFormat
+from cian_enum import NoFormat, StrEnum
 
 
-class GrafanaMetric(NoFormat):
+class GrafanaMetric(StrEnum):
+    __value_format__ = NoFormat
     waiting_offers_count = "waiting_offers.count"
     """количество заданий в ожидании в начале дня, которые будут отправлены в графану"""
 
@@ -21,7 +22,8 @@ class GrafanaMetric(NoFormat):
     """соотношение обработаных клиентов в конце дня к утренним необработаным клиентам"""
 
 
-class GrafanaSegmentType(NoFormat):
+class GrafanaSegmentType(StrEnum):
+    __value_format__ = NoFormat
     region = "region"
     """Регионы"""
     user_segment = "user_segment"
