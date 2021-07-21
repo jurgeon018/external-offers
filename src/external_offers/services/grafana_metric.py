@@ -2,7 +2,7 @@ from typing import List
 
 from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
-from external_offers.repositories.postgresql.offers import fetch_segmented_objects
+from external_offers.repositories.postgresql import fetch_segmented_objects
 
 
 count_metrics = [
@@ -47,8 +47,10 @@ async def get_segmented_objects(
 
 
 async def get_synced_percentage(synced_count: int, processed_synced_count: int) -> int:
-    # synced_count - количество синхронизированых с графаной утром(утром они были в ожидании)
-    # processed_synced_count - количество обработаных в течении дня
+    """
+    synced_count - количество синхронизированых с графаной утром(утром они были в ожидании)
+    processed_synced_count - количество обработаных в течении дня
+    """
     if synced_count == 0 or processed_synced_count == 0:
         processed_synced_percentage = 0
     else:
