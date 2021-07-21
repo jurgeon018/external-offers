@@ -75,3 +75,12 @@ from external_offers.repositories.postgresql.parsed_offers import (
     save_parsed_offer,
     set_synced_and_fetch_parsed_offers_chunk,
 )
+from external_offers.repositories.postgresql.grafana_objects import (
+    get_clients_with_more_than_1_offer_query,
+    get_unsynced_waiting_objects_count,
+    sync_waiting_objects_with_grafana,
+    get_processed_synced_objects_count,
+    get_synced_objects_count,
+    unsync_objects_with_grafana,
+    fetch_segmented_objects,
+)
