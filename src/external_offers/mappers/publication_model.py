@@ -1,6 +1,7 @@
 from typing import Dict, Optional
 
 from external_offers.entities.save_offer import SaveOfferRequest
+from external_offers.helpers.user_id import get_realty_id_by_cian_id
 from external_offers.helpers.uuid import generate_uppercase_guid
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     BargainTerms,
@@ -104,7 +105,7 @@ def map_save_request_to_publication_model(
             floor_number=request.floor_number,
             category=category,
             cian_user_id=cian_user_id,
-            user_id=cian_user_id,
+            user_id=get_realty_id_by_cian_id(cian_user_id),
             phones=[
                 Phone(
                     number=phone_number[2:],
