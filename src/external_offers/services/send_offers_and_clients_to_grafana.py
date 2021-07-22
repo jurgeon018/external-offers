@@ -21,7 +21,7 @@ async def send_segments_count_to_grafana(metric: GrafanaMetric) -> None:
         segmented_objects = await get_segmented_objects(metric, segment_type)
         for segmented_object in segmented_objects:
             statsd.incr(
-                f'{metric}.{segment_type}.{segmented_object.segment_name}',
+                f'{metric.value}.{segment_type}.{segmented_object.segment_name}',
                 count=segmented_object.segment_count
             )
 
@@ -34,10 +34,10 @@ async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
     waiting_offers_count = await get_unsynced_waiting_objects_count('offers_for_call')
 
     # отправка метрик в графану
-    statsd.incr(GrafanaMetric.waiting_clients_count, count=waiting_clients_count)
+    statsd.incr(GrafanaMetric.waiting_clients_count.value, count=waiting_clients_count)
     await send_segments_count_to_grafana(GrafanaMetric.waiting_clients_count)
 
-    statsd.incr(GrafanaMetric.waiting_offers_count, count=waiting_offers_count)
+    statsd.incr(GrafanaMetric.waiting_offers_count.value, count=waiting_offers_count)
     await send_segments_count_to_grafana(GrafanaMetric.waiting_offers_count)
 
     # синхронизация клиентов с заданий с графаной(проставляем synced_with_grafana = TRUE)
@@ -64,18 +64,18 @@ async def send_processed_offers_and_clients_amount_to_grafana() -> None:
         processed_synced_clients_count
     )
     # отправка метрик в графану
-    statsd.incr(GrafanaMetric.processed_offers_count, count=processed_synced_offers_count)
+    statsd.incr(GrafanaMetric.processed_offers_count.value, count=processed_synced_offers_count)
     await send_segments_count_to_grafana(GrafanaMetric.processed_offers_count)
-    statsd.incr(GrafanaMetric.processed_clients_count, count=processed_synced_clients_count)
+    statsd.incr(GrafanaMetric.processed_clients_count.value, count=processed_synced_clients_count)
     await send_segments_count_to_grafana(GrafanaMetric.processed_clients_count)
 
     statsd.incr(
-        GrafanaMetric.processed_clients_percentage,
+        GrafanaMetric.processed_clients_percentage.value,
         count=processed_synced_clients_percentage
     )
     await send_segments_count_to_grafana(GrafanaMetric.processed_clients_percentage)
     statsd.incr(
-        GrafanaMetric.processed_offers_percentage,
+        GrafanaMetric.processed_offers_percentage.value,
         count=processed_offers_percentage
     )
     await send_segments_count_to_grafana(GrafanaMetric.processed_offers_percentage)

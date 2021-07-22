@@ -94,8 +94,8 @@ async def test_send_waiting_offers_and_clients_amount_to_grafana(mocker):
         mocker.call('offers_for_call'),
     ])
     statsd_mock.assert_has_calls([
-        mocker.call(GrafanaMetric.waiting_clients_count, count=unsynced_waiting_clients_count),
-        mocker.call(GrafanaMetric.waiting_offers_count, count=unsynced_waiting_offers_count),
+        mocker.call(GrafanaMetric.waiting_clients_count.value, count=unsynced_waiting_clients_count),
+        mocker.call(GrafanaMetric.waiting_offers_count.value, count=unsynced_waiting_offers_count),
     ])
     send_segments_count_to_grafana_mock.assert_has_calls([
         mocker.call(GrafanaMetric.waiting_clients_count),
@@ -158,19 +158,19 @@ async def test_send_processed_offers_and_clients_amount_to_grafana(mocker):
     ])
     statsd_incr_mock.assert_has_calls([
         mocker.call(
-            GrafanaMetric.processed_offers_count,
+            GrafanaMetric.processed_offers_count.value,
             count=processed_synced_offers_count
         ),
         mocker.call(
-            GrafanaMetric.processed_clients_count,
+            GrafanaMetric.processed_clients_count.value,
             count=processed_synced_clients_count
         ),
         mocker.call(
-            GrafanaMetric.processed_clients_percentage,
+            GrafanaMetric.processed_clients_percentage.value,
             count=processed_synced_clients_percentage
         ),
         mocker.call(
-            GrafanaMetric.processed_offers_percentage,
+            GrafanaMetric.processed_offers_percentage.value,
             count=processed_offers_percentage
         ),
     ])
