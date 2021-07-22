@@ -4,8 +4,10 @@ from external_offers.repositories.postgresql import update_offer_categories_by_o
 from external_offers.services.save_offer import mapping_offer_params_to_category
 
 
-async def update_offer_category_public(request: UpdateOfferCategoryRequest, user_id: int) -> UpdateOfferCategoryResponse:
-    '''Обновить категорию обьявления'''
+async def update_offer_category_public(
+    request: UpdateOfferCategoryRequest, user_id: int
+) -> UpdateOfferCategoryResponse:
+    """Обновить категорию обьявления"""
     offer_id = request.offer_id
     try:
         category = mapping_offer_params_to_category[(
@@ -15,8 +17,8 @@ async def update_offer_category_public(request: UpdateOfferCategoryRequest, user
             request.offer_type
         )]
     except KeyError as e:
-        message = f"Неверная комбинация параметров: {e}."
-        message += f'\nВозможнные комбинации:'
+        message = f'Неверная комбинация параметров: {e}.'
+        message += '\nВозможнные комбинации:'
         for param in mapping_offer_params_to_category.keys():
             message += f'\n{param};'
         return UpdateOfferCategoryResponse(

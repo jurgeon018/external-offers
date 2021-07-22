@@ -4,21 +4,21 @@ import pytest
 
 
 mapping_offer_params_to_category = {
-    ("long", "flat", "rent", "flat"): "flatRent",
-    (None, "flat", "sale", "flat"): "flatSale",
-    (None, "bed", "sale", "flat"): "flatShareSale",
-    (None, "share", "sale", "flat"): "flatShareSale",
-    ("long", "bed", "rent", "flat"): "bedRent",
-    ("long", "share", "rent", "flat"): "roomRent",
-    ("long", "room", "rent", "flat"): "roomRent",
-    (None, "room", "sale", "flat"): "roomSale",
-    ("daily", "flat", "rent", "flat"): "dailyFlatRent",
-    ("daily", "room", "rent", "flat"): "dailyRoomRent",
-    ("daily", "bed", "rent", "flat"): "dailyBedRent",
-    (None, "house", "sale", "suburban"): "houseSale",
-    (None, "cottage", "sale", "suburban"): "cottageSale",
-    (None, "townhouse", "sale", "suburban"): "townhouseSale",
-    (None, "land", "sale", "suburban"): "landSale",
+    ('long', 'flat', 'rent', 'flat'): 'flatRent',
+    (None, 'flat', 'sale', 'flat'): 'flatSale',
+    (None, 'bed', 'sale', 'flat'): 'flatShareSale',
+    (None, 'share', 'sale', 'flat'): 'flatShareSale',
+    ('long', 'bed', 'rent', 'flat'): 'bedRent',
+    ('long', 'share', 'rent', 'flat'): 'roomRent',
+    ('long', 'room', 'rent', 'flat'): 'roomRent',
+    (None, 'room', 'sale', 'flat'): 'roomSale',
+    ('daily', 'flat', 'rent', 'flat'): 'dailyFlatRent',
+    ('daily', 'room', 'rent', 'flat'): 'dailyRoomRent',
+    ('daily', 'bed', 'rent', 'flat'): 'dailyBedRent',
+    (None, 'house', 'sale', 'suburban'): 'houseSale',
+    (None, 'cottage', 'sale', 'suburban'): 'cottageSale',
+    (None, 'townhouse', 'sale', 'suburban'): 'townhouseSale',
+    (None, 'land', 'sale', 'suburban'): 'landSale',
 }
 
 async def test_update_offer_category__non_valid_parameters__categories_not_changed(
@@ -38,7 +38,7 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
         """
         SELECT * FROM offers_for_call WHERE id=$1;
         """,
-        [offer_id,]
+        [offer_id, ]
     )
     parsed_offer_before_api_call = await pg.fetchrow(
         """
@@ -52,10 +52,10 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
         json={
             'offerId': offer_id,
             # wrong parameters
-            'termType': "daily",
-            'categoryType': "land",
-            'dealType': "sale",
-            'offerType': "suburban",
+            'termType': 'daily',
+            'categoryType': 'land',
+            'dealType': 'sale',
+            'offerType': 'suburban',
         },
         headers={
             'X-Real-UserId': user_id
@@ -67,7 +67,7 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
         """
         SELECT * FROM offers_for_call WHERE id=$1;
         """,
-        [offer_id,]
+        [offer_id, ]
     )
     parsed_offer_after_api_call = await pg.fetchrow(
         """
@@ -80,12 +80,12 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
     source_object_model_after_api_call = json.loads(parsed_offer_after_api_call['source_object_model'])
 
     # assert
-    assert body['success'] == False
+    assert body['success'] is False
     assert offer_for_call_after_api_call['category'] == offer_for_call_before_api_call['category']
     assert source_object_model_before_api_call['category'] == source_object_model_after_api_call['category']
 
 
-@pytest.mark.parametrize('offer_params, expected_category', 
+@pytest.mark.parametrize('offer_params, expected_category',
     [(k, v) for k, v in mapping_offer_params_to_category.items()]
 )
 async def test_update_offer_category__valid_parameters__categories_are_changed(
@@ -128,7 +128,7 @@ async def test_update_offer_category__valid_parameters__categories_are_changed(
         """
         SELECT * FROM offers_for_call WHERE id=$1;
         """,
-        [offer_id,]
+        [offer_id, ]
     )
     parsed_offer = await pg.fetchrow(
         """
@@ -139,6 +139,6 @@ async def test_update_offer_category__valid_parameters__categories_are_changed(
     source_object_model = json.loads(parsed_offer['source_object_model'])
     body = json.loads(response.body.decode('utf-8'))
 
-    assert body['success'] == True
+    assert body['success'] is True
     assert offer_for_call['category'] == expected_category
     assert source_object_model['category'] == expected_category

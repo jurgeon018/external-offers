@@ -27,7 +27,7 @@
             <div class="offerDealTypeTitle"><span class="">Тип сделки</span></div>
             <div class="offerDealTypeSelect">
                 <select class="select-control" id="getDealType">
-                    <option value="not_selected" disabled>Не выбрано</option>
+                    <option value="" disabled>Не выбрано</option>
                     <option value="rent" {% if parsed_object_model.is_rent %}selected{% endif %}>Аренда</option>
                     <option value="sale" {% if parsed_object_model.is_sale %}selected{% endif %}>Продажа</option>
                 </select>
@@ -660,6 +660,10 @@
                     alert(`${response.message}`);
                     // location.reload();
                 }else{
+                    getTermType.val('')
+                    getDealType.val('')
+                    getOfferType.val('')
+                    getCategoryType.val('')
                     alert(response.message)
                 }
             });

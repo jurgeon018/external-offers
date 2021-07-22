@@ -8,7 +8,7 @@ from external_offers.entities.save_offer import DealType, OfferType, SaveOfferCa
 class UpdateOfferCategoryResponse:
     success: bool = True
     """Статус операции"""
-    message: str = "" 
+    message: str = ''
     """Список ошибок"""
 
 
