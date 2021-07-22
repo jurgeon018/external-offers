@@ -138,21 +138,21 @@ client_query = """
     {{status_query}};
 """
 client_return_value = [
-    {"client_id": 1, "segment_name": "name1"},
-    {"client_id": 2, "segment_name": "name2"},
-    {"client_id": 3, "segment_name": "name4"},
-    {"client_id": 4, "segment_name": "name4"},
-    {"client_id": 5, "segment_name": "name1"},
-    {"client_id": 6, "segment_name": "name1"},
-    {"client_id": 7, "segment_name": "name3"},
-    {"client_id": 8, "segment_name": "name4"},
-    {"client_id": 9, "segment_name": "name4"},
+    {'client_id': 1, 'segment_name': 'name1'},
+    {'client_id': 2, 'segment_name': 'name2'},
+    {'client_id': 3, 'segment_name': 'name4'},
+    {'client_id': 4, 'segment_name': 'name4'},
+    {'client_id': 5, 'segment_name': 'name1'},
+    {'client_id': 6, 'segment_name': 'name1'},
+    {'client_id': 7, 'segment_name': 'name3'},
+    {'client_id': 8, 'segment_name': 'name4'},
+    {'client_id': 9, 'segment_name': 'name4'},
 ]
 client_expected_result = [
-    SegmentedObject(segment_name="name1", segment_count=3),
-    SegmentedObject(segment_name="name2", segment_count=1),
-    SegmentedObject(segment_name="name4", segment_count=4),
-    SegmentedObject(segment_name="name3", segment_count=1),
+    SegmentedObject(segment_name='name1', segment_count=3),
+    SegmentedObject(segment_name='name2', segment_count=1),
+    SegmentedObject(segment_name='name4', segment_count=4),
+    SegmentedObject(segment_name='name3', segment_count=1),
 ]
 offer_query = """
     SELECT {{field_name}} AS segment_name, COUNT({{field_name}}) AS segment_count
@@ -165,75 +165,75 @@ offer_query = """
     GROUP BY {{field_name}};
 """
 offer_return_value = [
-    {"segment_count": 1, "segment_name": "name1"},
-    {"segment_count": 4, "segment_name": "name2"},
-    {"segment_count": 2, "segment_name": "name3"},
-    {"segment_count": 9, "segment_name": "name4"},
+    {'segment_count': 1, 'segment_name': 'name1'},
+    {'segment_count': 4, 'segment_name': 'name2'},
+    {'segment_count': 2, 'segment_name': 'name3'},
+    {'segment_count': 9, 'segment_name': 'name4'},
 ]
 offer_expected_result = [
-    SegmentedObject(segment_name="name1", segment_count=1),
-    SegmentedObject(segment_name="name2", segment_count=4),
-    SegmentedObject(segment_name="name3", segment_count=2),
-    SegmentedObject(segment_name="name4", segment_count=9),
+    SegmentedObject(segment_name='name1', segment_count=1),
+    SegmentedObject(segment_name='name2', segment_count=4),
+    SegmentedObject(segment_name='name3', segment_count=2),
+    SegmentedObject(segment_name='name4', segment_count=9),
 ]
 argvalues = [
     # client
     # waiting_clients_count
-    (GrafanaMetric.waiting_clients_count, GrafanaSegmentType.category, 
+    (GrafanaMetric.waiting_clients_count, GrafanaSegmentType.category,
         None, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.waiting_clients_count, GrafanaSegmentType.region, 
+    (GrafanaMetric.waiting_clients_count, GrafanaSegmentType.region,
         None, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.waiting_clients_count, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.waiting_clients_count, GrafanaSegmentType.user_segment,
         None, client_query, client_return_value, client_expected_result),
     # processed_clients_count
-    (GrafanaMetric.processed_clients_count, GrafanaSegmentType.category, 
+    (GrafanaMetric.processed_clients_count, GrafanaSegmentType.category,
         None, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.processed_clients_count, GrafanaSegmentType.region, 
+    (GrafanaMetric.processed_clients_count, GrafanaSegmentType.region,
         None, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.processed_clients_count, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.processed_clients_count, GrafanaSegmentType.user_segment,
         None, client_query, client_return_value, client_expected_result),
     # processed_clients_percentage True
-    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.category, 
+    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.category,
         True, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.region, 
+    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.region,
         True, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.user_segment,
         True, client_query, client_return_value, client_expected_result),
     # processed_clients_percentage False
-    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.category, 
+    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.category,
         False, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.region, 
+    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.region,
         False, client_query, client_return_value, client_expected_result),
-    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.processed_clients_percentage, GrafanaSegmentType.user_segment,
         False, client_query, client_return_value, client_expected_result),
     # offers
     # waiting_offers_count
-    (GrafanaMetric.waiting_offers_count, GrafanaSegmentType.category, 
+    (GrafanaMetric.waiting_offers_count, GrafanaSegmentType.category,
         None, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.waiting_offers_count, GrafanaSegmentType.region, 
+    (GrafanaMetric.waiting_offers_count, GrafanaSegmentType.region,
         None, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.waiting_offers_count, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.waiting_offers_count, GrafanaSegmentType.user_segment,
         None, offer_query, offer_return_value, offer_expected_result),
     # processed_offers_count
-    (GrafanaMetric.processed_offers_count, GrafanaSegmentType.category, 
+    (GrafanaMetric.processed_offers_count, GrafanaSegmentType.category,
         None, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.processed_offers_count, GrafanaSegmentType.region, 
+    (GrafanaMetric.processed_offers_count, GrafanaSegmentType.region,
         None, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.processed_offers_count, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.processed_offers_count, GrafanaSegmentType.user_segment,
         None, offer_query, offer_return_value, offer_expected_result),
     # processed_offers_percentage True
-    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.category, 
+    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.category,
         True, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.region, 
+    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.region,
         True, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.user_segment,
         True, offer_query, offer_return_value, offer_expected_result),
     # processed_offers_percentage False
-    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.category, 
+    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.category,
         False, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.region, 
+    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.region,
         False, offer_query, offer_return_value, offer_expected_result),
-    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.user_segment, 
+    (GrafanaMetric.processed_offers_percentage, GrafanaSegmentType.user_segment,
         False, offer_query, offer_return_value, offer_expected_result),
 ]
 

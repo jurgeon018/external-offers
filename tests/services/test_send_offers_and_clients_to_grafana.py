@@ -1,5 +1,3 @@
-from unittest.mock import call
-
 import pytest
 from cian_test_utils import future
 
@@ -38,11 +36,15 @@ async def test_send_segments_count_to_grafana(mocker, metric):
         GrafanaSegmentType.user_segment,
         GrafanaSegmentType.category,
     ]
-    get_segmented_objects_mock = mocker.patch('external_offers.services.'
-                                    'send_offers_and_clients_to_grafana.get_segmented_objects')
+    get_segmented_objects_mock = mocker.patch(
+        'external_offers.services.'
+        'send_offers_and_clients_to_grafana.get_segmented_objects'
+    )
     get_segmented_objects_mock.return_value = segmented_objects
-    statsd_incr_mock = mocker.patch('external_offers.services.'
-                                    'send_offers_and_clients_to_grafana.statsd.incr')
+    statsd_incr_mock = mocker.patch(
+        'external_offers.services.'
+        'send_offers_and_clients_to_grafana.statsd.incr'
+    )
     await send_segments_count_to_grafana(metric)
     statsd_incr_calls = []
     get_segmented_objects_calls = []
@@ -66,23 +68,23 @@ async def test_send_waiting_offers_and_clients_amount_to_grafana(mocker):
     ]
     send_segments_count_to_grafana_mock = mocker.patch(
         ('external_offers.services.send_offers_and_clients_to_grafana.'
-        'send_segments_count_to_grafana'),
-        return_value = future(None),
+            'send_segments_count_to_grafana'),
+        return_value=future(None),
     )
     get_unsynced_waiting_objects_count_mock = mocker.patch(
         ('external_offers.services.send_offers_and_clients_to_grafana.'
-        'get_unsynced_waiting_objects_count'),
-        side_effect = side_effect,
+            'get_unsynced_waiting_objects_count'),
+        side_effect=side_effect,
     )
     sync_waiting_objects_with_grafana_mock = mocker.patch(
         ('external_offers.services.send_offers_and_clients_to_grafana.'
-        'sync_waiting_objects_with_grafana'),
-        return_value = future(None),
+            'sync_waiting_objects_with_grafana'),
+        return_value=future(None),
     )
     statsd_mock = mocker.patch(
         ('external_offers.services.'
-        'send_offers_and_clients_to_grafana.statsd.incr'), 
-        return_value = future(None),
+            'send_offers_and_clients_to_grafana.statsd.incr'),
+        return_value=future(None),
     )
 
     await send_waiting_offers_and_clients_amount_to_grafana()
@@ -114,36 +116,36 @@ async def test_send_processed_offers_and_clients_amount_to_grafana(mocker):
     ]
     processed_synced_clients_count = 3
     processed_synced_offers_count = 12
-    processed_synced_clients_percentage = 25 # 3 / 12 * 100
-    processed_offers_percentage = 50 # 12 / 24 * 100
+    processed_synced_clients_percentage = 25  # 3 / 12 * 100
+    processed_offers_percentage = 50  # 12 / 24 * 100
     processed_objects = [
         future(processed_synced_clients_count),
         future(processed_synced_offers_count),
     ]
     get_synced_objects_count_mock = mocker.patch(
-        ("external_offers.services.send_offers_and_clients_to_grafana"
-        ".get_synced_objects_count"),
-        side_effect = synced_objects,
+        ('external_offers.services.send_offers_and_clients_to_grafana'
+            '.get_synced_objects_count'),
+        side_effect=synced_objects,
     )
     get_processed_synced_objects_count_mock = mocker.patch(
-        ("external_offers.services.send_offers_and_clients_to_grafana"
-        ".get_processed_synced_objects_count"),
-        side_effect = processed_objects,
+        ('external_offers.services.send_offers_and_clients_to_grafana'
+            '.get_processed_synced_objects_count'),
+        side_effect=processed_objects,
     )
     statsd_incr_mock = mocker.patch(
-        ("external_offers.services.send_offers_and_clients_to_grafana"
-        ".statsd.incr"),
-        return_value = future(None),
+        ('external_offers.services.send_offers_and_clients_to_grafana'
+            '.statsd.incr'),
+        return_value=future(None),
     )
     send_segments_count_to_grafana_mock = mocker.patch(
-        ("external_offers.services.send_offers_and_clients_to_grafana"
-        ".send_segments_count_to_grafana"),
-        return_value = future(None),
+        ('external_offers.services.send_offers_and_clients_to_grafana'
+            '.send_segments_count_to_grafana'),
+        return_value=future(None),
     )
     unsync_objects_with_grafana_mock = mocker.patch(
-        ("external_offers.services.send_offers_and_clients_to_grafana"
-        ".unsync_objects_with_grafana"),
-        return_value = future(None),
+        ('external_offers.services.send_offers_and_clients_to_grafana'
+            '.unsync_objects_with_grafana'),
+        return_value=future(None),
     )
     await send_processed_offers_and_clients_amount_to_grafana()
     get_synced_objects_count_mock.assert_has_calls([
@@ -239,10 +241,10 @@ async def test_get_segmented_percents(mocker, metric, segment_type):
         SegmentedObject(segment_name='name3', segment_count=30),
     ]
     expected_segmented_percents = [
-        SegmentedObject(segment_name="name1", segment_count=0),
-        SegmentedObject(segment_name="name2", segment_count=50),
-        SegmentedObject(segment_name="name3", segment_count=100),
-        SegmentedObject(segment_name="name4", segment_count=0),
+        SegmentedObject(segment_name='name1', segment_count=0),
+        SegmentedObject(segment_name='name2', segment_count=50),
+        SegmentedObject(segment_name='name3', segment_count=100),
+        SegmentedObject(segment_name='name4', segment_count=0),
     ]
     fetch_segmented_objects = mocker.patch(
         'external_offers.services.grafana_metric.'
@@ -281,9 +283,9 @@ async def test_get_synced_percentage(
 
 async def test_transform_list_into_dict():
     objects = [
-        SegmentedObject(segment_name="segment1", segment_count=1),
-        SegmentedObject(segment_name="segment2", segment_count=2),
-        SegmentedObject(segment_name="segment3", segment_count=3),
+        SegmentedObject(segment_name='segment1', segment_count=1),
+        SegmentedObject(segment_name='segment2', segment_count=2),
+        SegmentedObject(segment_name='segment3', segment_count=3),
     ]
     result = await transform_list_into_dict(objects)
     assert result['segment1'] == 1
