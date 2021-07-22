@@ -52,7 +52,7 @@ from external_offers.repositories.users.entities import (
 from external_offers.services.sms import send_sms
 
 
-category_mapping_key = Tuple[SaveOfferTerm, SaveOfferCategory, DealType, OfferType]
+category_mapping_key = Tuple[Optional[SaveOfferTerm], SaveOfferCategory, DealType, OfferType]
 mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (SaveOfferTerm.long_term, SaveOfferCategory.flat, DealType.rent, OfferType.flat): Category.flat_rent,
     (None, SaveOfferCategory.flat, DealType.sale, OfferType.flat): Category.flat_sale,
@@ -87,6 +87,19 @@ def statsd_incr_if_not_test_user(
 
 async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveOfferResponse:
     """ Сохранить объявление как черновик в ЦИАН. """
+    segment_to_is_by_homeowner: Dict[Any, bool] = {
+        'a': False,
+        'b': False,
+        'c': False,
+        'd': True
+    }
+    user_segment = await get_segment_by_client_id(
+        client_id=request.client_id
+    )
+    is_by_home_owner = (request.publish_as_homeowner
+                        if request.publish_as_homeowner is not None
+                        else segment_to_is_by_homeowner.get(user_segment, False))
+
     async with pg.get().transaction():
         offer = await get_offer_by_offer_id(
             offer_id=request.offer_id
@@ -242,18 +255,6 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 offer_id=request.offer_id
             )
             if not offer_cian_id:
-                user_segment = await get_segment_by_client_id(
-                    client_id=request.client_id
-                )
-                segment_to_is_by_homeowner: Dict[Any, bool] = {
-                    'a': False,
-                    'b': False,
-                    'c': False,
-                    'd': True
-                }
-                is_by_home_owner = (request.publish_as_homeowner
-                                    if request.publish_as_homeowner is not None
-                                    else segment_to_is_by_homeowner.get(user_segment, False))
 
                 add_draft_result: AddDraftResult = await v2_announcements_draft(
                     map_save_request_to_publication_model(

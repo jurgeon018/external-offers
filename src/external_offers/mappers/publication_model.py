@@ -28,7 +28,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.publica
 from external_offers.repositories.monolith_cian_announcementapi.entities.swagger_geo import AddressInfo, Coordinates
 
 
-geo_type_to_type_mapping: Dict[GeoType, Type] = {
+geo_type_to_type_mapping: Dict[str, Type] = {
     GeoType.house.value: Type.house,
     GeoType.country.value: Type.country,
     GeoType.district.value: Type.district,
@@ -104,6 +104,7 @@ def map_save_request_to_publication_model(
             floor_number=request.floor_number,
             category=category,
             cian_user_id=cian_user_id,
+            user_id=cian_user_id,
             phones=[
                 Phone(
                     number=phone_number[2:],

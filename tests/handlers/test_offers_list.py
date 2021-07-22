@@ -21,10 +21,6 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
         'external_offers.services.admin.get_offer_by_offer_id',
         autospec=True
     )
-    get_parsed_mock = mocker.patch(
-        'external_offers.services.admin.get_parsed_offer_by_offer_id',
-        autospec=True
-    )
     set_published_mock = mocker.patch(
         'external_offers.services.admin.set_offer_already_published_by_offer_id',
         autospec=True
@@ -68,7 +64,6 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
     exist_mock.return_value = future(False)
     set_published_mock.return_value = future()
     save_event_log_mock.return_value = future()
-    get_parsed_mock.return_value = future()
     exist_draft_mock.return_value = future(False)
     set_client_status_mock.return_value = future()
 
@@ -79,13 +74,10 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
     )
 
     # act
-    with settings_stub(
-        ENABLE_SEND_KAFKA_MESSAGE_FOR_ALREADY_PUBLISHED=True
-    ):
-        await already_published_offer(
-            request=request,
-            user_id=operator_user_id
-        )
+    await already_published_offer(
+        request=request,
+        user_id=operator_user_id
+    )
 
     # assert
     set_client_status_mock.assert_has_calls(
