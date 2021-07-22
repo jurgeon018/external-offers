@@ -160,7 +160,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                             )
                         )
                         cian_user_id = register_response.user_data.id
-
+                
                 await set_main_cian_user_id_by_client_id(
                     cian_user_id=cian_user_id,
                     client_id=request.client_id
