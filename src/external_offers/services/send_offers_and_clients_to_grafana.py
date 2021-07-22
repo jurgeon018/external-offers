@@ -1,7 +1,7 @@
 from cian_core.statsd import statsd
 
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
-from external_offers.repositories.postgresql.offers import (
+from external_offers.repositories.postgresql.grafana_objects import (
     get_processed_synced_objects_count,
     get_synced_objects_count,
     get_unsynced_waiting_objects_count,
@@ -21,7 +21,7 @@ async def send_segments_count_to_grafana(metric: GrafanaMetric) -> None:
         segmented_objects = await get_segmented_objects(metric, segment_type)
         for segmented_object in segmented_objects:
             statsd.incr(
-                f'{metric}.{segment_type}.{segmented_object.segment_name}', 
+                f'{metric}.{segment_type}.{segmented_object.segment_name}',
                 count=segmented_object.segment_count
             )
 
@@ -73,16 +73,12 @@ async def send_processed_offers_and_clients_amount_to_grafana() -> None:
         GrafanaMetric.processed_clients_percentage,
         count=processed_synced_clients_percentage
     )
-    await send_segments_count_to_grafana(
-        GrafanaMetric.processed_clients_percentage
-    )
+    await send_segments_count_to_grafana(GrafanaMetric.processed_clients_percentage)
     statsd.incr(
         GrafanaMetric.processed_offers_percentage,
         count=processed_offers_percentage
     )
-    await send_segments_count_to_grafana(
-        GrafanaMetric.processed_offers_percentage
-    )
+    await send_segments_count_to_grafana(GrafanaMetric.processed_offers_percentage)
 
     # в конце дня проставляем клиентам и заданиям synced_with_grafana = NULL
     await unsync_objects_with_grafana('clients')

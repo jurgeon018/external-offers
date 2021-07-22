@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import AsyncGenerator, List, Optional
+from typing import AsyncGenerator, Optional
 
 import asyncpgsa
 import pytz

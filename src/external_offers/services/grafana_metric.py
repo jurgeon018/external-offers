@@ -36,8 +36,8 @@ async def get_segmented_objects(
         # что позволяет обойтись без вложеных циклов.
         segmented_objects = [
             SegmentedObject(
-                segment_name = name,
-                segment_count = await get_synced_percentage(
+                segment_name=name,
+                segment_count=await get_synced_percentage(
                     count,
                     processed_synced_count.get(name, 0)
                 )
@@ -67,5 +67,3 @@ async def transform_list_into_dict(
         value = segmented_object.segment_count
         dct[key] = value
     return dct
-
-
