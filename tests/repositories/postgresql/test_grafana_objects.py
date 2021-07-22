@@ -85,7 +85,7 @@ async def test_get_processed_synced_objects_count(mocker):
     pg.get().fetchval.return_value = future(return_value)
     expected_query = f"""
         SELECT COUNT(*) FROM {table_name}
-        WHERE synced_with_grafana IS TRUE
+        WHERE synced_with_grafana
         AND status <> 'waiting';
     """
     # act
@@ -102,7 +102,7 @@ async def test_get_synced_objects_count(mocker):
     pg.get().fetchval.return_value = future(return_value)
     expected_query = f"""
         SELECT COUNT(*) FROM {table_name}
-        WHERE synced_with_grafana IS TRUE;
+        WHERE synced_with_grafana;
     """
     # act
     result = await get_synced_objects_count(table_name)
@@ -118,8 +118,8 @@ async def test_unsync_objects_with_grafana(mocker):
     pg.get().fetchval.return_value = future(return_value)
     expected_query = f"""
         UPDATE {table_name}
-        SET synced_with_grafana = NULL
-        WHERE synced_with_grafana IS TRUE;
+        SET synced_with_grafana = FALSE
+        WHERE synced_with_grafana;
     """
     # act
     result = await unsync_objects_with_grafana(table_name)
