@@ -12,7 +12,7 @@ async def update_client_comment_public(
     client = await get_client_by_client_id(client_id=client_id)
     if not client:
         return UpdateClientCommentResponse(
-            message = 'Такого клиента не существует.',
+            message='Такого клиента не существует.',
             success=False,
         )
     try:
@@ -25,7 +25,6 @@ async def update_client_comment_public(
             message=f'Ошибка при обновлении коментария. {exc}',
             success=False,
         )
-
 
     return UpdateClientCommentResponse(
         message='Коментарий к карточке клиента был обновлен.',

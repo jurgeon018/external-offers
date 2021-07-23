@@ -471,4 +471,3 @@ async def delete_waiting_clients_by_client_ids(
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
-
