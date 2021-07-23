@@ -40,8 +40,7 @@ def get_offer_card_html(
     client_accounts: List[ClientAccountInfo],
     exist_drafts: bool,
 ) -> str:
-    # template = templates.get_template('offer_card.jinja2')
-    template = templates.get_template('admin_debug.jinja2')
+    template = templates.get_template('offer_card.jinja2')
 
     return template.render(
         parsed_object_model=parsed_object_model,
