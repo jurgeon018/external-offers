@@ -368,7 +368,7 @@
              document.getElementById("phoneUnavailableClientMessages").innerHTML = errors
            }
          };
-         
+
          document.getElementById("commentClientButton").onclick = async function () {
            comment = document.getElementById('comment').value
            let obj =  {
@@ -380,7 +380,6 @@
              body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
            });
            resp = await response.json()
-           console.log('resp', resp)
            document.getElementById("commentClientMessages").innerHTML = resp.message
          };
 
