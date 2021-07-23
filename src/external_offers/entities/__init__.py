@@ -29,3 +29,8 @@ from external_offers.entities.update_client_phone import (
     UpdateClientPhoneRequest,
     UpdateClientPhoneResponse,
 )
+from external_offers.entities.update_client_comment import (
+    UpdateClientCommentRequest,
+    UpdateClientCommentResponse,
+
+)

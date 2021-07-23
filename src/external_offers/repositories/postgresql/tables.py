@@ -35,6 +35,7 @@ clients = sa.Table(
     sa.Column('calls_count', sa.SMALLINT),
     sa.Column('last_call_id', sa.VARCHAR),
     sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
+    sa.Column('comment', sa.VARCHAR, nullable=True),
 )
 
 offers_for_call = sa.Table(

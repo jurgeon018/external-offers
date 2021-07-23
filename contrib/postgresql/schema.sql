@@ -56,6 +56,7 @@ CREATE TABLE clients
     next_call        timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar,
+    comment          varchar,
     main_account_chosen  boolean  not null  default false
 );
 
