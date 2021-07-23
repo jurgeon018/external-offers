@@ -1,6 +1,7 @@
 import json
-from cian_test_utils import future
+
 import pytest
+from cian_test_utils import future
 
 
 @pytest.mark.gen_test
