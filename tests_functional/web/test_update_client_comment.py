@@ -1,5 +1,6 @@
 import json
 
+
 async def test_update_client_comment__valid_parameters__comment_is_changed(
     http,
     pg,
@@ -9,8 +10,8 @@ async def test_update_client_comment__valid_parameters__comment_is_changed(
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     await pg.execute_scripts(parsed_offers_fixture)
-    client_id = "1"
-    comment = "comment text"
+    client_id = '1'
+    comment = 'comment text'
     user_id = 1
     comment_before_api_call = await pg.fetchval(
         """
@@ -56,8 +57,8 @@ async def test_update_client_comment__client_doesnt_exist__comment_is_not_change
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     await pg.execute_scripts(parsed_offers_fixture)
-    client_id = "0"
-    comment = "comment text"
+    client_id = '0'
+    comment = 'comment text'
     user_id = 1
     get_client_sql = """
     SELECT comment FROM clients WHERE client_id=$1;
