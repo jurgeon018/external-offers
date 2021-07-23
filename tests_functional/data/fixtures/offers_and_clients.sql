@@ -78,6 +78,16 @@ INSERT INTO public.clients(
     'inProgress',
     1,
     'last-call-id'
+), (
+    '8',
+    '32131327',
+    'Александр Александров',
+    '{+79812932338}',
+    'gmail@gmail.com',
+    70024649,
+    'waiting',
+    1,
+    'last-call-id'
 );
 
 INSERT INTO public.offers_for_call(
@@ -272,6 +282,28 @@ INSERT INTO public.offers_for_call(
     '1d6c7dxc-3057-47cc-b50a-419052da619f',
     '7',
     'callLater',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    1,
+    NULL,
+    false
+), (
+    18,
+    '1d6c7dxc-3057-47cc-b50a-419052da619f',
+    '8',
+    'waiting',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    1,
+    NULL,
+    false
+), (
+    19,
+    '1d6c7dxc-3057-47cc-b50a-419052da619f',
+    '8',
+    'waiting',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',
     '2020-10-12 04:05:06',

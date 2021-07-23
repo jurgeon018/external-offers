@@ -8,7 +8,7 @@ async def test_get_client_in_progress_by_operator():
     # arrange
     query = ('SELECT clients.client_id, clients.avito_user_id, clients.cian_user_id, clients.client_name, clients'
              '.client_phones, clients.client_email, clients.status, clients.operator_user_id, clients.segment, cl'
-             'ients.next_call, clients.calls_count, clients.last_call_id, clients.main_account_chosen \nFROM clie'
+             'ients.next_call, clients.calls_count, clients.last_call_id, clients.synced_with_grafana, clients.main_account_chosen \nFROM clie'
              'nts \nWHERE clients.operator_user_id = $1 AND clients.status = $3 \n LIMIT $2')
     operator_id = 1
 
