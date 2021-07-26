@@ -39,6 +39,7 @@ CREATE TABLE offers_for_call
     category      varchar,
     last_call_id  varchar,
     synced_with_kafka   boolean                  not null default false,
+    synced_with_grafana boolean                  not null default false,
     parsed_created_at   timestamp with time zone not null default current_timestamp
 );
 
@@ -56,7 +57,8 @@ CREATE TABLE clients
     next_call        timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar,
-    main_account_chosen  boolean  not null  default false
+    synced_with_grafana boolean  not null  default false,
+    main_account_chosen boolean  not null  default false
 );
 
 CREATE TABLE event_log

@@ -1,10 +1,10 @@
 [[package]]
-category = "main"
-description = "Async http client/server framework (asyncio)"
 name = "aiohttp"
+version = "3.7.4.post0"
+description = "Async http client/server framework (asyncio)"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "3.7.4.post0"
 
 [package.dependencies]
 async_timeout = ">=3.0,<4.0"
@@ -18,34 +18,34 @@ yarl = ">=1.0,<2.0"
 speedups = ["aiodns", "brotlipy", "cchardet"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "asyncio (PEP 3156) Redis support"
 name = "aioredis"
+version = "1.3.1"
+description = "asyncio (PEP 3156) Redis support"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.3.1"
 
 [package.dependencies]
 async-timeout = "*"
 hiredis = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "High level compatibility layer for multiple asynchronous event loop implementations"
 name = "anyio"
+version = "2.2.0"
+description = "High level compatibility layer for multiple asynchronous event loop implementations"
+category = "main"
 optional = false
 python-versions = ">=3.6.2"
-version = "2.2.0"
 
 [package.dependencies]
 idna = ">=2.8"
@@ -58,15 +58,15 @@ test = ["coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "pytest (>=6.0)", "trust
 trio = ["trio (>=0.16)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
 version = "2.6.5"
-category = "dev"
-description = "An abstract syntax tree for Python with inference support."
 name = "astroid"
+description = "An abstract syntax tree for Python with inference support."
+category = "dev"
 optional = false
 python-versions = "~=3.6"
 
@@ -75,17 +75,17 @@ lazy-object-proxy = ">=1.4.0"
 wrapt = ">=1.11,<1.13"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = ""
 name = "async-http-mocks"
+version = "1.1.0"
+description = ""
+category = "dev"
 optional = false
 python-versions = ">=3.8"
-version = "1.1.0"
 
 [package.dependencies]
 aiohttp = ">=3.7"
@@ -98,47 +98,47 @@ docs = ["furo", "sphinx", "sphinx-autodoc-typehints"]
 test = ["cian-lint", "isort", "pytest", "pytest-asyncio", "pytest-cov", "pytest-mock"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Timeout context manager for asyncio programs"
 name = "async-timeout"
+version = "3.0.1"
+description = "Timeout context manager for asyncio programs"
+category = "main"
 optional = false
 python-versions = ">=3.5.3"
-version = "3.0.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Minimal pure python tornado memcached client"
 name = "asyncmc"
+version = "0.6.7"
+description = "Minimal pure python tornado memcached client"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.6.7"
 
 [package.dependencies]
 tornado = ">=4.1"
 toro = ">=0.8"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "An asyncio PostgreSQL driver"
 name = "asyncpg"
+version = "0.23.0"
+description = "An asyncio PostgreSQL driver"
+category = "main"
 optional = false
 python-versions = ">=3.5.0"
-version = "0.23.0"
 
 [package.extras]
 dev = ["Cython (>=0.29.20,<0.30.0)", "pytest (>=3.6.0)", "Sphinx (>=1.7.3,<1.8.0)", "sphinxcontrib-asyncio (>=0.2.0,<0.3.0)", "sphinx_rtd_theme (>=0.2.4,<0.3.0)", "pycodestyle (>=2.5.0,<2.6.0)", "flake8 (>=3.7.9,<3.8.0)", "uvloop (>=0.14.0,<0.15.0)"]
@@ -146,63 +146,63 @@ docs = ["Sphinx (>=1.7.3,<1.8.0)", "sphinxcontrib-asyncio (>=0.2.0,<0.3.0)", "sp
 test = ["pycodestyle (>=2.5.0,<2.6.0)", "flake8 (>=3.7.9,<3.8.0)", "uvloop (>=0.14.0,<0.15.0)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "sqlalchemy support for asyncpg"
 name = "asyncpgsa"
+version = "0.26.3"
+description = "sqlalchemy support for asyncpg"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.26.3"
 
 [package.dependencies]
 asyncpg = "*"
 sqlalchemy = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Atomic file writes."
 name = "atomicwrites"
+version = "1.4.0"
+description = "Atomic file writes."
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.4.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "PEP 224 implementation"
 name = "attributes-doc"
+version = "0.2.0"
+description = "PEP 224 implementation"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.2.0"
 
 [package.extras]
 test = ["coverage", "pytest-cov", "pytest (<5)", "pytest", "mypy", "pycodestyle", "pylint"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Classes Without Boilerplate"
 name = "attrs"
+version = "21.2.0"
+description = "Classes Without Boilerplate"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "21.2.0"
 
 [package.extras]
 dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit"]
@@ -211,103 +211,87 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Function decoration for backoff and retry"
 name = "backoff"
+version = "1.11.1"
+description = "Function decoration for backoff and retry"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "1.11.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python bindings for the Brotli compression library"
 name = "brotli"
-optional = false
-python-versions = "*"
 version = "1.0.9"
-
-[package.source]
-reference = "cian"
-type = "legacy"
-url = "https://nexus.cian.tech/repository/cian/simple"
-
-[[package]]
+description = "Python bindings for the Brotli compression library"
 category = "main"
-description = "A decorator for caching properties in classes."
-name = "cached-property"
 optional = false
 python-versions = "*"
-version = "1.5.2"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
+name = "cached-property"
+version = "1.5.2"
+description = "A decorator for caching properties in classes."
 category = "main"
-description = "Extensible memoizing collections and decorators"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
 name = "cachetools"
+version = "4.2.2"
+description = "Extensible memoizing collections and decorators"
+category = "main"
 optional = false
 python-versions = "~=3.5"
-version = "4.2.2"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
+version = "2021.5.30"
+description = "Python package for providing Mozilla's CA Bundle."
+category = "main"
 optional = false
 python-versions = "*"
-version = "2021.5.30"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Universal encoding detector for Python 2 and 3"
 name = "chardet"
+version = "4.0.0"
+description = "Universal encoding detector for Python 2 and 3"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "4.0.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
-
-[[package]]
-category = "main"
-description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
-name = "charset-normalizer"
-optional = false
-python-versions = ">=3.5.0"
-version = "2.0.3"
-
-[package.extras]
-unicode_backport = ["unicodedata2"]
-
-[package.source]
 reference = "cian"
-type = "legacy"
-url = "https://nexus.cian.tech/repository/cian/simple"
 
 [[package]]
 name = "charset-normalizer"
@@ -326,12 +310,12 @@ url = "https://nexus.cian.tech/repository/cian/simple"
 reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-cache"
+version = "1.4.1"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.4.1"
 
 [package.dependencies]
 attrs = "*"
@@ -340,20 +324,20 @@ typing-extensions = "*"
 ujson = "*"
 
 [package.extras]
-test = ["tox", "mock (<4)", "pycodestyle", "pylint", "diff-cover", "pytest (5.3.1)", "pytest-asyncio (0.10.0)", "pytest-cov (2.8.1)", "pytest-mock (1.12.1)"]
+test = ["tox", "mock (<4)", "pycodestyle", "pylint", "diff-cover", "pytest (==5.3.1)", "pytest-asyncio (==0.10.0)", "pytest-cov (==2.8.1)", "pytest-mock (==1.12.1)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-core"
+version = "1.47.0"
+description = ""
+category = "main"
 optional = false
 python-versions = ">=3.8.1"
-version = "1.47.0"
 
 [package.dependencies]
 aiohttp = ">=3.7"
@@ -398,20 +382,20 @@ kafka = ["cian-kafka[entity] (>=1.2.0)"]
 mssql = ["aiomssql (>=0.2.0)", "pymssql (<3.0)"]
 postgres = ["cian-pg"]
 rabbitmq_consumer_cli = ["aioamqp-consumer-best (>=2.0)", "click"]
-test = ["cian-lint", "pytest", "mock (<4)", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-mock (3.3.1)", "pytest-tornado", "simple-settings", "diff-cover", "lovely-pytest-docker", "isort", "async-http-mocks"]
+test = ["cian-lint", "pytest", "mock (<4)", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-mock (==3.3.1)", "pytest-tornado", "simple-settings", "diff-cover", "lovely-pytest-docker", "isort", "async-http-mocks"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-entities"
+version = "1.9.1"
+description = ""
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*, !=3.7.*"
-version = "1.9.1"
 
 [package.dependencies]
 attrs = "*"
@@ -422,17 +406,17 @@ six = "*"
 typing-extensions = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-enum"
+version = "1.1.8"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.1.8"
 
 [package.dependencies]
 inflection = "*"
@@ -443,17 +427,17 @@ docs = ["furo", "sphinx", "sphinx-autodoc-typehints"]
 test = ["cian-lint", "pytest-cov", "diff-cover (<4)", "pylint (<2)", "pytest (<5)", "diff-cover", "pytest"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-features"
+version = "1.0.0"
+description = ""
+category = "main"
 optional = false
 python-versions = ">=3.8"
-version = "1.0.0"
 
 [package.dependencies]
 serpyco = "*"
@@ -463,17 +447,17 @@ tomlkit = "*"
 test = ["cian-lint", "pytest", "pytest-cov", "pytest-mock", "tox"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Фреймворк функциональных тестов"
 name = "cian-functional-test-utils"
+version = "0.74.1"
+description = "Фреймворк функциональных тестов"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
-version = "0.74.1"
 
 [package.dependencies]
 aiohttp = ">=3.6"
@@ -505,17 +489,17 @@ postgres = ["asyncpg"]
 python = ["coverage"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-helpers"
+version = "1.1.0"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.1.0"
 
 [package.dependencies]
 pytz = "*"
@@ -524,17 +508,17 @@ pytz = "*"
 test = ["pycodestyle", "pylint", "pytest", "pytest-cov", "pytest-mock"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "CIAN async http library"
 name = "cian-http"
+version = "0.25.0"
+description = "CIAN async http library"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.25.0"
 
 [package.dependencies]
 asyncmc = "*"
@@ -554,17 +538,17 @@ docs = ["furo", "sphinx", "sphinx-autodoc-typehints"]
 test = ["cian-lint", "freezegun", "mock", "pytest", "pytest-cov", "pytest-mock", "pytest-tornado", "diff-cover", "python-consul", "lovely-pytest-docker"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-json"
+version = "0.0.1"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.0.1"
 
 [package.dependencies]
 ujson = ">=3.0.1"
@@ -573,17 +557,17 @@ ujson = ">=3.0.1"
 test = ["pycodestyle", "diff-cover", "pytest", "pytest-cov", "pytest-mock", "mypy", "pylint"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Библиотека для взаимодействия с Kafka"
 name = "cian-kafka"
+version = "1.3.0"
+description = "Библиотека для взаимодействия с Kafka"
+category = "main"
 optional = false
 python-versions = ">=3.7"
-version = "1.3.0"
 
 [package.dependencies]
 anyio = "*"
@@ -597,17 +581,17 @@ entity = ["cian-schemas (>=2.4.0)", "pytz"]
 test = ["cian-lint", "lovely-pytest-docker", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-freezegun", "pytest-mock"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = ""
 name = "cian-lint"
+version = "1.14.1"
+description = ""
+category = "dev"
 optional = false
 python-versions = "*"
-version = "1.14.1"
 
 [package.dependencies]
 astroid = {version = ">=2.5.6", markers = "python_version >= \"3.7.0\""}
@@ -620,42 +604,42 @@ pylint-quotes = {version = "*", markers = "python_version >= \"3.7.0\""}
 six = "*"
 
 [package.extras]
-docs = ["Sphinx (2.4.4)", "sphinx-rtd-theme", "m2r"]
+docs = ["Sphinx (==2.4.4)", "sphinx-rtd-theme", "m2r"]
 pytest = ["pylint-pytest (>=1.0,<2)"]
 test = ["cian-entities", "pytest", "pytest-cov", "pytest-mock", "diff-cover", "simple-settings"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-lock"
+version = "0.2.0"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.2.0"
 
 [package.dependencies]
 attrs = "*"
 cian-cache = ">=0.2.1"
 
 [package.extras]
-test = ["pycodestyle", "pylint", "diff-cover", "pytest (3.4.2)", "pytest-asyncio (0.8.0)", "pytest-cov (2.5.1)", "pytest-mock (1.7.1)"]
+test = ["pycodestyle", "pylint", "diff-cover", "pytest (==3.4.2)", "pytest-asyncio (==0.8.0)", "pytest-cov (==2.5.1)", "pytest-mock (==1.7.1)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-pg"
+version = "0.4.1"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.4.1"
 
 [package.dependencies]
 asyncpg = ">=0.22"
@@ -665,59 +649,60 @@ sqlalchemy = ["sqlalchemy (>=1.4)"]
 test = ["cian-lint", "typing-extensions", "mypy", "diff-cover", "pytest", "pytest-asyncio", "pytest-cov", "pytest-mock", "lovely-pytest-docker", "isort", "sqlalchemy (>=1.4)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Cian Python RabbitMQ Library"
 name = "cian-rabbitmq"
+version = "3.2.0"
+description = "Cian Python RabbitMQ Library"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.1.2"
 
 [package.dependencies]
 pika = ">=1.0.1"
 simplejson = "*"
 six = "*"
 statsd = ">=3.3.0"
+tornado = {version = "*", markers = "python_version > \"3\""}
 
 [package.extras]
 test = ["mock", "pytest", "pytest-cov", "pytest-mock", "pytest-tornado", "pytest-freezegun", "diff-cover", "cian-lint"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-redis"
+version = "1.1.0"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.1.0"
 
 [package.dependencies]
 aioredis = "*"
 backoff = "*"
 
 [package.extras]
-test = ["pycodestyle", "pylint", "diff-cover", "pytest (3.0.7)", "pytest-asyncio (0.8.0)", "pytest-cov (2.5.1)", "pytest-mock (1.6.0)"]
+test = ["pycodestyle", "pylint", "diff-cover", "pytest (==3.0.7)", "pytest-asyncio (==0.8.0)", "pytest-cov (==2.5.1)", "pytest-mock (==1.6.0)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-schemas"
+version = "2.15.0"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.15.0"
 
 [package.dependencies]
 attributes-doc = "*"
@@ -735,17 +720,17 @@ ujson = ">=3.0.1"
 test = ["cian-lint", "django (<2.0)", "pytest", "pytest-env", "pytest-cov", "pytest-django", "pytest-mock", "diff-cover", "tox", "webob"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-settings"
+version = "2.2.0"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.2.0"
 
 [package.dependencies]
 attrs = ">=20.3.0"
@@ -759,20 +744,20 @@ tornado = "*"
 
 [package.extras]
 docs = ["furo", "sphinx", "sphinx-autodoc-typehints"]
-test = ["cian-lint", "isort", "lovely-pytest-docker", "pytest-cov", "pytest-mock (2.0.0)", "mock (3.0.5)", "pytest-tornado", "diff-cover (<4)", "pytest (<5)", "pylint (<2)", "tornado (<5)", "diff-cover", "pytest"]
+test = ["cian-lint", "isort", "lovely-pytest-docker", "pytest-cov", "pytest-mock (==2.0.0)", "mock (==3.0.5)", "pytest-tornado", "diff-cover (<4)", "pytest (<5)", "pylint (<2)", "tornado (<5)", "diff-cover", "pytest"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-swagger"
+version = "1.14.0"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.14.0"
 
 [package.dependencies]
 attributes-doc = ">=0.1.1"
@@ -791,17 +776,17 @@ develop = ["bumpversion"]
 test = ["cian-lint", "pytest (<5)", "pytest-cov", "pytest-mock", "pytest-tornado", "isort"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = ""
 name = "cian-test-utils"
+version = "1.7.1"
+description = ""
+category = "dev"
 optional = false
 python-versions = ">=3.8.1,<4"
-version = "1.7.1"
 
 [package.dependencies]
 attrs = "*"
@@ -815,17 +800,17 @@ pytest-tornado = "*"
 tornado = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = ""
 name = "cian-tools"
+version = "0.8.1"
+description = ""
+category = "dev"
 optional = false
 python-versions = ">=3.8"
-version = "0.8.1"
 
 [package.dependencies]
 cian-features = ">=1,<2"
@@ -844,17 +829,17 @@ tomlkit = "*"
 test = ["pytest-mock"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = ""
 name = "cian-web"
+version = "2.6.0"
+description = ""
+category = "main"
 optional = false
 python-versions = ">=3.8.1"
-version = "2.6.0"
 
 [package.dependencies]
 cian-helpers = "*"
@@ -870,93 +855,93 @@ webob = "*"
 test = ["pycodestyle", "pylint", "pytest", "pytest-cov", "pytest-mock", "pytest-tornado", "diff-cover", "mypy", "isort", "types-orjson"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Composable command line interface toolkit"
 name = "click"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "7.1.2"
-
-[package.source]
-reference = "cian"
-type = "legacy"
-url = "https://nexus.cian.tech/repository/cian/simple"
-
-[[package]]
-category = "dev"
-description = "Cross-platform colored terminal text."
-name = "colorama"
+description = "Composable command line interface toolkit"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "0.4.4"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Confluent's Python client for Apache Kafka"
+name = "colorama"
+version = "0.4.4"
+description = "Cross-platform colored terminal text."
+category = "dev"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
 name = "confluent-kafka"
+version = "1.7.0"
+description = "Confluent's Python client for Apache Kafka"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.7.0"
 
 [package.extras]
-avro = ["requests", "fastavro (>=0.23.0,<1.0)", "avro (1.10.0)", "fastavro (>=1.0)", "avro-python3 (1.10.0)"]
-dev = ["pytest-timeout", "flake8", "requests", "pytest (4.6.4)", "fastavro (>=0.23.0,<1.0)", "avro (1.10.0)", "fastavro (>=1.0)", "avro-python3 (1.10.0)", "pytest"]
-doc = ["sphinx", "sphinx-rtd-theme", "requests", "fastavro (>=0.23.0,<1.0)", "avro (1.10.0)", "fastavro (>=1.0)", "avro-python3 (1.10.0)"]
-json = ["jsonschema", "requests", "pyrsistent (0.16.1)", "pyrsistent"]
+avro = ["requests", "fastavro (>=0.23.0,<1.0)", "avro (==1.10.0)", "fastavro (>=1.0)", "avro-python3 (==1.10.0)"]
+dev = ["pytest-timeout", "flake8", "requests", "pytest (==4.6.4)", "fastavro (>=0.23.0,<1.0)", "avro (==1.10.0)", "fastavro (>=1.0)", "avro-python3 (==1.10.0)", "pytest"]
+doc = ["sphinx", "sphinx-rtd-theme", "requests", "fastavro (>=0.23.0,<1.0)", "avro (==1.10.0)", "fastavro (>=1.0)", "avro-python3 (==1.10.0)"]
+json = ["jsonschema", "requests", "pyrsistent (==0.16.1)", "pyrsistent"]
 protobuf = ["protobuf", "requests"]
 schema-registry = ["requests"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Code coverage measurement for Python"
 name = "coverage"
+version = "5.5"
+description = "Code coverage measurement for Python"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
-version = "5.5"
 
 [package.extras]
 toml = ["toml"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Decorators for Humans"
 name = "decorator"
+version = "5.0.9"
+description = "Decorators for Humans"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
-version = "5.0.9"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Automatically find diff lines that need test coverage."
 name = "diff-cover"
+version = "6.2.0"
+description = "Automatically find diff lines that need test coverage."
+category = "dev"
 optional = false
 python-versions = ">= 3.6"
-version = "6.2.0"
 
 [package.dependencies]
 chardet = ">=3.0.0"
@@ -966,17 +951,17 @@ pluggy = "*"
 pygments = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "A Python library for the Docker Engine API."
 name = "docker"
+version = "5.0.0"
+description = "A Python library for the Docker Engine API."
+category = "dev"
 optional = false
 python-versions = ">=3.6"
-version = "5.0.0"
 
 [package.dependencies]
 pywin32 = {version = "227", markers = "sys_platform == \"win32\""}
@@ -988,17 +973,17 @@ ssh = ["paramiko (>=2.4.2)"]
 tls = ["pyOpenSSL (>=17.5.0)", "cryptography (>=3.4.7)", "idna (>=2.0.0)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
 name = "factory-boy"
+version = "3.2.0"
+description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "3.2.0"
 
 [package.dependencies]
 Faker = ">=0.7.0"
@@ -1008,67 +993,67 @@ dev = ["coverage", "django", "flake8", "isort", "pillow", "sqlalchemy", "mongoen
 doc = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-spelling"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Faker is a Python package that generates fake data for you."
 name = "faker"
+version = "8.10.1"
+description = "Faker is a Python package that generates fake data for you."
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "8.10.1"
 
 [package.dependencies]
 python-dateutil = ">=2.4"
 text-unidecode = "1.3"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Let your Python tests travel through time"
 name = "freezegun"
+version = "1.1.0"
+description = "Let your Python tests travel through time"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
-version = "1.1.0"
 
 [package.dependencies]
 python-dateutil = ">=2.7"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "URL manipulation made simple."
 name = "furl"
+version = "2.1.2"
+description = "URL manipulation made simple."
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.1.2"
 
 [package.dependencies]
 orderedmultidict = ">=1.0.1"
 six = ">=1.8.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Google API client core library"
 name = "google-api-core"
+version = "1.31.0"
+description = "Google API client core library"
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
-version = "1.31.0"
 
 [package.dependencies]
 google-auth = ">=1.25.0,<2.0dev"
@@ -1085,36 +1070,36 @@ grpcgcp = ["grpcio-gcp (>=0.2.2)"]
 grpcio-gcp = ["grpcio-gcp (>=0.2.2)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Google API Client Library for Python"
 name = "google-api-python-client"
+version = "2.14.0"
+description = "Google API Client Library for Python"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "2.13.0"
 
 [package.dependencies]
-google-api-core = ">=1.21.0,<2dev"
-google-auth = ">=1.16.0,<2dev"
+google-api-core = ">=1.21.0,<3.0.0dev"
+google-auth = ">=1.16.0,<3.0.0dev"
 google-auth-httplib2 = ">=0.1.0"
 httplib2 = ">=0.15.0,<1dev"
 six = ">=1.13.0,<2dev"
 uritemplate = ">=3.0.0,<4dev"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
+name = "google-auth"
 version = "1.33.1"
 description = "Google Authentication Library"
 category = "main"
-name = "google-auth"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
 
@@ -1130,17 +1115,17 @@ pyopenssl = ["pyopenssl (>=20.0.0)"]
 reauth = ["pyu2f (>=0.1.5)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Google Authentication Library: httplib2 transport"
 name = "google-auth-httplib2"
+version = "0.1.0"
+description = "Google Authentication Library: httplib2 transport"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.1.0"
 
 [package.dependencies]
 google-auth = "*"
@@ -1148,17 +1133,17 @@ httplib2 = ">=0.15.0"
 six = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Google Cloud Profiler Python Agent"
 name = "google-cloud-profiler"
+version = "3.0.5"
+description = "Google Cloud Profiler Python Agent"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.0.5"
 
 [package.dependencies]
 google-api-python-client = "<1.12.0 || >1.12.0,<2.0.2 || >2.0.2"
@@ -1168,17 +1153,17 @@ protobuf = "*"
 requests = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python Cloud Debugger"
 name = "google-python-cloud-debugger"
+version = "102.15"
+description = "Python Cloud Debugger"
+category = "main"
 optional = false
 python-versions = "*"
-version = "102.15"
 
 [package.dependencies]
 google-api-python-client = {version = "*", markers = "python_version > \"3.0\""}
@@ -1188,17 +1173,17 @@ pyyaml = "*"
 six = ">=1.10.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Common protobufs used in Google APIs"
 name = "googleapis-common-protos"
+version = "1.53.0"
+description = "Common protobufs used in Google APIs"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "1.53.0"
 
 [package.dependencies]
 protobuf = ">=3.12.0"
@@ -1207,134 +1192,134 @@ protobuf = ">=3.12.0"
 grpc = ["grpcio (>=1.0.0)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python 3 compatible library to send data to a Graphite metrics server (Carbon)"
 name = "graphyte"
+version = "1.6.0"
+description = "Python 3 compatible library to send data to a Graphite metrics server (Carbon)"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.6.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python wrapper for hiredis"
 name = "hiredis"
+version = "2.0.0"
+description = "Python wrapper for hiredis"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "2.0.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A comprehensive HTTP client library."
 name = "httplib2"
+version = "0.19.1"
+description = "A comprehensive HTTP client library."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.19.1"
 
 [package.dependencies]
 pyparsing = ">=2.4.2,<3"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
+version = "3.2"
+description = "Internationalized Domain Names in Applications (IDNA)"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "3.2"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Correctly generate plurals, singular nouns, ordinals, indefinite articles; convert numbers to words"
 name = "inflect"
+version = "5.3.0"
+description = "Correctly generate plurals, singular nouns, ordinals, indefinite articles; convert numbers to words"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
-version = "5.3.0"
 
 [package.extras]
 docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-cov", "pytest-enabler", "pygments", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A port of Ruby on Rails inflector to Python"
 name = "inflection"
+version = "0.5.1"
+description = "A port of Ruby on Rails inflector to Python"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "0.5.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "iniconfig: brain-dead simple config-ini parsing"
 name = "iniconfig"
+version = "1.1.1"
+description = "iniconfig: brain-dead simple config-ini parsing"
+category = "dev"
 optional = false
 python-versions = "*"
-version = "1.1.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "A Python utility / library to sort Python imports."
 name = "isort"
+version = "5.9.2"
+description = "A Python utility / library to sort Python imports."
+category = "dev"
 optional = false
 python-versions = ">=3.6.1,<4.0"
-version = "5.9.2"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
+requirements_deprecated_finder = ["pip-api", "pipreqs"]
 pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
-requirements_deprecated_finder = ["pip-api", "pipreqs"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Jaeger Python OpenTracing Tracer implementation"
 name = "jaeger-client"
+version = "4.6.0"
+description = "Jaeger Python OpenTracing Tracer implementation"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "4.6.0"
 
 [package.dependencies]
 opentracing = ">=2.1,<3.0"
@@ -1343,20 +1328,20 @@ thrift = "*"
 tornado = ">=4.3"
 
 [package.extras]
-tests = ["mock", "pycurl", "pytest", "pytest-cov", "coverage", "pytest-timeout", "pytest-tornado", "pytest-benchmark", "pytest-localserver", "flake8", "flake8-quotes", "codecov", "tchannel (2.1.0)", "opentracing_instrumentation (>=3,<4)", "prometheus_client (0.3.1)"]
+tests = ["mock", "pycurl", "pytest", "pytest-cov", "coverage", "pytest-timeout", "pytest-tornado", "pytest-benchmark", "pytest-localserver", "flake8", "flake8-quotes", "codecov", "tchannel (==2.1.0)", "opentracing_instrumentation (>=3,<4)", "prometheus_client (==0.3.1)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A very fast and expressive template engine."
 name = "jinja2"
+version = "2.11.3"
+description = "A very fast and expressive template engine."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "2.11.3"
 
 [package.dependencies]
 MarkupSafe = ">=0.23"
@@ -1365,34 +1350,34 @@ MarkupSafe = ">=0.23"
 i18n = ["Babel (>=0.8)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Jinja2 pluralize filters."
 name = "jinja2-pluralize"
+version = "0.3.0"
+description = "Jinja2 pluralize filters."
+category = "dev"
 optional = false
 python-versions = "*"
-version = "0.3.0"
 
 [package.dependencies]
 inflect = ">=0.2.4"
 jinja2 = ">=2.4"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "A final implementation of JSONPath for Python that aims to be standard compliant, including arithmetic and binary comparison operators and providing clear AST for metaprogramming."
 name = "jsonpath-ng"
+version = "1.5.3"
+description = "A final implementation of JSONPath for Python that aims to be standard compliant, including arithmetic and binary comparison operators and providing clear AST for metaprogramming."
+category = "dev"
 optional = false
 python-versions = "*"
-version = "1.5.3"
 
 [package.dependencies]
 decorator = "*"
@@ -1400,94 +1385,94 @@ ply = "*"
 six = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python library for serializing any arbitrary object graph into JSON"
 name = "jsonpickle"
+version = "2.0.0"
+description = "Python library for serializing any arbitrary object graph into JSON"
+category = "main"
 optional = false
 python-versions = ">=2.7"
-version = "2.0.0"
 
 [package.extras]
 docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
-testing = ["coverage (<5)", "pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-black-multipy", "pytest-cov", "ecdsa", "feedparser", "numpy", "pandas", "pymongo", "sklearn", "sqlalchemy", "enum34", "jsonlib"]
+testing = ["coverage (<5)", "pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-black-multipy", "pytest-cov", "ecdsa", "feedparser", "numpy", "pandas", "pymongo", "sklearn", "sqlalchemy", "enum34", "jsonlib"]
 "testing.libs" = ["demjson", "simplejson", "ujson", "yajl"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "A fast and thorough lazy object proxy."
 name = "lazy-object-proxy"
+version = "1.6.0"
+description = "A fast and thorough lazy object proxy."
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
-version = "1.6.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Safely add untrusted strings to HTML/XML markup."
 name = "markupsafe"
+version = "2.0.1"
+description = "Safely add untrusted strings to HTML/XML markup."
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "2.0.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A lightweight library for converting complex datatypes to and from native Python datatypes."
 name = "marshmallow"
+version = "2.21.0"
+description = "A lightweight library for converting complex datatypes to and from native Python datatypes."
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.21.0"
 
 [package.extras]
-dev = ["python-dateutil", "simplejson", "pytest", "pytz", "flake8 (3.7.4)", "tox"]
-docs = ["sphinx (2.1.2)", "sphinx-issues (1.2.0)", "alabaster (0.7.12)", "sphinx-version-warning (1.1.2)"]
-lint = ["flake8 (3.7.4)"]
+dev = ["python-dateutil", "simplejson", "pytest", "pytz", "flake8 (==3.7.4)", "tox"]
+docs = ["sphinx (==2.1.2)", "sphinx-issues (==1.2.0)", "alabaster (==0.7.12)", "sphinx-version-warning (==1.1.2)"]
+lint = ["flake8 (==3.7.4)"]
 reco = ["python-dateutil", "simplejson"]
 tests = ["pytest", "pytz"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "McCabe checker, plugin for flake8"
 name = "mccabe"
+version = "0.6.1"
+description = "McCabe checker, plugin for flake8"
+category = "dev"
 optional = false
 python-versions = "*"
-version = "0.6.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Rolling backport of unittest.mock for all Pythons"
 name = "mock"
+version = "3.0.5"
+description = "Rolling backport of unittest.mock for all Pythons"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.0.5"
 
 [package.dependencies]
 six = "*"
@@ -1498,43 +1483,43 @@ docs = ["sphinx"]
 test = ["pytest", "pytest-cov"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "MessagePack (de)serializer."
 name = "msgpack"
+version = "1.0.2"
+description = "MessagePack (de)serializer."
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.0.2"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "multidict implementation"
 name = "multidict"
+version = "5.1.0"
+description = "multidict implementation"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "5.1.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Optional static typing for Python"
 name = "mypy"
+version = "0.910"
+description = "Optional static typing for Python"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
-version = "0.910"
 
 [package.dependencies]
 mypy-extensions = ">=0.4.3,<0.5.0"
@@ -1546,91 +1531,91 @@ dmypy = ["psutil (>=4.0)"]
 python2 = ["typed-ast (>=1.4.0,<1.5.0)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Experimental type system extensions for programs checked with the mypy typechecker."
 name = "mypy-extensions"
+version = "0.4.3"
+description = "Experimental type system extensions for programs checked with the mypy typechecker."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.4.3"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "OpenTracing API for Python. See documentation at http://opentracing.io"
 name = "opentracing"
+version = "2.4.0"
+description = "OpenTracing API for Python. See documentation at http://opentracing.io"
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.4.0"
 
 [package.extras]
 tests = ["doubles", "flake8", "flake8-quotes", "mock", "pytest", "pytest-cov", "pytest-mock", "sphinx", "sphinx-rtd-theme", "six (>=1.10.0,<2.0)", "gevent", "tornado"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Ordered Multivalue Dictionary"
 name = "orderedmultidict"
+version = "1.0.1"
+description = "Ordered Multivalue Dictionary"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.0.1"
 
 [package.dependencies]
 six = ">=1.8.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
 name = "orjson"
+version = "3.6.0"
+description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "3.6.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Core utilities for Python packages"
 name = "packaging"
+version = "21.0"
+description = "Core utilities for Python packages"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "21.0"
 
 [package.dependencies]
 pyparsing = ">=2.0.2"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Pika Python AMQP Client Library"
 name = "pika"
+version = "1.2.0"
+description = "Pika Python AMQP Client Library"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.2.0"
 
 [package.extras]
 gevent = ["gevent"]
@@ -1638,162 +1623,162 @@ tornado = ["tornado"]
 twisted = ["twisted"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
+version = "0.13.1"
+description = "plugin and hook calling mechanisms for python"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.13.1"
 
 [package.extras]
 dev = ["pre-commit", "tox"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Python Lex & Yacc"
 name = "ply"
+version = "3.11"
+description = "Python Lex & Yacc"
+category = "dev"
 optional = false
 python-versions = "*"
-version = "3.11"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Library for building powerful interactive command lines in Python"
 name = "prompt-toolkit"
+version = "3.0.19"
+description = "Library for building powerful interactive command lines in Python"
+category = "dev"
 optional = false
 python-versions = ">=3.6.1"
-version = "3.0.19"
 
 [package.dependencies]
 wcwidth = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Protocol Buffers"
 name = "protobuf"
+version = "3.17.3"
+description = "Protocol Buffers"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.17.3"
 
 [package.dependencies]
 six = ">=1.9"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Cross-platform lib for process and system monitoring in Python."
 name = "psutil"
+version = "5.8.0"
+description = "Cross-platform lib for process and system monitoring in Python."
+category = "dev"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "5.8.0"
 
 [package.extras]
 test = ["ipaddress", "mock", "unittest2", "enum34", "pywin32", "wmi"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
+version = "1.10.0"
+description = "library with cross-python path, ini-parsing, io, code, log facilities"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.10.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "ASN.1 types and codecs"
 name = "pyasn1"
+version = "0.4.8"
+description = "ASN.1 types and codecs"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.4.8"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A collection of ASN.1-based protocols modules."
 name = "pyasn1-modules"
+version = "0.2.8"
+description = "A collection of ASN.1-based protocols modules."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.2.8"
 
 [package.dependencies]
 pyasn1 = ">=0.4.6,<0.5.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Python style guide checker"
 name = "pycodestyle"
+version = "2.7.0"
+description = "Python style guide checker"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "2.7.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "PycURL -- A Python Interface To The cURL library"
 name = "pycurl"
+version = "7.43.0.6"
+description = "PycURL -- A Python Interface To The cURL library"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "7.43.0.6"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Data validation and settings management using python 3.6 type hinting"
 name = "pydantic"
+version = "1.8.2"
+description = "Data validation and settings management using python 3.6 type hinting"
+category = "dev"
 optional = false
 python-versions = ">=3.6.1"
-version = "1.8.2"
 
 [package.dependencies]
 typing-extensions = ">=3.7.4.3"
@@ -1803,30 +1788,30 @@ dotenv = ["python-dotenv (>=0.10.4)"]
 email = ["email-validator (>=1.0.3)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Pygments is a syntax highlighting package written in Python."
 name = "pygments"
+version = "2.9.0"
+description = "Pygments is a syntax highlighting package written in Python."
+category = "dev"
 optional = false
 python-versions = ">=3.5"
-version = "2.9.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "python code static checker"
 name = "pylint"
+version = "2.9.4"
+description = "python code static checker"
+category = "dev"
 optional = false
 python-versions = "~=3.6"
-version = "2.9.3"
 
 [package.dependencies]
 astroid = ">=2.6.5,<2.7"
@@ -1836,46 +1821,46 @@ mccabe = ">=0.6,<0.7"
 toml = ">=0.7.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Quote consistency checker for PyLint.."
 name = "pylint-quotes"
+version = "0.2.3"
+description = "Quote consistency checker for PyLint.."
+category = "dev"
 optional = false
 python-versions = ">=3.6"
-version = "0.2.3"
 
 [package.dependencies]
 pylint = ">=2.8.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python parsing module"
 name = "pyparsing"
+version = "2.4.7"
+description = "Python parsing module"
+category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "2.4.7"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "pytest: simple powerful testing with Python"
 name = "pytest"
+version = "6.2.4"
+description = "pytest: simple powerful testing with Python"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
-version = "6.2.4"
 
 [package.dependencies]
 atomicwrites = {version = ">=1.0", markers = "sys_platform == \"win32\""}
@@ -1891,17 +1876,17 @@ toml = "*"
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Pytest support for asyncio."
 name = "pytest-asyncio"
+version = "0.15.1"
+description = "Pytest support for asyncio."
+category = "dev"
 optional = false
 python-versions = ">= 3.6"
-version = "0.15.1"
 
 [package.dependencies]
 pytest = ">=5.4.0"
@@ -1910,17 +1895,17 @@ pytest = ">=5.4.0"
 testing = ["coverage", "hypothesis (>=5.7.1)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Pytest plugin for measuring coverage."
 name = "pytest-cov"
+version = "2.12.1"
+description = "Pytest plugin for measuring coverage."
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "2.12.1"
 
 [package.dependencies]
 coverage = ">=5.2.1"
@@ -1931,17 +1916,17 @@ toml = "*"
 testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Thin-wrapper around the mock package for easier use with py.test"
 name = "pytest-mock"
+version = "1.13.0"
+description = "Thin-wrapper around the mock package for easier use with py.test"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.13.0"
 
 [package.dependencies]
 pytest = ">=2.7"
@@ -1950,34 +1935,34 @@ pytest = ">=2.7"
 dev = ["pre-commit", "tox"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "A py.test plugin providing fixtures and markers to simplify testing of asynchronous tornado applications."
 name = "pytest-tornado"
+version = "0.8.1"
+description = "A py.test plugin providing fixtures and markers to simplify testing of asynchronous tornado applications."
+category = "dev"
 optional = false
 python-versions = "*"
-version = "0.8.1"
 
 [package.dependencies]
 pytest = ">=3.6"
 tornado = ">=4.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python client for Consul (http://www.consul.io/)"
 name = "python-consul"
+version = "1.1.0"
+description = "Python client for Consul (http://www.consul.io/)"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.1.0"
 
 [package.dependencies]
 requests = ">=2.0"
@@ -1989,85 +1974,85 @@ tornado = ["tornado"]
 twisted = ["twisted", "treq"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Extensions to the standard Python datetime module"
 name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-version = "2.8.2"
 
 [package.dependencies]
 six = ">=1.5"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python wrapper around rapidjson"
 name = "python-rapidjson"
+version = "1.4"
+description = "Python wrapper around rapidjson"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "1.4"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "World timezone definitions, modern and historical"
 name = "pytz"
-optional = false
-python-versions = "*"
 version = "2021.1"
-
-[package.source]
-reference = "cian"
-type = "legacy"
-url = "https://nexus.cian.tech/repository/cian/simple"
-
-[[package]]
-category = "dev"
-description = "Python for Window Extensions"
-name = "pywin32"
+description = "World timezone definitions, modern and historical"
+category = "main"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
+name = "pywin32"
 version = "227"
+description = "Python for Window Extensions"
+category = "dev"
+optional = false
+python-versions = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "YAML parser and emitter for Python"
 name = "pyyaml"
+version = "5.4.1"
+description = "YAML parser and emitter for Python"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
-version = "5.4.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python HTTP for Humans."
 name = "requests"
+version = "2.26.0"
+description = "Python HTTP for Humans."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
-version = "2.26.0"
 
 [package.dependencies]
 certifi = ">=2017.4.17"
@@ -2076,37 +2061,37 @@ idna = {version = ">=2.5,<4", markers = "python_version >= \"3\""}
 urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
+socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Pure-Python RSA implementation"
 name = "rsa"
+version = "4.7.2"
+description = "Pure-Python RSA implementation"
+category = "main"
 optional = false
 python-versions = ">=3.5, <4"
-version = "4.7.2"
 
 [package.dependencies]
 pyasn1 = ">=0.1.3"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python client for Sentry (https://sentry.io)"
 name = "sentry-sdk"
+version = "1.3.0"
+description = "Python client for Sentry (https://sentry.io)"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.3.0"
 
 [package.dependencies]
 certifi = "*"
@@ -2130,17 +2115,17 @@ sqlalchemy = ["sqlalchemy (>=1.2)"]
 tornado = ["tornado (>=5)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Fast serialization of dataclasses using Cython"
 name = "serpyco"
+version = "10.6.1"
+description = "Fast serialization of dataclasses using Cython"
+category = "main"
 optional = false
 python-versions = ">=3.7"
-version = "10.6.1"
 
 [package.dependencies]
 python-dateutil = "*"
@@ -2148,79 +2133,79 @@ python-rapidjson = "*"
 typing-inspect = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A simple way to manage your project settings"
 name = "simple-settings"
+version = "0.19.1"
+description = "A simple way to manage your project settings"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.19.1"
 
 [package.extras]
-all = ["toml (0.10.0)", "SQLAlchemy (1.3.8)", "boto3 (1.4.7)", "redis (3.3.8)", "PyYAML (5.1.2)", "pymemcache (2.2.2)", "consulate (0.6.0)", "jsonpickle (1.2)", "six (1.12.0)"]
-consul = ["consulate (0.6.0)", "jsonpickle (1.2)"]
-database = ["SQLAlchemy (1.3.8)", "jsonpickle (1.2)"]
-memcached = ["pymemcache (2.2.2)", "six (1.12.0)", "jsonpickle (1.2)"]
-redis = ["redis (3.3.8)", "six (1.12.0)", "jsonpickle (1.2)"]
-s3 = ["boto3 (1.4.7)", "six (1.12.0)", "jsonpickle (1.2)"]
-toml = ["toml (0.10.0)"]
-yaml = ["PyYAML (5.1.2)"]
+all = ["toml (==0.10.0)", "SQLAlchemy (==1.3.8)", "boto3 (==1.4.7)", "redis (==3.3.8)", "PyYAML (==5.1.2)", "pymemcache (==2.2.2)", "consulate (==0.6.0)", "jsonpickle (==1.2)", "six (==1.12.0)"]
+consul = ["consulate (==0.6.0)", "jsonpickle (==1.2)"]
+database = ["SQLAlchemy (==1.3.8)", "jsonpickle (==1.2)"]
+memcached = ["pymemcache (==2.2.2)", "six (==1.12.0)", "jsonpickle (==1.2)"]
+redis = ["redis (==3.3.8)", "six (==1.12.0)", "jsonpickle (==1.2)"]
+s3 = ["boto3 (==1.4.7)", "six (==1.12.0)", "jsonpickle (==1.2)"]
+toml = ["toml (==0.10.0)"]
+yaml = ["PyYAML (==5.1.2)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Simple, fast, extensible JSON encoder/decoder for Python"
 name = "simplejson"
+version = "3.17.3"
+description = "Simple, fast, extensible JSON encoder/decoder for Python"
+category = "main"
 optional = false
 python-versions = ">=2.5, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "3.17.3"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python 2 and 3 compatibility utilities"
 name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "1.16.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Sniff out which async library your code is running under"
 name = "sniffio"
+version = "1.2.0"
+description = "Sniff out which async library your code is running under"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "1.2.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Database Abstraction Library"
 name = "sqlalchemy"
+version = "1.3.24"
+description = "Database Abstraction Library"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.3.24"
 
 [package.extras]
 mssql = ["pyodbc"]
@@ -2235,59 +2220,59 @@ postgresql_psycopg2cffi = ["psycopg2cffi"]
 pymysql = ["pymysql (<1)", "pymysql"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "A simple statsd client."
 name = "statsd"
-optional = false
-python-versions = "*"
 version = "3.3.0"
+description = "A simple statsd client."
+category = "main"
+optional = false
+python-versions = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "The most basic Text::Unidecode port"
 name = "text-unidecode"
+version = "1.3"
+description = "The most basic Text::Unidecode port"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.3"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Tornado IOLoop Backed Concurrent Futures"
 name = "threadloop"
+version = "1.0.2"
+description = "Tornado IOLoop Backed Concurrent Futures"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.0.2"
 
 [package.dependencies]
 tornado = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Python bindings for the Apache Thrift RPC system"
 name = "thrift"
+version = "0.13.0"
+description = "Python bindings for the Apache Thrift RPC system"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.13.0"
 
 [package.dependencies]
 six = ">=1.7.2"
@@ -2298,159 +2283,159 @@ tornado = ["tornado (>=4.0)"]
 twisted = ["twisted"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Python Library for Tom's Obvious, Minimal Language"
 name = "toml"
+version = "0.10.2"
+description = "Python Library for Tom's Obvious, Minimal Language"
+category = "dev"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "0.10.2"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Style preserving TOML library"
 name = "tomlkit"
+version = "0.7.2"
+description = "Style preserving TOML library"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "0.7.2"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
 name = "tornado"
+version = "6.1"
+description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
+category = "main"
 optional = false
 python-versions = ">= 3.5"
-version = "6.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Synchronization primitives for Tornado coroutines."
 name = "toro"
+version = "1.0.1"
+description = "Synchronization primitives for Tornado coroutines."
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.0.1"
 
 [package.dependencies]
 tornado = ">=3"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Typing stubs for pytz"
 name = "types-pytz"
-optional = false
-python-versions = "*"
 version = "2021.1.0"
+description = "Typing stubs for pytz"
+category = "main"
+optional = false
+python-versions = "*"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Backported and Experimental Type Hints for Python 3.5+"
 name = "typing-extensions"
+version = "3.10.0.0"
+description = "Backported and Experimental Type Hints for Python 3.5+"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.10.0.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Runtime inspection utilities for typing module."
 name = "typing-inspect"
+version = "0.7.1"
+description = "Runtime inspection utilities for typing module."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.7.1"
 
 [package.dependencies]
 mypy-extensions = ">=0.3.0"
 typing-extensions = ">=3.7.4"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Ultra fast JSON encoder and decoder for Python"
 name = "ujson"
+version = "10.0.0"
+description = "Ultra fast JSON encoder and decoder for Python"
+category = "main"
 optional = false
 python-versions = "*"
-version = "10.0.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "URI templates"
 name = "uritemplate"
+version = "3.0.1"
+description = "URI templates"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.0.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
+version = "1.26.6"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
-version = "1.26.6"
 
 [package.extras]
 brotli = ["brotlipy (>=0.6.0)"]
 secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
+socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Fast implementation of asyncio event loop on top of libuv"
 name = "uvloop"
+version = "0.15.3"
+description = "Fast implementation of asyncio event loop on top of libuv"
+category = "main"
 optional = false
 python-versions = ">=3.7"
-version = "0.15.3"
 
 [package.extras]
 dev = ["Cython (>=0.29.20,<0.30.0)", "pytest (>=3.6.0)", "Sphinx (>=1.7.3,<1.8.0)", "sphinxcontrib-asyncio (>=0.2.0,<0.3.0)", "sphinx_rtd_theme (>=0.2.4,<0.3.0)", "aiohttp", "flake8 (>=3.8.4,<3.9.0)", "psutil", "pycodestyle (>=2.6.0,<2.7.0)", "pyOpenSSL (>=19.0.0,<19.1.0)", "mypy (>=0.800)"]
@@ -2458,87 +2443,87 @@ docs = ["Sphinx (>=1.7.3,<1.8.0)", "sphinxcontrib-asyncio (>=0.2.0,<0.3.0)", "sp
 test = ["aiohttp", "flake8 (>=3.8.4,<3.9.0)", "psutil", "pycodestyle (>=2.6.0,<2.7.0)", "pyOpenSSL (>=19.0.0,<19.1.0)", "mypy (>=0.800)"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Measures the displayed width of unicode strings in a terminal"
 name = "wcwidth"
+version = "0.2.5"
+description = "Measures the displayed width of unicode strings in a terminal"
+category = "dev"
 optional = false
 python-versions = "*"
-version = "0.2.5"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "WSGI request and response object"
 name = "webob"
+version = "1.8.7"
+description = "WSGI request and response object"
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*"
-version = "1.8.7"
 
 [package.extras]
 docs = ["Sphinx (>=1.7.5)", "pylons-sphinx-themes"]
 testing = ["pytest (>=3.1.0)", "coverage", "pytest-cov", "pytest-xdist"]
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "WebSocket client for Python with low level API options"
 name = "websocket-client"
+version = "1.1.0"
+description = "WebSocket client for Python with low level API options"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
-version = "1.1.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "dev"
-description = "Module for decorators, wrappers and monkey patching."
 name = "wrapt"
+version = "1.12.1"
+description = "Module for decorators, wrappers and monkey patching."
+category = "dev"
 optional = false
 python-versions = "*"
-version = "1.12.1"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [[package]]
-category = "main"
-description = "Yet another URL library"
 name = "yarl"
+version = "1.6.3"
+description = "Yet another URL library"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "1.6.3"
 
 [package.dependencies]
 idna = ">=2.0"
 multidict = ">=4.0"
 
 [package.source]
-reference = "cian"
 type = "legacy"
 url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
 
 [metadata]
-content-hash = "4689be2b77ee01df09fd00e31f639b643f4cc630be11bfab7666369269cd9f58"
 lock-version = "1.1"
 python-versions = "^3.9"
+content-hash = "4689be2b77ee01df09fd00e31f639b643f4cc630be11bfab7666369269cd9f58"
 
 [metadata.files]
 aiohttp = [
@@ -2895,12 +2880,12 @@ google-api-core = [
     {file = "google_api_core-1.31.0-py2.py3-none-any.whl", hash = "sha256:a9f979b5c6a9cad31a4120ca6be712df76adc32336a7bf4bc2f4331a1b527fe7"},
 ]
 google-api-python-client = [
-    {file = "google-api-python-client-2.13.0.tar.gz", hash = "sha256:345bb7249ac9af93a6c75e4adb93a41139459945aee61e611a5c8e5b146cbef7"},
-    {file = "google_api_python_client-2.13.0-py2.py3-none-any.whl", hash = "sha256:b3874333cabc5ce46dcda2da48f1b258e227a9ae61688211e277e11270386307"},
+    {file = "google-api-python-client-2.14.0.tar.gz", hash = "sha256:30062b369623cb023592b7f721dd8463389f45bcf2713e56c7a3a509b65c250a"},
+    {file = "google_api_python_client-2.14.0-py2.py3-none-any.whl", hash = "sha256:2a8c34fccbf5c1636898c0dbaef6745f8f5150ba5304e6de0f8f0635dcf47847"},
 ]
 google-auth = [
-    {file = "google-auth-1.33.0.tar.gz", hash = "sha256:9bd25d835c01ca3dd9045ea0b50f036e3fe3868ee2c5a9773a661925bbdf46ca"},
-    {file = "google_auth-1.33.0-py2.py3-none-any.whl", hash = "sha256:a756a33978fac611e4f00b69715b80e35467c30cc6262132d29d33a0e398ac55"},
+    {file = "google-auth-1.33.1.tar.gz", hash = "sha256:7665c04f2df13cc938dc7d9066cddb1f8af62b038bc8b2306848c1b23121865f"},
+    {file = "google_auth-1.33.1-py2.py3-none-any.whl", hash = "sha256:036dd68c1e8baa422b6b61619b8e02793da2e20f55e69514612de6c080468755"},
 ]
 google-auth-httplib2 = [
     {file = "google-auth-httplib2-0.1.0.tar.gz", hash = "sha256:a07c39fd632becacd3f07718dfd6021bf396978f03ad3ce4321d060015cc30ac"},
