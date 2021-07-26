@@ -36,6 +36,8 @@ class Offer:
     """Категория обьявления"""
     synced_with_kafka: bool = False
     """Было отправлено в кафку в финальном статусе"""
+    is_test: bool = False
+    """Тестовое обьявление"""
 
 
 @dataclass

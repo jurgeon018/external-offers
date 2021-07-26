@@ -40,6 +40,7 @@ CREATE TABLE offers_for_call
     last_call_id  varchar,
     synced_with_kafka   boolean                  not null default false,
     synced_with_grafana boolean                  not null default false,
+    is_test             boolean                  not null default false,
     parsed_created_at   timestamp with time zone not null default current_timestamp
 );
 
@@ -58,6 +59,7 @@ CREATE TABLE clients
     calls_count      smallint,
     last_call_id     varchar,
     synced_with_grafana boolean  not null  default false,
+    is_test             boolean  not null  default false,
     main_account_chosen boolean  not null  default false
 );
 
