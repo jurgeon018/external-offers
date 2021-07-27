@@ -110,7 +110,13 @@
          #call-later-datetime {
          margin: 0em 1em 0em 0em
          }
-
+         .comment-client-block {
+         padding: 0em 1em 0em 0em;
+         display: inline-block;
+         }
+         #comment {
+         margin: 0em 1em 0em 0em
+         }
       </style>
       <meta charset="utf-8">
    </head>
@@ -164,7 +170,15 @@
                
                <button class="call-later-client-button" id="callLaterClientButton1">Перезвонить</button>
                <div class="call-later-client-messages" id="callLaterClientMessages1"></div>
-
+            </div>
+            <div class="comment-client-block">
+               <textarea id="comment"></textarea>
+               <button class="comment-client-button" id="commentClientButton">
+                  
+                    Оставить коментарий
+                  
+                </button>
+               <div class="comment-client-messages" id="commentClientMessages"></div>
             </div>
 
          </div>
@@ -353,6 +367,20 @@
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("phoneUnavailableClientMessages").innerHTML = errors
            }
+         };
+         
+         document.getElementById("commentClientButton").onclick = async function () {
+           comment = document.getElementById('comment').value
+           let obj =  {
+               'clientId': '1',
+               'comment': comment,
+           }
+           const response = await fetch("/api/admin/v1/update-client-comment/", {
+             method: 'POST',
+             body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+           });
+           resp = await response.json()
+           document.getElementById("commentClientMessages").innerHTML = resp.message
          };
 
          document.getElementById("callInterruptedClientButton").onclick = async function () {

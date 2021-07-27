@@ -24,6 +24,7 @@ from external_offers.entities.return_client_by_phone import (
     ReturnClientByPhoneResponse,
 )
 from external_offers.entities.save_offer import SaveOfferRequest, SaveOfferResponse
+from external_offers.entities.update_client_comment import UpdateClientCommentRequest, UpdateClientCommentResponse
 from external_offers.entities.update_client_phone import (
     UpdateClientPhoneError,
     UpdateClientPhoneRequest,

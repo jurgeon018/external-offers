@@ -32,3 +32,4 @@ class GrafanaSegmentType(StrEnum):
     """Сегменты"""
     category = 'category'
     """Категории"""
+
