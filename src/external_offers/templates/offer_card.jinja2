@@ -98,6 +98,7 @@
 
                     {# parsed_object_model.is_suburban_sale #}
                     <option value="house"
+                            id="house"
                             class="is_suburban_sale_option"
                             style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};" 
                             {% if parsed_object_model.is_house %} selected {% endif %}
@@ -422,6 +423,7 @@
         const updateOfferCategoryBtn = $('#updateOfferCategory');
         const is_allow_realty_type_options = $(".is_allow_realty_type_option")
         const is_suburban_sale_options = $(".is_suburban_sale_option")
+        const house_option = $('#house')
 
 
         $('.ajax-form').on('submit', (event) => {
@@ -533,11 +535,17 @@
             }
             // toggle CategoryType
             if(getOfferType.val() == 'flat'){
-                is_allow_realty_type_options.show()
-                is_suburban_sale_options.hide()
+                is_allow_realty_type_options.show();
+                is_suburban_sale_options.hide();
             }else if(getOfferType.val() == 'suburban'){
-                is_suburban_sale_options.show()
-                is_allow_realty_type_options.hide()
+                // https://jira.cian.tech/browse/CD-109868?focusedCommentId=1063395&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-1063395
+                // Для посуточной аренды загородки должен быть доступен только дом
+                is_suburban_sale_options.show();
+                is_allow_realty_type_options.hide();
+                if(getTermType.val() == 'daily' && getDealType.val() == 'rent'){
+                    is_suburban_sale_options.hide();
+                    house_option.show()
+                }
             }
         }
 
@@ -626,11 +634,6 @@
         };
 
         const updateOfferCategory = () => {
-            console.log("parsed_object_model.is_rent: {{parsed_object_model.is_rent}}")
-            console.log("getTermType initial value: ", getTermType.val())
-            console.log("getDealType initial value: ", getDealType.val())
-            console.log("getOfferType initial value: ", getOfferType.val())
-            console.log("getCategoryType initial value: ", getCategoryType.val())
             let termType = getTermType.val();
             // validate dealType and termType
             if(getDealType.val() == 'rent' && !getTermType.val()){
@@ -638,14 +641,8 @@
                 return null
             }
             else if(getDealType.val() == 'sale'){
-                console.log('тут меняется termType на null')
                 termType = null;
             }
-            console.log("getTermType new value: ", getTermType.val())
-            console.log("termType new value: ", termType)
-            console.log("getDealType new value: ", getDealType.val())
-            console.log("getOfferType new value: ", getOfferType.val())
-            console.log("getCategoryType new value: ", getCategoryType.val())
             let obj = {
                 offerId: '{{offer_id}}',
                 dealType: getDealType.val(),
