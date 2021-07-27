@@ -6,11 +6,13 @@ from cian_test_utils import future
 
 @pytest.mark.gen_test
 async def test_update_client_comment__(http_client, base_url, mocker):
-    
-    
-    get_client_by_client_id_mock = mocker.patch('external_offers.services.update_client_comment.get_client_by_client_id')
+    get_client_by_client_id_mock = mocker.patch(
+        'external_offers.services.update_client_comment.get_client_by_client_id'
+    )
     get_client_by_client_id_mock.return_value = future(1)
-    set_comment_by_client_id_mock = mocker.patch('external_offers.services.update_client_comment.set_comment_by_client_id')
+    set_comment_by_client_id_mock = mocker.patch(
+        'external_offers.services.update_client_comment.set_comment_by_client_id'
+    )
     set_comment_by_client_id_mock.side_effect = Exception('error')
     set_comment_by_client_id_mock.return_value = future(None)
 
