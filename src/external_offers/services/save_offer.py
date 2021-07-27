@@ -69,6 +69,7 @@ mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (None, SaveOfferCategory.cottage, DealType.sale, OfferType.suburban): Category.cottage_sale,
     (None, SaveOfferCategory.townhouse, DealType.sale, OfferType.suburban): Category.townhouse_sale,
     (None, SaveOfferCategory.land, DealType.sale, OfferType.suburban): Category.land_sale,
+    (SaveOfferTerm.daily_term, SaveOfferCategory.house, DealType.rent, OfferType.suburban): Category.daily_house_rent,
 }
 
 
@@ -231,6 +232,22 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 status=SaveOfferStatus.geocode_failed,
                 message='Не удалось обработать переданный в объявлении адрес за лимит времени. Попробуйте ещё раз'
             )
+        except ApiClientException as exc:
+            statsd_incr_if_not_test_user(
+                metric='save_offer.error.geocode',
+                user_id=user_id
+            )
+            logger.warning(
+                'Ошибка при обработке переданного адреса "%s" для объявления %s: %s',
+                request.address,
+                request.offer_id,
+                exc.message
+            )
+
+            return SaveOfferResponse(
+                status=SaveOfferStatus.geocode_failed,
+                message=f'Не удалось обработать переданный в объявлении адрес. {exc.message}'
+            )
 
         try:  # Создание черновика объявления
             offer_cian_id = await get_offer_cian_id_by_offer_id(
@@ -281,6 +298,21 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             return SaveOfferResponse(
                 status=SaveOfferStatus.draft_failed,
                 message='Не удалось создать черновик за лимит времени. Попробуйте ещё раз'
+            )
+        except ApiClientException as exc:
+            statsd_incr_if_not_test_user(
+                metric='save_offer.error.draft_create',
+                user_id=user_id
+            )
+            logger.warning(
+                'Ошибка при создании черновика для объявления %s: %s',
+                request.offer_id,
+                exc.message
+            )
+
+            return SaveOfferResponse(
+                status=SaveOfferStatus.draft_failed,
+                message=f'Не удалось создать черновик объявления. {exc.message}'
             )
 
         # В конце location_path лежит идентификатор региона, используем его

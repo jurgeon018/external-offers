@@ -21,7 +21,7 @@ async def send_segments_count_to_grafana(metric: GrafanaMetric) -> None:
         segmented_objects = await get_segmented_objects(metric, segment_type)
         for segmented_object in segmented_objects:
             statsd.incr(
-                f'{metric.value}.{segment_type}.{segmented_object.segment_name}',
+                f'{metric.value}.{segment_type.value}.{segmented_object.segment_name}',
                 count=segmented_object.segment_count
             )
 

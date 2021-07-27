@@ -30,3 +30,4 @@ from external_offers.entities.update_client_phone import (
     UpdateClientPhoneRequest,
     UpdateClientPhoneResponse,
 )
+from external_offers.entities.update_offer_category import UpdateOfferCategoryRequest, UpdateOfferCategoryResponse

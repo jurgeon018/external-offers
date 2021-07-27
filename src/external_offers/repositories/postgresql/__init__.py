@@ -83,4 +83,5 @@ from external_offers.repositories.postgresql.parsed_offers import (
     iterate_over_parsed_offers_sorted,
     save_parsed_offer,
     set_synced_and_fetch_parsed_offers_chunk,
+    update_offer_categories_by_offer_id,
 )
