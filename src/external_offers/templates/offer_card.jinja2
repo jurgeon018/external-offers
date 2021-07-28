@@ -39,7 +39,7 @@
             </div>
             <div class="offerTermTypeSelect" style="display: {% if parsed_object_model.is_rent %}block{% else %}none{% endif %};">
                 <select class="select-control" id="getTermType">
-                    <option value="" selected disabled>Не выбрано</option>
+                    <option value="" selected>Не выбрано</option>
                     <option value="long" {% if parsed_object_model.is_long_term_rent and parsed_object_model.is_rent %}selected{% endif %}>
                         Долгосрочная
                     </option>
@@ -211,25 +211,25 @@
             </div>
             
             {# parsed_object_model.is_suburban_sale #}
-            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
+            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
                 <span class="">Площадь участка</span>
             </div>
-            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
+            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
                 <input type="number" required value="{{ parsed_object_model.land_area }}"
                     placeholder="Площать участка в сотках"
                     class="input-control" id="getLandArea">
                 <select class="select-control" id="getAreaUnit">
-                    <option value="" {% if not parsed_object_model.land_area_unit %} selected {% endif %} disabled>Не выбрано</option>
+                    <option value="" selected>Не выбрано</option>
                     <option value="sotka" {% if parsed_object_model.land_area_unit == 'sotka' %} selected {% endif %}>Сотка</option>
                     <option value="hectare" {% if parsed_object_model.land_area_unit == 'hectare' %} selected {% endif %}>Гектар</option>
                 </select>
             </div>
 
             {# parsed_object_model.is_land and parsed_object_model.is_suburban_sale #}
-            <div class="offerLandStatusTitle" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+            <div class="offerLandStatusTitle" style="display: {% if parsed_object_model.is_land %}block{% else %}none{% endif %};">
                 <span class="">Тип участка</span>
             </div>
-            <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+            <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else %}none{% endif %};">
                 <select class="select-control" id="getLandStatus">
                     <option value="" selected>Не выбрано</option>
                     <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
