@@ -211,25 +211,25 @@
             </div>
             
             {# parsed_object_model.is_suburban_sale #}
-            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
+            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
                 <span class="">Площадь участка</span>
             </div>
-            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
+            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
                 <input type="number" required value="{{ parsed_object_model.land_area }}"
                     placeholder="Площать участка в сотках"
                     class="input-control" id="getLandArea">
                 <select class="select-control" id="getAreaUnit">
-                    <option value="" {% if not parsed_object_model.land_area_unit %} selected {% endif %} disabled>Не выбрано</option>
+                    <option value="" selected>Не выбрано</option>
                     <option value="sotka" {% if parsed_object_model.land_area_unit == 'sotka' %} selected {% endif %}>Сотка</option>
                     <option value="hectare" {% if parsed_object_model.land_area_unit == 'hectare' %} selected {% endif %}>Гектар</option>
                 </select>
             </div>
 
             {# parsed_object_model.is_land and parsed_object_model.is_suburban_sale #}
-            <div class="offerLandStatusTitle" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+            <div class="offerLandStatusTitle" style="display: {% if parsed_object_model.is_land %}block{% else %}none{% endif %};">
                 <span class="">Тип участка</span>
             </div>
-            <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+            <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else %}none{% endif %};">
                 <select class="select-control" id="getLandStatus">
                     <option value="" selected>Не выбрано</option>
                     <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
@@ -611,7 +611,19 @@
                 obj = {...obj, ...obj_long_term_rent};
             {% endif %}
 
-            $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
+            // $.post("/api/admin/v1/save-offer/", 
+            //     DEBUG ? JSON.stringify(obj) : obj
+            fetch("/api/admin/v1/save-offer/", 
+                {
+                    method: 'POST',
+                    body: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type':'application/json',
+                    }
+                }
+            ).then((response) => {
+                    return response.json();
+                }
             ).then(function (data) {
                 switch (data.status) {
                     case 'ok':
@@ -650,8 +662,22 @@
                 offerType: getOfferType.val(),
                 categoryType: getCategoryType.val(),
             }
-            $.post("/api/admin/v1/update-offer-category/", 
-                DEBUG ? JSON.stringify(obj) : obj
+            console.log("obj", obj)
+
+            // $.post("/api/admin/v1/update-offer-category/", 
+            //     DEBUG ? JSON.stringify(obj) : obj
+
+            fetch("/api/admin/v1/update-offer-category/", 
+                {
+                    method: 'POST',
+                    body: JSON.stringify(obj),
+                    headers:{
+                        'Content-Type':'application/json',
+                    }
+                }
+            ).then((response) => {
+                    return response.json();
+                }
             ).then((response) => {
                 if(response.success == true){
                     alert(`${response.message}`);
@@ -664,6 +690,8 @@
                     alert(response.message)
                 }
             });
+
+
         }
 
         getDealType.change(() => {
