@@ -28,8 +28,8 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
         segment = request.segment,
         main_account_chosen = request.main_account_chosen,
         # static params
-        client_id = client_id,
         is_test = True,
+        client_id = client_id,
         status = ClientStatus.waiting,
         operator_user_id = None,
         last_call_id = None,
@@ -68,13 +68,13 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     offer_id = generate_guid()
     offer = Offer(
         # dynamic params
-        category=request.category,
+        category=request.offer_category,
         priority=request.offer_priority,
         offer_cian_id=request.offer_cian_id,
         # static params
-        promocode='...',
-        last_call_id=None,
         is_test=True,
+        promocode=None,
+        last_call_id=None,
         id=offer_id,
         status=OfferStatus.waiting,
         created_at=datetime.now(tz=pytz.utc),
@@ -86,11 +86,10 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
         parsed_id=parsed_offer.id,
     )
     save_offer_for_call(offer=offer)
-    # await set_waiting_offers_priority_by_offer_ids(
-    #     offer_ids=[offer.id],
-    #     priority=request.offer_priority
-    # )
-
+    await set_waiting_offers_priority_by_offer_ids(
+        offer_ids=[offer.id],
+        priority=request.offer_priority
+    )
     return CreateTestOfferResponse(
         success=True,
         message=f'Обьявление было успешно создано. id: {offer.id}'
