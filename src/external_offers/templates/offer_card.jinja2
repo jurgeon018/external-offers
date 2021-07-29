@@ -39,7 +39,7 @@
             </div>
             <div class="offerTermTypeSelect" style="display: {% if parsed_object_model.is_rent %}block{% else %}none{% endif %};">
                 <select class="select-control" id="getTermType">
-                    <option value="" selected>Не выбрано</option>
+                    <option value="" selected disabled>Не выбрано</option>
                     <option value="long" {% if parsed_object_model.is_long_term_rent and parsed_object_model.is_rent %}selected{% endif %}>
                         Долгосрочная
                     </option>
@@ -611,7 +611,19 @@
                 obj = {...obj, ...obj_long_term_rent};
             {% endif %}
 
-            $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
+            // $.post("/api/admin/v1/save-offer/", 
+            //     DEBUG ? JSON.stringify(obj) : obj
+            fetch("/api/admin/v1/save-offer/", 
+                {
+                    method: 'POST',
+                    body: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type':'application/json',
+                    }
+                }
+            ).then((response) => {
+                    return response.json();
+                }
             ).then(function (data) {
                 switch (data.status) {
                     case 'ok':
@@ -650,8 +662,22 @@
                 offerType: getOfferType.val(),
                 categoryType: getCategoryType.val(),
             }
-            $.post("/api/admin/v1/update-offer-category/", 
-                DEBUG ? JSON.stringify(obj) : obj
+            console.log("obj", obj)
+
+            // $.post("/api/admin/v1/update-offer-category/", 
+            //     DEBUG ? JSON.stringify(obj) : obj
+
+            fetch("/api/admin/v1/update-offer-category/", 
+                {
+                    method: 'POST',
+                    body: JSON.stringify(obj),
+                    headers:{
+                        'Content-Type':'application/json',
+                    }
+                }
+            ).then((response) => {
+                    return response.json();
+                }
             ).then((response) => {
                 if(response.success == true){
                     alert(`${response.message}`);
@@ -664,6 +690,8 @@
                     alert(response.message)
                 }
             });
+
+
         }
 
         getDealType.change(() => {
