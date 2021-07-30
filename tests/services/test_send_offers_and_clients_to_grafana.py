@@ -3,9 +3,14 @@ from cian_test_utils import future
 
 from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
+from external_offers.repositories.monolith_cian_geoapi.entities import LocationResponse, V1LocationsGet
 from external_offers.services.grafana_metric import (
+    get_region_name,
+    get_region_name_from_api,
+    get_region_name_from_csv,
     get_segmented_objects,
     get_synced_percentage,
+    map_region_codes_to_region_names,
     transform_list_into_dict,
 )
 from external_offers.services.send_offers_and_clients_to_grafana import (
@@ -314,3 +319,36 @@ async def test_transform_list_into_dict():
     assert result['segment1'] == 1
     assert result['segment2'] == 2
     assert result['segment3'] == 3
+
+
+async def test_map_region_codes_to_region_names():
+    segmented_regions = [
+        SegmentedObject(segment_name='4568', segment_count=1),
+        SegmentedObject(segment_name='4636', segment_count=3),
+    ]
+    result = await map_region_codes_to_region_names(segmented_regions)
+    expected_result = [
+        SegmentedObject(segment_name='respublika-dagestan_4568', segment_count=1),
+        SegmentedObject(segment_name='yaroslavskaya-oblast_4636', segment_count=3),
+    ]
+    assert result == expected_result
+
+
+async def test_get_region_name_from_api(mocker):
+    patched_api = mocker.patch(
+        'external_offers.services.grafana_metric.v1_locations_get',
+        return_value=future(LocationResponse(name='Республика Дагестан')),
+    )
+    result = await get_region_name('non_existing_region_code')
+    assert result == 'respublika-dagestan'
+    patched_api.assert_called_once_with(V1LocationsGet(id='non_existing_region_code'))
+
+
+async def test_get_region_name_from_csv(mocker):
+    patched_api = mocker.patch(
+        'external_offers.services.grafana_metric.v1_locations_get',
+        return_value=future(LocationResponse(name='Республика Дагестан')),
+    )
+    result = await get_region_name('4568')
+    assert result == 'respublika-dagestan'
+    patched_api.assert_not_called()

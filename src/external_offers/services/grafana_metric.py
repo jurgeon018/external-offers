@@ -1,6 +1,4 @@
-import json
 import logging
-from pathlib import Path
 from typing import List
 
 from pytils import translit
@@ -8,6 +6,7 @@ from pytils import translit
 from external_offers.entities.exceptions import NotFoundRegionNameException
 from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
+from external_offers.helpers.region_names import region_names
 from external_offers.repositories.monolith_cian_geoapi import v1_locations_get
 from external_offers.repositories.monolith_cian_geoapi.entities import V1LocationsGet
 from external_offers.repositories.postgresql import fetch_segmented_objects
@@ -119,16 +118,13 @@ async def get_region_name_from_api(region_id: str) -> str:
         logger.warning(
             'Название региона по коду %s небыло найдено в ручке /v1/locations/get/. %s',
             region_id,
-            exc.message,
+            exc,
         )
         region_name = None
     return region_name
 
 
 async def get_region_name_from_csv(region_id: str) -> str:
-    path = Path(__file__).parent.parent / 'helpers' / 'data' / 'region_names.json'
-    with open(path, 'r') as f:
-        region_names = json.load(f)
     try:
         region_name = region_names[region_id]
     except KeyError:
