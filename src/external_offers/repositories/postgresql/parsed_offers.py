@@ -112,14 +112,13 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         )
     )
     rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
-
     return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
 
 
 async def get_parsed_offer_for_creation_by_id(*, id: int) -> ParsedOfferForCreation:
     fetch_offer_query, fetch_offer_params = asyncpgsa.compile_query(
         select(
-            tables.parsed_offers,
+            [tables.parsed_offers]
         ).where(
             tables.parsed_offers.c.id == id
         ).limit(1)

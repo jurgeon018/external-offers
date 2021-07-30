@@ -194,3 +194,48 @@ SUITABLE_EXTERNAL_SOURCES_FOR_SAVE = ['1']
 SUITABLE_EXTERNAL_SOURCES_FOR_SEND = ['1']
 
 DEBUG: bool = False
+
+# Дефолтные обьекты для тестирования
+DEFAULT_TEST_OFFER = {
+    # offers_for_call
+    'offer_cian_id': None,
+    'offer_priority': 1,
+    # parsed_offers
+    'parsed_id': 'ad49365b-caa3-4d8a-be58-02360ad338d5',
+    'source_object_id': '1_1308836235',
+    'source_user_id': '6960b9caba94ad3aa42a284d44d9fbfb',
+    'is_calltracking': False,
+    'user_segment': 'c',
+    # source_object_model
+    'lat': '55.799034118652344',
+    'lng': '37.782142639160156',
+    'url': 'https://www.avito.ru/moskva/komnaty/komnata_13_m_v_3-k_35_et._1308836235',
+    'town': 'Москва',
+    'price': 16000,
+    'title': 'Комната 13 м² в 3-к, 3/5 эт.',
+    'phone': "88005553535",
+    'region': 1,
+    'address': 'Москва, 3-я Парковая ул.',
+    'contact': 'Тестовый клиент',
+    'category': 'roomRent',
+    'is_agency': 1,
+    'is_studio': None,
+    'price_type': 6,
+    'total_area': 13,
+    'living_area': None,
+    'rooms_count': 3,
+    'description': 'Рассмотрим всех!для проживания все необходимое имеется,тихие соседи,места общего пользования в обычном состоянии,национальность не принципиальна,срочно!в стоимость все включено,фото реальны,комната с балконом,залог есть минимальный',
+    'floor_number': 3,
+    'floors_count': 5,
+    'is_developer': None
+    # 'updateDate': '2021-07-16 15:42:00',
+}
+DEFAULT_TEST_CLIENT = {
+    'avito_user_id': DEFAULT_TEST_OFFER['source_user_id'],
+    'segment':  DEFAULT_TEST_OFFER['user_segment'],
+    'client_phone': DEFAULT_TEST_OFFER['phone'],
+    'client_name': DEFAULT_TEST_OFFER['contact'],
+    'cian_user_id': None,
+    'client_email': '',
+    'main_account_chosen': False,
+}
