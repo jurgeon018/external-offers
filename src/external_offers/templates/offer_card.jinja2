@@ -211,25 +211,25 @@
             </div>
             
             {# parsed_object_model.is_suburban_sale #}
-            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
+            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
                 <span class="">Площадь участка</span>
             </div>
-            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %} block {% else %} none {% endif %};">
+            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
                 <input type="number" required value="{{ parsed_object_model.land_area }}"
                     placeholder="Площать участка в сотках"
                     class="input-control" id="getLandArea">
                 <select class="select-control" id="getAreaUnit">
-                    <option value="" {% if not parsed_object_model.land_area_unit %} selected {% endif %} disabled>Не выбрано</option>
+                    <option value="" selected>Не выбрано</option>
                     <option value="sotka" {% if parsed_object_model.land_area_unit == 'sotka' %} selected {% endif %}>Сотка</option>
                     <option value="hectare" {% if parsed_object_model.land_area_unit == 'hectare' %} selected {% endif %}>Гектар</option>
                 </select>
             </div>
 
             {# parsed_object_model.is_land and parsed_object_model.is_suburban_sale #}
-            <div class="offerLandStatusTitle" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+            <div class="offerLandStatusTitle" style="display: {% if parsed_object_model.is_land %}block{% else %}none{% endif %};">
                 <span class="">Тип участка</span>
             </div>
-            <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else%}none{% endif %};">
+            <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else %}none{% endif %};">
                 <select class="select-control" id="getLandStatus">
                     <option value="" selected>Не выбрано</option>
                     <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
@@ -582,36 +582,44 @@
                 totalArea: parseInt(getTotalArea.val()),
                 price: parseInt(getPrice.val()),
                 description: getDescription.val(),
-                floorNumber: getNumberOrStrNull(getFloorNumber.val()),
-                floorsCount: getNumberOrStrNull(getFloorCount.val()),
-                roomsCount: getValueOrStrNull(getRoomsCount.val()),
-                realtyType: getValueOrStrNull(getRealtyType.val()),
-                saleType: getValueOrStrNull(getSaleType.val()),
-                termType: getValueOrStrNull(getTermType.val()),
                 createNewAccount: createNewAccount,
                 publishAsHomeowner: publishAsHomeowner,
-                accountForDraft:  getNumberOrStrNull(createNewAccount ? "" : getAccountForDraft.val()),
                 offerId: '{{ offer_id }}',
                 clientId: '{{ client.client_id }}',
-                landArea: getNumberOrStrNull(getLandArea.val()),
-                landAreaUnitType: getValueOrStrNull(getAreaUnit.val()),
-                landStatus: getValueOrStrNull(getLandStatus.val()),
             }
+            let floorNumber = getNumberOrStrNull(getFloorNumber.val())
+            let floorsCount = getNumberOrStrNull(getFloorCount.val())
+            let roomsCount = getValueOrStrNull(getRoomsCount.val())
+            let realtyType = getValueOrStrNull(getRealtyType.val())
+            let saleType = getValueOrStrNull(getSaleType.val())
+            let termType = getValueOrStrNull(getTermType.val())
+            let accountForDraft = getNumberOrStrNull(createNewAccount ? "" : getAccountForDraft.val())
+            let landArea = getNumberOrStrNull(getLandArea.val())
+            let landAreaUnitType = getValueOrStrNull(getAreaUnit.val())
+            let landStatus = getValueOrStrNull(getLandStatus.val())
+            if(floorNumber) obj.floorNumber = floorNumber;
+            if(floorsCount) obj.floorsCount = floorsCount;
+            if(roomsCount) obj.roomsCount = roomsCount;
+            if(realtyType) obj.realtyType = realtyType;
+            if(saleType) obj.saleType = saleType;
+            if(termType) obj.termType = termType;
+            if(accountForDraft) obj.accountForDraft = accountForDraft;
+            if(landArea) obj.landArea = landArea;
+            if(landAreaUnitType) obj.landAreaUnitType = landAreaUnitType;
+            if(landStatus) obj.landStatus = landStatus;
+
             {% if parsed_object_model.is_rent %}
-                let obj_rent = {
-                    deposit: getNumberOrStrNull(getDeposit.val()),
-                }
-                obj = {...obj, ...obj_rent};
-            {% endif %}
-    
-            {% if parsed_object_model.is_long_term_rent %}
-                let obj_long_term_rent = {
-                    prepayMonths: getNumberOrStrNull(getPrepayMonths.val()),
-                }
-                obj = {...obj, ...obj_long_term_rent};
+                let deposit = getNumberOrStrNull(getDeposit.val())
+                if(deposit) obj.deposit = deposit
             {% endif %}
 
-            $.post("/api/admin/v1/save-offer/", DEBUG ? JSON.stringify(obj) : obj
+            {% if parsed_object_model.is_long_term_rent %}
+                let prepayMonths = getNumberOrStrNull(getPrepayMonths.val())
+                if(prepayMonths) obj.prepayMonths = prepayMonths
+            {% endif %}
+
+            $.post("/api/admin/v1/save-offer/",  
+                DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
                 switch (data.status) {
                     case 'ok':
@@ -627,7 +635,11 @@
                         }
                         break;
                     default:
-                        alert(data.message);
+                        if(data.message){
+                            alert(data.message);
+                        }else{
+                            alert(data);
+                        }
                         break;
                 }
             });
@@ -646,12 +658,13 @@
             let obj = {
                 offerId: '{{offer_id}}',
                 dealType: getDealType.val(),
-                termType: termType,
                 offerType: getOfferType.val(),
                 categoryType: getCategoryType.val(),
             }
-            $.post("/api/admin/v1/update-offer-category/", 
-                DEBUG ? JSON.stringify(obj) : obj
+            if(termType) obj.termType = termType;
+            $.post("/api/admin/v1/update-offer-category/",
+                {# DEBUG ? JSON.stringify(obj) : obj #}
+                obj
             ).then((response) => {
                 if(response.success == true){
                     alert(`${response.message}`);
@@ -661,9 +674,15 @@
                     getDealType.val('')
                     getOfferType.val('')
                     getCategoryType.val('')
-                    alert(response.message)
+                    if(response.message){
+                        alert(response.message)
+                    }else{
+                        alert(response)
+                    }
                 }
             });
+
+
         }
 
         getDealType.change(() => {
