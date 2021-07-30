@@ -13,10 +13,12 @@ from typing import Optional
 
 
 @dataclass
-class DistrictDirection:
-    """Направление района (в основном, используется для округов Москвы)"""
-
-    code: Optional[str] = None
-    """Код"""
+class LocationResponse:
+    id: Optional[int] = None
+    """Id локации."""
     name: Optional[str] = None
-    """Название"""
+    """Название."""
+    oblast_id: Optional[int] = None
+    """Id области локации"""
+    time_zone: Optional[int] = None
+    """TimeZone"""

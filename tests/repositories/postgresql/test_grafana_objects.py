@@ -6,7 +6,6 @@ from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
 from external_offers.repositories.postgresql.grafana_objects import (
     fetch_segmented_objects,
-    get_clients_with_more_than_1_offer_query,
     get_processed_synced_objects_count,
     get_synced_objects_count,
     get_unsynced_waiting_objects_count,
@@ -17,20 +16,6 @@ from external_offers.repositories.postgresql.grafana_objects import (
 )
 
 
-async def test_get_clients_with_more_than_1_offer_query():
-    # arrange
-    expected_result = """
-            SELECT client_id
-            FROM offers_for_call as ofc
-            GROUP BY ofc.client_id
-            HAVING COUNT(1) > 1
-    """
-    # act
-    result = get_clients_with_more_than_1_offer_query()
-    # assert
-    assert result == expected_result
-
-
 async def test_get_unsynced_waiting_objects_count(mocker):
     # arrange
     return_value = 1
@@ -39,13 +24,7 @@ async def test_get_unsynced_waiting_objects_count(mocker):
     expected_query = f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting'
-        AND client_id IN (
-            SELECT client_id
-            FROM offers_for_call as ofc
-            GROUP BY ofc.client_id
-            HAVING COUNT(1) > 1
-    );
+        AND status = 'waiting';
     """
     # act
     result = await get_unsynced_waiting_objects_count(table_name)
@@ -63,13 +42,7 @@ async def test_sync_waiting_objects_with_grafana(mocker):
         UPDATE {table_name}
         SET synced_with_grafana = TRUE
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting'
-        AND client_id IN (
-            SELECT client_id
-            FROM offers_for_call as ofc
-            GROUP BY ofc.client_id
-            HAVING COUNT(1) > 1
-    );
+        AND status = 'waiting';
     """
     # act
     result = await sync_waiting_objects_with_grafana(table_name)

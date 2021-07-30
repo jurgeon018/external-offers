@@ -28,7 +28,6 @@ from external_offers.repositories.postgresql.event_log import (
 )
 from external_offers.repositories.postgresql.grafana_objects import (
     fetch_segmented_objects,
-    get_clients_with_more_than_1_offer_query,
     get_processed_synced_objects_count,
     get_synced_objects_count,
     get_unsynced_waiting_objects_count,

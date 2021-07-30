@@ -1,8 +1,19 @@
+import json
+import logging
+from pathlib import Path
 from typing import List
 
+from pytils import translit
+
+from external_offers.entities.exceptions import NotFoundRegionNameException
 from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
+from external_offers.repositories.monolith_cian_geoapi import v1_locations_get
+from external_offers.repositories.monolith_cian_geoapi.entities import V1LocationsGet
 from external_offers.repositories.postgresql import fetch_segmented_objects
+
+
+logger = logging.getLogger(__name__)
 
 
 count_metrics = [
@@ -43,6 +54,8 @@ async def get_segmented_objects(
                 )
             ) for name, count in all_synced_count.items()
         ]
+    if segment_type == GrafanaSegmentType.region:
+        segmented_objects = await map_region_codes_to_region_names(segmented_objects)
     return segmented_objects
 
 
@@ -67,3 +80,61 @@ async def transform_list_into_dict(
         value = segmented_object.segment_count
         dct[key] = value
     return dct
+
+
+async def map_region_codes_to_region_names(
+    segmented_regions: List[SegmentedObject]
+) -> List[SegmentedObject]:
+    mapped_segmented_regions = []
+    for segmented_region in segmented_regions:
+        region_id = segmented_region.segment_name
+        region_name = await get_region_name(region_id)
+        segment_name = f'{region_name}_{region_id}'
+        mapped_segmented_regions.append(
+            SegmentedObject(
+                   segment_name=segment_name,
+                   segment_count=segmented_region.segment_count,
+            )
+        )
+    return mapped_segmented_regions
+
+
+async def get_region_name(region_id: str) -> str:
+    region_name = await get_region_name_from_csv(region_id)
+    if not region_name:
+        region_name = await get_region_name_from_api(region_id)
+    if not region_name:
+        raise NotFoundRegionNameException(f'Название региона по id {region_id} небыло найдено.')
+    region_name = translit.slugify(region_name)
+    return region_name
+
+
+async def get_region_name_from_api(region_id: str) -> str:
+    try:
+        response = await v1_locations_get(
+            V1LocationsGet(id=region_id),
+        )
+        region_name = response.name
+    except Exception as exc:
+        logger.warning(
+            'Название региона по коду %s небыло найдено в ручке /v1/locations/get/. %s',
+            region_id,
+            exc.message,
+        )
+        region_name = None
+    return region_name
+
+
+async def get_region_name_from_csv(region_id: str) -> str:
+    path = Path(__file__).parent.parent / 'helpers' / 'data' / 'region_names.json'
+    with open(path, 'r') as f:
+        region_names = json.load(f)
+    try:
+        region_name = region_names[region_id]
+    except KeyError:
+        logger.warning(
+            'Название региона по коду %s небыло найдено в файле с регионами.',
+            region_id,
+        )
+        region_name = None
+    return region_name

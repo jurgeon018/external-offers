@@ -23,7 +23,7 @@ async def get_districts_by_house_id(
         return await v1_get_districts_by_child(
             V1GetDistrictsByChild(
                 id=house_id,
-                geo_object_type=GeoType.house,
+                geo_type=GeoType.house,
             )
         )
     except ApiClientException as exc:

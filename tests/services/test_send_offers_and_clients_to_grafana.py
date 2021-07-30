@@ -204,11 +204,26 @@ async def test_send_processed_offers_and_clients_amount_to_grafana(mocker):
 ])
 async def test_get_segmented_counts(mocker, metric, segment_type):
     segmented_objects = [
-        SegmentedObject(segment_name='name1', segment_count=10),
-        SegmentedObject(segment_name='name2', segment_count=20),
-        SegmentedObject(segment_name='name3', segment_count=30),
-        SegmentedObject(segment_name='name4', segment_count=40),
+        SegmentedObject(segment_name='4568', segment_count=10),
+        SegmentedObject(segment_name='4636', segment_count=20),
+        SegmentedObject(segment_name='4624', segment_count=30),
+        SegmentedObject(segment_name='4590', segment_count=40),
     ]
+    if segment_type == GrafanaSegmentType.region:
+        expected_segmented_objects = [
+            SegmentedObject(segment_name='respublika-dagestan_4568', segment_count=10),
+            SegmentedObject(segment_name='yaroslavskaya-oblast_4636', segment_count=20),
+            SegmentedObject(segment_name='udmurtskaya-respublika_4624', segment_count=30),
+            SegmentedObject(segment_name='magadanskaya-oblast_4590', segment_count=40),
+        ]
+    else:
+        expected_segmented_objects = [
+            SegmentedObject(segment_name='4568', segment_count=10),
+            SegmentedObject(segment_name='4636', segment_count=20),
+            SegmentedObject(segment_name='4624', segment_count=30),
+            SegmentedObject(segment_name='4590', segment_count=40),
+        ]
+
     fetch_segmented_objects = mocker.patch(
         'external_offers.services.grafana_metric.'
         'fetch_segmented_objects',
@@ -216,7 +231,7 @@ async def test_get_segmented_counts(mocker, metric, segment_type):
     fetch_segmented_objects.return_value = future(segmented_objects)
     result = await get_segmented_objects(metric, segment_type)
 
-    assert result == segmented_objects
+    assert result == expected_segmented_objects
     fetch_segmented_objects.assert_called_once_with(segment_type=segment_type, metric=metric)
 
 
@@ -230,22 +245,30 @@ async def test_get_segmented_counts(mocker, metric, segment_type):
 ])
 async def test_get_segmented_percents(mocker, metric, segment_type):
     all_synced_count = [
-        SegmentedObject(segment_name='name1', segment_count=10),
-        SegmentedObject(segment_name='name2', segment_count=20),
-        SegmentedObject(segment_name='name3', segment_count=30),
-        SegmentedObject(segment_name='name4', segment_count=40),
+        SegmentedObject(segment_name='4568', segment_count=10),
+        SegmentedObject(segment_name='4636', segment_count=20),
+        SegmentedObject(segment_name='4624', segment_count=30),
+        SegmentedObject(segment_name='4590', segment_count=40),
     ]
     processed_synced_count = [
-        SegmentedObject(segment_name='name1', segment_count=0),
-        SegmentedObject(segment_name='name2', segment_count=10),
-        SegmentedObject(segment_name='name3', segment_count=30),
+        SegmentedObject(segment_name='4568', segment_count=0),
+        SegmentedObject(segment_name='4636', segment_count=10),
+        SegmentedObject(segment_name='4624', segment_count=30),
     ]
-    expected_segmented_percents = [
-        SegmentedObject(segment_name='name1', segment_count=0),
-        SegmentedObject(segment_name='name2', segment_count=50),
-        SegmentedObject(segment_name='name3', segment_count=100),
-        SegmentedObject(segment_name='name4', segment_count=0),
-    ]
+    if segment_type == GrafanaSegmentType.region:
+        expected_segmented_percents = [
+            SegmentedObject(segment_name='respublika-dagestan_4568', segment_count=0),
+            SegmentedObject(segment_name='yaroslavskaya-oblast_4636', segment_count=50),
+            SegmentedObject(segment_name='udmurtskaya-respublika_4624', segment_count=100),
+            SegmentedObject(segment_name='magadanskaya-oblast_4590', segment_count=0),
+        ]
+    else:
+        expected_segmented_percents = [
+            SegmentedObject(segment_name='4568', segment_count=0),
+            SegmentedObject(segment_name='4636', segment_count=50),
+            SegmentedObject(segment_name='4624', segment_count=100),
+            SegmentedObject(segment_name='4590', segment_count=0),
+        ]
     fetch_segmented_objects = mocker.patch(
         'external_offers.services.grafana_metric.'
         'fetch_segmented_objects',

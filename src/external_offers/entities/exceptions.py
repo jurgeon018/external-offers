@@ -1,0 +1,2 @@
+class NotFoundRegionNameException(Exception):
+    pass

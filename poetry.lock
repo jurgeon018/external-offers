@@ -63,8 +63,8 @@ url = "https://nexus.cian.tech/repository/cian/simple"
 reference = "cian"
 
 [[package]]
-version = "2.6.5"
 name = "astroid"
+version = "2.6.5"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
@@ -1814,7 +1814,7 @@ optional = false
 python-versions = "~=3.6"
 
 [package.dependencies]
-astroid = ">=2.6.5,<2.7"
+astroid = ">=2.6.4,<2.7"
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
 isort = ">=4.2.5,<6"
 mccabe = ">=0.6,<0.7"
@@ -2001,6 +2001,19 @@ description = "Python wrapper around rapidjson"
 category = "main"
 optional = false
 python-versions = ">=3.6"
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
+name = "pytils"
+version = "0.3"
+description = "Russian-specific string utils"
+category = "main"
+optional = false
+python-versions = "*"
 
 [package.source]
 type = "legacy"
@@ -2523,7 +2536,7 @@ reference = "cian"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4689be2b77ee01df09fd00e31f639b643f4cc630be11bfab7666369269cd9f58"
+content-hash = "8c462028538ca021776961120e1f1aba99d3f670a30b286da8f8897f8c9625b7"
 
 [metadata.files]
 aiohttp = [
@@ -3328,8 +3341,8 @@ pygments = [
     {file = "Pygments-2.9.0.tar.gz", hash = "sha256:a18f47b506a429f6f4b9df81bb02beab9ca21d0a5fee38ed15aef65f0545519f"},
 ]
 pylint = [
-    {file = "pylint-2.9.5-py3-none-any.whl", hash = "sha256:748f81e5776d6273a6619506e08f1b48ff9bcb8198366a56821cf11aac14fc87"},
-    {file = "pylint-2.9.5.tar.gz", hash = "sha256:1f333dc72ef7f5ea166b3230936ebcfb1f3b722e76c980cb9fe6b9f95e8d3172"},
+    {file = "pylint-2.9.4-py3-none-any.whl", hash = "sha256:2a971129fb2d594068913a7e531d4b6d2785b2a68c6857e2baa40d3214da30f4"},
+    {file = "pylint-2.9.4.tar.gz", hash = "sha256:a622c4c4c79dc8fe5e784efccacec3afe9d5e5ffab5fda2264fb5afa7c9b5797"},
 ]
 pylint-quotes = [
     {file = "pylint-quotes-0.2.3.tar.gz", hash = "sha256:2d6bb3fa8a1a85af3af8a0ca875a719ac5bcdb735c45756284699d809c109c95"},
@@ -3401,6 +3414,9 @@ python-rapidjson = [
     {file = "python_rapidjson-1.4-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:dc1eadf4304c2f1e20e87c415b8526d8d4247801b0e34f4d1e0e9cfcabd700f4"},
     {file = "python_rapidjson-1.4-cp39-cp39-win32.whl", hash = "sha256:f10f0b04c2bc13e734228830d302c27696e4e52ed912a5c26cbd06e5423be5f1"},
     {file = "python_rapidjson-1.4-cp39-cp39-win_amd64.whl", hash = "sha256:762ab3887ca39e8704ee942badfb1519e1f6aebc7ad3687b2f2416d7f98dfbd6"},
+]
+pytils = [
+    {file = "pytils-0.3.tar.gz", hash = "sha256:1e85118d095d48928fef1a73e3e1dccdbc07bc931131705976b7dd05b66627fc"},
 ]
 pytz = [
     {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},
