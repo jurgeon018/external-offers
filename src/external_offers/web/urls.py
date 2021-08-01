@@ -8,8 +8,7 @@ from external_offers.services.return_client_by_phone import return_client_by_pho
 from external_offers.services.save_offer import save_offer_public
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_offer_category import update_offer_category_public
-from external_offers.services.create_test_offer import create_test_offer_public
-from external_offers.services.create_test_client import create_test_client_public
+from external_offers.services.test_objects import create_test_offer_public, create_test_client_public, delete_test_object
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
@@ -115,6 +114,13 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.CreateTestOfferRequest,
         response_schema=entities.CreateTestOfferResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/create-test-client/$', get_handler(
+        service=create_test_client_public,
+        method='POST',
+        request_schema=entities.CreateTestClientRequest,
+        response_schema=entities.CreateTestClientResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/create-test-client/$', get_handler(
