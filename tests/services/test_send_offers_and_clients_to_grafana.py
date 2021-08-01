@@ -1,13 +1,15 @@
+from cian_http.exceptions import ApiClientException
 import pytest
 from cian_test_utils import future
 
 from external_offers.entities.grafana_metric import SegmentedObject
+from external_offers.entities.exceptions import NotFoundRegionNameException
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
 from external_offers.repositories.monolith_cian_geoapi.entities import LocationResponse, V1LocationsGet
 from external_offers.services.grafana_metric import (
     get_region_name,
     get_region_name_from_api,
-    get_region_name_from_csv,
+    get_region_name_from_dict,
     get_segmented_objects,
     get_synced_percentage,
     map_region_codes_to_region_names,
@@ -321,7 +323,7 @@ async def test_transform_list_into_dict():
     assert result['segment3'] == 3
 
 
-async def test_map_region_codes_to_region_names():
+async def test_map_region_codes_to_region_names__returns_result():
     segmented_regions = [
         SegmentedObject(segment_name='4568', segment_count=1),
         SegmentedObject(segment_name='4636', segment_count=3),
@@ -334,6 +336,23 @@ async def test_map_region_codes_to_region_names():
     assert result == expected_result
 
 
+async def test_map_region_codes_to_region_names__raises_exception(mocker):
+    segmented_regions = [
+        SegmentedObject(segment_name='4568', segment_count=1),
+        SegmentedObject(segment_name='4636', segment_count=3),
+    ]
+    mocker.patch(
+        'external_offers.services.grafana_metric.get_region_name_from_dict',
+        return_value=future(None),
+    )
+    mocker.patch(
+        'external_offers.services.grafana_metric.get_region_name_from_api',
+        return_value=future(None),
+    )
+    with pytest.raises(NotFoundRegionNameException) as e:
+        await map_region_codes_to_region_names(segmented_regions)
+
+
 async def test_get_region_name_from_api(mocker):
     patched_api = mocker.patch(
         'external_offers.services.grafana_metric.v1_locations_get',
@@ -344,7 +363,7 @@ async def test_get_region_name_from_api(mocker):
     patched_api.assert_called_once_with(V1LocationsGet(id='non_existing_region_code'))
 
 
-async def test_get_region_name_from_csv(mocker):
+async def test_get_region_name_from_dict(mocker):
     patched_api = mocker.patch(
         'external_offers.services.grafana_metric.v1_locations_get',
         return_value=future(LocationResponse(name='Республика Дагестан')),
@@ -352,3 +371,12 @@ async def test_get_region_name_from_csv(mocker):
     result = await get_region_name('4568')
     assert result == 'respublika-dagestan'
     patched_api.assert_not_called()
+
+
+async def test_get_region_from_api__api_client_exception(mocker):
+    mocker.patch(
+        'external_offers.services.grafana_metric.v1_locations_get',
+        side_effect=ApiClientException('error'),
+    )
+    region_name = await get_region_name_from_api('1234')
+    assert region_name is None

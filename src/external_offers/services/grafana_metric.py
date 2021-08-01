@@ -1,12 +1,15 @@
 import logging
-from typing import List
+from typing import List, Optional
+
+from cian_http.exceptions import ApiClientException
+from click.core import Option
 
 from pytils import translit
 
 from external_offers.entities.exceptions import NotFoundRegionNameException
 from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
-from external_offers.helpers.region_names import region_names
+from external_offers.helpers.region_names import REGION_NAMES
 from external_offers.repositories.monolith_cian_geoapi import v1_locations_get
 from external_offers.repositories.monolith_cian_geoapi.entities import V1LocationsGet
 from external_offers.repositories.postgresql import fetch_segmented_objects
@@ -98,8 +101,8 @@ async def map_region_codes_to_region_names(
     return mapped_segmented_regions
 
 
-async def get_region_name(region_id: str) -> str:
-    region_name = await get_region_name_from_csv(region_id)
+async def get_region_name(region_id: str) -> Optional[str]:
+    region_name = await get_region_name_from_dict(region_id)
     if not region_name:
         region_name = await get_region_name_from_api(region_id)
     if not region_name:
@@ -108,13 +111,13 @@ async def get_region_name(region_id: str) -> str:
     return region_name
 
 
-async def get_region_name_from_api(region_id: str) -> str:
+async def get_region_name_from_api(region_id: str) -> Optional[str]:
     try:
         response = await v1_locations_get(
             V1LocationsGet(id=region_id),
         )
         region_name = response.name
-    except Exception as exc:
+    except ApiClientException as exc:
         logger.warning(
             'Название региона по коду %s небыло найдено в ручке /v1/locations/get/. %s',
             region_id,
@@ -124,9 +127,9 @@ async def get_region_name_from_api(region_id: str) -> str:
     return region_name
 
 
-async def get_region_name_from_csv(region_id: str) -> str:
+async def get_region_name_from_dict(region_id: str) -> Optional[str]:
     try:
-        region_name = region_names[region_id]
+        region_name = REGION_NAMES[region_id]
     except KeyError:
         logger.warning(
             'Название региона по коду %s небыло найдено в файле с регионами.',
