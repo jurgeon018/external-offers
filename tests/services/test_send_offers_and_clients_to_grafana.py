@@ -349,7 +349,7 @@ async def test_map_region_codes_to_region_names__raises_exception(mocker):
         'external_offers.services.grafana_metric.get_region_name_from_api',
         return_value=future(None),
     )
-    with pytest.raises(NotFoundRegionNameException) as e:
+    with pytest.raises(NotFoundRegionNameException):
         await map_region_codes_to_region_names(segmented_regions)
 
 

@@ -2,7 +2,6 @@ import logging
 from typing import List, Optional
 
 from cian_http.exceptions import ApiClientException
-from click.core import Option
 
 from pytils import translit
 
