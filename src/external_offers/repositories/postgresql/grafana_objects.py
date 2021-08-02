@@ -8,22 +8,12 @@ from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentTy
 
 # grafana
 
-def get_clients_with_more_than_1_offer_query() -> str:
-    return """
-            SELECT client_id
-            FROM offers_for_call as ofc
-            GROUP BY ofc.client_id
-            HAVING COUNT(1) > 1
-    """
-
-
 async def get_unsynced_waiting_objects_count(table_name: str) -> Optional[int]:
     """ получить количество заданий в ожидании, у клиентов которых больше 1 задания"""
     return await pg.get().fetchval(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting'
-        AND client_id IN ({get_clients_with_more_than_1_offer_query()});
+        AND status = 'waiting';
     """)
 
 
@@ -32,8 +22,7 @@ async def sync_waiting_objects_with_grafana(table_name: str) -> None:
         UPDATE {table_name}
         SET synced_with_grafana = TRUE
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting'
-        AND client_id IN ({get_clients_with_more_than_1_offer_query()});
+        AND status = 'waiting';
     """)
 
 
@@ -80,14 +69,12 @@ metric_to_status_query_mapper = {
         f"""
         WHERE ofc.synced_with_grafana IS NOT TRUE
         AND ofc.status = 'waiting'
-        AND ofc.client_id IN ({get_clients_with_more_than_1_offer_query()})
         """
     ),
     GrafanaMetric.waiting_clients_count: (
         f"""
         WHERE clients.synced_with_grafana IS NOT TRUE
         AND clients.status = 'waiting'
-        AND clients.client_id IN ({get_clients_with_more_than_1_offer_query()})
         """
     ),
     GrafanaMetric.processed_offers_count: (

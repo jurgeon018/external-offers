@@ -38,6 +38,7 @@ clients = sa.Table(
     sa.Column('synced_with_grafana', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
+    sa.Column('comment', sa.VARCHAR, nullable=True),
 )
 
 offers_for_call = sa.Table(

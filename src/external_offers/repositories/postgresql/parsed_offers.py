@@ -252,7 +252,6 @@ async def update_offer_categories_by_offer_id(
     offer_id: str,
     category: Category,
 ) -> None:
-    # raise Exception('Error!')
 
     po = tables.parsed_offers
     ofc = tables.offers_for_call

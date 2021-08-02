@@ -403,6 +403,23 @@ async def set_phone_number_by_client_id(
     await pg.get().execute(query, *params)
 
 
+async def set_comment_by_client_id(
+    *,
+    client_id: str,
+    comment: str,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            comment=comment
+        ).where(
+            clients.c.client_id == client_id,
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
 async def set_client_accepted_and_no_operator_if_no_offers_in_progress(
     *,
     client_id: str

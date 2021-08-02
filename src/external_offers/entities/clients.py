@@ -31,6 +31,8 @@ class Client:
     """Количество звонков"""
     main_account_chosen: bool = False
     """Флаг выбора главного аккаунта(аккаунт выбранный при первом сохранении черновика)"""
+    comment: Optional[str] = None
+    """Коментарий к карточке от оператора"""
     next_call: Optional[datetime] = None
     """Дата следующего звонка клиенту"""
     is_test: bool = False

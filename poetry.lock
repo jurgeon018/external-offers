@@ -2008,6 +2008,19 @@ url = "https://nexus.cian.tech/repository/cian/simple"
 reference = "cian"
 
 [[package]]
+name = "pytils"
+version = "0.3"
+description = "Russian-specific string utils"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
 name = "pytz"
 version = "2021.1"
 description = "World timezone definitions, modern and historical"
@@ -2523,7 +2536,7 @@ reference = "cian"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4689be2b77ee01df09fd00e31f639b643f4cc630be11bfab7666369269cd9f58"
+content-hash = "8c462028538ca021776961120e1f1aba99d3f670a30b286da8f8897f8c9625b7"
 
 [metadata.files]
 aiohttp = [
@@ -3401,6 +3414,9 @@ python-rapidjson = [
     {file = "python_rapidjson-1.4-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:dc1eadf4304c2f1e20e87c415b8526d8d4247801b0e34f4d1e0e9cfcabd700f4"},
     {file = "python_rapidjson-1.4-cp39-cp39-win32.whl", hash = "sha256:f10f0b04c2bc13e734228830d302c27696e4e52ed912a5c26cbd06e5423be5f1"},
     {file = "python_rapidjson-1.4-cp39-cp39-win_amd64.whl", hash = "sha256:762ab3887ca39e8704ee942badfb1519e1f6aebc7ad3687b2f2416d7f98dfbd6"},
+]
+pytils = [
+    {file = "pytils-0.3.tar.gz", hash = "sha256:1e85118d095d48928fef1a73e3e1dccdbc07bc931131705976b7dd05b66627fc"},
 ]
 pytz = [
     {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},

@@ -9,9 +9,8 @@ cian-codegen version: 1.16.3
 
 """
 from dataclasses import dataclass
-from typing import List
 
 
 @dataclass
-class V1GetDistrictsByIds:
-    ids: List[int]
+class V1LocationsGet:
+    id: int

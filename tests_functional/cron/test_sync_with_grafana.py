@@ -44,24 +44,12 @@ async def test_sync_with_grafana(
     expected_synced_offers_after_sync_sql = """
     SELECT COUNT(*) FROM offers_for_call
     WHERE synced_with_grafana IS NOT TRUE
-    AND status = 'waiting'
-    AND client_id IN (
-        SELECT client_id
-        FROM offers_for_call
-        GROUP BY client_id
-        HAVING count(1) > 1
-    );
+    AND status = 'waiting';
     """
     expected_synced_clients_after_sync_sql = """
     SELECT COUNT(*) FROM clients
     WHERE synced_with_grafana IS NOT TRUE
-    AND status = 'waiting'
-    AND client_id IN (
-        SELECT client_id
-        FROM offers_for_call
-        GROUP BY client_id
-        HAVING count(1) > 1
-    );
+    AND status = 'waiting';
     """
     expected_synced_offers_after_sync = await pg.fetchval(expected_synced_offers_after_sync_sql)
     expected_synced_clients_after_sync = await pg.fetchval(expected_synced_clients_after_sync_sql)
