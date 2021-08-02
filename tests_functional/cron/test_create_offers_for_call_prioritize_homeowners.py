@@ -154,7 +154,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 32200512
+    assert offer_row['priority'] == 32120512
     assert client_row['cian_user_id'] == 12835367
 
 
@@ -309,7 +309,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 32200412
+    assert offer_row['priority'] == 32120412
     assert client_row['cian_user_id'] is None
 
 
@@ -398,7 +398,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
     )
 
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 32200412
+    assert offer_row['priority'] == 32120412
     assert client_row['cian_user_id'] is None
 
 
