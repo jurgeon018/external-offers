@@ -68,7 +68,6 @@ async def save_test_parsed_offer(
 
     now = datetime.now(tz=pytz.UTC)
 
-    values['timestamp'] = now
     values['updated_at'] = now
     values['created_at'] = now
     values['is_test'] = True

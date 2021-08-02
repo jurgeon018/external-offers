@@ -111,7 +111,6 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.UpdateOfferCategoryResponse,
         base_handler_cls=PublicHandler,
     )),
-<<<<<<< HEAD
     url('/api/admin/v1/create-test-offer/$', get_handler(
         service=create_test_offer_public,
         method='POST',
@@ -131,13 +130,12 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.DeleteTestObjectsRequest,
         response_schema=entities.DeleteTestObjectsResponse,
-=======
+    )),
     url('/api/admin/v1/update-client-comment/$', get_handler(
         service=update_client_comment_public,
         method='POST',
         request_schema=entities.UpdateClientCommentRequest,
         response_schema=entities.UpdateClientCommentResponse,
->>>>>>> 675d1475c4dcf59c0b4d08df5be9659982902161
         base_handler_cls=PublicHandler,
     )),
 ]

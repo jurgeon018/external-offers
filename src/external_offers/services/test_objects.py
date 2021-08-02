@@ -37,7 +37,6 @@ def get_attr(obj, attr):
 
 
 async def create_test_client_public(request: CreateTestClientRequest, user_id: int) -> CreateTestClientResponse:
-    print(runtime_settings.DEFAULT_TEST_CLIENT)
     obj = json.loads(runtime_settings.DEFAULT_TEST_CLIENT) if request.use_default else request
     client_id = generate_guid()
     client = Client(
@@ -78,6 +77,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
         is_calltracking = get_attr(obj, 'is_calltracking'),
         source_user_id = get_attr(obj, 'source_user_id'),
         user_segment = UserSegment.from_str(get_attr(obj, 'user_segment')),
+        timestamp = datetime.now(tz=pytz.UTC),
         source_object_model = {
             'phones': [get_attr(obj, 'phone')],
             'category': get_attr(obj, 'category'),
