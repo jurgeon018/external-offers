@@ -1,11 +1,17 @@
 import pytest
+from cian_http.exceptions import ApiClientException
 from cian_test_utils import future
 
+from external_offers.entities.exceptions import NotFoundRegionNameException
 from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
+from external_offers.repositories.monolith_cian_geoapi.entities import LocationResponse, V1LocationsGet
 from external_offers.services.grafana_metric import (
+    get_region_name,
+    get_region_name_from_api,
     get_segmented_objects,
     get_synced_percentage,
+    map_region_codes_to_region_names,
     transform_list_into_dict,
 )
 from external_offers.services.send_offers_and_clients_to_grafana import (
@@ -204,11 +210,26 @@ async def test_send_processed_offers_and_clients_amount_to_grafana(mocker):
 ])
 async def test_get_segmented_counts(mocker, metric, segment_type):
     segmented_objects = [
-        SegmentedObject(segment_name='name1', segment_count=10),
-        SegmentedObject(segment_name='name2', segment_count=20),
-        SegmentedObject(segment_name='name3', segment_count=30),
-        SegmentedObject(segment_name='name4', segment_count=40),
+        SegmentedObject(segment_name='4568', segment_count=10),
+        SegmentedObject(segment_name='4636', segment_count=20),
+        SegmentedObject(segment_name='4624', segment_count=30),
+        SegmentedObject(segment_name='4590', segment_count=40),
     ]
+    if segment_type == GrafanaSegmentType.region:
+        expected_segmented_objects = [
+            SegmentedObject(segment_name='respublika-dagestan_4568', segment_count=10),
+            SegmentedObject(segment_name='yaroslavskaya-oblast_4636', segment_count=20),
+            SegmentedObject(segment_name='udmurtskaya-respublika_4624', segment_count=30),
+            SegmentedObject(segment_name='magadanskaya-oblast_4590', segment_count=40),
+        ]
+    else:
+        expected_segmented_objects = [
+            SegmentedObject(segment_name='4568', segment_count=10),
+            SegmentedObject(segment_name='4636', segment_count=20),
+            SegmentedObject(segment_name='4624', segment_count=30),
+            SegmentedObject(segment_name='4590', segment_count=40),
+        ]
+
     fetch_segmented_objects = mocker.patch(
         'external_offers.services.grafana_metric.'
         'fetch_segmented_objects',
@@ -216,7 +237,7 @@ async def test_get_segmented_counts(mocker, metric, segment_type):
     fetch_segmented_objects.return_value = future(segmented_objects)
     result = await get_segmented_objects(metric, segment_type)
 
-    assert result == segmented_objects
+    assert result == expected_segmented_objects
     fetch_segmented_objects.assert_called_once_with(segment_type=segment_type, metric=metric)
 
 
@@ -230,22 +251,30 @@ async def test_get_segmented_counts(mocker, metric, segment_type):
 ])
 async def test_get_segmented_percents(mocker, metric, segment_type):
     all_synced_count = [
-        SegmentedObject(segment_name='name1', segment_count=10),
-        SegmentedObject(segment_name='name2', segment_count=20),
-        SegmentedObject(segment_name='name3', segment_count=30),
-        SegmentedObject(segment_name='name4', segment_count=40),
+        SegmentedObject(segment_name='4568', segment_count=10),
+        SegmentedObject(segment_name='4636', segment_count=20),
+        SegmentedObject(segment_name='4624', segment_count=30),
+        SegmentedObject(segment_name='4590', segment_count=40),
     ]
     processed_synced_count = [
-        SegmentedObject(segment_name='name1', segment_count=0),
-        SegmentedObject(segment_name='name2', segment_count=10),
-        SegmentedObject(segment_name='name3', segment_count=30),
+        SegmentedObject(segment_name='4568', segment_count=0),
+        SegmentedObject(segment_name='4636', segment_count=10),
+        SegmentedObject(segment_name='4624', segment_count=30),
     ]
-    expected_segmented_percents = [
-        SegmentedObject(segment_name='name1', segment_count=0),
-        SegmentedObject(segment_name='name2', segment_count=50),
-        SegmentedObject(segment_name='name3', segment_count=100),
-        SegmentedObject(segment_name='name4', segment_count=0),
-    ]
+    if segment_type == GrafanaSegmentType.region:
+        expected_segmented_percents = [
+            SegmentedObject(segment_name='respublika-dagestan_4568', segment_count=0),
+            SegmentedObject(segment_name='yaroslavskaya-oblast_4636', segment_count=50),
+            SegmentedObject(segment_name='udmurtskaya-respublika_4624', segment_count=100),
+            SegmentedObject(segment_name='magadanskaya-oblast_4590', segment_count=0),
+        ]
+    else:
+        expected_segmented_percents = [
+            SegmentedObject(segment_name='4568', segment_count=0),
+            SegmentedObject(segment_name='4636', segment_count=50),
+            SegmentedObject(segment_name='4624', segment_count=100),
+            SegmentedObject(segment_name='4590', segment_count=0),
+        ]
     fetch_segmented_objects = mocker.patch(
         'external_offers.services.grafana_metric.'
         'fetch_segmented_objects',
@@ -291,3 +320,62 @@ async def test_transform_list_into_dict():
     assert result['segment1'] == 1
     assert result['segment2'] == 2
     assert result['segment3'] == 3
+
+
+async def test_map_region_codes_to_region_names__returns_result():
+    segmented_regions = [
+        SegmentedObject(segment_name='4568', segment_count=1),
+        SegmentedObject(segment_name='4636', segment_count=3),
+    ]
+    result = await map_region_codes_to_region_names(segmented_regions)
+    expected_result = [
+        SegmentedObject(segment_name='respublika-dagestan_4568', segment_count=1),
+        SegmentedObject(segment_name='yaroslavskaya-oblast_4636', segment_count=3),
+    ]
+    assert result == expected_result
+
+
+async def test_map_region_codes_to_region_names__raises_exception(mocker):
+    segmented_regions = [
+        SegmentedObject(segment_name='4568', segment_count=1),
+        SegmentedObject(segment_name='4636', segment_count=3),
+    ]
+    mocker.patch(
+        'external_offers.services.grafana_metric.get_region_name_from_dict',
+        return_value=future(None),
+    )
+    mocker.patch(
+        'external_offers.services.grafana_metric.get_region_name_from_api',
+        return_value=future(None),
+    )
+    with pytest.raises(NotFoundRegionNameException):
+        await map_region_codes_to_region_names(segmented_regions)
+
+
+async def test_get_region_name_from_api(mocker):
+    patched_api = mocker.patch(
+        'external_offers.services.grafana_metric.v1_locations_get',
+        return_value=future(LocationResponse(name='Республика Дагестан')),
+    )
+    result = await get_region_name('non_existing_region_code')
+    assert result == 'respublika-dagestan'
+    patched_api.assert_called_once_with(V1LocationsGet(id='non_existing_region_code'))
+
+
+async def test_get_region_name_from_dict(mocker):
+    patched_api = mocker.patch(
+        'external_offers.services.grafana_metric.v1_locations_get',
+        return_value=future(LocationResponse(name='Республика Дагестан')),
+    )
+    result = await get_region_name('4568')
+    assert result == 'respublika-dagestan'
+    patched_api.assert_not_called()
+
+
+async def test_get_region_from_api__api_client_exception(mocker):
+    mocker.patch(
+        'external_offers.services.grafana_metric.v1_locations_get',
+        side_effect=ApiClientException('error'),
+    )
+    region_name = await get_region_name_from_api('1234')
+    assert region_name is None

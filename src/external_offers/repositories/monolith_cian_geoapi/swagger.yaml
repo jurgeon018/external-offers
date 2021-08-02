@@ -168,6 +168,24 @@ definitions:
         x-Poselenie: Поселение
         x-Raion: Район
     type: object
+  Geo.Api.App.Locations.Models.LocationResponse:
+    properties:
+      id:
+        description: Id локации.
+        format: int32
+        type: integer
+      name:
+        description: Название.
+        type: string
+      oblastId:
+        description: Id области локации
+        format: int32
+        type: integer
+      timeZone:
+        description: TimeZone
+        format: int32
+        type: integer
+    type: object
   Geo.Api.App.Underground.Models.UndergroundModelV2:
     description: Модель метро
     properties:
@@ -352,6 +370,27 @@ paths:
             type: array
       tags:
       - GeoCoderWebApi
+  /v1/locations/get/:
+    get:
+      consumes: []
+      operationId: LocationsWebApi_Get
+      parameters:
+      - format: int32
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Geo.Api.App.Locations.Models.LocationResponse'
+      summary: Получить информацию о локации по id.
+      tags:
+      - LocationsWebApi
   /v2/geocode/:
     post:
       consumes:
