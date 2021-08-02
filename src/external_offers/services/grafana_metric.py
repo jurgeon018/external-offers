@@ -2,7 +2,6 @@ import logging
 from typing import List, Optional
 
 from cian_http.exceptions import ApiClientException
-
 from pytils import translit
 
 from external_offers.entities.exceptions import NotFoundRegionNameException

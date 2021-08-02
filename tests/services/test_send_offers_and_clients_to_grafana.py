@@ -1,15 +1,14 @@
-from cian_http.exceptions import ApiClientException
 import pytest
+from cian_http.exceptions import ApiClientException
 from cian_test_utils import future
 
-from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.entities.exceptions import NotFoundRegionNameException
+from external_offers.entities.grafana_metric import SegmentedObject
 from external_offers.enums.grafana_metric import GrafanaMetric, GrafanaSegmentType
 from external_offers.repositories.monolith_cian_geoapi.entities import LocationResponse, V1LocationsGet
 from external_offers.services.grafana_metric import (
     get_region_name,
     get_region_name_from_api,
-    get_region_name_from_dict,
     get_segmented_objects,
     get_synced_percentage,
     map_region_codes_to_region_names,
