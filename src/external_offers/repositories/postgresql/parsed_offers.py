@@ -58,6 +58,31 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
     await pg.get().execute(query, *params)
 
 
+async def save_test_parsed_offer(
+    *,
+    parsed_offer: ParsedOfferMessage
+) -> None:
+    insert_query = insert(tables.parsed_offers)
+
+    values = parsed_offer_message_mapper.map_to(parsed_offer)
+
+    now = datetime.now(tz=pytz.UTC)
+
+    values['timestamp'] = now
+    values['updated_at'] = now
+    values['created_at'] = now
+    values['is_test'] = True
+    values['synced'] = False
+
+    query, params = asyncpgsa.compile_query(
+        insert_query.values(
+            [values]
+        )
+    )
+
+    await pg.get().execute(query, *params)
+
+
 async def set_synced_and_fetch_parsed_offers_chunk(
     *,
     last_sync_date: Optional[datetime]

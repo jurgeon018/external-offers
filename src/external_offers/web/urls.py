@@ -124,13 +124,6 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.CreateTestClientResponse,
         base_handler_cls=PublicHandler,
     )),
-    url('/api/admin/v1/create-test-client/$', get_handler(
-        service=create_test_client_public,
-        method='POST',
-        request_schema=entities.CreateTestClientRequest,
-        response_schema=entities.CreateTestClientResponse,
-        base_handler_cls=PublicHandler,
-    )),
     url('/api/admin/v1/delete-test-objects/$', get_handler(
         service=delete_test_objects_public,
         method='POST',

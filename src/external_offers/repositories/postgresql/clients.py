@@ -41,10 +41,10 @@ async def get_client_in_progress_by_operator(
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
-    call_id: str
+    call_id: str,
+    is_test: bool = False,
 ) -> str:
     now = datetime.now(pytz.utc)
-
     first_suitable_offer_client_cte = (
         select(
             [
@@ -62,7 +62,8 @@ async def assign_suitable_client_to_operator(
                 and_(
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
-                    clients.c.status == ClientStatus.waiting.value
+                    clients.c.status == ClientStatus.waiting.value,
+                    clients.c.is_test == is_test,
                 ),
                 and_(
                     clients.c.operator_user_id == operator_id,
@@ -70,7 +71,8 @@ async def assign_suitable_client_to_operator(
                         OfferStatus.call_later.value,
                         OfferStatus.call_missed.value,
                     ]),
-                    clients.c.next_call <= now
+                    clients.c.next_call <= now,
+                    clients.c.is_test == is_test,
                 )
             )
         ).order_by(

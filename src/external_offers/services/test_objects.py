@@ -1,4 +1,3 @@
-from cian_core.runtime_settings import runtime_settings
 from external_offers.entities.clients import Client, UserSegment
 from external_offers.entities.parsed_offers import ParsedOfferMessage
 from external_offers.entities.offers import Offer
@@ -12,7 +11,7 @@ from external_offers.enums.user_segment import UserSegment
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.helpers.uuid import generate_guid
 
-from external_offers.repositories.postgresql.parsed_offers import save_parsed_offer, get_parsed_offer_for_creation_by_id
+from external_offers.repositories.postgresql.parsed_offers import save_test_parsed_offer, get_parsed_offer_for_creation_by_id
 from external_offers.repositories.postgresql.clients import (
     save_client,
     get_client_by_avito_user_id,
@@ -24,6 +23,7 @@ from external_offers.repositories.postgresql.offers import (
     delete_test_offers_for_call,
 )
 
+from cian_core.runtime_settings import runtime_settings
 from datetime import datetime
 import pytz
 import json
@@ -37,10 +37,8 @@ def get_attr(obj, attr):
 
 
 async def create_test_client_public(request: CreateTestClientRequest, user_id: int) -> CreateTestClientResponse:
-    if request.use_default:
-        obj = json.loads(runtime_settings.DEFAULT_TEST_CLIENT)
-    else:
-        obj = request
+    print(runtime_settings.DEFAULT_TEST_CLIENT)
+    obj = json.loads(runtime_settings.DEFAULT_TEST_CLIENT) if request.use_default else request
     client_id = generate_guid()
     client = Client(
         # dynamic params from request
@@ -71,16 +69,10 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
 
 
 async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int) -> CreateTestOfferResponse:
-    if request.use_default:
-        obj = runtime_settings.DEFAULT_TEST_OFFER
-    else:
-        obj = request
+
+    obj = json.loads(runtime_settings.DEFAULT_TEST_OFFER if request.use_default else request)
     # # # parsed_offer
-    po_timestamp = datetime.now(tz=pytz.UTC)
     parsed_offer_message = ParsedOfferMessage(
-        # static params
-        timestamp = po_timestamp,
-        # dynamic params from request
         id = get_attr(obj, 'parsed_id'),
         source_object_id = get_attr(obj, 'source_object_id'),
         is_calltracking = get_attr(obj, 'is_calltracking'),
@@ -110,8 +102,8 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
             'description': get_attr(obj, 'description'),
         },
     )
-    await save_parsed_offer(parsed_offer=parsed_offer_message)
-    parsed_offer = await get_parsed_offer_for_creation_by_id(id=parsed_id)
+    await save_test_parsed_offer(parsed_offer=parsed_offer_message)
+    parsed_offer = await get_parsed_offer_for_creation_by_id(id=get_attr(obj, 'parsed_id'))
     # # # offer
     client = await get_client_by_avito_user_id(
         avito_user_id=get_attr(obj, 'source_user_id'),
@@ -119,7 +111,6 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     offer_id = generate_guid()
     offer = Offer(
         # dynamic params from request
-        category=get_attr(obj, 'category'),
         priority=get_attr(obj, 'offer_priority'),
         offer_cian_id=get_attr(obj, 'offer_cian_id'),
         # static params
@@ -135,6 +126,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
         synced_at=parsed_offer.timestamp,
         parsed_created_at=parsed_offer.created_at,
         parsed_id=parsed_offer.id,
+        category=parsed_offer.category,
     )
     await save_offer_for_call(offer=offer)
     await set_waiting_offers_priority_by_offer_ids(

@@ -52,7 +52,6 @@ logger = logging.getLogger(__name__)
 
 async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
-    is_test = request.is_test
     exists = await exists_offers_in_progress_by_operator(
         operator_id=user_id
     )
@@ -71,7 +70,8 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
         call_id = generate_guid()
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
-            call_id=call_id
+            call_id=call_id,
+            is_test=request.is_test,
         )
         if not client_id:
             return AdminResponse(

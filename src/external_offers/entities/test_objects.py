@@ -16,7 +16,7 @@ class CreateTestClientRequest:
     """Имя клиента"""
     client_email: Optional[str] = None
     """Почтовый ящик клиента, к которому привязана учетная запись Циана"""
-    segment: Optional[str] = None
+    user_segment: Optional[str] = None
     """Сегмент пользователя"""
     main_account_chosen: Optional[bool] = None
     """Флаг выбора главного аккаунта(аккаунт выбранный при первом сохранении черновика)"""
@@ -30,13 +30,6 @@ class CreateTestClientResponse:
     """Сообщение"""
     client_id: str
     """Идентификатор созданного тестового клиента"""
-
-
-from external_offers.enums import UserSegment
-
-from dataclasses import dataclass
-from typing import Optional
-
 
 
 @dataclass

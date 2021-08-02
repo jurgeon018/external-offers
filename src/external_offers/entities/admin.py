@@ -21,7 +21,7 @@ class AdminResponse:
 
 @dataclass
 class AdminUpdateOffersListRequest:
-    is_test: bool 
+    is_test: bool = False
     """Флаг выдачи тестового клиента"""
 
 
