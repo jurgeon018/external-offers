@@ -110,13 +110,24 @@
          #call-later-datetime {
          margin: 0em 1em 0em 0em
          }
-
+         .test_select_block {
+         margin: auto;
+         padding: 1.5em 0 0 0;
+         display: flex;
+         }
       </style>
       <meta charset="utf-8">
    </head>
    <body>
       <div class="update-offers-block">
-         <button class="update-offers-button" id="updateOffersBtn">Получить задания</button>
+        <button class="update-offers-button" id="updateOffersBtn">Получить задания</button>
+        <div class="test_select_block">
+            <span class="">Тип заданий: </span>
+            <select class="select-control" id="test_select">
+                <option value="false" selected>Реальные</option>
+                <option value="true">Тестовые</option>
+            </select>
+        </div>
          <div class="return-client-block">
             <div id="clientPhoneNumberInputWrapper" class="client-form-phone-input">
                 <input id="clientPhoneNumberInput" placeholder="Телефон клиента"
@@ -261,12 +272,26 @@
 
 
          document.getElementById("updateOffersBtn").onclick = async function () {
+           let test_select_value = document.getElementById('test_select').value;
+           let is_test = null;
+           if(test_select_value === 'false'){
+             is_test = false;
+           }else if(test_select_value === 'true'){
+             is_test = true;
+           }
+           let obj = {
+             is_test: is_test
+           }
+           let body = DEBUG ? JSON.stringify(obj) : formDataFromObject(obj);
+           console.log(obj)
            const response = await fetch("/api/admin/v1/update-offers-list/", {
-             method: 'POST'
+             method: 'POST',
+             body: body
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             //location.reload(); 
+             console.log(resp)
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>');
              updateOffersMessages = document.getElementById("updateOffersMessages1");

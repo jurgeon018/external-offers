@@ -453,3 +453,13 @@ async def delete_waiting_clients_by_client_ids(
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
+
+
+async def delete_test_clients() -> None:
+    await pg.get().execute(asyncpgsa.compile_query(
+        delete(
+            clients
+        ).where(
+            clients.c.is_test == True,
+        )
+    ))

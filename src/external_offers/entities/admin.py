@@ -20,6 +20,12 @@ class AdminResponse:
 
 
 @dataclass
+class AdminUpdateOffersListRequest:
+    is_test: bool 
+    """Флаг выдачи тестового клиента"""
+
+
+@dataclass
 class AdminDeclineClientRequest:
     client_id: str
     """ID клиента"""

@@ -118,10 +118,13 @@ class CreateTestOfferResponse:
 
 
 @dataclass
-class DeleteTestObjectRequest:
+class DeleteTestObjectsRequest:
     pass
 
 
 @dataclass
 class DeleteTestObjectsResponse:
-    pass
+    success: bool
+    """Статус операции"""
+    message: str
+    """Сообщение"""

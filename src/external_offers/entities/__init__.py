@@ -1,4 +1,5 @@
 from external_offers.entities.admin import (
+    AdminUpdateOffersListRequest,
     AdminAlreadyPublishedOfferRequest,
     AdminCallInterruptedClientRequest,
     AdminCallLaterClientRequest,
@@ -30,5 +31,8 @@ from external_offers.entities.update_client_phone import (
     UpdateClientPhoneResponse,
 )
 from external_offers.entities.update_offer_category import UpdateOfferCategoryRequest, UpdateOfferCategoryResponse
-from external_offers.entities.create_test_offer import CreateTestOfferRequest, CreateTestOfferResponse
-from external_offers.entities.create_test_client import CreateTestClientRequest, CreateTestClientResponse
+from external_offers.entities.test_objects import (
+    CreateTestOfferRequest, CreateTestOfferResponse,
+    CreateTestClientRequest, CreateTestClientResponse,
+    DeleteTestObjectsRequest, DeleteTestObjectsResponse,
+)

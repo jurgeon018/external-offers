@@ -4,6 +4,7 @@ from simple_settings import settings
 
 from external_offers import pg
 from external_offers.entities.admin import (
+    AdminUpdateOffersListRequest,
     AdminCallInterruptedClientRequest,
     AdminCallLaterClientRequest,
     AdminCallMissedClientRequest,
@@ -49,8 +50,9 @@ from external_offers.utils import get_next_call_date_when_call_missed
 logger = logging.getLogger(__name__)
 
 
-async def update_offers_list(user_id: int) -> AdminResponse:
+async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
+    is_test = request.is_test
     exists = await exists_offers_in_progress_by_operator(
         operator_id=user_id
     )

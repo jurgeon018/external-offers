@@ -759,3 +759,13 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
         )
         query, params = asyncpgsa.compile_query(sql)
         await pg.get().fetch(query, *params)
+
+
+async def delete_test_offers_for_call() -> None:
+    await pg.get().execute(asyncpgsa.compile_query(
+        delete(
+            offers_for_call
+        ).where(
+            offers_for_call.c.is_test == True,
+        )
+    ))
