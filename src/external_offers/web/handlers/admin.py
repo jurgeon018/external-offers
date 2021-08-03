@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from simple_settings import settings
+from cian_core.runtime_settings import runtime_settings
 
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,
@@ -36,7 +37,8 @@ class AdminOffersListPageHandler(PublicHandler):
         self.write(get_offers_list_html(
             offers=offers,
             client=client,
-            default_next_call_datetime=next_call_datetime
+            default_next_call_datetime=next_call_datetime,
+            operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
         ))
 
 

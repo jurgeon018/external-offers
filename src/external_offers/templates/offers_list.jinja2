@@ -110,7 +110,6 @@
          #call-later-datetime {
          margin: 0em 1em 0em 0em
          }
-<<<<<<< HEAD
          .test_block {
          margin: auto;
          padding: 1.5em 0 0 0;
@@ -127,7 +126,6 @@
         client-id-input {
           width: 100px;
         }
-=======
          .comment-client-block {
          padding: 0em 1em 0em 0em;
          display: inline-block;
@@ -135,26 +133,27 @@
          #comment {
          margin: 0em 1em 0em 0em
          }
->>>>>>> 675d1475c4dcf59c0b4d08df5be9659982902161
       </style>
       <meta charset="utf-8">
    </head>
    <body>
       <div class="update-offers-block">
-        <hr>
-        <div class="test_block">
-            <span class="">Тип заданий:</span>
-            <select class="select-control" id="test_select">
-                <option value="real" selected>Реальные</option>
-                <option value="test">Тестовые</option>
-            </select>
-        </div>
-        <hr>
-        <button id="createTestClient">Создать тестового клиента</button>
-        <hr>
-        <input type="text" value="" placeholder="Введите ID клиента" class="client-id-input" id="clientIdInput"/>
-        <button id="createTestOffer">Создать тестовое задание</button>
-        <hr>
+        {% if operator_is_tester %}
+          <hr>
+          <div class="test_block">
+              <span class="">Тип заданий:</span>
+              <select class="select-control" id="test_select">
+                  <option value="test" selected>Тестовые</option>
+                  <option value="real">Реальные</option>
+              </select>
+          </div>
+          <hr>
+          <button id="createTestClient">Создать тестового клиента</button>
+          <hr>
+          <input type="text" value="" placeholder="Введите ID клиента" class="client-id-input" id="clientIdInput"/>
+          <button id="createTestOffer">Создать тестовое задание</button>
+          <hr>
+        {% endif %}
         <button class="update-offers-button" id="updateOffersBtn">Получить задания</button>
         <div class="return-client-block">
             <div id="clientPhoneNumberInputWrapper" class="client-form-phone-input">
@@ -340,7 +339,6 @@
               alert(resp.message)
             }else{
               alert(resp)
-              console.log(resp)
             }
           }
         
@@ -356,17 +354,13 @@
              isTest: isTest
            }
            let body = DEBUG ? JSON.stringify(obj) : formDataFromObject(obj);
-           console.log(obj)
            const response = await fetch("/api/admin/v1/update-offers-list/", {
              method: 'POST',
              body: body
            });
            resp = await response.json()
            if (resp.success === true) {
-             
-             //TODO раскоментить
-             //location.reload(); 
-             console.log(resp)
+             location.reload(); 
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>');
              updateOffersMessages = document.getElementById("updateOffersMessages1");
