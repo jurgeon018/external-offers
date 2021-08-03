@@ -16,7 +16,7 @@ class CreateTestClientRequest:
     """Имя клиента"""
     client_email: Optional[str] = None
     """Почтовый ящик клиента, к которому привязана учетная запись Циана"""
-    user_segment: Optional[str] = None
+    segment: Optional[str] = None
     """Сегмент пользователя"""
     main_account_chosen: Optional[bool] = None
     """Флаг выбора главного аккаунта(аккаунт выбранный при первом сохранении черновика)"""

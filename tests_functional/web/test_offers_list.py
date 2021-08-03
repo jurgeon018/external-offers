@@ -25,6 +25,7 @@ async def test_update_offers_list__operator_with_client_in_progress__returns_not
         headers={
             'X-Real-UserId': operator_with_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -49,6 +50,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -75,6 +77,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -124,6 +127,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
         headers={
             'X-Real-UserId': first_operator_without_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -133,6 +137,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
         headers={
             'X-Real-UserId': second_operator_without_offers_in_progress
         },
+        json={},
         expected_status=200)
 
     # assert
@@ -243,6 +248,7 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
         headers={
             'X-Real-UserId': operator_with_call_later
         },
+        json={},
         expected_status=200
     )
 
@@ -623,6 +629,7 @@ async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
         headers={
             'X-Real-UserId': operator
         },
+        json={},
         expected_status=200
     )
 
@@ -645,6 +652,7 @@ async def test_update_offers_list__exist_no_suitable_client__returns_no_success(
         headers={
             'X-Real-UserId': operator
         },
+        json={},
         expected_status=200
     )
 

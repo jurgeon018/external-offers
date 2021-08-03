@@ -709,15 +709,18 @@ async def iterate_over_offers_for_call_sorted(
         select(
             [offers_for_call]
         ).where(
-            or_(
-                # все обьявления в нефинальных статусах отправляются в кафку повторно
-                offers_for_call.c.status.in_(non_final_statuses),
-                # все обьявления с финальным статусом отправляются в кафку единажды
-                # (отправляются только те, которые еще не были отправлены в кафку)
-                and_(
-                    offers_for_call.c.status.notin_(non_final_statuses),
-                    not_(offers_for_call.c.synced_with_kafka),
-                ),
+            and_(
+                offers_for_call.c.is_test == False,
+                or_(
+                    # все обьявления в нефинальных статусах отправляются в кафку повторно
+                    offers_for_call.c.status.in_(non_final_statuses),
+                    # все обьявления с финальным статусом отправляются в кафку единажды
+                    # (отправляются только те, которые еще не были отправлены в кафку)
+                    and_(
+                        offers_for_call.c.status.notin_(non_final_statuses),
+                        not_(offers_for_call.c.synced_with_kafka),
+                    ),
+                )
             )
         ).order_by(
             offers_for_call.c.created_at.asc(),
@@ -766,6 +769,6 @@ async def delete_test_offers_for_call() -> None:
         delete(
             offers_for_call
         ).where(
-            offers_for_call.c.is_test is True,
+            offers_for_call.c.is_test == True,
         )
     ))

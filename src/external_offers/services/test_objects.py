@@ -45,7 +45,10 @@ def get_attr(obj, attr):
 
 
 async def create_test_client_public(request: CreateTestClientRequest, user_id: int) -> CreateTestClientResponse:
-    obj = json.loads(runtime_settings.DEFAULT_TEST_CLIENT) if request.use_default else request
+    DEFAULT_TEST_CLIENT = runtime_settings.DEFAULT_TEST_CLIENT
+    if isinstance(DEFAULT_TEST_CLIENT, str):
+        DEFAULT_TEST_CLIENT = json.loads(DEFAULT_TEST_CLIENT)
+    obj = DEFAULT_TEST_CLIENT if request.use_default else request
     client_id = generate_guid()
     client = Client(
         # dynamic params from request
@@ -76,8 +79,10 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
 
 
 async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int) -> CreateTestOfferResponse:
-
-    obj = json.loads(runtime_settings.DEFAULT_TEST_OFFER if request.use_default else request)
+    DEFAULT_TEST_OFFER = runtime_settings.DEFAULT_TEST_OFFER
+    if isinstance(DEFAULT_TEST_OFFER, str):
+        DEFAULT_TEST_OFFER = json.loads(DEFAULT_TEST_OFFER)
+    obj = DEFAULT_TEST_OFFER if request.use_default else request
     # # # parsed_offer
     parsed_offer_message = ParsedOfferMessage(
         id=get_attr(obj, 'parsed_id'),
@@ -134,7 +139,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
         synced_at=parsed_offer.timestamp,
         parsed_created_at=parsed_offer.created_at,
         parsed_id=parsed_offer.id,
-        category=parsed_offer.category,
+        category=get_attr(obj, 'category'),
     )
     await save_offer_for_call(offer=offer)
     await set_waiting_offers_priority_by_offer_ids(

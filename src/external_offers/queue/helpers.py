@@ -20,7 +20,7 @@ async def send_kafka_calls_analytics_message_if_not_test(
     offer: Offer,
     status: CallStatus,
 ) -> None:
-    if client.operator_user_id in settings.TEST_OPERATOR_IDS:
+    if client.operator_user_id in settings.TEST_OPERATOR_IDS or client.is_test:
         return
 
     message = create_calls_kafka_message(

@@ -231,7 +231,10 @@ async def iterate_over_parsed_offers_sorted(
         select(
             [po]
         ).where(
-            po.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
+            and_(
+                po.c.is_test == False,
+                po.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
+            )
         ).order_by(
             po.c.created_at.asc(),
             po.c.id.asc()

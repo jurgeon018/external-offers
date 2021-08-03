@@ -110,6 +110,22 @@
          #call-later-datetime {
          margin: 0em 1em 0em 0em
          }
+         .test_block {
+         margin: auto;
+         padding: 1.5em 0 0 0;
+         display: flex;
+         }
+        #createTestClient{
+          margin: auto;
+          margin-bottom: 3px;
+        }
+        #createTestOffer{
+          margin: auto;
+          margin-bottom: 3px;
+        }
+        client-id-input {
+          width: 100px;
+        }
          .comment-client-block {
          padding: 0em 1em 0em 0em;
          display: inline-block;
@@ -122,8 +138,9 @@
    </head>
    <body>
       <div class="update-offers-block">
-         <button class="update-offers-button" id="updateOffersBtn">Получить задания</button>
-         <div class="return-client-block">
+        
+        <button class="update-offers-button" id="updateOffersBtn">Получить задания</button>
+        <div class="return-client-block">
             <div id="clientPhoneNumberInputWrapper" class="client-form-phone-input">
                 <input id="clientPhoneNumberInput" placeholder="Телефон клиента"
                        type="string"
@@ -133,9 +150,10 @@
             <div id="clientPhoneNumberBtn">
                <button id="returnClientByPhoneNumberBtn" type="button">Взять клиента в работу</button>
             </div>
-         </div>
+        </div>
+        <div class="update-offers-messages" id="updateOffersMessages1"></div>
 
-         <div class="update-offers-messages" id="updateOffersMessages1"></div>
+
       </div>
       <div class="client-info-block">
          <div class="client-info-block-title">Клиент</div>
@@ -260,9 +278,54 @@
          }
 
 
+          document.getElementById("createTestClient").onclick = async function () {
+            let obj = {
+              useDefault: true
+            }
+            const response = await fetch("/api/admin/v1/create-test-client/", {
+              method: 'POST',
+              body: DEBUG? JSON.stringify(obj) : formDataFromObject(obj)
+            }) 
+            resp = await response.json()
+            if(resp.success == true){
+              alert(`${resp.message} clientId: ${resp.clientId}`)
+            }else{
+              alert(resp)
+            }
+          }
+          document.getElementById("createTestOffer").onclick = async function () {
+            let clientId = document.getElementById('clientIdInput').value;
+            let obj = {
+              useDefault: true,
+              clientId: clientId,
+            }
+            const response = await fetch("/api/admin/v1/create-test-offer/", {
+              method: 'POST',
+              body: DEBUG? JSON.stringify(obj) : formDataFromObject(obj)
+            }) 
+            resp = await response.json();
+            if(resp.success == true){
+              alert(resp.message)
+            }else{
+              alert(resp)
+            }
+          }
+        
          document.getElementById("updateOffersBtn").onclick = async function () {
+           let test_select_value = document.getElementById('test_select').value;
+           let isTest = null;
+           if(test_select_value === 'real'){
+             isTest = false;
+           }else if(test_select_value === 'test'){
+             isTest = true;
+           }
+           let obj = {
+             isTest: isTest
+           }
+           let body = DEBUG ? JSON.stringify(obj) : formDataFromObject(obj);
            const response = await fetch("/api/admin/v1/update-offers-list/", {
-             method: 'POST'
+             method: 'POST',
+             body: body
            });
            resp = await response.json()
            if (resp.success === true) {
@@ -300,7 +363,6 @@
          };
 
          
-         
-      </script>
-      </body>
+</script>
+</body>
 </html>
