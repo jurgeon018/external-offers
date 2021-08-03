@@ -4,7 +4,6 @@ from simple_settings import settings
 
 from external_offers import pg
 from external_offers.entities.admin import (
-    AdminUpdateOffersListRequest,
     AdminCallInterruptedClientRequest,
     AdminCallLaterClientRequest,
     AdminCallMissedClientRequest,
@@ -14,6 +13,7 @@ from external_offers.entities.admin import (
     AdminPhoneUnavailableClientRequest,
     AdminPromoGivenClientRequest,
     AdminResponse,
+    AdminUpdateOffersListRequest,
 )
 from external_offers.enums import CallStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid

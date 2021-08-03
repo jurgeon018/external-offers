@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import List, Optional
 
+from cian_core.runtime_settings import runtime_settings
 from jinja2 import Environment, PackageLoader
-from simple_settings import settings
 
 from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer
 from external_offers.entities.parsed_offers import ParsedObjectModel
@@ -28,7 +28,7 @@ def get_offers_list_html(
         offers=offers,
         client=client,
         next_call_datetime=default_next_call_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
-        debug=settings.DEBUG,
+        debug=runtime_settings.DEBUG,
         operator_is_tester=operator_is_tester,
     )
 

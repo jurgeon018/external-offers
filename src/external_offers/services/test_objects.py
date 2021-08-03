@@ -1,39 +1,47 @@
+import json
+from datetime import datetime
+
+import pytz
+from cian_core.runtime_settings import runtime_settings
+
 from external_offers.entities.clients import Client, UserSegment
-from external_offers.entities.parsed_offers import ParsedOfferMessage
 from external_offers.entities.offers import Offer
+from external_offers.entities.parsed_offers import ParsedOfferMessage
 from external_offers.entities.test_objects import (
-    CreateTestClientRequest, CreateTestClientResponse,
-    CreateTestOfferRequest, CreateTestOfferResponse,
-    DeleteTestObjectsRequest, DeleteTestObjectsResponse,
+    CreateTestClientRequest,
+    CreateTestClientResponse,
+    CreateTestOfferRequest,
+    CreateTestOfferResponse,
+    DeleteTestObjectsRequest,
+    DeleteTestObjectsResponse,
 )
 from external_offers.enums.client_status import ClientStatus
-from external_offers.enums.user_segment import UserSegment
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.helpers.uuid import generate_guid
-
-from external_offers.repositories.postgresql.parsed_offers import save_test_parsed_offer, get_parsed_offer_for_creation_by_id
 from external_offers.repositories.postgresql.clients import (
-    save_client,
-    get_client_by_avito_user_id,
     delete_test_clients,
+    get_client_by_avito_user_id,
+    save_client,
 )
 from external_offers.repositories.postgresql.offers import (
+    delete_test_offers_for_call,
     save_offer_for_call,
     set_waiting_offers_priority_by_offer_ids,
-    delete_test_offers_for_call,
 )
-
-from cian_core.runtime_settings import runtime_settings
-from datetime import datetime
-import pytz
-import json
+from external_offers.repositories.postgresql.parsed_offers import (
+    get_parsed_offer_for_creation_by_id,
+    save_test_parsed_offer,
+)
 
 
 def get_attr(obj, attr):
     if isinstance(obj, (CreateTestClientRequest, CreateTestOfferRequest)):
-        return getattr(obj, attr)
+        attr = getattr(obj, attr)
     elif isinstance(obj, dict):
-        return obj[attr]
+        attr = obj[attr]
+    else:
+        raise Exception('Invalid request instance')
+    return attr
 
 
 async def create_test_client_public(request: CreateTestClientRequest, user_id: int) -> CreateTestClientResponse:
@@ -41,28 +49,28 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
     client_id = generate_guid()
     client = Client(
         # dynamic params from request
-        avito_user_id = get_attr(obj, 'avito_user_id'),
-        client_phones = [get_attr(obj, 'client_phone')],
-        client_name = get_attr(obj, 'client_name'),
-        cian_user_id = get_attr(obj, 'cian_user_id'),
-        client_email = get_attr(obj, 'client_email'),
-        segment = UserSegment.from_str(get_attr(obj, 'segment')),
-        main_account_chosen = get_attr(obj, 'main_account_chosen'),
+        avito_user_id=get_attr(obj, 'avito_user_id'),
+        client_phones=[get_attr(obj, 'client_phone')],
+        client_name=get_attr(obj, 'client_name'),
+        cian_user_id=get_attr(obj, 'cian_user_id'),
+        client_email=get_attr(obj, 'client_email'),
+        segment=UserSegment.from_str(get_attr(obj, 'segment')),
+        main_account_chosen=get_attr(obj, 'main_account_chosen'),
         # static params
-        is_test = True,
-        client_id = client_id,
-        status = ClientStatus.waiting,
-        operator_user_id = None,
-        last_call_id = None,
-        calls_count = 0,
-        next_call = None,
+        is_test=True,
+        client_id=client_id,
+        status=ClientStatus.waiting,
+        operator_user_id=None,
+        last_call_id=None,
+        calls_count=0,
+        next_call=None,
     )
     await save_client(
         client=client
     )
     return CreateTestClientResponse(
         success=True,
-        message=f'Тестовый клиент был успешно создан.',
+        message='Тестовый клиент был успешно создан.',
         client_id=client_id,
     )
 
@@ -72,13 +80,13 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     obj = json.loads(runtime_settings.DEFAULT_TEST_OFFER if request.use_default else request)
     # # # parsed_offer
     parsed_offer_message = ParsedOfferMessage(
-        id = get_attr(obj, 'parsed_id'),
-        source_object_id = get_attr(obj, 'source_object_id'),
-        is_calltracking = get_attr(obj, 'is_calltracking'),
-        source_user_id = get_attr(obj, 'source_user_id'),
-        user_segment = UserSegment.from_str(get_attr(obj, 'user_segment')),
-        timestamp = datetime.now(tz=pytz.UTC),
-        source_object_model = {
+        id=get_attr(obj, 'parsed_id'),
+        source_object_id=get_attr(obj, 'source_object_id'),
+        is_calltracking=get_attr(obj, 'is_calltracking'),
+        source_user_id=get_attr(obj, 'source_user_id'),
+        user_segment=UserSegment.from_str(get_attr(obj, 'user_segment')),
+        timestamp=datetime.now(tz=pytz.UTC),
+        source_object_model={
             'phones': [get_attr(obj, 'phone')],
             'category': get_attr(obj, 'category'),
             'title': get_attr(obj, 'title'),
@@ -135,7 +143,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     )
     return CreateTestOfferResponse(
         success=True,
-        message=f'Тестовое обьявление было успешно создано.',
+        message='Тестовое обьявление было успешно создано.',
         offer_id=offer.id,
     )
 

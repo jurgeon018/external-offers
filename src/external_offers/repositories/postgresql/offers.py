@@ -766,6 +766,6 @@ async def delete_test_offers_for_call() -> None:
         delete(
             offers_for_call
         ).where(
-            offers_for_call.c.is_test == True,
+            offers_for_call.c.is_test is True,
         )
     ))

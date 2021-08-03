@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from simple_settings import settings
 from cian_core.runtime_settings import runtime_settings
+from simple_settings import settings
 
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,

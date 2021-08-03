@@ -479,6 +479,6 @@ async def delete_test_clients() -> None:
         delete(
             clients
         ).where(
-            clients.c.is_test == True,
+            clients.c.is_test is True,
         )
     ))

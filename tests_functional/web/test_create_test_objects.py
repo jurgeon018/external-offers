@@ -1,5 +1,6 @@
 import json
-import pytest 
+
+import pytest
 
 
 TEST_OFFER = {
@@ -19,7 +20,7 @@ TEST_OFFER = {
     'town': 'Москва',
     'price': 16000,
     'title': 'Комната 13 м² в 3-к, 3/5 эт.',
-    'phone': "88005553535",
+    'phone': '88005553535',
     'region': 1,
     'address': 'Москва, 3-я Парковая ул.',
     'contact': 'Тестовый клиент',
@@ -30,7 +31,10 @@ TEST_OFFER = {
     'total_area': 13,
     'living_area': None,
     'rooms_count': 4,
-    'description': 'Рассмотрим всех!для проживания все необходимое имеется,тихие соседи,места общего пользования в обычном состоянии,национальность не принципиальна,срочно!в стоимость все включено,фото реальны,комната с балконом,залог есть минимальный',
+    'description': 'Рассмотрим всех!для проживания все необходимое имеется,'
+                    'тихие соседи,места общего пользования в обычном состоянии,'
+                    'национальность не принципиальна,срочно!в стоимость все включено,'
+                    'фото реальны,комната с балконом,залог есть минимальный',
     'floor_number': 3,
     'floors_count': 6,
     'is_developer': None
@@ -85,6 +89,7 @@ TEST_CLIENT_REQUEST = {
     'mainAccountChosen': TEST_CLIENT['main_account_chosen'],
 }
 
+
 @pytest.mark.parametrize('use_default', [
     True,
     False
@@ -110,7 +115,7 @@ async def test_create_default_client(
         })
         json_data.update(TEST_CLIENT_REQUEST)
     # act
-   
+
     response = await http.request(
         'POST',
         '/api/admin/v1/create-test-client/',
@@ -120,26 +125,26 @@ async def test_create_default_client(
         },
         expected_status=200
     )
-    clients_count = await pg.fetchval("SELECT COUNT(*) FROM clients;")
-    client = await pg.fetchrow("SELECT * FROM clients LIMIT 1;")
+    clients_count = await pg.fetchval('SELECT COUNT(*) FROM clients;')
+    client = await pg.fetchrow('SELECT * FROM clients LIMIT 1;')
     # assert
     resp = json.loads(response.body.decode('utf-8'))
     assert resp['success'] is True
     assert resp['message'] == 'Тестовый клиент был успешно создан.'
     assert clients_count == 1
     assert client['avito_user_id'] == TEST_CLIENT['avito_user_id']
-    assert client['client_phones'] == [TEST_CLIENT['client_phone'],]
+    assert client['client_phones'] == [TEST_CLIENT['client_phone'], ]
     assert client['client_name'] == TEST_CLIENT['client_name']
     assert client['cian_user_id'] == TEST_CLIENT['cian_user_id']
     assert client['client_email'] == TEST_CLIENT['client_email']
     assert client['segment'] == TEST_CLIENT['segment']
     assert client['main_account_chosen'] == TEST_CLIENT['main_account_chosen']
-    assert client['is_test'] == True
+    assert client['is_test'] is True
     assert client['status'] == 'waiting'
-    assert client['operator_user_id'] == None
-    assert client['last_call_id'] == None
+    assert client['operator_user_id'] is None
+    assert client['last_call_id'] is None
     assert client['calls_count'] == 0
-    assert client['next_call'] == None
+    assert client['next_call'] is None
 
 
 @pytest.mark.parametrize('use_default', [
@@ -193,10 +198,10 @@ async def test_create_default_offer(
         },
         expected_status=200
     )
-    offers_for_call_count = await pg.fetchval("SELECT COUNT(*) FROM offers_for_call;")
-    offers_for_call = await pg.fetchrow("SELECT * FROM offers_for_call LIMIT 1;")
-    parsed_offers_count = await pg.fetchval("SELECT COUNT(*) FROM parsed_offers;")
-    parsed_offer = await pg.fetchrow("SELECT * FROM parsed_offers LIMIT 1;")
+    offers_for_call_count = await pg.fetchval('SELECT COUNT(*) FROM offers_for_call;')
+    offers_for_call = await pg.fetchrow('SELECT * FROM offers_for_call LIMIT 1;')
+    parsed_offers_count = await pg.fetchval('SELECT COUNT(*) FROM parsed_offers;')
+    parsed_offer = await pg.fetchrow('SELECT * FROM parsed_offers LIMIT 1;')
     resp = json.loads(response.body.decode('utf-8'))
     source_object_model = json.loads(parsed_offer['source_object_model'])
 
