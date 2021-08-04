@@ -47,7 +47,17 @@ def get_attr(obj, attr):
 async def create_test_client_public(request: CreateTestClientRequest, user_id: int) -> CreateTestClientResponse:
     DEFAULT_TEST_CLIENT = runtime_settings.DEFAULT_TEST_CLIENT
     if isinstance(DEFAULT_TEST_CLIENT, str):
-        DEFAULT_TEST_CLIENT = json.loads(DEFAULT_TEST_CLIENT)
+        try:
+            DEFAULT_TEST_CLIENT = json.loads(DEFAULT_TEST_CLIENT)
+        except Exception as e:
+            error_message = (
+                f'Невалидное значение в переменной DEFAULT_TEST_CLIENT. {e}\n'
+                f'DEFAULT_TEST_CLIENT={DEFAULT_TEST_CLIENT}'
+            )
+            return CreateTestClientResponse(
+                success=False,
+                message=error_message,
+            )
     obj = DEFAULT_TEST_CLIENT if request.use_default else request
     client_id = generate_guid()
     client = Client(
@@ -81,7 +91,17 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
 async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int) -> CreateTestOfferResponse:
     DEFAULT_TEST_OFFER = runtime_settings.DEFAULT_TEST_OFFER
     if isinstance(DEFAULT_TEST_OFFER, str):
-        DEFAULT_TEST_OFFER = json.loads(DEFAULT_TEST_OFFER)
+        try:
+            DEFAULT_TEST_OFFER = json.loads(DEFAULT_TEST_OFFER)
+        except Exception as e:
+            error_message = (
+                f'Невалидное значение в переменной DEFAULT_TEST_OFFER. {e}\n'
+                f'DEFAULT_TEST_OFFER={DEFAULT_TEST_OFFER}'
+            )
+            return CreateTestOfferResponse(
+                success=False,
+                message=error_message,
+            )
     obj = DEFAULT_TEST_OFFER if request.use_default else request
     # # # parsed_offer
     parsed_offer_message = ParsedOfferMessage(

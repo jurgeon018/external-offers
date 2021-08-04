@@ -320,6 +320,8 @@
             resp = await response.json()
             if(resp.success == true){
               alert(`${resp.message} clientId: ${resp.clientId}`)
+            } else if(resp.success == false){
+              alert(resp.message)
             }else{
               alert(resp)
             }
@@ -336,6 +338,8 @@
             }) 
             resp = await response.json();
             if(resp.success == true){
+              alert(resp.message)
+            } else if(resp.success == false){
               alert(resp.message)
             }else{
               alert(resp)

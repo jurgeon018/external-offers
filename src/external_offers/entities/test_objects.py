@@ -28,7 +28,7 @@ class CreateTestClientResponse:
     """Статус операции"""
     message: str
     """Сообщение"""
-    client_id: str
+    client_id: Optional[str] = ""
     """Идентификатор созданного тестового клиента"""
 
 
@@ -106,7 +106,7 @@ class CreateTestOfferResponse:
     """Статус операции"""
     message: str
     """Сообщение"""
-    offer_id: str
+    offer_id: Optional[str] = ""
     """Идентификатор созданного тестового задания"""
 
 
