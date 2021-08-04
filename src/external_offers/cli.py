@@ -82,3 +82,21 @@ register_kafka_consumer(
     default_max_bulk_size=25,
     message_type=entities.ParsedOfferMessage
 )
+
+
+
+from cian_core.rabbitmq.consumer_cli import register_consumer
+
+from external_offers.queue.schemas import RabbitMQAnnouncementMessageSchema
+from external_offers.queue.queues import process_announcements_queue
+from external_offers.queue.consumers import process_announcement_callback
+
+
+# [announcements] обновляет объявление
+register_consumer(
+    command=cli.command('process_announcement_consumer'),
+    queue=process_announcements_queue,
+    callback=process_announcement_callback,
+    schema_cls=RabbitMQAnnouncementMessageSchema,
+    dead_queue_enabled=True,
+)

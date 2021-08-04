@@ -1,0 +1,1 @@
+from my_offers.services.announcement.process_announcement_service import process_announcement
