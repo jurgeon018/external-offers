@@ -279,13 +279,15 @@
 
 
           document.getElementById("createTestClient").onclick = async function () {
+            let sourceUserId = document.getElementById('sourceUserIdInput').value;
             let obj = {
-              useDefault: true
+              useDefault: true,
+              sourceUserId: sourceUserId,
             }
             const response = await fetch("/api/admin/v1/create-test-client/", {
               method: 'POST',
               body: DEBUG? JSON.stringify(obj) : formDataFromObject(obj)
-            }) 
+            })
             resp = await response.json()
             if(resp.success == true){
               alert(`${resp.message} clientId: ${resp.clientId}`)
@@ -296,10 +298,12 @@
             }
           }
           document.getElementById("createTestOffer").onclick = async function () {
-            let clientId = document.getElementById('clientIdInput').value;
+            let sourceUserId = document.getElementById('sourceUserIdInput').value;
+            let sourceObjectId = document.getElementById('sourceObjectIdInput').value;
             let obj = {
               useDefault: true,
-              clientId: clientId,
+              sourceUserId: sourceUserId,
+              sourceObjectId: sourceObjectId,
             }
             const response = await fetch("/api/admin/v1/create-test-offer/", {
               method: 'POST',
@@ -307,7 +311,7 @@
             }) 
             resp = await response.json();
             if(resp.success == true){
-              alert(resp.message)
+              alert(`${resp.message} offerId: ${resp.offerId}`)
             } else if(resp.success == false){
               alert(resp.message)
             }else{

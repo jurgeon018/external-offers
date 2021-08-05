@@ -139,20 +139,20 @@
    <body>
       <div class="update-offers-block">
         {% if operator_is_tester %}
-          <hr>
           <div class="test_block">
-              <span class="">Тип заданий:</span>
-              <select class="select-control" id="test_select">
-                  <option value="test" selected>Тестовые</option>
-                  <option value="real">Реальные</option>
-              </select>
+              <input id="sourceUserIdInput" type="text" placeholder="Введите sourceUserId клиента"/>
+              <button id="createTestClient">Создать тестового клиента</button>
           </div>
-          <hr>
-          <button id="createTestClient">Создать тестового клиента</button>
-          <hr>
-          <input type="text" value="" placeholder="Введите ID клиента" class="client-id-input" id="clientIdInput"/>
-          <button id="createTestOffer">Создать тестовое задание</button>
-          <hr>
+          <div class="test_block">
+              <input value="1_" id="sourceObjectIdInput" type="text" placeholder="Введите sourceObjectId обьявления"/>
+              <button id="createTestOffer">Создать тестовое задание</button>
+          </div>
+          <div class="test_block">
+            <select class="select-control" id="test_select">
+                <option value="test" selected>Получать тестовые задания</option>
+                <option value="real">Получать реальные задания</option>
+            </select>
+          </div>
         {% endif %}
         <button class="update-offers-button" id="updateOffersBtn">Получить задания</button>
         <div class="return-client-block">
@@ -310,13 +310,15 @@
 
 
           document.getElementById("createTestClient").onclick = async function () {
+            let sourceUserId = document.getElementById('sourceUserIdInput').value;
             let obj = {
-              useDefault: true
+              useDefault: true,
+              sourceUserId: sourceUserId,
             }
             const response = await fetch("/api/admin/v1/create-test-client/", {
               method: 'POST',
               body: DEBUG? JSON.stringify(obj) : formDataFromObject(obj)
-            }) 
+            })
             resp = await response.json()
             if(resp.success == true){
               alert(`${resp.message} clientId: ${resp.clientId}`)
@@ -327,10 +329,12 @@
             }
           }
           document.getElementById("createTestOffer").onclick = async function () {
-            let clientId = document.getElementById('clientIdInput').value;
+            let sourceUserId = document.getElementById('sourceUserIdInput').value;
+            let sourceObjectId = document.getElementById('sourceObjectIdInput').value;
             let obj = {
               useDefault: true,
-              clientId: clientId,
+              sourceUserId: sourceUserId,
+              sourceObjectId: sourceObjectId,
             }
             const response = await fetch("/api/admin/v1/create-test-offer/", {
               method: 'POST',
@@ -338,7 +342,7 @@
             }) 
             resp = await response.json();
             if(resp.success == true){
-              alert(resp.message)
+              alert(`${resp.message} offerId: ${resp.offerId}`)
             } else if(resp.success == false){
               alert(resp.message)
             }else{

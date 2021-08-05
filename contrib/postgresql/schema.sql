@@ -91,3 +91,4 @@ create table parsed_offers
 );
 
 CREATE INDEX ON clients(avito_user_id);
+ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);

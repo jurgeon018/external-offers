@@ -7,6 +7,7 @@ from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -710,7 +711,7 @@ async def iterate_over_offers_for_call_sorted(
             [offers_for_call]
         ).where(
             and_(
-                offers_for_call.c.is_test == False,
+                offers_for_call.c.is_test == false(),
                 or_(
                     # все обьявления в нефинальных статусах отправляются в кафку повторно
                     offers_for_call.c.status.in_(non_final_statuses),
@@ -765,10 +766,11 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
 
 
 async def delete_test_offers_for_call() -> None:
-    await pg.get().execute(asyncpgsa.compile_query(
+    query, params = asyncpgsa.compile_query(
         delete(
             offers_for_call
         ).where(
-            offers_for_call.c.is_test == True,
+            offers_for_call.c.is_test == true(),
         )
-    ))
+    )
+    await pg.get().execute(query, *params)

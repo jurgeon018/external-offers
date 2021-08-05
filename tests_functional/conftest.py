@@ -54,6 +54,11 @@ def segmentation_rows_fixture(database_fixture_folder):
 
 
 @pytest.fixture
+def test_objects_fixture(database_fixture_folder):
+    return database_fixture_folder / 'test_objects.sql'
+
+
+@pytest.fixture
 def admin_external_offers_operator_without_client_html(pages_folder):
     return (pages_folder /
             'admin_external_offers_operator_without_client.html')

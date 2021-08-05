@@ -134,6 +134,7 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.DeleteTestObjectsRequest,
         response_schema=entities.DeleteTestObjectsResponse,
+        base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-client-comment/$', get_handler(
         service=update_client_comment_public,

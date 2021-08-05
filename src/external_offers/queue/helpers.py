@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from cian_kafka._producer.exceptions import KafkaProducerError
 from simple_settings import settings
 
@@ -20,7 +21,7 @@ async def send_kafka_calls_analytics_message_if_not_test(
     offer: Offer,
     status: CallStatus,
 ) -> None:
-    if client.operator_user_id in settings.TEST_OPERATOR_IDS or client.is_test:
+    if client.operator_user_id in runtime_settings.TEST_OPERATOR_IDS or client.is_test:
         return
 
     message = create_calls_kafka_message(

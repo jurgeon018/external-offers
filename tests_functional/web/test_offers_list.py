@@ -9,6 +9,48 @@ async def test_get_offers_list__without_x_real_userid__returns_400(http):
     await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
+async def test_update_offers_list__with_is_test_false__returns_only_real_objects(
+    pg,
+    http,
+    offers_and_clients_fixture,
+    parsed_offers_fixture,
+    test_objects_fixture
+):
+    pass
+
+
+async def test_update_offers_list__with_is_test_true__assigns_test_object_to_operator(
+    pg,
+    http,
+    offers_and_clients_fixture,
+    parsed_offers_fixture,
+    test_objects_fixture
+):
+    # arrange
+    operator_user_id = '11111111'
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_fixture)
+    await pg.execute_scripts(test_objects_fixture)
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'isTest': True,
+        },
+        expected_status=200
+    )
+    # assert
+    clients = await pg.fetch(f"""
+        SELECT * FROM clients WHERE operator_user_id='{operator_user_id}'
+    """)
+    assert len(clients) == 1
+    assert clients[0]['is_test'] is True
+
+
 async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
         pg,
         http,

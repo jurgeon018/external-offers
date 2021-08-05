@@ -8,6 +8,7 @@ from simple_settings import settings
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, delete, func, not_, select, update
+from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import (
@@ -232,7 +233,7 @@ async def iterate_over_parsed_offers_sorted(
             [po]
         ).where(
             and_(
-                po.c.is_test == False,
+                po.c.is_test == false(),
                 po.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
             )
         ).order_by(
@@ -290,3 +291,27 @@ async def update_offer_categories_by_offer_id(
     """
 
     await pg.get().execute(query)
+
+
+async def exists_parsed_offer_by_source_object_id(
+    *,
+    source_object_id: str,
+):
+    query = f"""
+    SELECT COUNT(*) FROM parsed_offers
+    WHERE source_object_id = '{source_object_id}';
+    """
+    result = await pg.get().fetchval(query)
+
+    return bool(result)
+
+
+async def delete_test_parsed_offers() -> None:
+    query, params = asyncpgsa.compile_query(
+        delete(
+            tables.parsed_offers
+        ).where(
+            tables.parsed_offers.c.is_test == true()
+        )
+    )
+    await pg.get().execute(query, *params)

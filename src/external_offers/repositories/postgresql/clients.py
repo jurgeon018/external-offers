@@ -5,6 +5,7 @@ import asyncpgsa
 import pytz
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql.expression import true
 from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
@@ -475,10 +476,11 @@ async def delete_waiting_clients_by_client_ids(
 
 
 async def delete_test_clients() -> None:
-    await pg.get().execute(asyncpgsa.compile_query(
+    query, params = asyncpgsa.compile_query(
         delete(
             clients
         ).where(
-            clients.c.is_test is True,
+            clients.c.is_test == true()
         )
-    ))
+    )
+    await pg.get().execute(query, *params)
