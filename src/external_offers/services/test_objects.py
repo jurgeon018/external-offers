@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional, Union
 
 import pytz
+from asyncpg.exceptions._base import PostgresError
 from cian_core.runtime_settings import runtime_settings
 
 from external_offers.entities.clients import Client, UserSegment
@@ -38,6 +39,14 @@ from external_offers.repositories.postgresql.parsed_offers import (
 )
 
 
+async def get_default_test_offer():
+    return runtime_settings.DEFAULT_TEST_OFFER
+
+
+async def get_default_test_client():
+    return runtime_settings.DEFAULT_TEST_CLIENT
+
+
 def get_attr(
     obj: Union[dict, CreateTestClientRequest, CreateTestOfferRequest],
     attr: str,
@@ -51,11 +60,10 @@ def get_attr(
     return attr
 
 
-async def get_default_test_client():
-    return runtime_settings.DEFAULT_TEST_CLIENT
-
-
 async def create_test_client_public(request: CreateTestClientRequest, user_id: int) -> CreateTestClientResponse:
+    """
+    Создать тестового клиента.
+    """
     source_user_id = request.source_user_id
     client = await get_client_by_avito_user_id(avito_user_id=source_user_id)
     if client:
@@ -102,7 +110,7 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
         await save_client(
             client=client
         )
-    except Exception as e:
+    except PostgresError as e:
         return CreateTestClientResponse(
             success=False,
             message=f'Не удалось создать клиента из-за ошибки: {e}'
@@ -115,6 +123,9 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
 
 
 async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int) -> CreateTestOfferResponse:
+    """
+    Создать тестовое обьявление по clientId либо sourceUserId.
+    """
     if request.source_user_id:
         source_user_id = request.source_user_id
         client = await get_client_by_avito_user_id(avito_user_id=source_user_id)
@@ -145,7 +156,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
             message=f'Обьявление с source_object_id {source_object_id} уже существует.',
         )
 
-    DEFAULT_TEST_OFFER = runtime_settings.DEFAULT_TEST_OFFER
+    DEFAULT_TEST_OFFER = await get_default_test_offer()
     if isinstance(DEFAULT_TEST_OFFER, str):
         try:
             DEFAULT_TEST_OFFER = json.loads(DEFAULT_TEST_OFFER)
@@ -193,7 +204,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     )
     try:
         await save_test_parsed_offer(parsed_offer=parsed_offer_message)
-    except Exception as e:
+    except PostgresError as e:
         error_message = f'Не удалось создать спаршеное обьявление из-за ошибки: {e}'
         return CreateTestOfferResponse(
             success=False,
@@ -227,7 +238,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     )
     try:
         await save_offer_for_call(offer=offer)
-    except Exception as e:
+    except PostgresError as e:
         error_message = f'Не удалось создать задание из-за ошибки: {e}'
         return CreateTestOfferResponse(
             success=False,
@@ -240,11 +251,14 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     return CreateTestOfferResponse(
         success=True,
         message='Тестовое обьявление было успешно создано.',
-        offer_id=offer.id,
+        offer_id=offer_id,
     )
 
 
 async def delete_test_objects_public(request: DeleteTestObjectsRequest, user_id: int) -> DeleteTestObjectsResponse:
+    """
+    Удалить все тестовые обьекты(клиентов, задания, спаршеные обьявления).
+    """
     await delete_test_clients()
     await delete_test_offers_for_call()
     await delete_test_parsed_offers()
