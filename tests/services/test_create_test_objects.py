@@ -7,11 +7,11 @@ from external_offers.enums.client_status import ClientStatus
 from external_offers.services.test_objects import (
     Client,
     CreateTestClientRequest,
-    CreateTestClientResponse,
     CreateTestOfferRequest,
-    CreateTestOfferResponse,
-    create_test_client_public,
-    create_test_offer_public,
+    # CreateTestClientResponse,
+    # CreateTestOfferResponse,
+    # create_test_client_public,
+    # create_test_offer_public,
     get_attr,
 )
 
@@ -69,7 +69,7 @@ async def test_create_test_client_public__client_exists__returns_client_id(
     source_user_id = '3421'
     get_client_by_avito_user_id_mock = mocker.patch(
         'external_offers.services.test_objects.get_client_by_avito_user_id',
-        return_value = future(client),
+        return_value=future(client),
     )
     # act
     result = await http_client.fetch(
@@ -99,11 +99,11 @@ async def test_create_test_client_public__invalid_json__returns_error_message(
     source_user_id = '3421'
     mocker.patch(
         'external_offers.services.test_objects.get_client_by_avito_user_id',
-        return_value = future(None),
+        return_value=future(None),
     )
     mocker.patch(
         'external_offers.services.test_objects.get_default_test_client',
-        return_value = future('invalid json'),
+        return_value=future('invalid json'),
     )
     # act
     result = await http_client.fetch(

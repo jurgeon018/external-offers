@@ -48,7 +48,7 @@ def get_offer_card_html(
     return template.render(
         parsed_object_model=parsed_object_model,
         info_message=info_message,
-        debug=settings.DEBUG,
+        debug=runtime_settings.DEBUG,
         offer_id=offer_id,
         client=client,
         client_accounts=client_accounts,
