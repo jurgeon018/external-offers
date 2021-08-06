@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional
 
 import asyncpgsa
+from click.core import Option
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
@@ -10,6 +11,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
+from external_offers.entities import offers
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.enums import OfferStatus
 from external_offers.mappers import (
@@ -434,6 +436,19 @@ async def get_offer_cian_id_by_offer_id(*, offer_id: str) -> Optional[int]:
     )
 
     return await pg.get().fetchval(query, *params)
+
+
+async def set_offer_publication_status_by_offer_cian_id(*, offer_cian_id: str, publication_status: str) -> Optional[Offer]:
+    query, params = asyncpgsa.compile_query(
+        update(
+            offers_for_call
+        ).values(
+            publication_status=publication_status,
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_cian_id,
+        )
+    )
+    return await pg.get().fetch(query, *params)
 
 
 async def set_offer_cian_id_by_offer_id(*, offer_cian_id: int, offer_id: str) -> None:
