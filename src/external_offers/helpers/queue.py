@@ -1,10 +1,8 @@
 import os
-
 from typing import List, Type
 
-from simple_settings import settings
-
 from cian_core.rabbitmq.consumer import Exchange, QueueBinding
+from cian_core.runtime_settings import runtime_settings
 from cian_enum import StrEnum
 
 
@@ -22,7 +20,7 @@ def get_bindings(exchange: str, prefix: str, enum: Type[StrEnum]) -> List[QueueB
 
 
 def get_modified_queue_name(queue_name: str) -> str:
-    return f'{settings.APPLICATION_NAME}.{queue_name}{_get_branch_suffix()}'
+    return f'{runtime_settings.APPLICATION_NAME}.{queue_name}{_get_branch_suffix()}'
 
 
 def _get_branch_suffix() -> str:

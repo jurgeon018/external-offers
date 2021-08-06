@@ -1,4 +1,40 @@
 [[package]]
+name = "aioamqp"
+version = "0.14.0"
+description = "AMQP implementation using asyncio"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pamqp = ">=2.2.0,<3"
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
+name = "aioamqp-consumer-best"
+version = "2.2.2"
+description = "Consumer utility for AMQP"
+category = "main"
+optional = false
+python-versions = "~=3.7"
+
+[package.dependencies]
+aioamqp = "*"
+anyio = ">=2"
+
+[package.extras]
+test = ["aiodocker", "mock (<4)", "mypy", "pycodestyle", "pylint", "pytest", "pytest-asyncio", "pytest-cov", "pytest-mock (>=1.11.1,<2)"]
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
 name = "aiohttp"
 version = "3.7.4.post0"
 description = "Async http client/server framework (asyncio)"
@@ -453,7 +489,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-functional-test-utils"
-version = "0.74.1"
+version = "0.74.2"
 description = "Фреймворк функциональных тестов"
 category = "dev"
 optional = false
@@ -461,7 +497,7 @@ python-versions = ">=3.8"
 
 [package.dependencies]
 aiohttp = ">=3.6"
-aioredis = {version = "*", optional = true, markers = "extra == \"cache\""}
+aioredis = {version = ">=1,<2", optional = true, markers = "extra == \"cache\""}
 anyio = ">=2,<3"
 async-http-mocks = ">=1,<2"
 asyncpg = {version = "*", optional = true, markers = "extra == \"postgres\""}
@@ -479,7 +515,7 @@ PyYAML = "*"
 toml = "*"
 
 [package.extras]
-cache = ["aioredis"]
+cache = ["aioredis (>=1,<2)"]
 cassandra = ["cassandra-driver", "aiocassandra"]
 docs = ["furo", "sphinx", "sphinx-autodoc-typehints"]
 es = ["aioelasticsearch (>10)", "elasticsearch"]
@@ -1610,6 +1646,22 @@ url = "https://nexus.cian.tech/repository/cian/simple"
 reference = "cian"
 
 [[package]]
+name = "pamqp"
+version = "2.3.0"
+description = "RabbitMQ Focused AMQP low-level library"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+codegen = ["lxml"]
+
+[package.source]
+type = "legacy"
+url = "https://nexus.cian.tech/repository/cian/simple"
+reference = "cian"
+
+[[package]]
 name = "pika"
 version = "1.2.0"
 description = "Pika Python AMQP Client Library"
@@ -2536,9 +2588,17 @@ reference = "cian"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8c462028538ca021776961120e1f1aba99d3f670a30b286da8f8897f8c9625b7"
+content-hash = "d07c5a79654c0fb6ccfc51c5b2b24a49731d9073d8e812fb9b4bc67513e30dac"
 
 [metadata.files]
+aioamqp = [
+    {file = "aioamqp-0.14.0-py35.py36.py37.py38-none-any.whl", hash = "sha256:55fa703a70e71bc958ad546b9ee0c68387cab366c82fc44c0742d6ad0303745a"},
+    {file = "aioamqp-0.14.0.tar.gz", hash = "sha256:eef5c23a7fedee079d8326406f5c7a5725dfe36c359373da3499fffa16f79915"},
+]
+aioamqp-consumer-best = [
+    {file = "aioamqp-consumer-best-2.2.2.tar.gz", hash = "sha256:3a5ea052ef08fd56a90871438bd39470b5452f14b4486beaf939e3bd45e15c69"},
+    {file = "aioamqp_consumer_best-2.2.2-py2.py3-none-any.whl", hash = "sha256:92d4a508b8352ea9b56d003c7a64a83d5045339e08bc17733ce971af4ce21e14"},
+]
 aiohttp = [
     {file = "aiohttp-3.7.4.post0-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:3cf75f7cdc2397ed4442594b935a11ed5569961333d49b7539ea741be2cc79d5"},
     {file = "aiohttp-3.7.4.post0-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:4b302b45040890cea949ad092479e01ba25911a15e648429c7c5aae9650c67a8"},
@@ -2712,8 +2772,8 @@ cian-features = [
     {file = "cian_features-1.0.0-py3-none-any.whl", hash = "md5:6ea994718d8117100e621151695537a9"},
 ]
 cian-functional-test-utils = [
-    {file = "cian-functional-test-utils-0.74.1.tar.gz", hash = "md5:7493212f275adb12d4aa5cac6f0856dc"},
-    {file = "cian_functional_test_utils-0.74.1-py3-none-any.whl", hash = "md5:d45686c8eebaffb26c12bee6aa16393e"},
+    {file = "cian-functional-test-utils-0.74.2.tar.gz", hash = "md5:7702778ed3c0e30686493086b5de7269"},
+    {file = "cian_functional_test_utils-0.74.2-py3-none-any.whl", hash = "md5:1fa8177d89fe8e51bcf8cf7ade858582"},
 ]
 cian-helpers = [
     {file = "cian-helpers-1.1.0.tar.gz", hash = "md5:6e833fb63cf3cc6e20f80d598a4808a5"},
@@ -3213,6 +3273,10 @@ orjson = [
 packaging = [
     {file = "packaging-21.0-py3-none-any.whl", hash = "sha256:c86254f9220d55e31cc94d69bade760f0847da8000def4dfe1c6b872fd14ff14"},
     {file = "packaging-21.0.tar.gz", hash = "sha256:7dc96269f53a4ccec5c0670940a4281106dd0bb343f47b7471f779df49c2fbe7"},
+]
+pamqp = [
+    {file = "pamqp-2.3.0-py2.py3-none-any.whl", hash = "sha256:2f81b5c186f668a67f165193925b6bfd83db4363a6222f599517f29ecee60b02"},
+    {file = "pamqp-2.3.0.tar.gz", hash = "sha256:5cd0f5a85e89f20d5f8e19285a1507788031cfca4a9ea6f067e3cf18f5e294e8"},
 ]
 pika = [
     {file = "pika-1.2.0-py2.py3-none-any.whl", hash = "sha256:59da6701da1aeaf7e5e93bb521cc03129867f6e54b7dd352c4b3ecb2bd7ec624"},
