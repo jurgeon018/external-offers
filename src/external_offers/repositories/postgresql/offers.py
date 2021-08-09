@@ -433,7 +433,7 @@ async def get_offer_cian_id_by_offer_id(*, offer_id: str) -> Optional[int]:
         ).limit(1)
     )
 
-    return await pg.get().fetch(query, *params)
+    return await pg.get().fetchval(query, *params)
 
 
 async def get_offer_row_version_by_offer_cian_id(*, offer_cian_id: str) -> Optional[Offer]:

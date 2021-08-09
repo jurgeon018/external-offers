@@ -8,7 +8,6 @@ from external_offers.repositories.postgresql.offers import (
 
 
 async def process_announcement(object_model: ObjectModel, event_date: datetime) -> None:
-    # todo: Затащить ручку коротая будет показывать был ли использован промокод на публикацию
     row_version = object_model.row_version
     cian_id = object_model.cian_id
     status = object_model.status
