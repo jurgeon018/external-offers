@@ -71,7 +71,8 @@ CREATE TABLE clients
     last_call_id     varchar,
     comment          varchar,
     main_account_chosen  boolean  not null  default false,
-    synced_with_grafana boolean  not null  default false,
+    synced_with_grafana  boolean  not null  default false,
+    unactivated          boolean  not null  default false
 );
 
 CREATE TABLE event_log
