@@ -436,17 +436,6 @@ async def get_offer_cian_id_by_offer_id(*, offer_id: str) -> Optional[int]:
     return await pg.get().fetchval(query, *params)
 
 
-async def get_offer_row_version_by_offer_cian_id(*, offer_cian_id: str) -> Optional[Offer]:
-    query, params = asyncpgsa.compile_query(
-        select(
-            [offers_for_call.c.row_version]
-        ).where(
-            offers_for_call.c.offer_cian_id == offer_cian_id,
-        ).limit(1)
-    )
-    return await pg.get().fetchval(query, *params)
-
-
 async def set_offer_publication_status_by_offer_cian_id(
     *,
     offer_cian_id: int,
@@ -460,7 +449,10 @@ async def set_offer_publication_status_by_offer_cian_id(
             publication_status=publication_status,
             row_version=row_version,
         ).where(
-            offers_for_call.c.offer_cian_id == offer_cian_id,
+            and_(
+                offers_for_call.c.row_version < row_version,
+                offers_for_call.c.offer_cian_id == offer_cian_id,
+            )
         )
     )
     await pg.get().execute(query, *params)
