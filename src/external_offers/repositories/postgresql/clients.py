@@ -470,3 +470,20 @@ async def delete_waiting_clients_by_client_ids(
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
+
+
+async def update_clients_operator(
+    *,
+    old_operator_id: int,
+    new_operator_id: int,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            operator_user_id=new_operator_id,
+        ).where(
+            clients.c.operator_user_id == old_operator_id,
+        )
+    )
+    return await pg.get().execute(query, *params)
