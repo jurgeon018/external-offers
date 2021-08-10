@@ -5,8 +5,9 @@ from external_offers.repositories.postgresql.offers import set_offer_publication
 
 
 async def process_announcement(object_model: ObjectModel, event_date: datetime) -> None:
-    await set_offer_publication_status_by_offer_cian_id(
-        offer_cian_id=object_model.cian_id,
-        publication_status=object_model.status.value,
-        row_version=object_model.row_version,
-    )
+    if object_model.row_version:
+        await set_offer_publication_status_by_offer_cian_id(
+            offer_cian_id=object_model.cian_id,
+            publication_status=object_model.status.value,
+            row_version=object_model.row_version,
+        )
