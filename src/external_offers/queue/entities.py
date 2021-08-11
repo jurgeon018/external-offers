@@ -18,8 +18,8 @@ class SourceModel:
 
 @dataclass
 class AnnouncementMessage:
-    source_model: SourceModel
-    """Дополнительные поля"""
+    # source_model: SourceModel
+    # """Дополнительные поля"""
     model: ObjectModel
     """Объявление"""
     operation_id: str

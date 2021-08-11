@@ -1205,7 +1205,6 @@ async def test_save_offer__announcements_draft_timeout__logged_timeout(
             wait=1500
         ),
     )
-
     # act
     await http.request(
         'POST',

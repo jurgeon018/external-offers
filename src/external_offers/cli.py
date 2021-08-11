@@ -1,10 +1,13 @@
 import click
 from cian_core.kafka import register_kafka_consumer
+from cian_core.rabbitmq.consumer_cli import register_consumer
 from cian_core.web import Application
 from tornado.ioloop import IOLoop
 
 from external_offers import entities, setup
-from external_offers.queue.consumers import save_parsed_offers_callback
+from external_offers.queue.consumers import process_announcement_callback, save_parsed_offers_callback
+from external_offers.queue.queues import process_announcements_queue
+from external_offers.queue.schemas import RabbitMQAnnouncementMessageSchema
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
@@ -81,4 +84,14 @@ register_kafka_consumer(
     callback=save_parsed_offers_callback,
     default_max_bulk_size=25,
     message_type=entities.ParsedOfferMessage
+)
+
+
+# [announcements] обновляет объявление
+register_consumer(
+    command=cli.command('process_announcement_consumer'),
+    queue=process_announcements_queue,
+    callback=process_announcement_callback,
+    schema_cls=RabbitMQAnnouncementMessageSchema,
+    dead_queue_enabled=True,
 )

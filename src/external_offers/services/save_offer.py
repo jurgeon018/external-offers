@@ -344,7 +344,6 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     request.offer_id,
                     exc.message
                 )
-
                 return SaveOfferResponse(
                     status=SaveOfferStatus.promo_creation_failed,
                     message='Не удалось создать промокод на бесплатную публикацию'
