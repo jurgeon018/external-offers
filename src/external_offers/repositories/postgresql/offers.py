@@ -21,7 +21,9 @@ from external_offers.mappers import (
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
-
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
+    Status as PublicationStatus
+)
 
 _REGION_FIELD = 'region'
 
@@ -75,8 +77,17 @@ async def get_offers_in_progress_by_operator(*, operator_id: int) -> list[Offer]
     return [offer_mapper.map_from(row) for row in rows]
 
 
-async def get_enriched_offers_in_progress_by_operator(*, operator_id: int) -> list[EnrichedOffer]:
-    query = """
+async def get_enriched_offers_in_progress_by_operator(
+    *,
+    operator_id: int,
+    unactivated: bool = False,
+) -> list[EnrichedOffer]:
+
+    if unactivated:
+        status_query = "(ofc.status = 'inProgress' OR ofc.publication_status = 'draft')"
+    else:
+        status_query = "ofc.status = 'inProgress'"
+    query = f"""
         SELECT
             ofc.*,
             po.source_object_model->>'title' as title,
@@ -92,8 +103,8 @@ async def get_enriched_offers_in_progress_by_operator(*, operator_id: int) -> li
         ON
             ofc.parsed_id = po.id
         WHERE
-            ofc.status = 'inProgress'
-            AND c.operator_user_id = $1
+            c.operator_user_id = $1
+            AND {status_query}
     """
 
     rows = await pg.get().fetch(query, operator_id)
@@ -101,7 +112,10 @@ async def get_enriched_offers_in_progress_by_operator(*, operator_id: int) -> li
     return [enriched_offer_mapper.map_from(row) for row in rows]
 
 
-async def exists_offers_in_progress_by_operator(*, operator_id: int) -> bool:
+async def exists_offers_in_progress_by_operator(
+    *,
+    operator_id: int,
+) -> bool:
     query = """
         SELECT
             1
@@ -112,8 +126,8 @@ async def exists_offers_in_progress_by_operator(*, operator_id: int) -> bool:
         ON
             ofc.client_id = c.client_id
         WHERE
-            ofc.status = 'inProgress'
-            AND c.operator_user_id = $1
+            c.operator_user_id = $1
+            AND ofc.status = 'inProgress'
         LIMIT 1
     """
 
@@ -189,11 +203,24 @@ async def exists_offers_draft_by_client(*, client_id: str) -> bool:
     return bool(exists)
 
 
-async def set_undrafted_offers_in_progress_by_client(
+async def set_offers_in_progress_by_client(
     *,
     client_id: str,
     call_id: str,
+    drafted: bool = False,
 ) -> list[str]:
+    if drafted:
+        # Если клиент добивочный, то проставляет in_progress всем черновикам
+        query = and_(
+            offers_for_call.c.client_id == client_id,
+            offers_for_call.c.publication_status == PublicationStatus.draft.value,
+        )
+    else:
+        # Если клиент новый, то проставляет in_progress всем нечерновикам
+        query = and_(
+            offers_for_call.c.client_id == client_id,
+            offers_for_call.c.status != OfferStatus.draft.value,
+        )
     sql = (
         update(
             offers_for_call
@@ -201,10 +228,7 @@ async def set_undrafted_offers_in_progress_by_client(
             status=OfferStatus.in_progress.value,
             last_call_id=call_id
         ).where(
-            and_(
-                offers_for_call.c.client_id == client_id,
-                offers_for_call.c.status != OfferStatus.draft.value
-            )
+            query
         ).returning(
             offers_for_call.c.id
         )
@@ -442,12 +466,17 @@ async def set_offer_publication_status_by_offer_cian_id(
     publication_status: str,
     row_version: int,
 ) -> None:
+    values = {
+        'publication_status': publication_status,
+        'row_version': row_version,
+    }
+    if publication_status == PublicationStatus.published.value:
+        values['status'] = OfferStatus.done.value
     query, params = asyncpgsa.compile_query(
         update(
             offers_for_call
         ).values(
-            publication_status=publication_status,
-            row_version=row_version,
+            **values,
         ).where(
             and_(
                 offers_for_call.c.row_version < row_version,

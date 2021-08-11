@@ -79,3 +79,5 @@ class EnrichedOffer:
     """Адрес объявления с Авито"""
     title: Optional[str] = None
     """Название объявления с Авито"""
+    publication_status: Optional[OfferStatus] = None
+    """Статус объявления"""

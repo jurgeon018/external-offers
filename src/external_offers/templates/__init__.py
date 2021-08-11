@@ -39,6 +39,7 @@ def get_offer_card_html(
     client: Client,
     client_accounts: List[ClientAccountInfo],
     exist_drafts: bool,
+    offer_is_draft: bool = False,
 ) -> str:
     template = templates.get_template('offer_card.jinja2')
     # template = templates.get_template('admin_debug.jinja2')
@@ -50,5 +51,6 @@ def get_offer_card_html(
         offer_id=offer_id,
         client=client,
         client_accounts=client_accounts,
-        exist_drafts=exist_drafts
+        exist_drafts=exist_drafts,
+        offer_is_draft=offer_is_draft,
     )

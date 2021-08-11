@@ -8,11 +8,12 @@ from external_offers.repositories.postgresql import (
     get_client_in_progress_by_operator,
     get_enriched_offers_in_progress_by_operator,
     get_parsed_offer_object_model_by_offer_id,
+    get_offer_by_offer_id,
 )
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
 from external_offers.templates import get_offer_card_html, get_offers_list_html
 from external_offers.web.handlers.base import PublicHandler
-
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 class AdminOffersListPageHandler(PublicHandler):
     # pylint: disable=abstract-method
@@ -22,8 +23,12 @@ class AdminOffersListPageHandler(PublicHandler):
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
+        unactivated = False
+        if client:
+            unactivated = client.unactivated
         offers = await get_enriched_offers_in_progress_by_operator(
-            operator_id=self.realty_user_id
+            operator_id=self.realty_user_id,
+            unactivated=unactivated,
         )
         now = datetime.now()
         next_call_day = now + timedelta(days=settings.NEXT_CALL_DAY)
@@ -72,13 +77,16 @@ class AdminOffersCardPageHandler(PublicHandler):
         exist_drafts = await exists_offers_draft_by_client(
             client_id=client.client_id
         )
+        offer = await get_offer_by_offer_id(offer_id=offer_id)
+        offer_is_draft = offer.publication_status == PublicationStatus.draft
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
             offer_id=offer_id,
             client=client,
             client_accounts=client_accounts_result.value,
-            exist_drafts=exist_drafts
+            exist_drafts=exist_drafts,
+            offer_is_draft=offer_is_draft,
         )
 
         self.write(offer_html)

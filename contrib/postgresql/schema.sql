@@ -41,7 +41,7 @@ CREATE TABLE offers_for_call
     offer_cian_id bigint,
     client_id     int                      not null,
     status        offer_status_type        not null,
-    publication_status offer_publicattion_status_type  null,
+    publication_status offer_publication_status_type  null,
     created_at    timestamp with time zone not null,
     synced_at     timestamp with time zone not null,
     started_at    timestamp with time zone,

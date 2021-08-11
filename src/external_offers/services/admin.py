@@ -41,8 +41,9 @@ from external_offers.repositories.postgresql import (
     set_offers_declined_by_client,
     set_offers_phone_unavailable_by_client,
     set_offers_promo_given_by_client,
-    set_undrafted_offers_in_progress_by_client,
+    set_offers_in_progress_by_client,
 )
+from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id
 from external_offers.utils import get_next_call_date_when_call_missed
 
 
@@ -52,7 +53,7 @@ logger = logging.getLogger(__name__)
 async def update_offers_list(user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
     exists = await exists_offers_in_progress_by_operator(
-        operator_id=user_id
+        operator_id=user_id,
     )
     if exists:
         return AdminResponse(
@@ -81,10 +82,11 @@ async def update_offers_list(user_id: int) -> AdminResponse:
                     )
                 ]
             )
-
-        if offers_ids := await set_undrafted_offers_in_progress_by_client(
+        client_is_unactivated = await get_client_unactivated_by_client_id(client_id=client_id)
+        if offers_ids := await set_offers_in_progress_by_client(
             client_id=client_id,
-            call_id=call_id
+            call_id=call_id,
+            drafted=client_is_unactivated,
         ):
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
@@ -550,3 +552,4 @@ async def set_call_later_status_for_client(
             )
 
     return AdminResponse(success=True, errors=[])
+

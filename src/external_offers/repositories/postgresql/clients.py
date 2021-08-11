@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
+import asyncpg
 
 import asyncpgsa
 import pytz
@@ -12,7 +13,9 @@ from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.mappers import client_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
-
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
+    Status as PublicationStatus
+)
 
 _NO_CALLS = 0
 _ONE_CALL = 1
@@ -60,18 +63,25 @@ async def assign_suitable_client_to_operator(
         ).where(
             or_(
                 and_(
+                    # Достает достает обьекты в ожидании
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
                     clients.c.status == ClientStatus.waiting.value
                 ),
                 and_(
+                    # Достает перезвоны и недозвоны
                     clients.c.operator_user_id == operator_id,
                     offers_for_call.c.status.in_([
                         OfferStatus.call_later.value,
                         OfferStatus.call_missed.value,
                     ]),
                     clients.c.next_call <= now
-                )
+                ),
+                and_(
+                    # Достает добивочных клиентов с неактивироваными черновиками
+                    clients.c.unactivated.is_(True),
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                ),
             )
         ).order_by(
             nullslast(offers_for_call.c.priority.asc()),
@@ -96,6 +106,17 @@ async def assign_suitable_client_to_operator(
         ).returning(
             clients.c.client_id
         )
+    )
+    return await pg.get().fetchval(query, *params)
+
+
+async def get_client_unactivated_by_client_id(*, client_id) -> str:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.unactivated]
+        ).where(
+            clients.c.client_id == client_id
+        ).limit(1)
     )
     return await pg.get().fetchval(query, *params)
 
@@ -487,3 +508,25 @@ async def update_clients_operator(
         )
     )
     return await pg.get().execute(query, *params)
+
+
+async def set_client_unactivated_by_offer_cian_id(offer_cian_id: int) -> None:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.client_id]
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_cian_id
+        ).limit(1)
+    )
+    client_id = await pg.get().fetchval(query, *params)
+
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            unactivated=True
+        ).where(
+            clients.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)
