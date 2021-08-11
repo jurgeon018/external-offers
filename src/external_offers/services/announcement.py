@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import ObjectModel
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
@@ -12,6 +13,9 @@ from external_offers.repositories.postgresql.clients import (
     set_client_done_by_offer_cian_id,
     set_client_unactivated_by_offer_cian_id,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 async def process_announcement(object_model: ObjectModel, event_date: datetime) -> None:

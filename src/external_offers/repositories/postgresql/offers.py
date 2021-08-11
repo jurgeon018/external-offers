@@ -17,6 +17,7 @@ from external_offers.mappers import (
     enriched_offer_mapper,
     offer_for_prioritization_mapper,
     offer_mapper,
+    client_draft_offers_count_mapper,
 )
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
@@ -664,6 +665,32 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
     query, params = asyncpgsa.compile_query(sql)
 
     await pg.get().execute(query, *params)
+
+
+async def get_unactivated_clients_counts_by_clients():
+    query, params = asyncpgsa.compile_query(
+        select(
+            [
+                offers_for_call.c.id,
+                offers_for_call.c.client_id,
+                over(func.count(), partition_by=offers_for_call.c.client_id).label('draft_offers_count')
+            ]
+        ).select_from(
+            clients.join(
+                offers_for_call,
+                offers_for_call.c.client_id == clients.c.client_id
+            )
+        ).where(
+            and_(
+                clients.c.unactivated.is_(True),
+                offers_for_call.c.publication_status == PublicationStatus.draft.value,
+            )
+        ).distinct(
+            offers_for_call.c.client_id
+        )
+    )
+    rows = await pg.get().fetch(query, *params)
+    return [client_draft_offers_count_mapper.map_from(row) for row in rows]
 
 
 async def get_waiting_offer_counts_by_clients() -> list[ClientWaitingOffersCount]:

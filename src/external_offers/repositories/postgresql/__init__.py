@@ -73,6 +73,7 @@ from external_offers.repositories.postgresql.offers import (
     set_waiting_offers_priority_by_offer_ids,
     sync_offers_for_call_with_kafka_by_ids,
     try_to_lock_offer_and_return_status,
+    get_unactivated_clients_counts_by_clients,
 )
 from external_offers.repositories.postgresql.parsed_offers import (
     delete_outdated_parsed_offers,

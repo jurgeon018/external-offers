@@ -48,6 +48,14 @@ class ClientWaitingOffersCount:
 
 
 @dataclass
+class ClientDraftOffersCount:
+    client_id: str
+    """Идентификатор клиента"""
+    draft_offers_count: int
+    """Количество неактивированых черновиков"""
+
+
+@dataclass
 class ClientAccountInfo:
     cian_user_id: int
     """Идентификатор клиента на Циане"""

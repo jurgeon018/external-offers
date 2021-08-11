@@ -27,13 +27,17 @@ from external_offers.repositories.postgresql import (
     get_offers_parsed_ids_by_parsed_ids,
     get_offers_regions_by_client_id,
     get_waiting_offer_counts_by_clients,
+    get_unactivated_clients_counts_by_clients,
     get_waiting_offers_for_call,
     save_client,
     save_offer_for_call,
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
-from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
+from external_offers.services.prioritizers import (
+    prioritize_homeowner_client,
+    prioritize_smb_client,
+)
 from external_offers.services.prioritizers.prioritize_offer import mapping_offer_categories_to_priority
 
 
@@ -81,10 +85,9 @@ async def prioritize_client(
     regions = await get_offers_regions_by_client_id(
         client_id=client_id
     )
+
     if regions == []:
         return _CLEAR_CLIENT_PRIORITY
-
-    priority = _CLEAR_CLIENT_PRIORITY
 
     if client and client.segment and client.segment.is_c:
         priority = await prioritize_smb_client(
@@ -92,14 +95,16 @@ async def prioritize_client(
             client_count=client_count,
             regions=regions
         )
+        return priority
 
     if client and client.segment and client.segment.is_d:
         priority = await prioritize_homeowner_client(
             client=client,
             regions=regions
         )
+        return priority
 
-    return priority
+    return _CLEAR_CLIENT_PRIORITY
 
 
 async def clear_and_prioritize_waiting_offers() -> None:
@@ -107,13 +112,13 @@ async def clear_and_prioritize_waiting_offers() -> None:
 
     await clear_waiting_offers_and_clients_with_off_count_limits()
 
-    clients_counts = await get_waiting_offer_counts_by_clients()
+    waiting_clients_counts = await get_waiting_offer_counts_by_clients()
+    unactivated_clients_counts = await get_unactivated_clients_counts_by_clients()
 
     clients_priority: Dict[int, int] = {}
-    offers_priority: Dict[int, List[str]] = defaultdict(list)
     to_clear: List[str] = []
 
-    for client_count in clients_counts:
+    for client_count in waiting_clients_counts:
         with new_operation_id():
             client_priority = await prioritize_client(
                 client_id=client_count.client_id,
@@ -122,6 +127,21 @@ async def clear_and_prioritize_waiting_offers() -> None:
         if client_priority == _CLEAR_CLIENT_PRIORITY:
             to_clear.append(client_count.client_id)
         else:
+            prefix = str(runtime_settings.NEW_CLIENT_PRIORITY)
+            client_priority = prefix + client_priority
+            clients_priority[client_count.client_id] = client_priority
+    
+    for client_count in unactivated_clients_counts:
+        with new_operation_id():
+            client_priority = await prioritize_client(
+                client_id=client_count.client_id,
+                client_count=client_count.draft_offers_count
+            )
+        if client_priority == _CLEAR_CLIENT_PRIORITY:
+            to_clear.append(client_count.client_id)
+        else:
+            prefix = str(runtime_settings.UNACTIVATED_CLIENT_PRIORITY)
+            client_priority = prefix + client_priority
             clients_priority[client_count.client_id] = client_priority
 
     logger.warning(
@@ -133,13 +153,17 @@ async def clear_and_prioritize_waiting_offers() -> None:
         clients_ids=to_clear
     )
 
+    offers_priority: Dict[int, List[str]] = defaultdict(list)
+
     async with pg.get().transaction():
         async for waiting_offer_for_call in get_waiting_offers_for_call():
             category = waiting_offer_for_call.category
             client_id = waiting_offer_for_call.client_id
             offer_id = waiting_offer_for_call.id
             if clients_priority.get(client_id) is not None:
-                final_priority = str(clients_priority[client_id]) + str(mapping_offer_categories_to_priority[category])
+                client_priority = str(clients_priority[client_id])
+                offer_priority = str(mapping_offer_categories_to_priority[category])
+                final_priority = client_priority + offer_priority
                 offers_priority[int(final_priority)].append(offer_id)
 
     for priority, offer_ids in offers_priority.items():
