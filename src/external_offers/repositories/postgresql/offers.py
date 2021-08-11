@@ -21,9 +21,11 @@ from external_offers.mappers import (
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
+from external_offers.utils.next_call import get_next_call_date_when_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Status as PublicationStatus
 )
+
 
 _REGION_FIELD = 'region'
 
@@ -324,6 +326,9 @@ async def set_offer_draft_by_offer_id(*, offer_id: str) -> None:
             offers_for_call
         ).values(
             status=OfferStatus.draft.value,
+            # publication_status=PublicationStatus.draft.value,
+            calls_count=0,
+            next_call=get_next_call_date_when_draft(),
         ).where(
             and_(
                 offers_for_call.c.id == offer_id,
@@ -458,33 +463,6 @@ async def get_offer_cian_id_by_offer_id(*, offer_id: str) -> Optional[int]:
     )
 
     return await pg.get().fetchval(query, *params)
-
-
-async def set_offer_publication_status_by_offer_cian_id(
-    *,
-    offer_cian_id: int,
-    publication_status: str,
-    row_version: int,
-) -> None:
-    values = {
-        'publication_status': publication_status,
-        'row_version': row_version,
-    }
-    if publication_status == PublicationStatus.published.value:
-        values['status'] = OfferStatus.done.value
-    query, params = asyncpgsa.compile_query(
-        update(
-            offers_for_call
-        ).values(
-            **values,
-        ).where(
-            and_(
-                offers_for_call.c.row_version < row_version,
-                offers_for_call.c.offer_cian_id == offer_cian_id,
-            )
-        )
-    )
-    await pg.get().execute(query, *params)
 
 
 async def set_offer_cian_id_by_offer_id(*, offer_cian_id: int, offer_id: str) -> None:
@@ -810,3 +788,38 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
         )
         query, params = asyncpgsa.compile_query(sql)
         await pg.get().fetch(query, *params)
+
+
+async def set_offer_done_by_offer_cian_id(*, offer_id: str) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            offers_for_call
+        ).values(
+            status=OfferStatus.done.value,
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_id
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def set_offer_publication_status_by_offer_cian_id(
+    *,
+    offer_cian_id: int,
+    publication_status: str,
+    row_version: int,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            offers_for_call
+        ).values(
+            row_version=row_version,
+            publication_status=publication_status,
+        ).where(
+            and_(
+                offers_for_call.c.row_version < row_version,
+                offers_for_call.c.offer_cian_id == offer_cian_id,
+            )
+        )
+    )
+    await pg.get().execute(query, *params)

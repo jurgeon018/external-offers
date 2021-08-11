@@ -26,6 +26,21 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.AdminResponse,
         base_handler_cls=PublicHandler,
     )),
+    url('/api/admin/v1/save-offer/$', get_handler(
+        service=save_offer_public,
+        method='POST',
+        request_schema=entities.SaveOfferRequest,
+        response_schema=entities.SaveOfferResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/return-client-by-phone/$', get_handler(
+        service=return_client_by_phone,
+        method='POST',
+        request_schema=entities.ReturnClientByPhoneRequest,
+        response_schema=entities.ReturnClientByPhoneResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    # перевод по статусам
     url('/api/admin/v1/decline-client/$', get_handler(
         service=admin.set_decline_status_for_client,
         method='POST',
@@ -82,25 +97,12 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.AdminResponse,
         base_handler_cls=PublicHandler,
     )),
-    url('/api/admin/v1/save-offer/$', get_handler(
-        service=save_offer_public,
-        method='POST',
-        request_schema=entities.SaveOfferRequest,
-        response_schema=entities.SaveOfferResponse,
-        base_handler_cls=PublicHandler,
-    )),
+    # изменения полей
     url('/api/admin/v1/update-client-phone/$', get_handler(
         service=update_client_phone_public,
         method='POST',
         request_schema=entities.UpdateClientPhoneRequest,
         response_schema=entities.UpdateClientPhoneResponse,
-        base_handler_cls=PublicHandler,
-    )),
-    url('/api/admin/v1/return-client-by-phone/$', get_handler(
-        service=return_client_by_phone,
-        method='POST',
-        request_schema=entities.ReturnClientByPhoneRequest,
-        response_schema=entities.ReturnClientByPhoneResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-offer-category/$', get_handler(
