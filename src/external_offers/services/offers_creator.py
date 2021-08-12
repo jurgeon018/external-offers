@@ -26,18 +26,15 @@ from external_offers.repositories.postgresql import (
     get_last_sync_date,
     get_offers_parsed_ids_by_parsed_ids,
     get_offers_regions_by_client_id,
-    get_waiting_offer_counts_by_clients,
     get_unactivated_clients_counts_by_clients,
+    get_waiting_offer_counts_by_clients,
     get_waiting_offers_for_call,
     save_client,
     save_offer_for_call,
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
-from external_offers.services.prioritizers import (
-    prioritize_homeowner_client,
-    prioritize_smb_client,
-)
+from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 from external_offers.services.prioritizers.prioritize_offer import mapping_offer_categories_to_priority
 
 
@@ -117,6 +114,7 @@ async def clear_and_prioritize_waiting_offers() -> None:
 
     clients_priority: Dict[int, int] = {}
     to_clear: List[str] = []
+    offers_priority: Dict[int, List[str]] = defaultdict(list)
 
     for client_count in waiting_clients_counts:
         with new_operation_id():
@@ -128,9 +126,9 @@ async def clear_and_prioritize_waiting_offers() -> None:
             to_clear.append(client_count.client_id)
         else:
             prefix = str(runtime_settings.NEW_CLIENT_PRIORITY)
-            client_priority = prefix + client_priority
+            client_priority = prefix + str(client_priority)
             clients_priority[client_count.client_id] = client_priority
-    
+
     for client_count in unactivated_clients_counts:
         with new_operation_id():
             client_priority = await prioritize_client(
@@ -141,7 +139,7 @@ async def clear_and_prioritize_waiting_offers() -> None:
             to_clear.append(client_count.client_id)
         else:
             prefix = str(runtime_settings.UNACTIVATED_CLIENT_PRIORITY)
-            client_priority = prefix + client_priority
+            client_priority = prefix + str(client_priority)
             clients_priority[client_count.client_id] = client_priority
 
     logger.warning(
@@ -152,8 +150,6 @@ async def clear_and_prioritize_waiting_offers() -> None:
     await clear_waiting_offers_and_clients_by_clients_ids(
         clients_ids=to_clear
     )
-
-    offers_priority: Dict[int, List[str]] = defaultdict(list)
 
     async with pg.get().transaction():
         async for waiting_offer_for_call in get_waiting_offers_for_call():

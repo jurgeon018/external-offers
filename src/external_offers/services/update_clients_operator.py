@@ -1,6 +1,7 @@
 from external_offers.entities.update_clients_operator import UpdateClientsOperatorRequest, UpdateClientsOperatorResponse
 from external_offers.repositories.postgresql.clients import update_clients_operator
 
+
 async def update_clients_operator_public(
     request: UpdateClientsOperatorRequest, user_id: int
 ) -> UpdateClientsOperatorResponse:

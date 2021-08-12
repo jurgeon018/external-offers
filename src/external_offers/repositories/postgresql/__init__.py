@@ -54,6 +54,7 @@ from external_offers.repositories.postgresql.offers import (
     get_offers_in_progress_by_operator,
     get_offers_parsed_ids_by_parsed_ids,
     get_offers_regions_by_client_id,
+    get_unactivated_clients_counts_by_clients,
     get_waiting_offer_counts_by_clients,
     get_waiting_offers_for_call,
     iterate_over_offers_for_call_sorted,
@@ -67,13 +68,12 @@ from external_offers.repositories.postgresql.offers import (
     set_offers_call_later_by_client,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
+    set_offers_in_progress_by_client,
     set_offers_phone_unavailable_by_client,
     set_offers_promo_given_by_client,
-    set_offers_in_progress_by_client,
     set_waiting_offers_priority_by_offer_ids,
     sync_offers_for_call_with_kafka_by_ids,
     try_to_lock_offer_and_return_status,
-    get_unactivated_clients_counts_by_clients,
 )
 from external_offers.repositories.postgresql.parsed_offers import (
     delete_outdated_parsed_offers,

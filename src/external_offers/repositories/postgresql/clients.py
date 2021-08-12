@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import List, Optional
-import asyncpg
 
 import asyncpgsa
 import pytz
@@ -12,10 +11,10 @@ from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.mappers import client_mapper
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
-    Status as PublicationStatus
-)
+from external_offers.utils.next_call import get_next_call_date_when_draft
+
 
 _NO_CALLS = 0
 _ONE_CALL = 1
@@ -544,13 +543,13 @@ async def get_client_id_by_offer_cian_id(
 async def set_client_done_by_offer_cian_id(
     *,
     offer_cian_id: int,
-    row_version: int,    
+    row_version: int,
 ) -> None:
     client_id = await get_client_id_by_offer_cian_id(
-        offer_cian_id=offer_cian_id, 
+        offer_cian_id=offer_cian_id,
         row_version=row_version
     )
-    # TODО заменить на джоин
+    # TO DО заменить на джоин
     query, params = asyncpgsa.compile_query(
         update(
             clients
@@ -570,16 +569,18 @@ async def set_client_unactivated_by_offer_cian_id(
     offer_cian_id: int,
     row_version: int,
 ) -> None:
-    # TODO: заменить на джоин
     client_id = await get_client_id_by_offer_cian_id(
-        offer_cian_id=offer_cian_id, 
+        offer_cian_id=offer_cian_id,
         row_version=row_version
     )
+    # To do заменить на джоин
     query, params = asyncpgsa.compile_query(
         update(
             clients
         ).values(
             unactivated=True,
+            calls_count=0,
+            next_call=get_next_call_date_when_draft(),
         ).where(
             clients.c.client_id == client_id
         )

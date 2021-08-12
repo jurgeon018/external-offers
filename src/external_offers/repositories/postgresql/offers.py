@@ -13,19 +13,16 @@ from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Of
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.enums import OfferStatus
 from external_offers.mappers import (
+    client_draft_offers_count_mapper,
     client_waiting_offers_count_mapper,
     enriched_offer_mapper,
     offer_for_prioritization_mapper,
     offer_mapper,
-    client_draft_offers_count_mapper,
 )
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
-from external_offers.utils.next_call import get_next_call_date_when_draft
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
-    Status as PublicationStatus
-)
 
 
 _REGION_FIELD = 'region'
@@ -87,9 +84,9 @@ async def get_enriched_offers_in_progress_by_operator(
 ) -> list[EnrichedOffer]:
 
     if unactivated:
-        status_query = "(ofc.status = 'inProgress' OR ofc.publication_status = 'draft')"
+        status_query = """(ofc.status = 'inProgress' OR ofc.publication_status = 'draft')"""
     else:
-        status_query = "ofc.status = 'inProgress'"
+        status_query = """ofc.status = 'inProgress'"""
     query = f"""
         SELECT
             ofc.*,
@@ -327,9 +324,6 @@ async def set_offer_draft_by_offer_id(*, offer_id: str) -> None:
             offers_for_call
         ).values(
             status=OfferStatus.draft.value,
-            # publication_status=PublicationStatus.draft.value,
-            calls_count=0,
-            next_call=get_next_call_date_when_draft(),
         ).where(
             and_(
                 offers_for_call.c.id == offer_id,
@@ -817,14 +811,19 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
         await pg.get().fetch(query, *params)
 
 
-async def set_offer_done_by_offer_cian_id(*, offer_id: str) -> None:
+async def set_offer_done_by_offer_cian_id(
+    *,
+    offer_cian_id: str,
+    row_version: int,
+) -> None:
     query, params = asyncpgsa.compile_query(
         update(
             offers_for_call
         ).values(
             status=OfferStatus.done.value,
         ).where(
-            offers_for_call.c.offer_cian_id == offer_id
+            offers_for_call.c.row_version < row_version,
+            offers_for_call.c.offer_cian_id == offer_cian_id,
         )
     )
     await pg.get().execute(query, *params)

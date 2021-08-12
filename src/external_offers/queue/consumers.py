@@ -12,7 +12,7 @@ from cian_kafka import EntityKafkaConsumerMessage
 from external_offers import entities
 from external_offers.helpers.time import get_aware_date
 from external_offers.queue.entities import AnnouncementMessage
-from external_offers.services.announcement import process_announcement, prioritize_unactivated_clients
+from external_offers.services.announcement import process_announcement
 from external_offers.services.parsed_offers import extract_source_from_source_object_id, save_parsed_offer
 
 
@@ -31,7 +31,6 @@ async def process_announcement_callback(messages: List[Message]) -> None:
                 stat='process_announcement_delta',
                 delta=datetime.now(pytz.utc) - get_aware_date(announcement_message.date)
             )
-    await prioritize_unactivated_clients()
 
 
 async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOfferMessage]]):

@@ -8,8 +8,8 @@ from external_offers.services.return_client_by_phone import return_client_by_pho
 from external_offers.services.save_offer import save_offer_public
 from external_offers.services.update_client_comment import update_client_comment_public
 from external_offers.services.update_client_phone import update_client_phone_public
-from external_offers.services.update_offer_category import update_offer_category_public
 from external_offers.services.update_clients_operator import update_clients_operator_public
+from external_offers.services.update_offer_category import update_offer_category_public
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
