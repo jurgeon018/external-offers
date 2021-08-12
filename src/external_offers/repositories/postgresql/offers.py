@@ -126,8 +126,8 @@ async def exists_offers_in_progress_by_operator(
         ON
             ofc.client_id = c.client_id
         WHERE
-            c.operator_user_id = $1
-            AND ofc.status = 'inProgress'
+            ofc.status = 'inProgress'
+            AND c.operator_user_id = $1
         LIMIT 1
     """
 
