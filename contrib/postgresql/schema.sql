@@ -101,3 +101,5 @@ create table parsed_offers
 );
 
 CREATE INDEX ON clients(avito_user_id);
+CREATE INDEX ON offers_for_call(offer_cian_id);
+CREATE INDEX ON offers_for_call(client_id); 
