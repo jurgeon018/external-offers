@@ -12,6 +12,7 @@ from cian_http.api_client import Api
 
 from . import entities
 
+
 _api = Api(microservice_name='users')
 v1_get_user_roles = _api.make_client(
     path='/v1/get-user-roles/',
