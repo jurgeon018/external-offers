@@ -48,8 +48,10 @@ definitions:
         - emls
         - subAgents
         - n1
+        - mlsn
         type: string
         x-emls: Пользователи из ЕМЛС
+        x-mlsn: Mlsn
         x-n1: Партнер N1
         x-subAgents: Субагенты
       firstName:
@@ -190,6 +192,33 @@ paths:
         \ без подтверждения\r\nручка для \"Админки предразмещения\""
       tags:
       - UserRegistration
+  /v1/user-has-role/:
+    get:
+      parameters:
+      - format: int64
+        in: query
+        name: userId
+        type: integer
+      - in: query
+        name: roleName
+        type: string
+      - default: false
+        in: query
+        name: useCache
+        type: boolean
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: boolean
+      summary: Проверяет роль у пользователя
+      tags:
+      - Roles
   /v2/get-users-by-phone/:
     get:
       parameters:
