@@ -9,10 +9,12 @@ To re-generate, run `codegen generate-client users`
 cian-codegen version: 1.16.5
 
 """
+from .role_model import RoleModel
+from .get_user_roles_response import GetUserRolesResponse
 from .user_model_v2 import UserModelV2
 from .get_users_by_phone_response_v2 import GetUsersByPhoneResponseV2
 from .register_user_by_phone_request import RegisterUserByPhoneRequest
 from .registered_user_dto import RegisteredUserDto
 from .register_user_by_phone_response import RegisterUserByPhoneResponse
-from .v1_user_has_role import V1UserHasRole
+from .v1_get_user_roles import V1GetUserRoles
 from .v2_get_users_by_phone import V2GetUsersByPhone

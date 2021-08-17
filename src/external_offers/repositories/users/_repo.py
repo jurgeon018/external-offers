@@ -13,19 +13,19 @@ from cian_http.api_client import Api
 from . import entities
 
 _api = Api(microservice_name='users')
+v1_get_user_roles = _api.make_client(
+    path='/v1/get-user-roles/',
+    method='GET',
+    handle_http_exceptions=True,
+    request_schema=entities.V1GetUserRoles,
+    response_schema=entities.GetUserRolesResponse,
+)
 v1_register_user_by_phone = _api.make_client(
     path='/v1/register-user-by-phone/',
     method='POST',
     handle_http_exceptions=True,
     request_schema=entities.RegisterUserByPhoneRequest,
     response_schema=entities.RegisterUserByPhoneResponse,
-)
-v1_user_has_role = _api.make_client(
-    path='/v1/user-has-role/',
-    method='GET',
-    handle_http_exceptions=True,
-    request_schema=entities.V1UserHasRole,
-    response_schema=bool,
 )
 v2_get_users_by_phone = _api.make_client(
     path='/v2/get-users-by-phone/',

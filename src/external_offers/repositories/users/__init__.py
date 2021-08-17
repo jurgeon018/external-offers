@@ -8,5 +8,5 @@ To re-generate, run `codegen generate-client users`
 cian-codegen version: 1.16.5
 
 """
-from ._repo import (v1_register_user_by_phone, v1_user_has_role,
+from ._repo import (v1_get_user_roles, v1_register_user_by_phone,
                     v2_get_users_by_phone)
