@@ -541,7 +541,6 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
             operator_user_id
         ]
     )
-
     assert offers_event_log[0]['offer_id'] == '8'
     assert offers_event_log[0]['status'] == 'cancelled'
     assert offers_event_log[1]['offer_id'] == '9'

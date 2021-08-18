@@ -40,6 +40,28 @@ async def get_client_in_progress_by_operator(
     return client_mapper.map_from(row) if row else None
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
@@ -61,37 +83,41 @@ async def assign_suitable_client_to_operator(
             skip_locked=True
         ).where(
             or_(
+                # новые клиенты
                 and_(
-                    # Достает обьекты в ожидании
+                    # Достает клиентов в ожидании
+                    clients.c.unactivated.is_(False),
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
-                    clients.c.status == ClientStatus.waiting.value
+                    clients.c.status == ClientStatus.waiting.value,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны
-                    clients.c.operator_user_id == operator_id,
-                    offers_for_call.c.status.in_([
-                        OfferStatus.call_later.value,
-                        OfferStatus.call_missed.value,
-                    ]),
-                    clients.c.next_call <= now
-                ),
-                and_(
-                    # Достает добивочных клиентов с неактивироваными черновиками
-                    clients.c.unactivated.is_(True),
-                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
-                    clients.c.operator_user_id.is_(None),
-                ),
-                and_(
-                    # Достает перезвоны и недозвоны добивочных клиентов с неактивироваными черновиками
-                    clients.c.unactivated.is_(True),
-                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    clients.c.unactivated.is_(False),
                     clients.c.operator_user_id == operator_id,
                     offers_for_call.c.status.in_([
                         OfferStatus.call_later.value,
                         OfferStatus.call_missed.value,
                     ]),
                     clients.c.next_call <= now,
+                ),
+                # добивочные клиенты
+                and_(
+                    # Достает добивочных клиентов с неактивироваными черновиками
+                    clients.c.unactivated.is_(True),
+                    clients.c.operator_user_id.is_(None),
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                ),
+                and_(
+                    # Достает перезвоны и недозвоны добивочных клиентов с неактивироваными черновиками
+                    clients.c.unactivated.is_(True),
+                    clients.c.operator_user_id == operator_id,
+                    offers_for_call.c.status.in_([
+                        OfferStatus.call_later.value,
+                        OfferStatus.call_missed.value,
+                    ]),
+                    clients.c.next_call <= now,
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
                 ),
             )
         ).order_by(
@@ -130,6 +156,17 @@ async def get_client_unactivated_by_client_id(*, client_id) -> str:
         ).limit(1)
     )
     return await pg.get().fetchval(query, *params)
+
+
+
+
+
+
+
+
+
+
+
 
 
 async def assign_client_to_operator_and_increase_calls_count(
@@ -549,7 +586,6 @@ async def set_client_done_by_offer_cian_id(
         offer_cian_id=offer_cian_id,
         row_version=row_version
     )
-    # TO DО заменить на джоин
     query, params = asyncpgsa.compile_query(
         update(
             clients
@@ -569,11 +605,16 @@ async def set_client_unactivated_by_offer_cian_id(
     offer_cian_id: int,
     row_version: int,
 ) -> None:
+    """
+    Помечает добивочных клиентов, обнуляет номер попытки звонка,
+    и проставляет новую дату для следующего прозвона(+3 дня)
+    """
+    # TODO test
     client_id = await get_client_id_by_offer_cian_id(
         offer_cian_id=offer_cian_id,
         row_version=row_version
     )
-    # To do заменить на джоин
+    # TODO test
     query, params = asyncpgsa.compile_query(
         update(
             clients

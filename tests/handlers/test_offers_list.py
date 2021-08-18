@@ -37,35 +37,37 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
         'external_offers.services.admin.exists_offers_draft_by_client',
         autospec=True
     )
-    set_client_status_mock = mocker.patch(
+    set_client_to_waiting_status_mock = mocker.patch(
         'external_offers.services.admin.set_client_to_waiting_status_and_return',
         autospec=True
     )
-
-    get_client_mock.return_value = future(
-        Client(
-            client_id='1',
-            avito_user_id='1',
-            client_phones=['test'],
-            status='inProgress'
-        )
+    set_client_to_status_mock = mocker.patch(
+        'external_offers.services.admin.set_client_to_status_and_send_kafka_message',
+        autospec=True
     )
-    get_offer_mock.return_value = future(
-        Offer(
-            id='1',
-            parsed_id='parsed',
-            client_id='client',
-            status='inProgress',
-            created_at=datetime.now(pytz.utc),
-            parsed_created_at=datetime.now(pytz.utc),
-            synced_at=datetime.now(pytz.utc),
-        )
+    client = Client(
+        client_id='1',
+        avito_user_id='1',
+        client_phones=['test'],
+        status='inProgress'
     )
+    get_client_mock.return_value = future(client)
+    offer = Offer(
+        id='1',
+        parsed_id='parsed',
+        client_id='client',
+        status='inProgress',
+        created_at=datetime.now(pytz.utc),
+        parsed_created_at=datetime.now(pytz.utc),
+        synced_at=datetime.now(pytz.utc),
+    )
+    get_offer_mock.return_value = future(offer)
     exist_mock.return_value = future(False)
     set_published_mock.return_value = future()
     save_event_log_mock.return_value = future()
     exist_draft_mock.return_value = future(False)
-    set_client_status_mock.return_value = future()
+    set_client_to_waiting_status_mock.return_value = future()
+    set_client_to_status_mock.return_value = future()
 
     operator_user_id = 1
     request = AdminDeleteOfferRequest(
@@ -80,10 +82,17 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
     )
 
     # assert
-    set_client_status_mock.assert_has_calls(
-        [
-            mocker.call(
-                client_id='1'
-            )
-        ]
-    )
+    set_client_to_status_mock.assert_has_calls([
+        mocker.call(
+            client=client,
+            offer=offer,
+            set_client_to_status=set_client_to_waiting_status_mock,
+        )
+    ])
+    # set_client_to_waiting_status_mock.assert_has_calls(
+    #     [
+    #         mocker.call(
+    #             client_id='1'
+    #         )
+    #     ]
+    # )

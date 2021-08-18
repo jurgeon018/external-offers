@@ -71,6 +71,7 @@ async def update_offers_list(user_id: int) -> AdminResponse:
 
     async with pg.get().transaction():
         call_id = generate_guid()
+        # TODO: test assign_suitable_client_to_operator
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
             call_id=call_id
@@ -85,7 +86,9 @@ async def update_offers_list(user_id: int) -> AdminResponse:
                     )
                 ]
             )
+        # TODO: test get_client_unactivated_by_client_id
         client_is_unactivated = await get_client_unactivated_by_client_id(client_id=client_id)
+        # TODO: test set_offers_in_progress_by_client
         if offers_ids := await set_offers_in_progress_by_client(
             client_id=client_id,
             call_id=call_id,
@@ -108,7 +111,6 @@ async def delete_offer(
     """ Удалить объявление в списке объявлений в админке """
     offer_id = request.offer_id
     client_id = request.client_id
-
     client = await get_client_by_client_id(client_id=request.client_id)
     if not client:
         return AdminResponse(
@@ -132,7 +134,6 @@ async def delete_offer(
                 )
             ]
         )
-
     async with pg.get().transaction():
         await set_offer_cancelled_by_offer_id(
             offer_id=offer_id
@@ -147,12 +148,11 @@ async def delete_offer(
             client_id=client_id
         )
         if not exists:
-            set_client_to_status_and_send_kafka_message(
+            await set_client_to_status_and_send_kafka_message(
                 client=client,
                 offer=offer,
                 set_client_to_status=set_client_to_waiting_status_and_return,
             )
-
     return AdminResponse(success=True, errors=[])
 
 
@@ -203,7 +203,7 @@ async def already_published_offer(
             client_id=client_id
         )
         if not exists:
-            set_client_to_status_and_send_kafka_message(
+            await set_client_to_status_and_send_kafka_message(
                 client=client,
                 offer=offer,
                 set_client_to_status=set_client_to_waiting_status_and_return,
@@ -474,6 +474,7 @@ async def set_client_to_status_and_send_kafka_message(
     created_draft = await exists_offers_draft_by_client(
         client_id=client.client_id
     )
+
     if created_draft:
         await set_client_accepted_and_no_operator_if_no_offers_in_progress(
             client_id=client.client_id

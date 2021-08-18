@@ -84,6 +84,7 @@ async def get_enriched_offers_in_progress_by_operator(
 ) -> list[EnrichedOffer]:
 
     if unactivated:
+        # TODO: test
         status_query = """(ofc.status = 'inProgress' OR ofc.publication_status = 'draft')"""
     else:
         status_query = """ofc.status = 'inProgress'"""
@@ -210,6 +211,7 @@ async def set_offers_in_progress_by_client(
     drafted: bool = False,
 ) -> list[str]:
     if drafted:
+        # TODO: test
         # Если клиент добивочный, то проставляет in_progress всем черновикам
         query = and_(
             offers_for_call.c.client_id == client_id,
@@ -826,6 +828,7 @@ async def set_offer_done_by_offer_cian_id(
             offers_for_call.c.offer_cian_id == offer_cian_id,
         )
     )
+    # TODO: test
     await pg.get().execute(query, *params)
 
 

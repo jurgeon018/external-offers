@@ -6,12 +6,12 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
     Status as PublicationStatus,
 )
 from external_offers.repositories.postgresql.clients import (
-    set_client_done_by_offer_cian_id,
     set_client_unactivated_by_offer_cian_id,
+    set_client_done_by_offer_cian_id,
 )
 from external_offers.repositories.postgresql.offers import (
-    set_offer_done_by_offer_cian_id,
     set_offer_publication_status_by_offer_cian_id,
+    set_offer_done_by_offer_cian_id,
 )
 
 
@@ -30,6 +30,7 @@ async def process_announcement(object_model: ObjectModel, event_date: datetime) 
         row_version=row_version,
     )
     if publication_status == PublicationStatus.draft:
+        # TODO: test
         await set_client_unactivated_by_offer_cian_id(
             offer_cian_id=offer_cian_id,
             row_version=row_version,

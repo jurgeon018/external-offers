@@ -100,7 +100,7 @@ async def prioritize_client(
             regions=regions
         )
         return priority
-
+    # TODO: test
     return _CLEAR_CLIENT_PRIORITY
 
 
@@ -129,15 +129,19 @@ async def clear_and_prioritize_waiting_offers() -> None:
             client_priority = prefix + str(client_priority)
             clients_priority[client_count.client_id] = client_priority
 
+    
     for client_count in unactivated_clients_counts:
         with new_operation_id():
+            # TODO: test
             client_priority = await prioritize_client(
                 client_id=client_count.client_id,
                 client_count=client_count.draft_offers_count
             )
         if client_priority == _CLEAR_CLIENT_PRIORITY:
+            # TODO: test
             to_clear.append(client_count.client_id)
         else:
+            # TODO: test
             prefix = str(runtime_settings.UNACTIVATED_CLIENT_PRIORITY)
             client_priority = prefix + str(client_priority)
             clients_priority[client_count.client_id] = client_priority
