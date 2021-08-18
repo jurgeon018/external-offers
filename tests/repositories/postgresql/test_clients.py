@@ -24,31 +24,133 @@ async def test_get_client_in_progress_by_operator():
 
 async def test_assign_suitable_client_to_operator(mocker):
     # arrange
-    query = ('WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFROM clients JOIN o'
-             'ffers_for_call ON offers_for_call.client_id = clients.client_id \nWHERE clients.operator_user_id IS NU'
-             'LL AND offers_for_call.status = $9 AND clients.status = $10 OR clients.operator_user_id = $6 AND offer'
-             's_for_call.status IN ($11, $12) AND clients.next_call <= $4 ORDER BY offers_for_call.priority ASC NULL'
-             'S LAST, offers_for_call.created_at DESC \n LIMIT $7 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status'
-             '=$8, operator_user_id=$5, calls_count=(coalesce(clients.calls_count, $1) + $2), last_call_id=$3 FROM f'
-             'irst_suitable_offer_client_cte WHERE clients.client_id = first_suitable_offer_client_cte.client_id RET'
-             'URNING clients.client_id')
+    query = (
+        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \n'
+        'FROM clients JOIN offers_for_call ON offers_for_call.client_id = clients.client_id \n'
+        'WHERE clients.operator_user_id IS NULL AND offers_for_call.status = $32 AND clients.status = $33'
+        ' AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5,'
+        ' $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) OR clients.operator_user_id = $29 AND'
+        ' offers_for_call.status IN ($34, $35) AND clients.next_call <= $27 AND coalesce(offers_for_call.category, $19)'
+        ' NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18)'
+        ' ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.created_at DESC \n'
+        ' LIMIT $30 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$31, operator_user_id=$28, '
+        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26 FROM first_suitable_offer_client_cte '
+        'WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING clients.client_id'
+    )
+
     operator_id = 1
     default_no_calls = 0
     default_one_more_call = 1
     expected_call_id = '1'
+    default_offer_category = ''
 
     # act
     pg.get().fetchval.return_value = future(None)
     await postgresql.assign_suitable_client_to_operator(
         operator_id=operator_id,
-        call_id='1'
+        call_id='1',
+        operator_roles=[]
     )
 
     # assert
     pg.get().fetchval.assert_called_with(
         query,
         default_no_calls,
+        'businessSale',
+        'commercialLandSale',
+        'publicCateringSale',
+        'carServiceSale',
+        'domesticServicesSale',
+        'officeRent',
+        'warehouseRent',
+        'shoppingAreaRent',
+        'industryRent',
+        'buildingRent',
         default_one_more_call,
+        'freeAppointmentObjectRent',
+        'businessRent',
+        'commercialLandRent',
+        'publicCateringRent',
+        'carServiceRent',
+        'domesticServicesRent',
+        default_offer_category,
+        'officeSale',
+        'warehouseSale',
+        'shoppingAreaSale',
+        'industrySale',
+        'buildingSale',
+        'freeAppointmentObjectSale',
+        expected_call_id,
+        mocker.ANY,
+        operator_id,
+        operator_id,
+        operator_id,
+        'inProgress',
+        'waiting',
+        'waiting',
+        'callLater',
+        'callMissed'
+    )
+
+
+async def test_assign_suitable_client_to_operator__commercial_operator(mocker):
+    # arrange
+    query = (
+        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \n'
+        'FROM clients JOIN offers_for_call ON offers_for_call.client_id = clients.client_id \n'
+        'WHERE clients.operator_user_id IS NULL AND offers_for_call.status = $32 AND clients.status = $33'
+        ' AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5,'
+        ' $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) OR clients.operator_user_id = $29 AND'
+        ' offers_for_call.status IN ($34, $35) AND clients.next_call <= $27 AND coalesce(offers_for_call.category, $19)'
+        ' IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18)'
+        ' ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.created_at DESC \n'
+        ' LIMIT $30 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$31, operator_user_id=$28, '
+        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26 FROM first_suitable_offer_client_cte '
+        'WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING clients.client_id'
+    )
+
+    operator_id = 1
+    default_no_calls = 0
+    default_one_more_call = 1
+    expected_call_id = '1'
+    default_offer_category = ''
+
+    # act
+    pg.get().fetchval.return_value = future(None)
+    await postgresql.assign_suitable_client_to_operator(
+        operator_id=operator_id,
+        call_id='1',
+        operator_roles=['commercialPrepublicationModerator']
+    )
+
+    # assert
+    pg.get().fetchval.assert_called_with(
+        query,
+        default_no_calls,
+        'businessSale',
+        'commercialLandSale',
+        'publicCateringSale',
+        'carServiceSale',
+        'domesticServicesSale',
+        'officeRent',
+        'warehouseRent',
+        'shoppingAreaRent',
+        'industryRent',
+        'buildingRent',
+        default_one_more_call,
+        'freeAppointmentObjectRent',
+        'businessRent',
+        'commercialLandRent',
+        'publicCateringRent',
+        'carServiceRent',
+        'domesticServicesRent',
+        default_offer_category,
+        'officeSale',
+        'warehouseSale',
+        'shoppingAreaSale',
+        'industrySale',
+        'buildingSale',
+        'freeAppointmentObjectSale',
         expected_call_id,
         mocker.ANY,
         operator_id,

@@ -10,12 +10,16 @@ from sqlalchemy.sql.functions import coalesce
 from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
+from external_offers.enums.operator_role import OperatorRole
+from external_offers.helpers.commercial_prepublication_categories import COMMERCIAL_PREPUBLICATION_CATEGORIES
 from external_offers.mappers import client_mapper
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
 
 
 _NO_CALLS = 0
 _ONE_CALL = 1
+
+_NO_OFFER_CATEGORY = ''
 
 
 async def get_client_in_progress_by_operator(
@@ -41,9 +45,22 @@ async def get_client_in_progress_by_operator(
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
-    call_id: str
+    call_id: str,
+    operator_roles: List[str],
 ) -> str:
     now = datetime.now(pytz.utc)
+
+    is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
+
+    commercial_category_clause = (
+        coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY).in_(COMMERCIAL_PREPUBLICATION_CATEGORIES)
+    )
+
+    offer_category_clause = (
+        commercial_category_clause
+        if is_commercial_moderator
+        else ~commercial_category_clause
+    )
 
     first_suitable_offer_client_cte = (
         select(
@@ -62,7 +79,8 @@ async def assign_suitable_client_to_operator(
                 and_(
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
-                    clients.c.status == ClientStatus.waiting.value
+                    clients.c.status == ClientStatus.waiting.value,
+                    offer_category_clause,
                 ),
                 and_(
                     clients.c.operator_user_id == operator_id,
@@ -70,7 +88,8 @@ async def assign_suitable_client_to_operator(
                         OfferStatus.call_later.value,
                         OfferStatus.call_missed.value,
                     ]),
-                    clients.c.next_call <= now
+                    clients.c.next_call <= now,
+                    offer_category_clause,
                 )
             )
         ).order_by(

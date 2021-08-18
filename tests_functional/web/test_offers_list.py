@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import pytest
 import pytz
 
+from cian_functional_test_utils.pytest_plugin import MockResponse
+
 
 async def test_get_offers_list__without_x_real_userid__returns_400(http):
     # act && assert
@@ -36,9 +38,18 @@ async def test_update_offers_list__operator_with_client_in_progress__returns_not
 async def test_update_offers_list__operator_without_client__returns_success(
         pg,
         http,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        users_mock,
 ):
     # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
     await pg.execute_scripts(offers_and_clients_fixture)
     operator_without_offers_in_progress = 60024636
 
@@ -60,9 +71,18 @@ async def test_update_offers_list__operator_without_client__returns_success(
 async def test_update_offers_list__first_operator_without_client__updates_first_by_priority(
         pg,
         http,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        users_mock,
 ):
     # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
     await pg.execute_scripts(offers_and_clients_fixture)
     operator_without_offers_in_progress = 60024636
     expected_operator_client = '3'
@@ -108,9 +128,18 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
 async def test_update_offers_list__second_operator_without_client_update__updates_second_by_priority(
         pg,
         http,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        users_mock,
 ):
     # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
     await pg.execute_scripts(offers_and_clients_fixture)
     first_operator_without_offers_in_progress = 60024636
     second_operator_without_offers_in_progress = 60024637
@@ -176,9 +205,18 @@ async def test_update_offers_list__second_operator_without_client_update__update
 async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queue__set_in_progress(
         pg,
         http,
-        status
+        status,
+        users_mock,
 ):
     # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
     operator_with_call_later = 60024636
     expected_operator_offer = '1'
     expected_operator_client = '7'
@@ -272,6 +310,67 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
     assert client['operator_user_id'] == operator_with_call_later
     assert event_log[0]['offer_id'] == expected_operator_offer
     assert event_log[0]['status'] == 'inProgress'
+
+
+async def test_update_offers_list__commercial_operator_without_client__returns_success(
+        pg,
+        http,
+        offers_and_clients_fixture,
+        users_mock,
+):
+    # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={
+                'roles': [{'id': 1, 'name': 'commercialPrepublicationModerator'}]
+            }
+        ),
+    )
+
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator_without_offers_in_progress = 60024636
+
+    # act
+    resp = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_without_offers_in_progress
+        },
+        expected_status=200
+    )
+
+    # assert
+    assert resp.data['success']
+    assert not resp.data['errors']
+
+    clients = await pg.fetch(
+        'SELECT * FROM clients WHERE operator_user_id=$1',
+        [
+            operator_without_offers_in_progress
+        ]
+    )
+    assert clients == [
+        {
+            'client_id': '9',
+            'avito_user_id': '321313279',
+            'cian_user_id': None,
+            'client_name': 'Александр Александров',
+            'client_email': 'commercial-alex@gmail.com',
+            'operator_user_id': 60024636,
+            'status': 'inProgress',
+            'client_phones': ['+79812932338'],
+            'segment': None,
+            'next_call': None,
+            'calls_count': 2,
+            'last_call_id': '97077055-341d-4a08-ab78-14c06b711f5f',
+            'main_account_chosen': False,
+            'synced_with_grafana': False,
+            'comment': None
+        }
+    ]
 
 
 @pytest.mark.parametrize(
@@ -598,9 +697,18 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_if_no_off
 async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
         pg,
         http,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        users_mock,
 ):
     # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
     await pg.execute_scripts(offers_and_clients_fixture)
     await pg.execute(
         'UPDATE offers_for_call SET status=$1',
@@ -634,8 +742,17 @@ async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
 
 async def test_update_offers_list__exist_no_suitable_client__returns_no_success(
         http,
+        users_mock,
 ):
     # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
     operator = 70024649
 
     # act
