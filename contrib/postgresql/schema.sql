@@ -9,7 +9,8 @@ CREATE TYPE offer_status_type AS enum (
     'alreadyPublished',
     'phoneUnavailable',
     'callInterrupted',
-    'promoGiven'
+    'promoGiven',
+    'done'
 );
 CREATE TYPE offer_publication_status_type AS enum (
     'Draft',

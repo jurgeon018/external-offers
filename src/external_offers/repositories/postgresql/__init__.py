@@ -56,7 +56,7 @@ from external_offers.repositories.postgresql.offers import (
     get_offers_regions_by_client_id,
     get_unactivated_clients_counts_by_clients,
     get_waiting_offer_counts_by_clients,
-    get_waiting_offers_for_call,
+    get_offers_for_prioritization_by_client_ids,
     iterate_over_offers_for_call_sorted,
     save_offer_for_call,
     set_offer_already_published_by_offer_id,

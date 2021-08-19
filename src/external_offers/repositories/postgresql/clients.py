@@ -529,9 +529,15 @@ async def delete_waiting_clients_by_client_ids(
         delete(
             clients
         ).where(
-            and_(
-                clients.c.status == ClientStatus.waiting.value,
-                clients.c.client_id.in_(client_ids)
+            or_(
+                and_(
+                    clients.c.status == ClientStatus.waiting.value,
+                    clients.c.client_id.in_(client_ids)
+                ),
+                and_(
+                    clients.c.unactivated.is_(True),
+                    clients.c.client_id.in_(client_ids)
+                )
             )
         )
     )
@@ -558,33 +564,21 @@ async def update_clients_operator(
     return await pg.get().execute(query, *params)
 
 
-async def get_client_id_by_offer_cian_id(
-    *,
-    offer_cian_id: int,
-    row_version: int
-) -> str:
+async def get_client_id_by_offer_cian_id(offer_cian_id: int) -> str:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.client_id]
         ).where(
-            and_(
-                offers_for_call.c.row_version < row_version,
-                offers_for_call.c.offer_cian_id == offer_cian_id,
-            )
+            offers_for_call.c.offer_cian_id == offer_cian_id,
         ).limit(1)
     )
     client_id = await pg.get().fetchval(query, *params)
     return client_id
 
 
-async def set_client_done_by_offer_cian_id(
-    *,
-    offer_cian_id: int,
-    row_version: int,
-) -> None:
+async def set_client_done_by_offer_cian_id(offer_cian_id: int) -> None:
     client_id = await get_client_id_by_offer_cian_id(
         offer_cian_id=offer_cian_id,
-        row_version=row_version
     )
     query, params = asyncpgsa.compile_query(
         update(
@@ -600,21 +594,12 @@ async def set_client_done_by_offer_cian_id(
     await pg.get().execute(query, *params)
 
 
-async def set_client_unactivated_by_offer_cian_id(
-    *,
-    offer_cian_id: int,
-    row_version: int,
-) -> None:
+async def set_client_unactivated_by_offer_cian_id(offer_cian_id: int) -> None:
     """
     Помечает добивочных клиентов, обнуляет номер попытки звонка,
     и проставляет новую дату для следующего прозвона(+3 дня)
     """
-    # TODO test
-    client_id = await get_client_id_by_offer_cian_id(
-        offer_cian_id=offer_cian_id,
-        row_version=row_version
-    )
-    # TODO test
+    client_id = await get_client_id_by_offer_cian_id(offer_cian_id)
     query, params = asyncpgsa.compile_query(
         update(
             clients

@@ -428,9 +428,15 @@ async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: list[str], prio
             ).values(
                 priority=priority
             ).where(
-                and_(
-                    offers_for_call.c.status == OfferStatus.waiting.value,
-                    offers_for_call.c.id.in_(offer_ids_chunk),
+                or_(
+                    and_(
+                        offers_for_call.c.status == OfferStatus.waiting.value,
+                        offers_for_call.c.id.in_(offer_ids_chunk),
+                    ),
+                    and_(
+                        offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                        offers_for_call.c.id.in_(offer_ids_chunk),
+                    )
                 )
             )
         )
@@ -527,9 +533,15 @@ async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: list[str])
         delete(
             offers_for_call
         ).where(
-            and_(
-                offers_for_call.c.status == OfferStatus.waiting.value,
-                offers_for_call.c.client_id.in_(client_ids)
+            or_(
+                and_(
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    offers_for_call.c.client_id.in_(client_ids),
+                ),
+                and_(
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    offers_for_call.c.client_id.in_(client_ids),
+                )
             )
         )
     )
@@ -703,18 +715,18 @@ async def get_waiting_offer_counts_by_clients() -> list[ClientWaitingOffersCount
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
 
 
-async def get_waiting_offers_for_call() -> AsyncGenerator[OfferForPrioritization, None]:
+async def get_offers_for_prioritization_by_client_ids(client_ids: list[str]) -> AsyncGenerator[OfferForPrioritization, None]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
         ).where(
-            offers_for_call.c.status == OfferStatus.waiting.value,
+            offers_for_call.c.client_id.in_(client_ids)
         )
     )
     cursor = await pg.get().cursor(
         query,
         *params,
-        prefetch=runtime_settings.WAITING_OFFERS_FOR_CALL_PREFETCH,
+        prefetch=runtime_settings.OFFERS_FOR_PRIORITIZATION_PREFETCH,
     )
     async for row in cursor:
         yield offer_for_prioritization_mapper.map_from(row)
@@ -735,9 +747,15 @@ async def get_offers_regions_by_client_id(*, client_id: str) -> list[int]:
                 offers_for_call.c.client_id == clients.c.client_id
             )
         ).where(
-            and_(
-                clients.c.client_id == client_id,
-                offers_for_call.c.status == OfferStatus.waiting.value,
+            or_(
+                and_(
+                    clients.c.client_id == client_id,
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                ),
+                and_(
+                    clients.c.client_id == client_id,
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                ),
             )
         )
     )
@@ -813,10 +831,21 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
         await pg.get().fetch(query, *params)
 
 
+async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> int:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.row_version]
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_cian_id,
+        ).limit(1)
+    )
+    row_verision = await pg.get().fetchval(query, *params)
+    return int(row_verision)
+
+
 async def set_offer_done_by_offer_cian_id(
     *,
     offer_cian_id: str,
-    row_version: int,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
@@ -824,7 +853,6 @@ async def set_offer_done_by_offer_cian_id(
         ).values(
             status=OfferStatus.done.value,
         ).where(
-            offers_for_call.c.row_version < row_version,
             offers_for_call.c.offer_cian_id == offer_cian_id,
         )
     )
@@ -845,10 +873,8 @@ async def set_offer_publication_status_by_offer_cian_id(
             row_version=row_version,
             publication_status=publication_status,
         ).where(
-            and_(
-                offers_for_call.c.row_version < row_version,
-                offers_for_call.c.offer_cian_id == offer_cian_id,
-            )
+            offers_for_call.c.offer_cian_id == offer_cian_id
         )
     )
     await pg.get().execute(query, *params)
+
