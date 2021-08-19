@@ -1,6 +1,8 @@
 from datetime import datetime
-from external_offers.helpers.time import get_aware_date
+
 from cian_helpers.timezone import make_aware
+
+from external_offers.helpers.time import get_aware_date
 
 
 async def test_get_aware_date():

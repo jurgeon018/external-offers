@@ -1,6 +1,8 @@
-from external_offers.services.announcement import process_announcement
 from datetime import datetime
+
 from cian_test_utils import future
+
+from external_offers.services.announcement import process_announcement
 
 
 async def test_process_announcement_consumer__row_version_is_none__functions_are_not_called(
@@ -38,7 +40,7 @@ async def test_process_announcement_consumer__row_version_is_none__functions_are
     assert result is None
 
 
-async def test_process_announcement_consumer__offer_row_version_is_bigger_than_announcement_row_version_functions_are_not_called(
+async def test_process_announcement_consumer__offer_row_version_is_bigger__functions_are_not_called(
     mocker
 ):
     # arrange

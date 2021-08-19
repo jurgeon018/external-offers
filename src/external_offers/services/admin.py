@@ -71,7 +71,6 @@ async def update_offers_list(user_id: int) -> AdminResponse:
 
     async with pg.get().transaction():
         call_id = generate_guid()
-        # TODO: test assign_suitable_client_to_operator
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
             call_id=call_id
@@ -86,9 +85,7 @@ async def update_offers_list(user_id: int) -> AdminResponse:
                     )
                 ]
             )
-        # TODO: test get_client_unactivated_by_client_id
         client_is_unactivated = await get_client_unactivated_by_client_id(client_id=client_id)
-        # TODO: test set_offers_in_progress_by_client
         if offers_ids := await set_offers_in_progress_by_client(
             client_id=client_id,
             call_id=call_id,

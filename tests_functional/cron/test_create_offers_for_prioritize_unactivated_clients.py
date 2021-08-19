@@ -13,7 +13,7 @@ async def test_prioritize_unactivated_clients(
     await pg.execute("""
         INSERT INTO clients (
             segment, unactivated, client_id, avito_user_id, client_phones, status
-        ) VALUES 
+        ) VALUES
         (NULL, 't', 1, 1, '{+7232121}', 'accepted'),
         ('c',  't', 2, 2, '{+7232122}', 'accepted'),
         ('d',  't', 3, 3, '{+7232123}', 'accepted'),
@@ -22,7 +22,7 @@ async def test_prioritize_unactivated_clients(
     await pg.execute("""
         INSERT INTO offers_for_call (
             id, parsed_id, client_id, publication_status, status, category,   created_at, synced_at
-        ) VALUES 
+        ) VALUES
         (1, 1, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
         (2, 2, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
         (3, 3, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
@@ -32,8 +32,8 @@ async def test_prioritize_unactivated_clients(
     """)
     await pg.execute("""
         INSERT INTO parsed_offers (
-            id, source_object_id, source_user_id, source_object_model, is_calltracking, timestamp, created_at, updated_at
-        ) VALUES 
+            id, source_object_id, source_user_id,source_object_model,is_calltracking,timestamp,created_at,updated_at
+        ) VALUES
         (1, 1, 1, '{\"region\": \"4568\"}',     'f', 'now()', 'now()', 'now()'),
         (2, 2, 2, '{\"region\": \"4636\"}',     'f', 'now()', 'now()', 'now()'),
         (3, 3, 2, '{\"region\": \"4624\"}',     'f', 'now()', 'now()', 'now()'),
@@ -126,4 +126,3 @@ async def test_prioritize_unactivated_clients(
     assert offer5['priority'] == 132129521
     # задание удалено изза того что у клиента пустой регион
     assert offer6 is None
-

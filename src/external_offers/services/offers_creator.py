@@ -24,11 +24,11 @@ from external_offers.repositories.postgresql import (
     get_client_by_avito_user_id,
     get_client_by_client_id,
     get_last_sync_date,
+    get_offers_for_prioritization_by_client_ids,
     get_offers_parsed_ids_by_parsed_ids,
     get_offers_regions_by_client_id,
     get_unactivated_clients_counts_by_clients,
     get_waiting_offer_counts_by_clients,
-    get_offers_for_prioritization_by_client_ids,
     save_client,
     save_offer_for_call,
     set_synced_and_fetch_parsed_offers_chunk,
@@ -83,7 +83,7 @@ async def prioritize_client(
         client_id=client_id
     )
 
-    if regions == [] or regions == [None,]:
+    if regions in ([], [None]):
         return _CLEAR_CLIENT_PRIORITY
 
     if client and client.segment and client.segment.is_c:
