@@ -40,28 +40,6 @@ async def get_client_in_progress_by_operator(
     return client_mapper.map_from(row) if row else None
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
@@ -156,17 +134,6 @@ async def get_client_unactivated_by_client_id(*, client_id) -> str:
         ).limit(1)
     )
     return await pg.get().fetchval(query, *params)
-
-
-
-
-
-
-
-
-
-
-
 
 
 async def assign_client_to_operator_and_increase_calls_count(

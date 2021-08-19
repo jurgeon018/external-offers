@@ -59,7 +59,7 @@ async def test_process_announcement_consumer__status_is_deactivated__status_is_c
     offer_cian_id = offer['model']['id']
     await pg.execute("""
         INSERT INTO clients (
-
+            client_id, unactivated, calls_count, next_call, status, avito_user_id, client_phones
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
     """, ['1', False, 10, datetime.now(), 'callMissed', '1', ['+789324432000']])
     await pg.execute(f"""
