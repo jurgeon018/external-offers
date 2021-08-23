@@ -58,8 +58,6 @@ async def update_offers_list(user_id: int) -> AdminResponse:
     exists = await exists_offers_in_progress_by_operator(
         operator_id=user_id,
     )
-    print('start')
-    print('exists', exists)
     if exists:
         return AdminResponse(
             success=False,
@@ -77,7 +75,6 @@ async def update_offers_list(user_id: int) -> AdminResponse:
             operator_id=user_id,
             call_id=call_id
         )
-        print('client_id', client_id)
         if not client_id:
             return AdminResponse(
                 success=False,
@@ -89,7 +86,6 @@ async def update_offers_list(user_id: int) -> AdminResponse:
                 ]
             )
         client_is_unactivated = await get_client_unactivated_by_client_id(client_id=client_id)
-        print('client_is_unactivated', client_is_unactivated)
         if offers_ids := await set_offers_in_progress_by_client(
             client_id=client_id,
             call_id=call_id,
@@ -101,7 +97,6 @@ async def update_offers_list(user_id: int) -> AdminResponse:
                 status=OfferStatus.in_progress.value,
                 call_id=call_id
             )
-    print('final')
     return AdminResponse(success=True, errors=[])
 
 
