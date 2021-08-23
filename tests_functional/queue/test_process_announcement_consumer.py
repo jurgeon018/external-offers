@@ -1,7 +1,6 @@
 import asyncio
 from datetime import datetime
 
-import pytest
 from cian_functional_test_utils.data_fixtures import load_json_data
 
 
