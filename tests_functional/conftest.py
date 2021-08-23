@@ -9,8 +9,9 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def start(pg):
+async def start(pg, runner):
     await pg.execute_scripts((Path('contrib') / 'postgresql' / 'migrations').glob('*.sql'))
+    await runner.start_background_python_command('process_announcement_consumer')
 
 
 @pytest.fixture(name='pg', scope='session')

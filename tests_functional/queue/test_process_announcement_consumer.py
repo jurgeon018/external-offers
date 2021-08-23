@@ -30,9 +30,7 @@ async def test_process_announcement_consumer__row_version_is_not_correct__status
         )
     """)
     # act
-    await runner.start_background_python_command('process_announcement_consumer')
     await queue_service.wait_consumer('external-offers.process_announcement_v2')
-    await asyncio.sleep(1)
     await queue_service.publish('announcement_reporting.change', offer, exchange='announcements')
     await asyncio.sleep(1)
 
@@ -76,9 +74,7 @@ async def test_process_announcement_consumer__status_is_deactivated__status_is_c
         SELECT * FROM clients LIMIT 1;
     """)
     # act
-    await runner.start_background_python_command('process_announcement_consumer')
     await queue_service.wait_consumer('external-offers.process_announcement_v2')
-    await asyncio.sleep(1)
     await queue_service.publish('announcement_reporting.change', offer, exchange='announcements')
     await asyncio.sleep(1)
 
@@ -140,9 +136,7 @@ async def test_process_announcement_consumer__status_is_draft__status_is_changed
         SELECT * FROM clients LIMIT 1;
     """)
     # act
-    await runner.start_background_python_command('process_announcement_consumer')
     await queue_service.wait_consumer('external-offers.process_announcement_v2')
-    await asyncio.sleep(1)
     await queue_service.publish('announcement_reporting.change', offer, exchange='announcements')
     await asyncio.sleep(1)
 
@@ -205,9 +199,7 @@ async def test_process_announcement_consumer__status_is_published__status_is_cha
         SELECT * FROM clients LIMIT 1;
     """)
     # act
-    await runner.start_background_python_command('process_announcement_consumer')
     await queue_service.wait_consumer('external-offers.process_announcement_v2')
-    await asyncio.sleep(1)
     await queue_service.publish('announcement_reporting.change', offer, exchange='announcements')
     await asyncio.sleep(1)
 

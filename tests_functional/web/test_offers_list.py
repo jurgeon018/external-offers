@@ -9,6 +9,101 @@ async def test_get_offers_list__without_x_real_userid__returns_400(http):
     await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
+# async def test_update_offers_list(
+#     pg,
+#     http,
+# ):
+#     # arrange
+#     operator = 60024635
+#     # act
+#     resp = await http.request(
+#         'POST',
+#         '/api/admin/v1/update-offers-list/',
+#         headers={
+#             'X-Real-UserId': operator
+#         },
+#         expected_status=200
+#     )
+
+#     # assert
+#     assert
+
+
+# async def test_update_offers_list__first_operator_without_client__updates_first_by_priority(
+#         pg,
+#         http,
+#         offers_and_clients_fixture
+# ):
+#     # arrange
+#     await pg.execute_scripts(offers_and_clients_fixture)
+#     operator_without_offers_in_progress = 60024636
+#     expected_operator_client = '3'
+#     expected_operator_offer = '4'
+
+#     # act
+#     await http.request(
+#         'POST',
+#         '/api/admin/v1/update-offers-list/',
+#         headers={
+#             'X-Real-UserId': operator_without_offers_in_progress
+#         },
+#         expected_status=200
+#     )
+
+#     # assert
+#     offers_event_log = await pg.fetch(
+#         'SELECT * FROM event_log where operator_user_id=$1',
+#         [
+#             operator_without_offers_in_progress
+#         ]
+#     )
+
+#     assert operator_without_offers_in_progress == await pg.fetchval(
+#         'SELECT operator_user_id FROM clients WHERE client_id=$1 AND status=$2',
+#         [
+#             expected_operator_client,
+#             'inProgress'
+#         ]
+#     )
+
+#     assert expected_operator_offer == await pg.fetchval(
+#         'SELECT id FROM offers_for_call WHERE client_id=$1 AND status = $2',
+#         [
+#             expected_operator_client,
+#             'inProgress'
+#         ]
+#     )
+#     assert offers_event_log[0]['offer_id'] == '4'
+#     assert offers_event_log[0]['status'] == 'inProgress'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
         pg,
         http,
