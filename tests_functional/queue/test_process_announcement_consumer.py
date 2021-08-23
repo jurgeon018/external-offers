@@ -6,19 +6,17 @@ from cian_functional_test_utils.data_fixtures import load_json_data
 
 
 @pytest.mark.parametrize('offer', [
-    load_json_data(__file__, 'announcement_deactivated.json')
 ])
 async def test_process_announcement_consumer__row_version_is_not_correct__status_is_not_changed(
-    runner,
     queue_service,
     pg,
-    offer,
 ):
     """
     У обьявления не поменялся статус, изза того что
     row_version в обьекте из очереди <= row_version обьекта в админке.
     """
     # arrange
+    offer = load_json_data(__file__, 'announcement_deactivated.json')
     row_version = 1 + offer['model']['rowVersion']
     publication_status = 'Draft'
     offer_cian_id = offer['model']['id']
@@ -42,16 +40,12 @@ async def test_process_announcement_consumer__row_version_is_not_correct__status
     assert offer_for_call['row_version'] == row_version
 
 
-@pytest.mark.parametrize('offer', [
-    load_json_data(__file__, 'announcement_deactivated.json')
-])
 async def test_process_announcement_consumer__status_is_deactivated__status_is_changed(
-    runner,
     queue_service,
     pg,
-    offer,
 ):
     # arrange
+    offer = load_json_data(__file__, 'announcement_deactivated.json')
     row_version = 0
     publication_status = None
     offer_cian_id = offer['model']['id']
@@ -104,15 +98,11 @@ async def test_process_announcement_consumer__status_is_deactivated__status_is_c
     assert offer_for_call_after['status'] != 'done'
 
 
-@pytest.mark.parametrize('offer', [
-    load_json_data(__file__, 'announcement_draft.json')
-])
 async def test_process_announcement_consumer__status_is_draft__status_is_changed(
-    runner,
     queue_service,
     pg,
-    offer,
 ):
+    offer = load_json_data(__file__, 'announcement_draft.json')
     # arrange
     row_version = 0
     publication_status = None
@@ -167,16 +157,12 @@ async def test_process_announcement_consumer__status_is_draft__status_is_changed
     assert offer_for_call_after['status'] != 'done'
 
 
-@pytest.mark.parametrize('offer', [
-    load_json_data(__file__, 'announcement_published.json')
-])
 async def test_process_announcement_consumer__status_is_published__status_is_changed(
-    runner,
     queue_service,
     pg,
-    offer,
 ):
     # arrange
+    offer = load_json_data(__file__, 'announcement_published.json')
     row_version = 0
     publication_status = None
     offer_cian_id = offer['model']['id']

@@ -9,98 +9,84 @@ async def test_get_offers_list__without_x_real_userid__returns_400(http):
     await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
-# async def test_update_offers_list(
-#     pg,
-#     http,
-# ):
-#     # arrange
-#     operator = 60024635
-#     # act
-#     resp = await http.request(
-#         'POST',
-#         '/api/admin/v1/update-offers-list/',
-#         headers={
-#             'X-Real-UserId': operator
-#         },
-#         expected_status=200
-#     )
+async def test_update_offers_list_with_unactivated_clients__operator_without_client__return_success(
+        pg,
+        http,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute("""
+        INSERT INTO clients (
+            segment, unactivated, client_id, avito_user_id, client_phones, status
+        ) VALUES
+        (NULL, 't', 21, 21, '{+7232121}', 'accepted'),
+        ('c',  't', 22, 22, '{+7232122}', 'accepted'),
+        ('d',  't', 23, 23, '{+7232123}', 'accepted'),
+        ('d',  't', 24, 24, '{+7232123}', 'accepted');
+    """)
+    await pg.execute("""
+        INSERT INTO offers_for_call (
+            id, parsed_id, client_id, priority, publication_status,status,category,created_at,synced_at
+        ) VALUES
+        (21, 21, 21, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (22, 22, 22, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (23, 23, 22, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (24, 24, 23, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (25, 25, 23, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (26, 26, 24, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()');
+    """)
+    await pg.execute("""
+        INSERT INTO parsed_offers (
+            id, source_object_id, source_user_id,source_object_model,is_calltracking,timestamp,created_at,updated_at
+        ) VALUES
+        (21, 21, 21, '{\"region\": \"4568\"}',     'f', 'now()', 'now()', 'now()'),
+        (22, 22, 22, '{\"region\": \"4636\"}',     'f', 'now()', 'now()', 'now()'),
+        (23, 23, 22, '{\"region\": \"4624\"}',     'f', 'now()', 'now()', 'now()'),
+        (24, 24, 23, '{\"region\": \"4568\"}',     'f', 'now()', 'now()', 'now()'),
+        (25, 25, 23, '{\"region\": \"4636\"}',     'f', 'now()', 'now()', 'now()'),
+        (26, 26, 24, '{}',                         'f', 'now()', 'now()', 'now()');
+    """)
 
-#     # assert
-#     assert
+    operator_without_offers_in_progress = 60024636
+    expected_operator_client = '24'
+    expected_operator_offer = '26'
 
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_without_offers_in_progress
+        },
+        expected_status=200
+    )
 
-# async def test_update_offers_list__first_operator_without_client__updates_first_by_priority(
-#         pg,
-#         http,
-#         offers_and_clients_fixture
-# ):
-#     # arrange
-#     await pg.execute_scripts(offers_and_clients_fixture)
-#     operator_without_offers_in_progress = 60024636
-#     expected_operator_client = '3'
-#     expected_operator_offer = '4'
+    # assert
+    offers_event_log = await pg.fetch(
+        'SELECT * FROM event_log where operator_user_id=$1',
+        [
+            operator_without_offers_in_progress
+        ]
+    )
 
-#     # act
-#     await http.request(
-#         'POST',
-#         '/api/admin/v1/update-offers-list/',
-#         headers={
-#             'X-Real-UserId': operator_without_offers_in_progress
-#         },
-#         expected_status=200
-#     )
+    assert operator_without_offers_in_progress == await pg.fetchval(
+        'SELECT operator_user_id FROM clients WHERE client_id=$1 AND status=$2',
+        [
+            expected_operator_client,
+            'inProgress'
+        ]
+    )
 
-#     # assert
-#     offers_event_log = await pg.fetch(
-#         'SELECT * FROM event_log where operator_user_id=$1',
-#         [
-#             operator_without_offers_in_progress
-#         ]
-#     )
-
-#     assert operator_without_offers_in_progress == await pg.fetchval(
-#         'SELECT operator_user_id FROM clients WHERE client_id=$1 AND status=$2',
-#         [
-#             expected_operator_client,
-#             'inProgress'
-#         ]
-#     )
-
-#     assert expected_operator_offer == await pg.fetchval(
-#         'SELECT id FROM offers_for_call WHERE client_id=$1 AND status = $2',
-#         [
-#             expected_operator_client,
-#             'inProgress'
-#         ]
-#     )
-#     assert offers_event_log[0]['offer_id'] == '4'
-#     assert offers_event_log[0]['status'] == 'inProgress'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    assert expected_operator_offer == await pg.fetchval(
+        'SELECT id FROM offers_for_call WHERE client_id=$1 AND status = $2',
+        [
+            expected_operator_client,
+            'inProgress'
+        ]
+    )
+    assert offers_event_log[0]['offer_id'] == '26'
+    assert offers_event_log[0]['status'] == 'inProgress'
 
 
 

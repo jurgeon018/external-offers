@@ -40,25 +40,6 @@ async def get_client_in_progress_by_operator(
     return client_mapper.map_from(row) if row else None
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,

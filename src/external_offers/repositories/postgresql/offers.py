@@ -209,6 +209,7 @@ async def set_offers_in_progress_by_client(
     call_id: str,
     drafted: bool = False,
 ) -> list[str]:
+    print('drafted', drafted)
     if drafted:
         # Если клиент добивочный, то проставляет in_progress всем черновикам
         query = and_(
