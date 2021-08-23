@@ -5,8 +5,6 @@ import pytest
 from cian_functional_test_utils.data_fixtures import load_json_data
 
 
-@pytest.mark.parametrize('offer', [
-])
 async def test_process_announcement_consumer__row_version_is_not_correct__status_is_not_changed(
     queue_service,
     pg,
