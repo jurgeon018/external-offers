@@ -20,5 +20,5 @@ class HomeownerClientChooseMainProfileResult(ClientChooseMainProfileResult):
 @dataclass
 class SmbClientChooseMainProfileResult(ClientChooseMainProfileResult):
     ...
-    has_emls_or_subagent: bool
-    """Есть ЕМЛС или саб аккаунт """
+    has_wrong_user_source_type: bool
+    """Есть неразрешенный тип источника, который нужно отфильтровать"""
