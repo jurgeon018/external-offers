@@ -280,6 +280,10 @@
 
           document.getElementById("createTestClient").onclick = async function () {
             let sourceUserId = document.getElementById('sourceUserIdInput').value;
+            if(!sourceUserId){
+              alert('Введите sourceUserId!')
+              return
+            }
             let obj = {
               useDefault: true,
               sourceUserId: sourceUserId,
@@ -300,6 +304,14 @@
           document.getElementById("createTestOffer").onclick = async function () {
             let sourceUserId = document.getElementById('sourceUserIdInput').value;
             let sourceObjectId = document.getElementById('sourceObjectIdInput').value;
+            if(!sourceUserId){
+              alert("Введите sourceUserId!")
+              return
+            }
+            if(!sourceObjectId){
+              alert("Введите sourceObjectId!")
+              return
+            }
             let obj = {
               useDefault: true,
               sourceUserId: sourceUserId,
