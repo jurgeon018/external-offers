@@ -95,7 +95,7 @@ async def find_smb_client_account_priority(
             )
             if sanctions_response.items:
                 return _CLEAR_CLIENT_PRIORITY
-
+            
             # Выбираем основной активный агентский профиль пользователя
             result = choose_main_smb_client_profile(response.users)
             if result.has_bad_account:
