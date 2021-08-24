@@ -1,9 +1,9 @@
 import logging
 from typing import List
 
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
-from simple_settings import settings
 
 from external_offers.entities import SmbClientChooseMainProfileResult
 from external_offers.entities.clients import Client
@@ -36,7 +36,7 @@ async def choose_main_smb_client_profile(
     client_count: int,
     client_id: int,
 ) -> SmbClientChooseMainProfileResult:
-    """ Ищем активный профиль smb. Ставим метки заблокированных пользователей, типов источников и активных обьявлений """
+    """Ищем активный профиль smb.Ставим метки заблокированных пользователей,типов источников и активных обьявлений"""
     has_bad_account = False
     has_wrong_user_source_type = False
     chosen_profile = None
@@ -71,7 +71,7 @@ async def choose_main_smb_client_profile(
                     user_id=profile.cian_user_id
                 )
             )
-            if (active_response.count / client_count) > settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
+            if (active_response.count / client_count) > runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
                 has_bad_offers_proportion = True
         except ApiClientException as exc:
             logger.warning(
@@ -116,7 +116,7 @@ async def find_smb_client_account_priority(
         # Приоритет для незарегистрированных smb пользователей
         if not response.users:
             statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-            return settings.NO_LK_SMB_PRIORITY
+            return runtime_settings.NO_LK_SMB_PRIORITY
 
         sanctions_response = await v1_sanctions_get_sanctions(
             V1SanctionsGetSanctions(
@@ -125,7 +125,7 @@ async def find_smb_client_account_priority(
         )
         if sanctions_response.items:
             return _CLEAR_CLIENT_PRIORITY
-    
+
         # Выбираем основной активный агентский профиль пользователя
         # если нашли заблокированные аккаунты - убираем из очереди
         user_profiles: List[UserModelV2] = response.users
@@ -142,7 +142,7 @@ async def find_smb_client_account_priority(
             return _CLEAR_CLIENT_PRIORITY
 
         if not result.chosen_profile:
-            return settings.NO_LK_SMB_PRIORITY
+            return runtime_settings.NO_LK_SMB_PRIORITY
 
         if result.has_bad_offers_proportion:
             return _CLEAR_CLIENT_PRIORITY
@@ -173,12 +173,12 @@ async def find_smb_client_account_priority(
     # Приоритет по отсутствию активных объявлений на циане
     if active_response.count == _NO_ACTIVE:
         statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
-        return settings.NO_ACTIVE_SMB_PRIORITY
+        return runtime_settings.NO_ACTIVE_SMB_PRIORITY
 
     # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
-    if (active_response.count / client_count) <= settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
+    if (active_response.count / client_count) <= runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
         statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
-        return settings.KEEP_PROPORTION_SMB_PRIORITY
+        return runtime_settings.KEEP_PROPORTION_SMB_PRIORITY
 
     return _CLEAR_CLIENT_PRIORITY
 

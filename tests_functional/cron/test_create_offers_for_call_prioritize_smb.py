@@ -84,7 +84,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
-        
+
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
