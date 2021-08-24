@@ -11,7 +11,17 @@ CREATE TYPE offer_status_type AS enum (
     'callInterrupted',
     'promoGiven'
 );
-
+CREATE TYPE offer_publication_status_type AS enum (
+    'Draft',
+    'Published',
+    'Deactivated',
+    'Refused',
+    'Deleted',
+    'Sold',
+    'Moderate',
+    'RemovedByModerator',
+    'Blocked'
+);
 CREATE TYPE client_status_type AS enum (
     'waiting',
     'declined',
@@ -31,6 +41,7 @@ CREATE TABLE offers_for_call
     offer_cian_id bigint,
     client_id     int                      not null,
     status        offer_status_type        not null,
+    publication_status offer_publicattion_status_type  null,
     created_at    timestamp with time zone not null,
     synced_at     timestamp with time zone not null,
     started_at    timestamp with time zone,
@@ -38,6 +49,7 @@ CREATE TABLE offers_for_call
     priority      int,
     category      varchar,
     last_call_id  varchar,
+    row_version         bigint                   not null default 0,
     synced_with_kafka   boolean                  not null default false,
     synced_with_grafana boolean                  not null default false,
     is_test             boolean                  not null default false,

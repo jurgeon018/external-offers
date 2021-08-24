@@ -35,6 +35,17 @@ memory = 512
 type = "consumer"
 command = "send-parsed-offers"
 
+[job.process_announcement_consumer]
+type = "consumer"
+command = "process_announcement_consumer"
+
+[job.process_announcement_consumer.prod]
+type = "consumer"
+command = "process_announcement_consumer"
+instances = 10
+cpu = 0.1
+memory = 256
+
 [job.create-offers-for-call-from-parsed]
 type = "cron"
 command = "create-offers-for-call"

@@ -4,6 +4,9 @@ from typing import Optional
 
 from external_offers.enums import OfferStatus
 from external_offers.enums.object_model import Category
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
+    Status as PublicactionStatus,
+)
 
 
 @dataclass
@@ -38,6 +41,10 @@ class Offer:
     """Было отправлено в кафку в финальном статусе"""
     is_test: bool = False
     """Тестовое обьявление"""
+    row_version: int = 0
+    """Версия объявления."""
+    publication_status: Optional[PublicactionStatus] = None
+    """Статус объявления"""
 
 
 @dataclass

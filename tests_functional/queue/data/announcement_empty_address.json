@@ -1,0 +1,329 @@
+{
+	"model": {
+		"hasRamp": false,
+		"isInHiddenBase": false,
+		"cianUserId": 39401272,
+		"floorNumber": 6,
+		"phones": [{
+			"countryCode": "+7",
+			"number": "4951348421",
+			"sourcePhone": {
+				"countryCode": "+7",
+				"number": "4951274372"
+			}
+		}],
+		"isRentByParts": false,
+		"category": "newBuildingFlatSale",
+		"publishTerms": {
+			"terms": [{
+				"services": ["premium"],
+				"type": "dailyTermless",
+				"days": 1
+			}],
+			"autoprolong": false,
+			"skipBilling": true,
+			"infinitePublishPeriod": true
+		},
+		"userId": 39401272,
+		"publishedUserId": 39401272,
+		"id": 228433597,
+		"bargainTerms": {
+			"price": 15365154.0,
+			"currency": "rur",
+			"priceType": "all",
+			"includedOptions": [],
+			"mortgageAllowed": true,
+			"saleType": "fz214",
+			"actionId": "14802"
+		},
+		"description": "Продается однокомнатная квартира  98 в новостройке",
+		"totalArea": 68.14,
+		"specialty": {
+			"additionalTypes": [],
+			"types": []
+		},
+		"photos": [{
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095218-1.jpg",
+			"id": 850095218,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095218-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095218-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095218-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095251-1.jpg",
+			"id": 850095251,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095251-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095251-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095251-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095248-1.jpg",
+			"id": 850095248,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095248-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095248-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095248-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095261-1.jpg",
+			"id": 850095261,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095261-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095261-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095261-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095224-1.jpg",
+			"id": 850095224,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095224-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095224-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095224-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095229-1.jpg",
+			"id": 850095229,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095229-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095229-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095229-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095227-1.jpg",
+			"id": 850095227,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095227-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095227-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095227-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095257-1.jpg",
+			"id": 850095257,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095257-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095257-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095257-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095255-1.jpg",
+			"id": 850095255,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095255-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095255-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095255-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095237-1.jpg",
+			"id": 850095237,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095237-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095237-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095237-3.jpg"
+		}, {
+			"fullUrl": "https://cdn-p.cian.site/images/2/590/058/850095234-1.jpg",
+			"id": 850095234,
+			"thumbnailUrl": "https://cdn-p.cian.site/images/2/590/058/850095234-2.jpg",
+			"thumbnail2Url": "https://cdn-p.cian.site/images/2/590/058/850095234-4.jpg",
+			"isDefault": false,
+			"isCianLayout": false,
+			"miniUrl": "https://cdn-p.cian.site/images/2/590/058/850095234-3.jpg"
+		}],
+		"geo": {
+			"countryId": 138,
+			"undergrounds": [{
+				"transportType": "walk",
+				"name": "Аминьевское шоссе",
+				"lineColor": "7ACDCE",
+				"time": 8,
+				"lineId": 27,
+				"id": 392,
+				"isDefault": true
+			}, {
+				"transportType": "transport",
+				"name": "Мичуринский проспект",
+				"lineColor": "FFDF00",
+				"time": 4,
+				"lineId": 4,
+				"id": 361
+			}, {
+				"transportType": "transport",
+				"name": "Раменки",
+				"lineColor": "FFDF00",
+				"time": 5,
+				"lineId": 4,
+				"id": 339
+			}],
+			"calculatedUndergrounds": [{
+				"transportType": "transport",
+				"time": 4,
+				"distance": 2064,
+				"id": 361
+			}, {
+				"transportType": "walk",
+				"time": 24,
+				"distance": 2022,
+				"id": 361
+			}, {
+				"transportType": "walk",
+				"time": 31,
+				"distance": 2639,
+				"id": 339
+			}, {
+				"transportType": "transport",
+				"time": 5,
+				"distance": 3249,
+				"id": 339
+			}, {
+				"transportType": "walk",
+				"time": 8,
+				"distance": 699,
+				"id": 392
+			}, {
+				"transportType": "transport",
+				"time": 2,
+				"distance": 1429,
+				"id": 392
+			}],
+			"coordinates": {
+				"lat": 55.696128,
+				"lng": 37.469773
+			},
+			"highways": [],
+			"railways": [{
+				"id": 716,
+				"directionIds": [14],
+				"distance": 1.0,
+				"time": 3,
+				"name": "Матвеевская",
+				"travelType": "byCar"
+			}, {
+				"id": 716,
+				"directionIds": [14],
+				"distance": 1.0,
+				"time": 16,
+				"name": "Матвеевская",
+				"travelType": "byFoot"
+			}, {
+				"id": 725,
+				"directionIds": [14],
+				"distance": 4.0,
+				"time": 7,
+				"name": "Очаково I",
+				"travelType": "byCar"
+			}, {
+				"id": 725,
+				"directionIds": [14],
+				"distance": 2.0,
+				"time": 29,
+				"name": "Очаково I",
+				"travelType": "byFoot"
+			}, {
+				"id": 733,
+				"directionIds": [11],
+				"distance": 5.0,
+				"time": 7,
+				"name": "Кунцево I",
+				"travelType": "byCar"
+			}, {
+				"id": 733,
+				"directionIds": [11],
+				"distance": 4.0,
+				"time": 53,
+				"name": "Кунцево I",
+				"travelType": "byFoot"
+			}],
+			"userInput": "ул. Лобачевского, вл. 120, корп. 1",
+			"district": [{
+				"locationId": 1,
+				"id": 11,
+				"name": "ЗАО",
+				"type": "okrug"
+			}, {
+				"parentId": 11,
+				"locationId": 1,
+				"id": 120,
+				"name": "Раменки",
+				"type": "raion"
+			}],
+			"jk": {
+				"house": {
+					"id": 105254,
+					"name": "Корпус 1",
+					"flat": {
+						"sectionNumber": "1",
+						"flatType": "1-68.14"
+					}
+				},
+				"id": 46993,
+				"name": "Крылья",
+				"developer": {
+					"name": "Лидер-Инвест"
+				}
+			},
+			"locationPath": {
+				"countryId": 138,
+				"childToParent": [1]
+			}
+		},
+		"building": {
+			"cargoLiftsCount": 0,
+			"materialType": "monolith",
+			"parking": {
+				"type": "underground"
+			},
+			"passengerLiftsCount": 1,
+			"floorsCount": 39,
+			"ceilingHeight": 3.1,
+			"cranageTypes": [],
+			"extinguishingSystemTypes": [],
+			"liftTypes": [],
+			"infrastructure": {},
+			"totalArea": 68.1,
+			"openingHours": {},
+			"deadline": {
+				"quarter": "first",
+				"year": 2021,
+				"isComplete": false
+			}
+		},
+		"land": {},
+		"cianId": 228433597,
+		"electricity": {},
+		"gas": {},
+		"water": {},
+		"drainage": {},
+		"objectGuid": "82563e4d-8251-4b75-a732-dd30dfa45535",
+		"garage": {},
+		"roomsCount": 1,
+		"kitchenArea": 27.2,
+		"isApartments": false,
+		"allRoomsArea": "20.86",
+		"livingArea": 20.9,
+		"separateWcsCount": 0,
+		"flatType": "rooms",
+		"isPenthouse": false,
+		"combinedWcsCount": 2,
+		"decoration": "without",
+		"projectDeclarationUrl": "http://files.cian.ru/files/698/2.4. Разрешение на строительство{11.12.2017}-89659-Oy787KAE.pdf",
+		"status": "Published",
+		"flags": {
+			"isArchived": false
+		},
+		"editDate": "2020-04-15T16:35:35.7412496+03:00",
+		"version": 2,
+		"source": "upload",
+		"videos": [],
+		"rowVersion": 31146468040,
+		"isEnabledCallTracking": true,
+		"platform": {
+			"type": "upload"
+		},
+		"creationDate": "2020-03-27T10:08:57.527",
+		"feedboxMultiOfferKey": "3467826"
+	},
+	"operationId": "1934fc2a-7a72-494c-b050-dc38adc24ac6",
+	"date": "2020-04-15T16:35:36.2632391+03:00"
+}
