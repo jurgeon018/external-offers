@@ -8,7 +8,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
-    users_mock
+    users_mock,
+    monolith_cian_profileapi_mock,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -43,6 +44,22 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
             }]}
         ),
     )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='GET',
+        path='/v1/sanctions/get-sanctions/',
+        response=MockResponse(
+            body={'items': [{
+                'userId': 12835367,
+                'sanctions': [
+                    {
+                        'sanctionId': 9072881,
+                        'sanctionName': 'Запрет на публикацию объявлений',
+                        'sanctionEnd': None
+                    }
+                ]
+            }]}
+        )
+    )
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -67,6 +84,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
@@ -138,7 +156,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
-    users_mock
+    users_mock,
+    monolith_cian_profileapi_mock,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -173,6 +192,23 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
             }]}
         ),
     )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='GET',
+        path='/v1/sanctions/get-sanctions/',
+        response=MockResponse(
+            body={'items': [{
+                'userId': 12835367,
+                'sanctions': [
+                    {
+                        'sanctionId': 9072881,
+                        'sanctionName': 'Запрет на публикацию объявлений',
+                        'sanctionEnd': None
+                    }
+                ]
+            }]}
+        )
+    )
+
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -191,7 +227,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
-    users_mock
+    users_mock,
+    monolith_cian_profileapi_mock,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -225,6 +262,22 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls
                 'isAgent': True
             }]}
         ),
+    )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='GET',
+        path='/v1/sanctions/get-sanctions/',
+        response=MockResponse(
+            body={'items': [{
+                'userId': 12835367,
+                'sanctions': [
+                    {
+                        'sanctionId': 9072881,
+                        'sanctionName': 'Запрет на публикацию объявлений',
+                        'sanctionEnd': None
+                    }
+                ]
+            }]}
+        )
     )
 
     # act
@@ -382,7 +435,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_a
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
-    announcements_mock
+    announcements_mock,
+    monolith_cian_profileapi_mock,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -428,6 +482,23 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_a
             }
         ),
     )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='GET',
+        path='/v1/sanctions/get-sanctions/',
+        response=MockResponse(
+            body={'items': [{
+                'userId': 12835367,
+                'sanctions': [
+                    {
+                        'sanctionId': 9072881,
+                        'sanctionName': 'Запрет на публикацию объявлений',
+                        'sanctionEnd': None
+                    }
+                ]
+            }]}
+        )
+    )
+
 
     # act
     await runner.run_python_command('create-offers-for-call')
@@ -674,7 +745,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
-    announcements_mock
+    announcements_mock,
+    monolith_cian_profileapi_mock,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -718,6 +790,22 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         response=MockResponse(
             status=400
         ),
+    )
+    await monolith_cian_profileapi_mock.add_stub(
+        method='GET',
+        path='/v1/sanctions/get-sanctions/',
+        response=MockResponse(
+            body={'items': [{
+                'userId': 12835367,
+                'sanctions': [
+                    {
+                        'sanctionId': 9072881,
+                        'sanctionName': 'Запрет на публикацию объявлений',
+                        'sanctionEnd': None
+                    }
+                ]
+            }]}
+        )
     )
 
     # act

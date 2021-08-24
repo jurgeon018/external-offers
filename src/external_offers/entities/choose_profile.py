@@ -19,6 +19,7 @@ class HomeownerClientChooseMainProfileResult(ClientChooseMainProfileResult):
 
 @dataclass
 class SmbClientChooseMainProfileResult(ClientChooseMainProfileResult):
-    ...
     has_wrong_user_source_type: bool
-    """Есть неразрешенный тип источника, который нужно отфильтровать"""
+    """Есть неподходящий тип источника, который нужно отфильтровать"""
+    has_bad_offers_proportion: bool
+    """В одном из аккаунтов клиента есть больше активных обьявлений чем позволено"""
