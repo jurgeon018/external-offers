@@ -46,6 +46,15 @@ async def choose_main_smb_client_profile(
 
         if profile.state.is_blocked:
             has_bad_account = True
+
+        if (
+            user_source_type
+            and user_source_type.is_sub_agents
+        ):
+            has_wrong_user_source_type = True
+            # не берем клиента в работу если у него есть хоть один субакаунт
+            break
+
         if (
             user_source_type
             and (
@@ -73,14 +82,17 @@ async def choose_main_smb_client_profile(
             )
             if (active_response.count / client_count) > runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
                 has_bad_offers_proportion = True
+                break
         except ApiClientException as exc:
             logger.warning(
-                'Ошибка при получении количества активных объявлений клиента %s в аккаунте с cian_user_id %s для приоритизации: %s',
+                ('Ошибка при получении количества активных объявлений клиента %s'
+                    'в аккаунте с cian_user_id %s для приоритизации: %s'),
                 client_id,
                 profile.cian_user_id,
                 exc.message
             )
             has_bad_offers_proportion = True
+            break
     return SmbClientChooseMainProfileResult(
         has_bad_account=has_bad_account,
         chosen_profile=chosen_profile,
@@ -134,16 +146,12 @@ async def find_smb_client_account_priority(
             client_count=client_count,
             client_id=client.client_id,
         )
-
         if result.has_bad_account:
             return _CLEAR_CLIENT_PRIORITY
-        
-        if not result.chosen_profile and result.has_wrong_user_source_type:
+        if result.has_wrong_user_source_type:
             return _CLEAR_CLIENT_PRIORITY
-
         if not result.chosen_profile:
             return runtime_settings.NO_LK_SMB_PRIORITY
-
         if result.has_bad_offers_proportion:
             return _CLEAR_CLIENT_PRIORITY
 
