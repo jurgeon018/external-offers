@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 import pytest
 import pytz
-
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
@@ -352,25 +351,11 @@ async def test_update_offers_list__commercial_operator_without_client__returns_s
             operator_without_offers_in_progress
         ]
     )
-    assert clients == [
-        {
-            'client_id': '9',
-            'avito_user_id': '321313279',
-            'cian_user_id': None,
-            'client_name': 'Александр Александров',
-            'client_email': 'commercial-alex@gmail.com',
-            'operator_user_id': 60024636,
-            'status': 'inProgress',
-            'client_phones': ['+79812932338'],
-            'segment': None,
-            'next_call': None,
-            'calls_count': 2,
-            'last_call_id': '97077055-341d-4a08-ab78-14c06b711f5f',
-            'main_account_chosen': False,
-            'synced_with_grafana': False,
-            'comment': None
-        }
-    ]
+    assert clients
+
+    client = clients[0]
+    assert client['client_email'] == 'commercial-alex@gmail.com'
+    assert client['operator_user_id'] == operator_without_offers_in_progress
 
 
 @pytest.mark.parametrize(

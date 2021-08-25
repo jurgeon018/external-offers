@@ -4,7 +4,7 @@ import backoff
 from cian_core.degradation import DegradationResult, get_degradation_handler
 from cian_core.runtime_settings import runtime_settings
 
-from external_offers.helpers.errors import DegradationException, USER_ROLES_REQUEST_MAX_TRIES_ERROR
+from external_offers.helpers.errors import USER_ROLES_REQUEST_MAX_TRIES_ERROR, DegradationException
 from external_offers.repositories.users import v1_get_user_roles
 from external_offers.repositories.users.entities import GetUserRolesResponse, V1GetUserRoles
 
