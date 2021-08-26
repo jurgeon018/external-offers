@@ -102,4 +102,5 @@ async def test_external_offer_callback__existing_external_offer__updated_without
         ),
         'is_calltracking': False,
         'synced': False,
+        'is_test': False,
     }

@@ -29,6 +29,8 @@ class ParsedOfferMessage:
     """ID пользователя на внешней площадке"""
     user_segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    is_test: bool = False
+    """Флаг тестового обьявления"""
 
 
 @dataclass
@@ -53,6 +55,8 @@ class ParsedOffer:
     """ID пользователя на внешней площадке"""
     user_segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    is_test: bool = False
+    """Флаг тестового обьявления"""
 
 
 @dataclass
@@ -268,3 +272,5 @@ class ParsedOfferForCreation:
     """Сегмент пользователя"""
     category: str
     """Категория"""
+    is_test: bool = False
+    """Флаг тестового обьявления"""
