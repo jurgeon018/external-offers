@@ -335,7 +335,7 @@
                         <select class="select-control" id="getAccountForDraft">
                             <option value="" selected disabled>Не выбрано</option>
                             {% for client_account in client_accounts %}
-                                <option value={{ client_account.cian_user_id }}>{{ client_account.email }} {% if client_account.is_agent %}Специалист{% else %}Собственник{% endif %}</option>
+                                <option value={{ client_account.cian_user_id }}>({{ client_account.cian_user_id }}) {{ client_account.email }} {% if client_account.is_agent %}Специалист{% else %}Собственник{% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>
