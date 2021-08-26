@@ -19,6 +19,7 @@ class HomeownerClientChooseMainProfileResult(ClientChooseMainProfileResult):
 
 @dataclass
 class SmbClientChooseMainProfileResult(ClientChooseMainProfileResult):
-    ...
-    has_emls_or_subagent: bool
-    """Есть ЕМЛС или саб аккаунт """
+    has_wrong_user_source_type: bool
+    """Есть неподходящий тип источника, который нужно отфильтровать"""
+    has_bad_offers_proportion: bool
+    """В одном из аккаунтов клиента есть больше активных обьявлений чем позволено"""
