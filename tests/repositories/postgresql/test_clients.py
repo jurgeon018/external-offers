@@ -120,7 +120,7 @@ async def test_assign_suitable_client_to_operator__commercial_operator(mocker):
     await postgresql.assign_suitable_client_to_operator(
         operator_id=operator_id,
         call_id='1',
-        operator_roles=['commercialPrepublicationModerator']
+        operator_roles=['CommercialPrepublicationModerator']
     )
 
     # assert

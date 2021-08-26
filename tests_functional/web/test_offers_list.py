@@ -323,7 +323,7 @@ async def test_update_offers_list__commercial_operator_without_client__returns_s
         path='/v1/get-user-roles/',
         response=MockResponse(
             body={
-                'roles': [{'id': 1, 'name': 'commercialPrepublicationModerator'}]
+                'roles': [{'id': 1, 'name': 'CommercialPrepublicationModerator'}]
             }
         ),
     )

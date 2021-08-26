@@ -1,6 +1,8 @@
-from cian_enum import StrEnum
+from cian_enum import NoFormat, StrEnum
 
 
 class OperatorRole(StrEnum):
-    commercial_prepublication_moderator = 'commercial_prepublication_moderator'
+    __value_format__ = NoFormat
+
+    commercial_prepublication_moderator = 'CommercialPrepublicationModerator'
     """Модератор предпубликации коммерческих объявлений"""
