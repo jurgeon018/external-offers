@@ -35,6 +35,8 @@ class Client:
     """Коментарий к карточке от оператора"""
     next_call: Optional[datetime] = None
     """Дата следующего звонка клиенту"""
+    is_test: bool = False
+    """Тестовое обьявление"""
 
 
 @dataclass

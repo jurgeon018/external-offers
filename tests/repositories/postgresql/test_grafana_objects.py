@@ -24,7 +24,8 @@ async def test_get_unsynced_waiting_objects_count(mocker):
     expected_query = f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting';
+        AND status = 'waiting'
+        AND is_test IS FALSE;
     """
     # act
     result = await get_unsynced_waiting_objects_count(table_name)
@@ -42,7 +43,8 @@ async def test_sync_waiting_objects_with_grafana(mocker):
         UPDATE {table_name}
         SET synced_with_grafana = TRUE
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting';
+        AND status = 'waiting'
+        AND is_test IS FALSE;
     """
     # act
     result = await sync_waiting_objects_with_grafana(table_name)

@@ -8,8 +8,9 @@ async def test_get_client_in_progress_by_operator():
     # arrange
     query = ('SELECT clients.client_id, clients.avito_user_id, clients.cian_user_id, clients.client_name, clients'
              '.client_phones, clients.client_email, clients.status, clients.operator_user_id, clients.segment, cl'
-             'ients.next_call, clients.calls_count, clients.last_call_id, clients.synced_with_grafana, clients.main_account_chosen, clients.comment \nFROM clie'
-             'nts \nWHERE clients.operator_user_id = $1 AND clients.status = $3 \n LIMIT $2')
+             'ients.next_call, clients.calls_count, clients.last_call_id, clients.synced_with_grafana, clients.is'
+             '_test, clients.main_account_chosen, clients.comment \nFROM clients \nWHERE clients.operator_user_id'
+             ' = $1 AND clients.status = $3 \n LIMIT $2')
     operator_id = 1
 
     # act
@@ -26,12 +27,12 @@ async def test_assign_suitable_client_to_operator(mocker):
     # arrange
     query = ('WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFROM clients JOIN o'
              'ffers_for_call ON offers_for_call.client_id = clients.client_id \nWHERE clients.operator_user_id IS NU'
-             'LL AND offers_for_call.status = $9 AND clients.status = $10 OR clients.operator_user_id = $6 AND offer'
-             's_for_call.status IN ($11, $12) AND clients.next_call <= $4 ORDER BY offers_for_call.priority ASC NULL'
-             'S LAST, offers_for_call.created_at DESC \n LIMIT $7 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status'
-             '=$8, operator_user_id=$5, calls_count=(coalesce(clients.calls_count, $1) + $2), last_call_id=$3 FROM f'
-             'irst_suitable_offer_client_cte WHERE clients.client_id = first_suitable_offer_client_cte.client_id RET'
-             'URNING clients.client_id')
+             'LL AND offers_for_call.status = $9 AND clients.status = $10 AND clients.is_test = false OR clients.ope'
+             'rator_user_id = $6 AND offers_for_call.status IN ($11, $12) AND clients.next_call <= $4 AND clients.is'
+             '_test = false ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.created_at DESC \n LIM'
+             'IT $7 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$8, operator_user_id=$5, calls_count=(coales'
+             'ce(clients.calls_count, $1) + $2), last_call_id=$3 FROM first_suitable_offer_client_cte WHERE clients.'
+             'client_id = first_suitable_offer_client_cte.client_id RETURNING clients.client_id')
     operator_id = 1
     default_no_calls = 0
     default_one_more_call = 1
