@@ -45,6 +45,6 @@ v1_get_user_roles_with_retries = backoff.on_predicate(
 
 
 async def get_operator_roles(operator_id: int) -> List[str]:
-    request = V1GetUserRoles(user_id=operator_id, use_cache=False)
+    request = V1GetUserRoles(user_id=operator_id)
     result: DegradationResult[GetUserRolesResponse] = await v1_get_user_roles_with_retries(request)
     return [role.name for role in result.value.roles]
