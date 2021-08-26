@@ -5,7 +5,7 @@ from cian_test_utils import future
 
 
 @pytest.mark.gen_test
-async def test_update_client_comment__(http_client, base_url, mocker):
+async def test_update_client_comment(http_client, base_url, mocker):
     get_client_by_client_id_mock = mocker.patch(
         'external_offers.services.update_client_comment.get_client_by_client_id'
     )

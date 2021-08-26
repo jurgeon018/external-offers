@@ -6,7 +6,7 @@ from cian_core.degradation import DegradationResult
 from cian_test_utils import future
 
 from external_offers.entities import Client, Offer
-from external_offers.entities.admin import AdminDeleteOfferRequest
+from external_offers.entities.admin import AdminDeleteOfferRequest, AdminUpdateOffersListRequest
 from external_offers.helpers.errors import USER_ROLES_REQUEST_MAX_TRIES_ERROR, DegradationException
 from external_offers.services.admin import already_published_offer, update_offers_list
 from external_offers.settings.base import EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT
@@ -111,6 +111,8 @@ async def test_update_offers_list__operator_roles_request_degraded(mocker):
         'tries': EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT
     }
 
+    request = AdminUpdateOffersListRequest(is_test=False)
+
     # act & assert
     with pytest.raises(DegradationException, match=error_message):
-        await update_offers_list(user_id=realty_user_id)
+        await update_offers_list(request, user_id=realty_user_id)

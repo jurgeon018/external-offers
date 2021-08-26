@@ -10,6 +10,58 @@ async def test_get_offers_list__without_x_real_userid__returns_400(http):
     await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
+async def test_update_offers_list__with_is_test_false__returns_only_real_objects(
+    pg,
+    http,
+    offers_and_clients_fixture,
+    parsed_offers_fixture,
+    test_objects_fixture
+):
+    pass
+
+
+async def test_update_offers_list__with_is_test_true__assigns_test_object_to_operator(
+    pg,
+    http,
+    offers_and_clients_fixture,
+    parsed_offers_fixture,
+    test_objects_fixture,
+    users_mock,
+):
+    # arrange
+    operator_user_id = '11111111'
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_fixture)
+    await pg.execute_scripts(test_objects_fixture)
+
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
+        json={
+            'isTest': True,
+        },
+        expected_status=200
+    )
+    # assert
+    clients = await pg.fetch(f"""
+        SELECT * FROM clients WHERE operator_user_id='{operator_user_id}'
+    """)
+    assert len(clients) == 1
+    assert clients[0]['is_test'] is True
+
+
 async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
         pg,
         http,
@@ -26,6 +78,7 @@ async def test_update_offers_list__operator_with_client_in_progress__returns_not
         headers={
             'X-Real-UserId': operator_with_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -59,6 +112,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -94,6 +148,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -152,6 +207,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
         headers={
             'X-Real-UserId': first_operator_without_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 
@@ -161,6 +217,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
         headers={
             'X-Real-UserId': second_operator_without_offers_in_progress
         },
+        json={},
         expected_status=200)
 
     # assert
@@ -280,6 +337,7 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
         headers={
             'X-Real-UserId': operator_with_call_later
         },
+        json={},
         expected_status=200
     )
 
@@ -338,7 +396,8 @@ async def test_update_offers_list__commercial_operator_without_client__returns_s
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
-        expected_status=200
+        expected_status=200,
+        json={'isTest': False}
     )
 
     # assert
@@ -716,6 +775,7 @@ async def test_update_offers_list__exist_no_client_waiting__returns_no_success(
         headers={
             'X-Real-UserId': operator
         },
+        json={},
         expected_status=200
     )
 
@@ -747,6 +807,7 @@ async def test_update_offers_list__exist_no_suitable_client__returns_no_success(
         headers={
             'X-Real-UserId': operator
         },
+        json={},
         expected_status=200
     )
 

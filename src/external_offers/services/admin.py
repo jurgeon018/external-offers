@@ -11,6 +11,7 @@ from external_offers.entities.admin import (
     AdminPhoneUnavailableClientRequest,
     AdminPromoGivenClientRequest,
     AdminResponse,
+    AdminUpdateOffersListRequest,
 )
 from external_offers.enums import CallStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid
@@ -48,7 +49,7 @@ from external_offers.utils import get_next_call_date_when_call_missed
 logger = logging.getLogger(__name__)
 
 
-async def update_offers_list(user_id: int) -> AdminResponse:
+async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
     exists = await exists_offers_in_progress_by_operator(
         operator_id=user_id
@@ -72,6 +73,7 @@ async def update_offers_list(user_id: int) -> AdminResponse:
             operator_id=user_id,
             call_id=call_id,
             operator_roles=operator_roles,
+            is_test=request.is_test,
         )
         if not client_id:
             return AdminResponse(
