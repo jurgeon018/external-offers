@@ -7,6 +7,7 @@ from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -731,15 +732,18 @@ async def iterate_over_offers_for_call_sorted(
         select(
             [offers_for_call]
         ).where(
-            or_(
-                # все обьявления в нефинальных статусах отправляются в кафку повторно
-                offers_for_call.c.status.in_(non_final_statuses),
-                # все обьявления с финальным статусом отправляются в кафку единажды
-                # (отправляются только те, которые еще не были отправлены в кафку)
-                and_(
-                    offers_for_call.c.status.notin_(non_final_statuses),
-                    not_(offers_for_call.c.synced_with_kafka),
-                ),
+            and_(
+                offers_for_call.c.is_test == false(),
+                or_(
+                    # все обьявления в нефинальных статусах отправляются в кафку повторно
+                    offers_for_call.c.status.in_(non_final_statuses),
+                    # все обьявления с финальным статусом отправляются в кафку единажды
+                    # (отправляются только те, которые еще не были отправлены в кафку)
+                    and_(
+                        offers_for_call.c.status.notin_(non_final_statuses),
+                        not_(offers_for_call.c.synced_with_kafka),
+                    ),
+                )
             )
         ).order_by(
             offers_for_call.c.created_at.asc(),
@@ -781,3 +785,14 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
         )
         query, params = asyncpgsa.compile_query(sql)
         await pg.get().fetch(query, *params)
+
+
+async def delete_test_offers_for_call() -> None:
+    query, params = asyncpgsa.compile_query(
+        delete(
+            offers_for_call
+        ).where(
+            offers_for_call.c.is_test == true(),
+        )
+    )
+    await pg.get().execute(query, *params)

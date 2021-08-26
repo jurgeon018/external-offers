@@ -39,6 +39,8 @@ class Offer:
     """Категория обьявления"""
     synced_with_kafka: bool = False
     """Было отправлено в кафку в финальном статусе"""
+    is_test: bool = False
+    """Тестовое обьявление"""
     row_version: int = 0
     """Версия объявления."""
     publication_status: Optional[PublicactionStatus] = None
