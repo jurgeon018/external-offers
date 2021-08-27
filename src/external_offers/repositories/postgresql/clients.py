@@ -5,6 +5,7 @@ import asyncpgsa
 import pytz
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql.expression import true
 from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
@@ -43,10 +44,10 @@ async def get_client_in_progress_by_operator(
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
-    call_id: str
+    call_id: str,
+    is_test: bool = False,
 ) -> str:
     now = datetime.now(pytz.utc)
-
     first_suitable_offer_client_cte = (
         select(
             [
@@ -68,6 +69,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
                     clients.c.status == ClientStatus.waiting.value,
+                    clients.c.is_test == is_test,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны
@@ -78,6 +80,7 @@ async def assign_suitable_client_to_operator(
                         OfferStatus.call_missed.value,
                     ]),
                     clients.c.next_call <= now,
+                    clients.c.is_test == is_test,
                 ),
                 # добивочные клиенты
                 and_(
@@ -85,6 +88,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.unactivated.is_(True),
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    clients.c.is_test == is_test,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны добивочных клиентов с неактивироваными черновиками
@@ -96,6 +100,7 @@ async def assign_suitable_client_to_operator(
                     ]),
                     clients.c.next_call <= now,
                     offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    clients.c.is_test == is_test,
                 ),
             )
         ).order_by(
@@ -596,6 +601,17 @@ async def set_client_unactivated_by_offer_cian_id(offer_cian_id: int) -> None:
             next_call=get_next_call_date_when_draft(),
         ).where(
             clients.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def delete_test_clients() -> None:
+    query, params = asyncpgsa.compile_query(
+        delete(
+            clients
+        ).where(
+            clients.c.is_test == true()
         )
     )
     await pg.get().execute(query, *params)

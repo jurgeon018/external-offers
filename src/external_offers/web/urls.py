@@ -6,6 +6,11 @@ from external_offers import entities
 from external_offers.services import admin
 from external_offers.services.return_client_by_phone import return_client_by_phone
 from external_offers.services.save_offer import save_offer_public
+from external_offers.services.test_objects import (
+    create_test_client_public,
+    create_test_offer_public,
+    delete_test_objects_public,
+)
 from external_offers.services.update_client_comment import update_client_comment_public
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_clients_operator import update_clients_operator_public
@@ -23,6 +28,7 @@ urlpatterns = base_urls.urlpatterns + [
     url('/api/admin/v1/update-offers-list/$', get_handler(
         service=admin.update_offers_list,
         method='POST',
+        request_schema=entities.AdminUpdateOffersListRequest,
         response_schema=entities.AdminResponse,
         base_handler_cls=PublicHandler,
     )),
@@ -110,6 +116,27 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.UpdateOfferCategoryRequest,
         response_schema=entities.UpdateOfferCategoryResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/create-test-offer/$', get_handler(
+        service=create_test_offer_public,
+        method='POST',
+        request_schema=entities.CreateTestOfferRequest,
+        response_schema=entities.CreateTestOfferResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/create-test-client/$', get_handler(
+        service=create_test_client_public,
+        method='POST',
+        request_schema=entities.CreateTestClientRequest,
+        response_schema=entities.CreateTestClientResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/delete-test-objects/$', get_handler(
+        service=delete_test_objects_public,
+        method='POST',
+        request_schema=entities.DeleteTestObjectsRequest,
+        response_schema=entities.DeleteTestObjectsResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-client-comment/$', get_handler(

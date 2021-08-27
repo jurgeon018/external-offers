@@ -44,6 +44,8 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
             and (
                 source_user_type.is_emls
                 or source_user_type.is_sub_agents
+                or source_user_type.is_n1
+                or source_user_type.is_mlsn
                 )
         ):
             has_emls_or_subagent = True
@@ -77,7 +79,7 @@ async def find_homeowner_client_account_priority(
                 )
             )
 
-            # Приоритет для незарегистрированных smb пользователей
+            # Приоритет для незарегистрированных собственников
             if not response.users:
                 statsd.incr(_METRIC_PRIORITIZE_NO_LK)
                 return settings.NO_LK_HOMEOWNER_PRIORITY
@@ -92,6 +94,7 @@ async def find_homeowner_client_account_priority(
 
             # Выбираем основной активный профиль собственника,
             # если нашли заблокированные аккаунты - убираем из очереди
+
             result = choose_main_homeowner_client_profile(response.users)
 
             if result.has_bad_account:
