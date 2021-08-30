@@ -204,10 +204,12 @@ SYNC_OFFERS_FOR_CALL_WITH_KAFKA_BY_IDS_CHUNK = 1000
 SUITABLE_EXTERNAL_SOURCES_FOR_SAVE = ['1']
 SUITABLE_EXTERNAL_SOURCES_FOR_SEND = ['1']
 
+EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT = 3
+
 DEBUG: bool = False
 
 # Дефолтные обьекты для тестирования
-DEFAULT_TEST_OFFER = '''{
+DEFAULT_TEST_OFFER = """{
     "offer_cian_id": null,
     "offer_priority": 1,
     "parsed_id": "ad49365b-caa3-4d8a-be58-02360ad338d5",
@@ -234,12 +236,12 @@ DEFAULT_TEST_OFFER = '''{
     "floor_number": 3,
     "floors_count": 6,
     "is_developer": null
-}'''
-DEFAULT_TEST_CLIENT = '''{
+}"""
+DEFAULT_TEST_CLIENT = """{
     "segment":  "c",
     "client_phone": "3333333333",
     "client_name": "test client",
     "cian_user_id": null,
     "client_email": "111@21.11",
     "main_account_chosen": false
-}'''
+}"""

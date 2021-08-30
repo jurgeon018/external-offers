@@ -13,6 +13,12 @@ from typing import Optional
 
 
 @dataclass
-class V2GetUsersByPhone:
-    phone: Optional[str] = None
-    """Телефон"""
+class RoleModel:
+    """Модель роли"""
+
+    id: int
+    """Id"""
+    name: str
+    """Название"""
+    comment: Optional[str] = None
+    """Описание"""
