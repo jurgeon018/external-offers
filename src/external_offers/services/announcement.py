@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     ObjectModel,
@@ -19,15 +18,30 @@ from external_offers.repositories.postgresql.offers import (
 logger = logging.getLogger(__name__)
 
 
-async def process_announcement(object_model: ObjectModel, event_date: datetime) -> None:
-    offer_cian_id = object_model.cian_id
-    row_version = object_model.row_version
+async def process_announcement(
+    object_model: ObjectModel,
+) -> None:
     publication_status = object_model.status
+    row_version = object_model.row_version
+    offer_cian_id = object_model.cian_id
     if not row_version:
         return
     offer_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
     if offer_row_version > row_version:
         return
+    await update_publication_status(
+        publication_status=publication_status,
+        row_version=row_version,
+        offer_cian_id=offer_cian_id
+    )
+
+
+async def update_publication_status(
+    *,
+    publication_status: PublicationStatus,
+    row_version: int,
+    offer_cian_id: int,
+) -> None:
     await set_offer_publication_status_by_offer_cian_id(
         offer_cian_id=offer_cian_id,
         publication_status=publication_status.value,

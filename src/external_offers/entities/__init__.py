@@ -38,6 +38,8 @@ from external_offers.entities.test_objects import (
     CreateTestOfferResponse,
     DeleteTestObjectsRequest,
     DeleteTestObjectsResponse,
+    UpdateTestObjectsPublicationStatusRequest,
+    UpdateTestObjectsPublicationStatusResponse,
 )
 from external_offers.entities.update_client_comment import UpdateClientCommentRequest, UpdateClientCommentResponse
 from external_offers.entities.update_client_phone import (

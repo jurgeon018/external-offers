@@ -10,6 +10,7 @@ from external_offers.services.test_objects import (
     create_test_client_public,
     create_test_offer_public,
     delete_test_objects_public,
+    update_test_objects_publication_status_public,
 )
 from external_offers.services.update_client_comment import update_client_comment_public
 from external_offers.services.update_client_phone import update_client_phone_public
@@ -151,6 +152,13 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.UpdateClientsOperatorRequest,
         response_schema=entities.UpdateClientsOperatorResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-test-object-publication-status/$', get_handler(
+        service=update_test_objects_publication_status_public,
+        method='POST',
+        request_schema=entities.UpdateTestObjectsPublicationStatusRequest,
+        response_schema=entities.UpdateTestObjectsPublicationStatusResponse,
         base_handler_cls=PublicHandler,
     )),
 ]

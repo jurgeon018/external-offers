@@ -39,8 +39,7 @@ async def test_assign_suitable_client_to_operator(mocker):
              'LIMIT $9 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$12, operator_user_id=$'
              '6, calls_count=(coalesce(clients.calls_count, $1) + $2), last_call_id=$3 FROM first_'
              'suitable_offer_client_cte WHERE clients.client_id = first_suitable_offer_client_cte.'
-             'client_id RETURNING clients.client_id'
-            )
+             'client_id RETURNING clients.client_id')
     operator_id = 1
     default_no_calls = 0
     default_one_more_call = 1

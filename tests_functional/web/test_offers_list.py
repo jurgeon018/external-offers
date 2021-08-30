@@ -58,6 +58,7 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         headers={
             'X-Real-UserId': operator_without_offers_in_progress
         },
+        json={},
         expected_status=200
     )
 

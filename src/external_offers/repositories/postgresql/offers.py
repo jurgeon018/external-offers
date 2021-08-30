@@ -847,6 +847,19 @@ async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> int:
     return int(row_verision)
 
 
+
+async def get_offer_is_test_by_offer_cian_id(offer_cian_id: int) -> int:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.is_test]
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_cian_id,
+        ).limit(1)
+    )
+    is_test = await pg.get().fetchval(query, *params)
+    return is_test
+
+
 async def set_offer_done_by_offer_cian_id(
     *,
     offer_cian_id: str,
