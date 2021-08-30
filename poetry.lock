@@ -369,7 +369,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-core"
-version = "1.53.1"
+version = "1.53.2"
 description = ""
 category = "main"
 optional = false
@@ -1089,7 +1089,7 @@ reference = "cian"
 
 [[package]]
 name = "google-api-core"
-version = "2.0.0b1"
+version = "2.0.0"
 description = "Google API client core library"
 category = "main"
 optional = false
@@ -2806,8 +2806,13 @@ cian-features = [
     {file = "cian_features-1.0.0-py3-none-any.whl", hash = "md5:6ea994718d8117100e621151695537a9"},
 ]
 cian-functional-test-utils = [
+    {file = "cian-functional-test-utils-0.75.6.tar.gz", hash = "md5:e75081a8333dc8fc2014168a91c2c36d"},
     {file = "cian_functional_test_utils-0.75.6-py3-none-any.whl", hash = "md5:e610bca82315bcb292217fa5493e82f5"},
 ]
+cian-helpers = [
+    {file = "cian-helpers-1.1.0.tar.gz", hash = "md5:6e833fb63cf3cc6e20f80d598a4808a5"},
+]
+cian-http = [
     {file = "cian-http-0.25.0.tar.gz", hash = "md5:b7ed525542118be979bf2bd31312ae93"},
     {file = "cian_http-0.25.0-py2.py3-none-any.whl", hash = "md5:a953ec8859ec55966d8ec50eca58ca6e"},
 ]
@@ -2978,16 +2983,16 @@ furl = [
     {file = "furl-2.1.2.tar.gz", hash = "sha256:f7dba33eafbee7dbc83963534b25e72f816cced48ac53191ee60bfcc62933918"},
 ]
 google-api-core = [
-    {file = "google-api-core-2.0.0b1.tar.gz", hash = "sha256:8af2bd6392eb58acd14d697bec9835a9661cfc5ceadae14d0fe5102b664201e2"},
-    {file = "google_api_core-2.0.0b1-py2.py3-none-any.whl", hash = "sha256:c1af0f4e438c49bda866448ceacb7a64d9103e73c6d2310d988fef4cf7715f29"},
+    {file = "google-api-core-2.0.0.tar.gz", hash = "sha256:bd9eb0709f4e10dd6fddb32fd0788a190b434426c258be6e00ef40da136d768d"},
+    {file = "google_api_core-2.0.0-py2.py3-none-any.whl", hash = "sha256:428805de17b48ca1af2fdb5bbfc2334e1bbcb0ea4a16506fa1337fb29c8f37c8"},
 ]
 google-api-python-client = [
-    {file = "google-api-python-client-2.17.0.tar.gz", hash = "sha256:20bc8f711883f9f8f96d96bc44b40ad0e2b0a9ef7df53e7c738948584fddd1c2"},
-    {file = "google_api_python_client-2.17.0-py2.py3-none-any.whl", hash = "sha256:26402b51b21480e5f2de2650f4dc41d19db031ce28d26047f30dad0803fbf27d"},
+    {file = "google-api-python-client-2.18.0.tar.gz", hash = "sha256:a25661ec6cf4c159f41fe9c061c2bee31b2dddaf2ad787e23617048a25b53842"},
+    {file = "google_api_python_client-2.18.0-py2.py3-none-any.whl", hash = "sha256:6e990fc4d0419c2011f75ca5c2762efbb7eb4def67bbe2f1b98a8ccb73117bf5"},
 ]
 google-auth = [
-    {file = "google-auth-2.0.0.tar.gz", hash = "sha256:9e00c76e1bc7b1a7fe80472f1347f3802e4caa1fa53ba1f11b7af3772b484a82"},
-    {file = "google_auth-2.0.0-py2.py3-none-any.whl", hash = "sha256:5c01b4be3fbece1526a76cb81551a936f938c7c3d490d10947c66f6ffd1e5161"},
+    {file = "google-auth-2.0.1.tar.gz", hash = "sha256:ea1af050b3e06eb73e4470f704d23007307bc0e87c13e015f6b90460f1407bd3"},
+    {file = "google_auth-2.0.1-py2.py3-none-any.whl", hash = "sha256:c012c8be7c442c8309ca8fa0876fef33f5fd977c467be1e1c1c2f721e8ebd73c"},
 ]
 google-auth-httplib2 = [
     {file = "google-auth-httplib2-0.1.0.tar.gz", hash = "sha256:a07c39fd632becacd3f07718dfd6021bf396978f03ad3ce4321d060015cc30ac"},
