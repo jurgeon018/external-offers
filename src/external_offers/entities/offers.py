@@ -4,9 +4,7 @@ from typing import Optional
 
 from external_offers.enums import OfferStatus
 from external_offers.enums.object_model import Category
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
-    Status as PublicationStatus,
-)
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 
 @dataclass

@@ -1,7 +1,7 @@
+import json
 from datetime import datetime, timedelta
 
 import pytest
-import json
 import pytz
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
