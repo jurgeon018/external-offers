@@ -115,6 +115,44 @@ async def find_smb_client_account_priority(
                     phone=phone
                 )
             )
+
+            # Приоритет для незарегистрированных smb пользователей
+            if not response.users:
+                statsd.incr(_METRIC_PRIORITIZE_NO_LK)
+                return runtime_settings.NO_LK_SMB_PRIORITY
+
+            sanctions_response = await v1_sanctions_get_sanctions(
+                V1SanctionsGetSanctions(
+                    user_ids=[user.id for user in response.users],
+                )
+            )
+            if sanctions_response.items:
+                return _CLEAR_CLIENT_PRIORITY
+
+            # Выбираем основной активный агентский профиль пользователя
+            # если нашли заблокированные аккаунты - убираем из очереди
+            user_profiles: List[UserModelV2] = response.users
+            result = await choose_main_smb_client_profile(
+                user_profiles=user_profiles,
+                client_count=client_count,
+                client_id=client.client_id,
+            )
+            if result.has_bad_account:
+                return _CLEAR_CLIENT_PRIORITY
+            if result.has_wrong_user_source_type:
+                return _CLEAR_CLIENT_PRIORITY
+            if not result.chosen_profile:
+                return runtime_settings.NO_LK_SMB_PRIORITY
+            if result.has_bad_offers_proportion:
+                return _CLEAR_CLIENT_PRIORITY
+
+            cian_user_id = result.chosen_profile.cian_user_id
+
+            # Обновляем идентификатор клиента
+            await set_cian_user_id_by_client_id(
+                cian_user_id=cian_user_id,
+                client_id=client.client_id
+                )
         except ApiClientException as exc:
             logger.warning(
                 'Ошибка при получении идентификатора клиента %s для приоритизации: %s',
@@ -123,44 +161,6 @@ async def find_smb_client_account_priority(
             )
             statsd.incr(_METRIC_PRIORITIZE_FAILED)
             return _CLEAR_CLIENT_PRIORITY
-
-        # Приоритет для незарегистрированных smb пользователей
-        if not response.users:
-            statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-            return runtime_settings.NO_LK_SMB_PRIORITY
-
-        sanctions_response = await v1_sanctions_get_sanctions(
-            V1SanctionsGetSanctions(
-                user_ids=[user.id for user in response.users],
-            )
-        )
-        if sanctions_response.items:
-            return _CLEAR_CLIENT_PRIORITY
-
-        # Выбираем основной активный агентский профиль пользователя
-        # если нашли заблокированные аккаунты - убираем из очереди
-        user_profiles: List[UserModelV2] = response.users
-        result = await choose_main_smb_client_profile(
-            user_profiles=user_profiles,
-            client_count=client_count,
-            client_id=client.client_id,
-        )
-        if result.has_bad_account:
-            return _CLEAR_CLIENT_PRIORITY
-        if result.has_wrong_user_source_type:
-            return _CLEAR_CLIENT_PRIORITY
-        if not result.chosen_profile:
-            return runtime_settings.NO_LK_SMB_PRIORITY
-        if result.has_bad_offers_proportion:
-            return _CLEAR_CLIENT_PRIORITY
-
-        cian_user_id = result.chosen_profile.cian_user_id
-
-        # Обновляем идентификатор клиента
-        await set_cian_user_id_by_client_id(
-            cian_user_id=cian_user_id,
-            client_id=client.client_id
-            )
 
     try:
         active_response = await v2_get_user_active_announcements_count(
