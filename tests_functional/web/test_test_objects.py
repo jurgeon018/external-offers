@@ -2,8 +2,6 @@ import json
 
 from cian_functional_test_utils.data_fixtures import load_json_data
 
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
-
 
 async def test_create_offer_from_default_settings(
     http,
@@ -364,7 +362,7 @@ async def test_update_test_object_publication_status__offer_doesnt_exists__succe
         json={
             'offerCianId': non_existing_offer_cian_id,
             'rowVersion': 3,
-            'publicationStatus': PublicationStatus.draft.value,
+            'publicationStatus': 'Draft',
         },
         headers={
             'X-Real-UserId': '1'
@@ -392,7 +390,7 @@ async def test_update_test_object_publication_status__offer_is_not_test__success
     );
     """)
     operator_id = '11111111'
-    publication_status = PublicationStatus.draft.value
+    publication_status = 'Draft'
 
     # act
     update_response = await http.request(
@@ -425,7 +423,7 @@ async def test_update_test_object_publication_status__invalid_row_version__succe
     operator_id = '11111111'
     source_user_id = '12345'
     source_object_id = '1_356645'
-    publication_status = PublicationStatus.draft.value
+    publication_status = 'Draft'
 
     test_objects = load_json_data(__file__, 'test_objects.json')
 
@@ -486,7 +484,7 @@ async def test_update_test_object_publication_status__params_are_valid__success_
     operator_id = '11111111'
     source_user_id = '12345'
     source_object_id = '1_356645'
-    publication_status = PublicationStatus.draft.value
+    publication_status = 'Draft'
 
     test_objects = load_json_data(__file__, 'test_objects.json')
 
