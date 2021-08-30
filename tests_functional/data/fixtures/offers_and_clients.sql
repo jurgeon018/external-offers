@@ -88,6 +88,16 @@ INSERT INTO public.clients(
     'waiting',
     1,
     'last-call-id'
+), (
+     '9',
+    '321313279',
+    'Александр Александров',
+    '{+79812932338}',
+    'commercial-alex@gmail.com',
+    NULL,
+    'waiting',
+    1,
+    'last-call-id'
 );
 
 INSERT INTO public.offers_for_call(
@@ -100,7 +110,8 @@ INSERT INTO public.offers_for_call(
     synced_at,
     priority,
     last_call_id,
-    synced_with_kafka
+    synced_with_kafka,
+    category
 ) VALUES (
     1,
     'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
@@ -111,7 +122,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     2,
     'f1a91ade-13a2-48d9-a05a-6131af39033e',
@@ -122,7 +134,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     3,
     'fbd30a97-7bed-4459-8cfd-8ba797ac9054',
@@ -133,7 +146,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     4,
     '9999d421-b7ba-4ee0-b29f-bc8add87c933',
@@ -144,7 +158,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     5,
     '33e4d51e-e8d3-499d-9497-4229d6c539ee',
@@ -155,7 +170,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 03:05:06',
     2,
     NULL,
-    false
+    false,
+    NULL
 ), (
     6,
     'wrong-parsed-id',
@@ -166,7 +182,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     7,
     '1d6c73b8-3057-47cc-b50a-419052da619f',
@@ -177,7 +194,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     8,
     '124c73b8-3057-47cc-b50a-419052da619f',
@@ -188,7 +206,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     9,
     '1dddd3b8-3057-47cc-b50a-419052da619f',
@@ -199,7 +218,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ),(
     10,
     'wrong-parsed-id-2',
@@ -210,7 +230,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ),(
     11,
     '2dddd3b8-3157-47cc-b50a-419052da619f',
@@ -221,7 +242,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     '2dddd3b8-3157-47cc-b50a-419052da6197',
-    false
+    false,
+    NULL
 ),(
     12,
     '3dddd3b8-3257345cc-b50a-419052da619f',
@@ -232,7 +254,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     '2dddd3b8-3157-47cc-b50a-419052da6197',
-    false
+    false,
+    NULL
 ),(
     13,
     '1d6c7dxc-3057-47cc-b50a-419052dfasf',
@@ -243,7 +266,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     'last-call-id',
-    false
+    false,
+    NULL
 ), (
     14,
     '1d6c7dxc-3057-47cc-b50a-419052da619f',
@@ -254,7 +278,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     15,
     '1d6c7dxc-3057-47cc-b50a-419052da619f',
@@ -265,7 +290,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     16,
     '1d6c7dxc-3057-47cc-b50a-419052da619f',
@@ -276,7 +302,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
 ), (
     17,
     '1d6c7dxc-3057-47cc-b50a-419052da619f',
@@ -287,7 +314,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    'flatRent'
 ), (
     18,
     '1d6c7dxc-3057-47cc-b50a-419052da619f',
@@ -298,7 +326,8 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    'flatSale'
 ), (
     19,
     '1d6c7dxc-3057-47cc-b50a-419052da619f',
@@ -309,5 +338,30 @@ INSERT INTO public.offers_for_call(
     '2020-10-12 04:05:06',
     1,
     NULL,
-    false
+    false,
+    NULL
+), (
+    20,
+    '1d6c7dxc-3057-47cc-b50a-419052da619f',
+    '9',
+    'waiting',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    1,
+    NULL,
+    false,
+    'officeSale'
+), (
+    21,
+    '1d6c7dxc-3057-47cc-b50a-419052da619f',
+    '9',
+    'waiting',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    '2020-10-12 04:05:06',
+    1,
+    NULL,
+    false,
+    'businessRent'
 );
