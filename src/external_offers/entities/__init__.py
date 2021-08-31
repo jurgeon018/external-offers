@@ -43,4 +43,9 @@ from external_offers.entities.update_offer_category import UpdateOfferCategoryRe
 from external_offers.entities.teams import (
     UpdateOperatorTeamRequest,
     UpdateOperatorTeamResponse,
+    UpdateTeamRoleRequest,
+    UpdateTeamRoleResponse,
+    CreateTeamRequest,
+    CreateTeamResponse,
 )
+from external_offers.entities.response import BasicResponse

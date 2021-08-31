@@ -8,7 +8,7 @@ CREATE TYPE segment_type AS enum (
 	'commercial'
 );
 
-CREATE TABLE role (
+CREATE TABLE roles (
     id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
     segment segment_type NOT NULL DEFAULT 'all'
 );

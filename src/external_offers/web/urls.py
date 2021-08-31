@@ -14,7 +14,11 @@ from external_offers.services.test_objects import (
 from external_offers.services.update_client_comment import update_client_comment_public
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_offer_category import update_offer_category_public
-from external_offers.services.teams import update_operator_team
+from external_offers.services.teams import (
+    update_operator_team_public,
+    update_team_role_public,
+    create_team_public,
+)
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
@@ -145,11 +149,24 @@ urlpatterns = base_urls.urlpatterns + [
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-operator-team/$', get_handler(
-        service=update_operator_team,
+        service=update_operator_team_public,
         method='POST',
         request_schema=entities.UpdateOperatorTeamRequest,
         response_schema=entities.UpdateOperatorTeamResponse,
         base_handler_cls=PublicHandler,
     )),
-
+    url('/api/admin/v1/update-team-role/$', get_handler(
+        service=update_team_role_public,
+        method='POST',
+        request_schema=entities.UpdateTeamRoleRequest,
+        response_schema=entities.UpdateTeamRoleResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/create-team/$', get_handler(
+        service=create_team_public,
+        method='POST',
+        request_schema=entities.CreateTeamRequest,
+        response_schema=entities.CreateTeamResponse,
+        base_handler_cls=PublicHandler,
+    )),
 ]
