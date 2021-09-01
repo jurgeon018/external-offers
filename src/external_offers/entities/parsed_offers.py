@@ -253,6 +253,116 @@ class ParsedObjectModel:
                 return area_unit
         return None
 
+    # Commercial
+    @property
+    def is_commercial_type(self) -> bool:
+        return self.category in [
+            Category.office_sale,
+            Category.free_appointment_object_sale,
+            Category.shopping_area_sale,
+            Category.warehouse_sale,
+            Category.industry_sale,
+            Category.building_sale,
+            Category.business_sale,
+            Category.commercial_land_sale,
+            Category.office_rent,
+            Category.free_appointment_object_rent,
+            Category.shopping_area_rent,
+            Category.warehouse_rent,
+            Category.industry_rent,
+            Category.building_rent,
+            Category.business_rent,
+            Category.commercial_land_rent,
+        ]
+
+    @property
+    def is_commercial_sale(self) -> bool:
+        return self.category in [
+            Category.office_sale,
+            Category.free_appointment_object_sale,
+            Category.shopping_area_sale,
+            Category.warehouse_sale,
+            Category.industry_sale,
+            Category.building_sale,
+            Category.business_sale,
+            Category.commercial_land_sale,
+        ]
+
+    @property
+    def is_commercial_rent(self) -> bool:
+        return self.category in [
+            Category.office_rent,
+            Category.free_appointment_object_rent,
+            Category.shopping_area_rent,
+            Category.warehouse_rent,
+            Category.industry_rent,
+            Category.building_rent,
+            Category.business_rent,
+            Category.commercial_land_rent,
+        ]
+
+    @property
+    def is_office(self) -> bool:
+        return self.category in [
+            Category.office_rent,
+            Category.office_sale,
+        ]
+
+    @property
+    def is_free_appointment_object(self) -> bool:
+        return self.category in [
+            Category.free_appointment_object_rent,
+            Category.free_appointment_object_sale,
+        ]
+
+    @property
+    def is_shopping_area(self) -> bool:
+        return self.category in [
+            Category.shopping_area_rent,
+            Category.shopping_area_sale,
+        ]
+
+    @property
+    def is_warehouse(self) -> bool:
+        return self.category in [
+            Category.warehouse_rent,
+            Category.warehouse_sale,
+        ]
+
+    @property
+    def is_industry(self) -> bool:
+        return self.category in [
+            Category.industry_rent,
+            Category.industry_sale,
+        ]
+
+    @property
+    def is_building(self) -> bool:
+        return self.category in [
+            Category.building_rent,
+            Category.building_sale,
+        ]
+
+    @property
+    def is_business(self) -> bool:
+        return self.category in [
+            Category.business_rent,
+            Category.business_sale,
+        ]
+
+    @property
+    def is_business_sale(self) -> bool:
+        return self.category in [
+            Category.business_sale,
+        ]
+
+    @property
+    def is_commercial_land(self) -> bool:
+        return self.category in [
+            Category.commercial_land_rent,
+            Category.commercial_land_sale,
+        ]
+
 
 @dataclass
 class ParsedOfferForCreation:

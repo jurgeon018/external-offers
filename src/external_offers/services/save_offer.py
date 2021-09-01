@@ -70,6 +70,28 @@ mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (None, SaveOfferCategory.townhouse, DealType.sale, OfferType.suburban): Category.townhouse_sale,
     (None, SaveOfferCategory.land, DealType.sale, OfferType.suburban): Category.land_sale,
     (SaveOfferTerm.daily_term, SaveOfferCategory.house, DealType.rent, OfferType.suburban): Category.daily_house_rent,
+
+    # Commercial
+    (None, SaveOfferCategory.office, DealType.sale, OfferType.commercial): Category.office_sale,
+    (None, SaveOfferCategory.office, DealType.rent, OfferType.commercial): Category.office_rent,
+    (
+        None, SaveOfferCategory.free_appointment_object, DealType.sale, OfferType.commercial
+    ): Category.free_appointment_object_sale,
+    (
+        None, SaveOfferCategory.free_appointment_object, DealType.rent, OfferType.commercial
+    ): Category.free_appointment_object_rent,
+    (None, SaveOfferCategory.shopping_area, DealType.sale, OfferType.commercial): Category.shopping_area_sale,
+    (None, SaveOfferCategory.shopping_area, DealType.rent, OfferType.commercial): Category.shopping_area_rent,
+    (None, SaveOfferCategory.warehouse, DealType.sale, OfferType.commercial): Category.warehouse_sale,
+    (None, SaveOfferCategory.warehouse, DealType.rent, OfferType.commercial): Category.warehouse_rent,
+    (None, SaveOfferCategory.industry, DealType.sale, OfferType.commercial): Category.industry_sale,
+    (None, SaveOfferCategory.industry, DealType.rent, OfferType.commercial): Category.industry_rent,
+    (None, SaveOfferCategory.building, DealType.sale, OfferType.commercial): Category.building_sale,
+    (None, SaveOfferCategory.building, DealType.rent, OfferType.commercial): Category.building_rent,
+    (None, SaveOfferCategory.business, DealType.sale, OfferType.commercial): Category.business_sale,
+    (None, SaveOfferCategory.business, DealType.rent, OfferType.commercial): Category.business_rent,
+    (None, SaveOfferCategory.commercial_land, DealType.sale, OfferType.commercial): Category.commercial_land_sale,
+    (None, SaveOfferCategory.commercial_land, DealType.rent, OfferType.commercial): Category.commercial_land_rent,
 }
 
 

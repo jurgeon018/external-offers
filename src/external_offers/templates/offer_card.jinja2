@@ -1,3 +1,7 @@
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
 <div class="main_style">
     <div class="header-block">
         <div class="client-info">
@@ -54,7 +58,7 @@
                 <select class="select-control" id="getOfferType">
                     <option value="" selected disabled>Не выбрано</option>
                     <option value="flat" {% if parsed_object_model.is_allow_realty_type %} selected {% endif %}>Жилая</option>
-                    <option value="commerce" disabled>Коммерческая</option>
+                    <option value="commercial"{% if parsed_object_model.is_commercial_type %} selected {% endif %}>Коммерческая</option>
                     <option value="suburban" {% if parsed_object_model.is_suburban_sale %} selected {% endif %}>Загородная</option>
                     <option value="newobject" disabled>Новостройки</option>
                 </select>
@@ -127,6 +131,70 @@
                         Участок
                     </option>
 
+                    <!--Commercial property-->
+                    <option value="office"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_office %} selected {% endif %}
+                    >
+                            Офис
+                    </option>
+
+                     <option value="freeAppointmentObject"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_free_appointment_object %} selected {% endif %}
+                    >
+                            ПСН
+                    </option>
+
+                     <option value="shoppingArea"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_shopping_area %} selected {% endif %}
+                    >
+                            Торговая площадь
+                    </option>
+
+                     <option value="warehouse"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_warehouse %} selected {% endif %}
+                    >
+                            Склад
+                    </option>
+
+                     <option value="industry"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_industry %} selected {% endif %}
+                    >
+                            Производство
+                    </option>
+
+                     <option value="building"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_building %} selected {% endif %}
+                    >
+                            Здание
+                    </option>
+
+                     <option value="business"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_business %} selected {% endif %}
+                    >
+                            Готовый бизнес
+                    </option>
+
+                     <option value="commercialLand"
+                                class="is_commercial_option"
+                                style="display: {% if parsed_object_model.is_commercial_type %} block {% else %} none {% endif %};"
+                                {% if parsed_object_model.is_commercial_land %} selected {% endif %}
+                     >
+                            Коммерческая земля
+                    </option>
                 </select>
             </div>
 
@@ -156,6 +224,35 @@
             <div class='table-block-header'>
                 <span class="text-header">Об объекте</span>
             </div>
+
+            <!--Commercial-->
+            <!--BuildingType-->
+            {% if parsed_object_model.is_shopping_area %}
+                <div class="offerBuildingTypeTitle">
+                    <span class="">Тип помещения</span>
+                </div>
+                <div class="offerCategoryTypeSelect" style="display: {% if parsed_object_model.is_shopping_area %} block {% else %}none{% endif %};">
+                    <select class="select-control" id="getBuildingType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="flat">помещение в торговом комплексе</option>
+                        <option value="apartments">street retail</option>
+                    </select>
+                </div>
+            {% endif %}
+
+            <!--BusinessSaleType-->
+            {% if parsed_object_model.is_business_sale %}
+                <div class="offerBuildingTypeTitle">
+                    <span class="">Тип готового бизнеса</span>
+                </div>
+                <div class="offerCategoryTypeSelect" style="display: {% if parsed_object_model.is_business_sale %} block {% else %}none{% endif %};">
+                    <select class="select-control" id="getBusinesSaleType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="flat">арендный бизнес</option>
+                        <option value="apartments">другое</option>
+                    </select>
+                </div>
+            {% endif %}
 
             {# parsed_object_model.is_allow_realty_type #}
             <div class="offerRealtyTypeTitle" style="display: {% if parsed_object_model.is_allow_realty_type %} block {% else %}none{% endif %};">
@@ -423,6 +520,7 @@
         const updateOfferCategoryBtn = $('#updateOfferCategory');
         const is_allow_realty_type_options = $(".is_allow_realty_type_option")
         const is_suburban_sale_options = $(".is_suburban_sale_option")
+        const is_commercial_options = $(".is_commercial_option");
         const house_option = $('#house')
 
 
@@ -515,7 +613,7 @@
             )
             {
                 updateOfferCategoryBtn.css({'display': 'none'})
-            }else{
+            } else {
                 updateOfferCategoryBtn.css({'display': 'block'})
             }
 
@@ -537,15 +635,21 @@
             if(getOfferType.val() == 'flat'){
                 is_allow_realty_type_options.show();
                 is_suburban_sale_options.hide();
-            }else if(getOfferType.val() == 'suburban'){
+                is_commercial_options.hide();
+            } else if(getOfferType.val() == 'suburban'){
                 // https://jira.cian.tech/browse/CD-109868?focusedCommentId=1063395&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-1063395
                 // Для посуточной аренды загородки должен быть доступен только дом
                 is_suburban_sale_options.show();
                 is_allow_realty_type_options.hide();
+                is_commercial_options.hide()
                 if(getTermType.val() == 'daily' && getDealType.val() == 'rent'){
                     is_suburban_sale_options.hide();
                     house_option.show()
                 }
+            } else if(getOfferType.val() == 'commercial') {
+                is_commercial_options.show();
+                is_suburban_sale_options.hide();
+                is_allow_realty_type_options.hide();
             }
         }
 
