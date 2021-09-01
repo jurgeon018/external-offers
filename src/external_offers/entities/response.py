@@ -1,7 +1,8 @@
-from dataclass import dataclass
+from dataclasses import dataclass
 from typing import Optional
 
 
+@dataclass
 class BasicResponse:
     success: bool
     """ Статус операции """

@@ -11,7 +11,7 @@ from external_offers.repositories.postgresql import (
     get_parsed_offer_object_model_by_offer_id,
 )
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
-from external_offers.templates import get_offer_card_html, get_offers_list_html
+from external_offers.templates import get_offer_card_html, get_offers_list_html, get_teams_page_html
 from external_offers.web.handlers.base import PublicHandler
 
 
@@ -83,4 +83,22 @@ class AdminOffersCardPageHandler(PublicHandler):
             exist_drafts=exist_drafts
         )
 
+        self.write(offer_html)
+
+
+class AdminTeamsPageHandler(PublicHandler):
+
+    async def get(self) -> None:
+        self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        # operator_is_teamlead = await get_operator_is_teamlead_by_operator_id(self.realty_user_id)
+        # operator_team_id = await get_operator_team_id_by_operator_id(self.realty_user_id)
+        # operators = await get_enriched_operators()
+        operator_is_teamlead = True
+        operator_team_id = 1 or None
+        operators = [1,2,3,4,5,6,7,8]
+        offer_html = get_teams_page_html(
+            operator_is_teamlead=operator_is_teamlead,
+            operator_team_id=operator_team_id,
+            operators=operators,
+        )
         self.write(offer_html)

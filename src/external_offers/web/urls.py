@@ -16,7 +16,7 @@ from external_offers.services.update_client_phone import update_client_phone_pub
 from external_offers.services.update_offer_category import update_offer_category_public
 from external_offers.services.teams import (
     update_operator_team_public,
-    update_team_role_public,
+    update_team_segment_public,
     create_team_public,
 )
 from external_offers.web import handlers
@@ -26,6 +26,7 @@ from external_offers.web.handlers.base import PublicHandler
 urlpatterns = base_urls.urlpatterns + [
     # admin
     url('/admin/offers-list/$', handlers.AdminOffersListPageHandler),
+    url('/admin/teams/$', handlers.AdminTeamsPageHandler),
     url(r'/admin/offer-card/(?P<offer_id>[a-zA-Z0-9-]+)/$', handlers.AdminOffersCardPageHandler),
 
     # admin actions
@@ -148,6 +149,7 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.UpdateClientCommentResponse,
         base_handler_cls=PublicHandler,
     )),
+    # teams
     url('/api/admin/v1/update-operator-team/$', get_handler(
         service=update_operator_team_public,
         method='POST',
@@ -155,11 +157,11 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.UpdateOperatorTeamResponse,
         base_handler_cls=PublicHandler,
     )),
-    url('/api/admin/v1/update-team-role/$', get_handler(
-        service=update_team_role_public,
+    url('/api/admin/v1/update-team-segment/$', get_handler(
+        service=update_team_segment_public,
         method='POST',
-        request_schema=entities.UpdateTeamRoleRequest,
-        response_schema=entities.UpdateTeamRoleResponse,
+        request_schema=entities.UpdateTeamSegmentRequest,
+        response_schema=entities.UpdateTeamSegmentResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/create-team/$', get_handler(

@@ -1,0 +1,95 @@
+<html>
+<head>
+<style>
+    .help_block {
+        font-size: 10px;
+    } 
+</style>
+<meta charset="utf-8">
+</head>
+<body>
+<div class="container">
+    <hr>
+    <div class="block">
+        <input id="updateOperatorName" type='text' name='name' placeholder='введите свое имя'/>
+        {# TODO: updateOperatorTeam. селект с командами, чтобы менеджер мог сам себя перекинуть в другую команду  #}
+        <br>
+        <button id="updateOperatorBtn">обновить персональную информацию</button>
+    </div>
+    {% if operator_is_teamlead %}
+        {% if not operator_team_id %}
+            <hr>
+            <div class="block">
+                <input id="createTeamName" type='text' name='name' placeholder='введите название команды'/>
+                <br>
+                <button id="createTeamBtn">создать команду</button>
+            </div>
+        {% else %}
+            <hr>
+            <div class="block">
+                <input id="updateTeamId" type="hidden" name="team_id" value="{{operator_team_id}}"/>
+                <input id="updateTeamName" type='text' name='name' placeholder='введите название команды'/>
+                <br>
+                <button id="updateTeamBtn">изменить название команды</button>
+            </div>
+            <hr>
+            <div class="block">
+                <select id="updateOperatorsTeamSelect" multiple size='5'>
+                    {% for operator in operators %}
+                        <option 
+                            id="updateOperatorsTeamSelectOption"
+                            value='{{operator}}{{operator.id}}'
+                            {# {% if operator.team_id != operator_team_id %}
+                                disabled
+                            {% endif %} #}
+                        >
+                            operator {{operator}} {{operator.name}}(id:{{operator.id}}, team_id:{{operator.team_id}})
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="help_block">для того чтобы выбрать несколько членов команды зажмите левый ctrl</div>
+                <br>
+                <div class="help_block">неактивные операторы - те которые уже числятся в других командах</div>
+                <button id="updateOperatorsTeamBtn">изменить состав команды</button>
+            </div>
+            <hr>
+            <div class="block">
+                <input id="updateTeamSettingsSegment" type='text' name='segment' placeholder='введите сегмент'/>
+                <br>
+                <button id="updateTeamSettingsBtn">сохранить настройки команды</button>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+<script>
+    const updateOperatorBtn = document.getElementById('updateOperatorBtn')
+    const createTeamBtn = document.getElementById('createTeamBtn')
+    const updateTeamBtn = document.getElementById('updateTeamBtn')
+    const updateOperatorsTeamBtn = document.getElementById('updateOperatorsTeamBtn')
+    const updateTeamSettingsBtn = document.getElementById('updateTeamSettingsBtn')
+    function updateOperator(event){
+        console.log(event.target)
+    }
+    function createTeam(event){
+        console.log(event.target)
+    }
+    function updateTeam(event){
+        console.log(event.target)
+    }
+    function updateOperatorsTeam(event){
+        console.log(event.target)
+    }
+    function updateTeamSettings(event){
+        console.log(event.target)
+    }
+    updateOperatorBtn.addEventListener('click', updateOperator)
+    if(createTeamBtn){
+        createTeamBtn.addEventListener('click', createTeam)
+    }else{
+        updateTeamBtn.addEventListener('click', updateTeam)
+        updateOperatorsTeamBtn.addEventListener('click', updateOperatorsTeam)
+        updateTeamSettingsBtn.addEventListener('click', updateTeamSettings)
+    }
+</script>
+</body>
+</html>

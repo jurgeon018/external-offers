@@ -75,26 +75,12 @@ event_log = sa.Table(
     sa.Column('call_id', sa.VARCHAR,)
 )
 
-
-event_log = sa.Table(
-    'event_log',
-    metadata,
-    sa.Column('id', sa.BIGINT, autoincrement=True, primary_key=True),
-    sa.Column('offer_id', sa.VARCHAR),
-    sa.Column('operator_user_id', sa.BIGINT),
-    sa.Column('status', sa.VARCHAR, nullable=False),
-    sa.Column('created_at', sa.TIMESTAMP, nullable=False),
-    sa.Column('call_id', sa.VARCHAR,)
-)
-
-
 roles = sa.Table(
     'roles',
     metadata,
     sa.Column('id', sa.VARCHAR, unique=True, nullable=False, primary_key=True),
     sa.Column('name', sa.VARCHAR, nullable=False, default='all'),
 )
-
 
 teams = sa.Table(
     'teams',
@@ -104,7 +90,6 @@ teams = sa.Table(
     sa.Column('role_id', sa.VARCHAR),
     sa.Column('settings', JSONB()),
 )
-
 
 operators = sa.Table(
     'operators',
