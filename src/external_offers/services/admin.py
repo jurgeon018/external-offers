@@ -1,7 +1,5 @@
 import logging
 
-from simple_settings import settings
-
 from external_offers import pg
 from external_offers.entities.admin import (
     AdminCallInterruptedClientRequest,
@@ -44,6 +42,7 @@ from external_offers.repositories.postgresql import (
     set_offers_promo_given_by_client,
     set_undrafted_offers_in_progress_by_client,
 )
+from external_offers.services.operator_roles import get_operator_roles
 from external_offers.utils import get_next_call_date_when_call_missed
 
 
@@ -66,11 +65,14 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
             ]
         )
 
+    operator_roles = await get_operator_roles(operator_id=user_id)
+
     async with pg.get().transaction():
         call_id = generate_guid()
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
             call_id=call_id,
+            operator_roles=operator_roles,
             is_test=request.is_test,
         )
         if not client_id:
