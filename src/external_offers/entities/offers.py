@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from external_offers.enums import OfferStatus
+from external_offers.enums.external_offer_type import ExternalOfferType
 from external_offers.enums.object_model import Category
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Status as PublicactionStatus,
@@ -45,6 +46,8 @@ class Offer:
     """Версия объявления."""
     publication_status: Optional[PublicactionStatus] = None
     """Статус объявления"""
+    external_offer_type: Optional[ExternalOfferType] = None
+    """Тип объявления"""
 
 
 @dataclass

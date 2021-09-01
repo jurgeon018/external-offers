@@ -18,6 +18,7 @@ parsed_offers = sa.Table(
     sa.Column('timestamp',  sa.TIMESTAMP, nullable=False),
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('external_offer_type', sa.INT, nullable=False),
 )
 
 clients = sa.Table(
@@ -62,6 +63,7 @@ offers_for_call = sa.Table(
     sa.Column('synced_with_grafana', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('parsed_created_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('external_offer_type', sa.INT, nullable=False),
 )
 
 event_log = sa.Table(

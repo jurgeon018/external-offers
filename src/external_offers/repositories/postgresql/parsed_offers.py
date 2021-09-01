@@ -52,6 +52,7 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
                 'is_calltracking': insert_query.excluded.is_calltracking,
                 'updated_at': insert_query.excluded.updated_at,
                 'timestamp': insert_query.excluded.timestamp,
+                'external_offer_type': insert_query.excluded.external_offer_type,
             }
         )
     )
