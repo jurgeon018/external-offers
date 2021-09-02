@@ -859,7 +859,7 @@ async def get_offer_is_test_by_offer_cian_id(offer_cian_id: int) -> int:
     return is_test
 
 
-async def get_offer_publication_status_by_offer_cian_id(offer_cian_id: int) -> str:
+async def get_offer_publication_status_by_offer_cian_id(offer_cian_id: Optional[int]) -> str:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.publication_status]
