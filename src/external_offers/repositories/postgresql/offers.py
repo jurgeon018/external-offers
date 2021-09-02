@@ -843,8 +843,8 @@ async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> Optional
             offers_for_call.c.offer_cian_id == offer_cian_id,
         ).limit(1)
     )
-    row_verision = await pg.get().fetchval(query, *params)
-    return int(row_verision) if row_verision else None
+    row_version = await pg.get().fetchval(query, *params)
+    return int(row_version) if row_version is not None else None
 
 
 async def get_offer_is_test_by_offer_cian_id(offer_cian_id: int) -> int:

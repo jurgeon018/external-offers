@@ -287,7 +287,9 @@ async def update_test_objects_publication_status_public(request: UpdateTestObjec
             message = f'Обьявление с offer_cian_id {offer_cian_id} не существует.'
         else:
             old_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
-            if old_row_version > row_version:
+            if old_row_version is None:
+                message = f"Не существует обьявления с offer_cian_id {offer_cian_id}"
+            elif old_row_version > row_version:
                 message = f"new_version должен быть > {old_row_version}"
             else:
                 await update_publication_status(

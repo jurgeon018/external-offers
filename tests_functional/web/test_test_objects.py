@@ -531,5 +531,5 @@ async def test_update_test_object_publication_status__params_are_valid__success_
     )
     resp = json.loads(update_response.body.decode('utf-8'))
     # assert
-    assert resp['success'] is True
     assert resp['message'] == f'Успех! Статус был изменен на {publication_status}.'
+    assert resp['success'] is True
