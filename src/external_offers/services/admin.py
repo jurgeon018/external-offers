@@ -1,4 +1,5 @@
 import logging
+from typing import Callable, Optional
 
 from external_offers import pg
 from external_offers.entities.admin import (
@@ -13,6 +14,8 @@ from external_offers.entities.admin import (
     AdminResponse,
     AdminUpdateOffersListRequest,
 )
+from external_offers.entities.clients import Client
+from external_offers.entities.offers import Offer
 from external_offers.enums import CallStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid
 from external_offers.queue.helpers import send_kafka_calls_analytics_message_if_not_test
@@ -38,10 +41,11 @@ from external_offers.repositories.postgresql import (
     set_offers_call_later_by_client,
     set_offers_call_missed_by_client,
     set_offers_declined_by_client,
+    set_offers_in_progress_by_client,
     set_offers_phone_unavailable_by_client,
     set_offers_promo_given_by_client,
-    set_undrafted_offers_in_progress_by_client,
 )
+from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id
 from external_offers.services.operator_roles import get_operator_roles
 from external_offers.utils import get_next_call_date_when_call_missed
 
@@ -52,7 +56,7 @@ logger = logging.getLogger(__name__)
 async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
     exists = await exists_offers_in_progress_by_operator(
-        operator_id=user_id
+        operator_id=user_id,
     )
     if exists:
         return AdminResponse(
@@ -85,18 +89,19 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
                     )
                 ]
             )
-
-        if offers_ids := await set_undrafted_offers_in_progress_by_client(
+        client_is_unactivated = await get_client_unactivated_by_client_id(client_id=client_id)
+        if offers_ids := await set_offers_in_progress_by_client(
             client_id=client_id,
-            call_id=call_id
+            call_id=call_id,
+            drafted=client_is_unactivated,
         ):
+            
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
                 operator_user_id=user_id,
                 status=OfferStatus.in_progress.value,
                 call_id=call_id
             )
-
     return AdminResponse(success=True, errors=[])
 
 
@@ -107,7 +112,6 @@ async def delete_offer(
     """ Удалить объявление в списке объявлений в админке """
     offer_id = request.offer_id
     client_id = request.client_id
-
     client = await get_client_by_client_id(client_id=request.client_id)
     if not client:
         return AdminResponse(
@@ -131,7 +135,6 @@ async def delete_offer(
                 )
             ]
         )
-
     async with pg.get().transaction():
         await set_offer_cancelled_by_offer_id(
             offer_id=offer_id
@@ -145,26 +148,12 @@ async def delete_offer(
         exists = await exists_offers_in_progress_by_client(
             client_id=client_id
         )
-
         if not exists:
-            created_draft = await exists_offers_draft_by_client(
-                client_id=client_id
+            await set_client_to_status_and_send_kafka_message(
+                client=client,
+                offer=offer,
+                set_client_to_status=set_client_to_waiting_status_and_return,
             )
-
-            if created_draft:
-                await set_client_accepted_and_no_operator_if_no_offers_in_progress(
-                    client_id=client_id
-                )
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.accepted,
-                )
-            else:
-                await set_client_to_waiting_status_and_return(
-                    client_id=client_id
-                )
-
     return AdminResponse(success=True, errors=[])
 
 
@@ -211,30 +200,15 @@ async def already_published_offer(
             operator_user_id=user_id,
             status=OfferStatus.already_published.value
         )
-
         exists = await exists_offers_in_progress_by_client(
             client_id=client_id
         )
-
         if not exists:
-            created_draft = await exists_offers_draft_by_client(
-                client_id=client_id
+            await set_client_to_status_and_send_kafka_message(
+                client=client,
+                offer=offer,
+                set_client_to_status=set_client_to_waiting_status_and_return,
             )
-
-            if created_draft:
-                await set_client_accepted_and_no_operator_if_no_offers_in_progress(
-                    client_id=client_id
-                )
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.accepted,
-                )
-            else:
-                await set_client_to_waiting_status_and_return(
-                    client_id=client_id
-                )
-
     return AdminResponse(success=True, errors=[])
 
 
@@ -257,9 +231,6 @@ async def set_decline_status_for_client(
         )
 
     async with pg.get().transaction():
-        created_draft = await exists_offers_draft_by_client(
-            client_id=client_id
-        )
 
         if offers_ids := await set_offers_declined_by_client(
             client_id=client_id
@@ -271,25 +242,12 @@ async def set_decline_status_for_client(
                 operator_user_id=user_id,
                 status=OfferStatus.declined.value
             )
-
-            if created_draft:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.accepted,
-                )
-                await set_client_accepted_and_no_operator_if_no_offers_in_progress(
-                    client_id=client_id
-                )
-            else:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.declined,
-                )
-                await set_client_to_decline_status_and_return(
-                    client_id=client_id
-                )
+            await set_client_to_status_and_send_kafka_message(
+                client=client,
+                offer=offer,
+                set_client_to_status=set_client_to_decline_status_and_return,
+                non_draft_status=CallStatus.declined,
+            )
 
     return AdminResponse(success=True, errors=[])
 
@@ -313,9 +271,6 @@ async def set_call_interrupted_status_for_client(
         )
 
     async with pg.get().transaction():
-        created_draft = await exists_offers_draft_by_client(
-            client_id=client_id
-        )
 
         if offers_ids := await set_offers_call_interrupted_by_client(
             client_id=client_id
@@ -327,25 +282,12 @@ async def set_call_interrupted_status_for_client(
                 operator_user_id=user_id,
                 status=OfferStatus.call_interrupted.value
             )
-
-            if created_draft:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.accepted,
-                )
-                await set_client_accepted_and_no_operator_if_no_offers_in_progress(
-                    client_id=client_id
-                )
-            else:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.call_interrupted,
-                )
-                await set_client_to_call_interrupted_status_and_return(
-                    client_id=client_id
-                )
+            await set_client_to_status_and_send_kafka_message(
+                client=client,
+                offer=offer,
+                set_client_to_status=set_client_to_call_interrupted_status_and_return,
+                non_draft_status=CallStatus.call_interrupted,
+            )
 
     return AdminResponse(success=True, errors=[])
 
@@ -369,9 +311,6 @@ async def set_phone_unavailable_status_for_client(
         )
 
     async with pg.get().transaction():
-        created_draft = await exists_offers_draft_by_client(
-            client_id=client_id
-        )
 
         if offers_ids := await set_offers_phone_unavailable_by_client(
             client_id=client_id
@@ -383,25 +322,12 @@ async def set_phone_unavailable_status_for_client(
                 operator_user_id=user_id,
                 status=OfferStatus.phone_unavailable.value
             )
-
-            if created_draft:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.accepted,
-                )
-                await set_client_accepted_and_no_operator_if_no_offers_in_progress(
-                    client_id=client_id
-                )
-            else:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.phone_unavailable,
-                )
-                await set_client_to_phone_unavailable_status_and_return(
-                    client_id=client_id
-                )
+            await set_client_to_status_and_send_kafka_message(
+                client=client,
+                offer=offer,
+                set_client_to_status=set_client_to_phone_unavailable_status_and_return,
+                non_draft_status=CallStatus.phone_unavailable,
+            )
 
     return AdminResponse(success=True, errors=[])
 
@@ -425,10 +351,6 @@ async def set_promo_given_status_for_client(
         )
 
     async with pg.get().transaction():
-        created_draft = await exists_offers_draft_by_client(
-            client_id=client_id
-        )
-
         if offers_ids := await set_offers_promo_given_by_client(
             client_id=client_id
         ):
@@ -439,25 +361,12 @@ async def set_promo_given_status_for_client(
                 operator_user_id=user_id,
                 status=OfferStatus.promo_given.value
             )
-
-            if created_draft:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.accepted,
-                )
-                await set_client_accepted_and_no_operator_if_no_offers_in_progress(
-                    client_id=client_id
-                )
-            else:
-                await send_kafka_calls_analytics_message_if_not_test(
-                    client=client,
-                    offer=offer,
-                    status=CallStatus.promo_given,
-                )
-                await set_client_to_promo_given_status_and_return(
-                    client_id=client_id
-                )
+            await set_client_to_status_and_send_kafka_message(
+                client=client,
+                offer=offer,
+                set_client_to_status=set_client_to_promo_given_status_and_return,
+                non_draft_status=CallStatus.promo_given,
+            )
 
     return AdminResponse(success=True, errors=[])
 
@@ -554,3 +463,35 @@ async def set_call_later_status_for_client(
             )
 
     return AdminResponse(success=True, errors=[])
+
+
+async def set_client_to_status_and_send_kafka_message(
+    *,
+    client: Client,
+    offer: Offer,
+    set_client_to_status: Callable,
+    non_draft_status: Optional[CallStatus] = None,
+):
+    created_draft = await exists_offers_draft_by_client(
+        client_id=client.client_id
+    )
+
+    if created_draft:
+        await set_client_accepted_and_no_operator_if_no_offers_in_progress(
+            client_id=client.client_id
+        )
+        await send_kafka_calls_analytics_message_if_not_test(
+            client=client,
+            offer=offer,
+            status=CallStatus.accepted,
+        )
+    else:
+        await set_client_to_status(
+            client_id=client.client_id
+        )
+        if non_draft_status:
+            await send_kafka_calls_analytics_message_if_not_test(
+                client=client,
+                offer=offer,
+                status=non_draft_status,
+            )

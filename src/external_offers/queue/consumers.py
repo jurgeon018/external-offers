@@ -12,6 +12,7 @@ from cian_kafka import EntityKafkaConsumerMessage
 from external_offers import entities
 from external_offers.helpers.time import get_aware_date
 from external_offers.queue.entities import AnnouncementMessage
+from external_offers.repositories.monolith_cian_announcementapi.entities import ObjectModel
 from external_offers.services.announcement import process_announcement
 from external_offers.services.parsed_offers import extract_source_from_source_object_id, save_parsed_offer
 
@@ -22,11 +23,11 @@ logger = logging.getLogger(__name__)
 async def process_announcement_callback(messages: List[Message]) -> None:
     for message in messages:
         announcement_message: AnnouncementMessage = message.data
-        object_model = announcement_message.model
+        object_model: ObjectModel = announcement_message.model
         operation_id = announcement_message.operation_id
         routing_key = message.envelope.routing_key
         with new_operation_id(operation_id), statsd.timer(f'queue.{routing_key}'):
-            await process_announcement(object_model=object_model, event_date=announcement_message.date)
+            await process_announcement(object_model=object_model)
             statsd.timing(
                 stat='process_announcement_delta',
                 delta=datetime.now(pytz.utc) - get_aware_date(announcement_message.date)

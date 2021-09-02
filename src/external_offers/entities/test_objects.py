@@ -121,3 +121,22 @@ class DeleteTestObjectsResponse:
     """Статус операции"""
     message: str
     """Сообщение"""
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
+
+
+@dataclass
+class UpdateTestObjectsPublicationStatusRequest:
+    offer_cian_id: int
+    """ ID обьявления на циане """
+    row_version: int
+    """ Версия строки """
+    publication_status: Optional[PublicationStatus] = None
+    """ Статус публикации """
+
+
+@dataclass
+class UpdateTestObjectsPublicationStatusResponse:
+    success: bool
+    """ Статус операции """
+    message: Optional[str] = None
+    """ Текст сообщения """

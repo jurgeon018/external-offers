@@ -1,4 +1,4 @@
-import os
+from os import getenv
 from typing import List, Type
 
 from cian_core.rabbitmq.consumer import Exchange, QueueBinding
@@ -24,7 +24,7 @@ def get_modified_queue_name(queue_name: str) -> str:
 
 
 def _get_branch_suffix() -> str:
-    branch_suffix = os.getenv('BRANCH_NAME', '')
+    branch_suffix = getenv('BRANCH_NAME', '')
     if branch_suffix and 'master' not in branch_suffix:
         return '.' + branch_suffix
     return ''
