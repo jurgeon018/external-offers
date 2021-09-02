@@ -28,7 +28,7 @@ async def process_announcement(
     if not row_version:
         return
     offer_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
-    if offer_row_version > row_version:
+    if offer_row_version and offer_row_version > row_version:
         return
     status = await get_offer_publication_status_by_offer_cian_id(offer_cian_id)
     if status == PublicationStatus.published.value:

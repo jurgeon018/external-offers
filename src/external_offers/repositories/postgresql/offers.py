@@ -835,7 +835,7 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
         await pg.get().fetch(query, *params)
 
 
-async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> int:
+async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> Optional[int]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.row_version]
@@ -844,8 +844,7 @@ async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> int:
         ).limit(1)
     )
     row_verision = await pg.get().fetchval(query, *params)
-    return int(row_verision)
-
+    return int(row_verision) if row_verision else None
 
 
 async def get_offer_is_test_by_offer_cian_id(offer_cian_id: int) -> int:
