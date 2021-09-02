@@ -835,7 +835,7 @@ async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
         await pg.get().fetch(query, *params)
 
 
-async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> int:
+async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> Optional[int]:
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call.c.row_version]
@@ -843,9 +843,8 @@ async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> int:
             offers_for_call.c.offer_cian_id == offer_cian_id,
         ).limit(1)
     )
-    row_verision = await pg.get().fetchval(query, *params)
-    return int(row_verision)
-
+    row_version = await pg.get().fetchval(query, *params)
+    return int(row_version) if row_version is not None else None
 
 
 async def get_offer_is_test_by_offer_cian_id(offer_cian_id: int) -> int:
@@ -858,6 +857,18 @@ async def get_offer_is_test_by_offer_cian_id(offer_cian_id: int) -> int:
     )
     is_test = await pg.get().fetchval(query, *params)
     return is_test
+
+
+async def get_offer_publication_status_by_offer_cian_id(offer_cian_id: Optional[int]) -> str:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.publication_status]
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_cian_id,
+        ).limit(1)
+    )
+    publication_status = await pg.get().fetchval(query, *params)
+    return publication_status
 
 
 async def set_offer_done_by_offer_cian_id(

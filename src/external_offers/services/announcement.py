@@ -9,6 +9,7 @@ from external_offers.repositories.postgresql.clients import (
     set_client_unactivated_by_offer_cian_id,
 )
 from external_offers.repositories.postgresql.offers import (
+    get_offer_publication_status_by_offer_cian_id,
     get_offer_row_version_by_offer_cian_id,
     set_offer_done_by_offer_cian_id,
     set_offer_publication_status_by_offer_cian_id,
@@ -27,7 +28,13 @@ async def process_announcement(
     if not row_version:
         return
     offer_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
-    if offer_row_version > row_version:
+    print('offer_row_version:', offer_row_version)
+    if offer_row_version is None:
+        return
+    if offer_row_version is not None and offer_row_version > row_version:
+        return
+    status = await get_offer_publication_status_by_offer_cian_id(offer_cian_id)
+    if status == PublicationStatus.published.value:
         return
     await update_publication_status(
         publication_status=publication_status,

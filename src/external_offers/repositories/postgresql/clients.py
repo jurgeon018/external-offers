@@ -108,6 +108,9 @@ async def assign_suitable_client_to_operator(
                     clients.c.unactivated.is_(True),
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    clients.c.status.notin_([
+                        ClientStatus.declined.value,
+                    ]),
                     clients.c.is_test == is_test,
                     offer_category_clause,
                 ),
