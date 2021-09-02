@@ -9,10 +9,10 @@ from external_offers.repositories.postgresql.clients import (
     set_client_unactivated_by_offer_cian_id,
 )
 from external_offers.repositories.postgresql.offers import (
+    get_offer_publication_status_by_offer_cian_id,
     get_offer_row_version_by_offer_cian_id,
     set_offer_done_by_offer_cian_id,
     set_offer_publication_status_by_offer_cian_id,
-    get_offer_publication_status_by_offer_cian_id,
 )
 
 
