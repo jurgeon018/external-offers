@@ -53,6 +53,7 @@ CREATE TABLE offers_for_call
     row_version         bigint                   not null default 0,
     synced_with_kafka   boolean                  not null default false,
     synced_with_grafana boolean                  not null default false,
+    is_test             boolean                  not null default false,
     parsed_created_at   timestamp with time zone not null default current_timestamp
 );
 
@@ -73,7 +74,8 @@ CREATE TABLE clients
     comment          varchar,
     main_account_chosen  boolean  not null  default false,
     synced_with_grafana  boolean  not null  default false,
-    unactivated          boolean  not null  default false
+    unactivated          boolean  not null  default false,
+    is_test              boolean  not null  default false
 );
 
 CREATE TABLE event_log
@@ -98,9 +100,11 @@ create table parsed_offers
     timestamp           timestamp with time zone not null,
     created_at          timestamp with time zone not null,
     updated_at          timestamp with time zone not null,
+    is_test             boolean                  not null default false,
     synced              boolean                  not null
 );
 
 CREATE INDEX ON clients(avito_user_id);
 CREATE INDEX ON offers_for_call(offer_cian_id);
 CREATE INDEX ON offers_for_call(client_id); 
+ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);

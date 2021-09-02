@@ -4,9 +4,7 @@ from typing import Optional
 
 from external_offers.enums import OfferStatus
 from external_offers.enums.object_model import Category
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
-    Status as PublicactionStatus,
-)
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 
 @dataclass
@@ -39,9 +37,11 @@ class Offer:
     """Категория обьявления"""
     synced_with_kafka: bool = False
     """Было отправлено в кафку в финальном статусе"""
+    is_test: bool = False
+    """Тестовое обьявление"""
     row_version: int = 0
     """Версия объявления."""
-    publication_status: Optional[PublicactionStatus] = None
+    publication_status: Optional[PublicationStatus] = None
     """Статус объявления"""
 
 
@@ -79,5 +79,5 @@ class EnrichedOffer:
     """Адрес объявления с Авито"""
     title: Optional[str] = None
     """Название объявления с Авито"""
-    publication_status: Optional[OfferStatus] = None
+    publication_status: Optional[PublicationStatus] = None
     """Статус объявления"""

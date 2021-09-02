@@ -9,6 +9,7 @@ from external_offers.entities.admin import (
     AdminPhoneUnavailableClientRequest,
     AdminPromoGivenClientRequest,
     AdminResponse,
+    AdminUpdateOffersListRequest,
 )
 from external_offers.entities.choose_profile import (
     HomeownerClientChooseMainProfileResult,
@@ -30,6 +31,16 @@ from external_offers.entities.return_client_by_phone import (
     ReturnClientByPhoneResponse,
 )
 from external_offers.entities.save_offer import SaveOfferRequest, SaveOfferResponse
+from external_offers.entities.test_objects import (
+    CreateTestClientRequest,
+    CreateTestClientResponse,
+    CreateTestOfferRequest,
+    CreateTestOfferResponse,
+    DeleteTestObjectsRequest,
+    DeleteTestObjectsResponse,
+    UpdateTestObjectsPublicationStatusRequest,
+    UpdateTestObjectsPublicationStatusResponse,
+)
 from external_offers.entities.update_client_comment import UpdateClientCommentRequest, UpdateClientCommentResponse
 from external_offers.entities.update_client_phone import (
     UpdateClientPhoneError,

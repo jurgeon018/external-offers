@@ -386,7 +386,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
             metric='save_offer.success',
             user_id=user_id
         )
-        if user_id not in settings.TEST_OPERATOR_IDS:
+        if user_id not in runtime_settings.TEST_OPERATOR_IDS and not client.is_test:
             now = datetime.now(tz=pytz.utc)
             try:
                 await kafka_preposition_drafts_producer(DraftAnnouncementsKafkaMessage(

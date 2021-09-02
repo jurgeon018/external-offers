@@ -1,12 +1,15 @@
 from datetime import datetime
 
+import pytest
 import pytz
+from cian_core.degradation import DegradationResult
 from cian_test_utils import future
-from simple_settings.utils import settings_stub
 
 from external_offers.entities import Client, Offer
-from external_offers.entities.admin import AdminDeleteOfferRequest
-from external_offers.services.admin import already_published_offer
+from external_offers.entities.admin import AdminDeleteOfferRequest, AdminUpdateOffersListRequest
+from external_offers.helpers.errors import USER_ROLES_REQUEST_MAX_TRIES_ERROR, DegradationException
+from external_offers.services.admin import already_published_offer, update_offers_list
+from external_offers.settings.base import EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT
 
 
 async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting_call_expected(
@@ -96,3 +99,29 @@ async def test_already_published_offer__no_in_progress_and_no_draft__set_waiting
     #         )
     #     ]
     # )
+
+
+async def test_update_offers_list__operator_roles_request_degraded(mocker):
+    # arrange
+    realty_user_id = 123
+
+    mocker.patch(
+        'external_offers.services.admin.exists_offers_in_progress_by_operator',
+        return_value=future(False),
+    )
+
+    mocker.patch(
+        'external_offers.services.operator_roles.v1_get_user_roles_with_degradation',
+        return_value=future(DegradationResult(degraded=True, value={'roles': []}))
+    )
+
+    error_message = USER_ROLES_REQUEST_MAX_TRIES_ERROR % {
+        'user_id': realty_user_id,
+        'tries': EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT
+    }
+
+    request = AdminUpdateOffersListRequest(is_test=False)
+
+    # act & assert
+    with pytest.raises(DegradationException, match=error_message):
+        await update_offers_list(request, user_id=realty_user_id)

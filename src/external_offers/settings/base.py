@@ -163,7 +163,7 @@ PROMOCODE_POLYGONS: List[int] = [2000]
 
 REGIONS_WITH_PAID_PUBLICATION: List[int] = [1, 2, 4588, 4593]
 
-TEST_OPERATOR_IDS = [58116185]
+TEST_OPERATOR_IDS = [58116185, 73478905]
 
 AVITO_SOURCE_NAME = 'avito'
 YANDEX_SOURCE_NAME = 'yandex'
@@ -204,4 +204,44 @@ SYNC_OFFERS_FOR_CALL_WITH_KAFKA_BY_IDS_CHUNK = 1000
 SUITABLE_EXTERNAL_SOURCES_FOR_SAVE = ['1']
 SUITABLE_EXTERNAL_SOURCES_FOR_SEND = ['1']
 
+EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT = 3
+
 DEBUG: bool = False
+
+# Дефолтные обьекты для тестирования
+DEFAULT_TEST_OFFER = """{
+    "offer_cian_id": null,
+    "offer_priority": 1,
+    "parsed_id": "ad49365b-caa3-4d8a-be58-02360ad338d5",
+    "is_calltracking": false,
+    "user_segment": "c",
+    "lat": 55.799034118652344,
+    "lng": 37.782142639160156,
+    "url": "https://www.avito.ru/moskva/komnaty/komnata_13_m_v_3-k_35_et._1308836235",
+    "town": "moscow",
+    "price": 11000,
+    "title": "room 13 square meters, 2 floor",
+    "phone": "3333333333",
+    "region": 1,
+    "address": "moscow, gagarina street",
+    "contact": "test client",
+    "category": "flatRent",
+    "is_agency": 1,
+    "is_studio": null,
+    "price_type": 6,
+    "total_area": 13,
+    "living_area": null,
+    "rooms_count": 4,
+    "description": "description",
+    "floor_number": 3,
+    "floors_count": 6,
+    "is_developer": null
+}"""
+DEFAULT_TEST_CLIENT = """{
+    "segment":  "c",
+    "client_phone": "3333333333",
+    "client_name": "test client",
+    "cian_user_id": null,
+    "client_email": "111@21.11",
+    "main_account_chosen": false
+}"""

@@ -1,0 +1,5 @@
+client_id,avito_user_id,cian_user_id,client_name,client_email,operator_user_id,status,client_phones,segment,next_call,last_call_id,calls_count,main_account_chosen,synced_with_grafana
+64a7e84f-3a6d-46eb-b9b9-1c1970cf561d,ed1abe92c6e4a1a80d647dbc34599b8e,,"""Евгений""",,61463032,declined,{89089080466},c,2021-03-27 10:00:00+03,0cf69cca-76d5-4816-942f-67740745b78b,2,f,f
+59abcb4a-3c50-4391-9ceb-91dc3adcc925,6960b9caba94ad3aa42a284d44d9fbfb,,"""Екатерина""",,62243979,declined,{89266626530},c,2021-03-31 10:00:00+03,d091d376-6041-4681-b798-ecb6e129a241,3,f,f
+14af6913-faf3-414d-a4b6-16e4ac734b7d,a9dcc54305cf39996a2b8fcdc257cd10,,"""светлана""",,62033080,declined,{89601657342},c,2021-03-22 10:00:00+03,7c9f29dd-f01b-420f-b803-2882faf378c1,2,f,f
+c65e0edd-ca2b-4913-8258-a64522c93df4,eba423ff13e5bbcfd49d3741d9038232,,"""westa2001""",,63107332,phoneUnavailable,{89157721590},c,2021-06-01 11:00:00+03,61a8fc0b-e6a4-4a28-b727-f5c62f3d40d0,2,f,f

@@ -7,6 +7,7 @@ from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -779,15 +780,18 @@ async def iterate_over_offers_for_call_sorted(
         select(
             [offers_for_call]
         ).where(
-            or_(
-                # все обьявления в нефинальных статусах отправляются в кафку повторно
-                offers_for_call.c.status.in_(non_final_statuses),
-                # все обьявления с финальным статусом отправляются в кафку единажды
-                # (отправляются только те, которые еще не были отправлены в кафку)
-                and_(
-                    offers_for_call.c.status.notin_(non_final_statuses),
-                    not_(offers_for_call.c.synced_with_kafka),
-                ),
+            and_(
+                offers_for_call.c.is_test == false(),
+                or_(
+                    # все обьявления в нефинальных статусах отправляются в кафку повторно
+                    offers_for_call.c.status.in_(non_final_statuses),
+                    # все обьявления с финальным статусом отправляются в кафку единажды
+                    # (отправляются только те, которые еще не были отправлены в кафку)
+                    and_(
+                        offers_for_call.c.status.notin_(non_final_statuses),
+                        not_(offers_for_call.c.synced_with_kafka),
+                    ),
+                )
             )
         ).order_by(
             offers_for_call.c.created_at.asc(),
@@ -843,6 +847,19 @@ async def get_offer_row_version_by_offer_cian_id(offer_cian_id: int) -> int:
     return int(row_verision)
 
 
+
+async def get_offer_is_test_by_offer_cian_id(offer_cian_id: int) -> int:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.is_test]
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_cian_id,
+        ).limit(1)
+    )
+    is_test = await pg.get().fetchval(query, *params)
+    return is_test
+
+
 async def set_offer_done_by_offer_cian_id(
     *,
     offer_cian_id: str,
@@ -873,6 +890,17 @@ async def set_offer_publication_status_by_offer_cian_id(
             publication_status=publication_status,
         ).where(
             offers_for_call.c.offer_cian_id == offer_cian_id
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def delete_test_offers_for_call() -> None:
+    query, params = asyncpgsa.compile_query(
+        delete(
+            offers_for_call
+        ).where(
+            offers_for_call.c.is_test == true(),
         )
     )
     await pg.get().execute(query, *params)
