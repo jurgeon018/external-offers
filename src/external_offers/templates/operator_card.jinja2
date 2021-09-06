@@ -1,0 +1,133 @@
+<html>
+<head>
+<style>
+    .help_block {
+        font-size: 10px;
+    } 
+</style>
+<meta charset="utf-8">
+</head>
+<body>
+<div class="container">
+    <hr>
+    <div class="block">
+        <button data-url="/admin/teams/" onclick="onClickRedirect(this)">
+            Вернуться назад
+        </button>
+        <button style="color:red;" data-url="/admin/teams/" onclick="deleteOperator('{{operator.id}}')">
+            Удалить профиль
+        </button>
+    </div>
+    <br>
+    {% if operator.is_teamlead %} Тимлид {% else %} Не тимлид {% endif %}
+    <br>
+    ID: {{operator.id}}
+    <br>
+    Имя: {% if operator.name %}{{operator.name}}{% else %}-{% endif %}
+    <input
+        value="{% if operator.name %}{{operator.name}}{% endif %}"
+        id="operatorName" type='text' name='name' placeholder='введите свое имя'
+    />
+    <br>
+    Команда: 
+    {% if operator.team_id%}
+        <a style="color: blue; cursor: pointer;" onclick="onClickRedirect(this)" 
+            data-url="/admin/team-card/{{operator.team_id}}/"
+        >
+            {{operator.team_id}}
+        </a>
+    {% else %}
+    -
+    {% endif %}
+    <select id="operatorTeam">
+        <option value {% if not operator.team_id %} selected {% endif %}>
+            -
+        </option>
+        {% for team in teams %}
+        <option value="{{team.id}}" {% if operator.team_id == team.id %} selected {% endif %}>
+            {{team.name}} ({{team.id}})
+        </option>
+        {% endfor %}
+    </select>
+    <br>
+    <button onclick="updateOperator()">
+        Обновить персональную информацию
+    </button>
+</div>
+<script>
+    let DEBUG = 'True' === '{{debug}}';
+    function formDataFromObject(obj) {
+        var form_data = new URLSearchParams();
+        for ( var key in obj ) {
+            form_data.append(key, obj[key]);
+        }
+        return form_data
+    }
+    function getBody(obj){
+        return DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+    }
+    function redirect(url){
+        if (DEBUG) {
+            window.location.href = url;
+        } else {
+            // workaround to redirect when on service.cian.ru
+            queryParams = new URLSearchParams(window.location.search)
+            queryParams.set("url", url);
+            history.pushState(null, null, "?"+queryParams.toString());
+            location.reload()
+        }
+    }
+    function onClickRedirect(element) {
+        redirect(element.dataset.url)
+    }
+    // crud
+    async function updateOperator(){
+        let name = document.getElementById('operatorName').value
+        let teamId = document.getElementById('operatorTeam').value
+        if(!name){
+            alert('Введите свое имя!')
+            return
+        }
+        if(teamId == ""){
+            teamId = null;
+        }
+        let obj = {
+            "id": '{{operator.id}}',
+            "name": name,
+            "teamId": teamId,
+        }
+        const response = await fetch("/api/admin/v1/update-operator-public/", {
+            method: 'POST',
+            body: getBody(obj),
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            location.reload()
+        }else if (resp.success === false){
+            alert(resp.message)
+        } else {
+            alert('Не удалось обновить информацию об операторе.')
+        }
+    }
+    async function deleteOperator(id){
+        let obj = {
+            "id": id,
+        }
+        const response = await fetch("/api/admin/v1/delete-operator-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            redirect('/admin/teams/')
+        } else if (resp.success === false){
+            alert(resp.message)
+        } else {
+            alert('Не удалось удалить оператора.')
+        }
+    }
+</script>
+</body>
+</html>

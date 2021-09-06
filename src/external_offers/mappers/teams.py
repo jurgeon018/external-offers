@@ -1,6 +1,6 @@
 from cian_entities import EntityMapper
 
-from external_offers.entities.teams import Team, Operator, Operator, Role
+from external_offers.entities import Team, Operator, Role
 
 
 teams_mapper = EntityMapper(

@@ -1,106 +1,68 @@
-from external_offers.repositories.postgresql.teams import (
-	create_team,
-    operator_with_id_exists,
-    create_operator,
-    update_operator_name_by_id,
-	# update_operator_team,
-	# update_team_segment,
-)
+from asyncpg.exceptions import PostgresError, UniqueViolationError
+from external_offers.helpers.uuid import generate_guid
+from external_offers.entities.response import BasicResponse
 from external_offers.entities.teams import (
-    UpdateOperatorNameRequest,
-    UpdateOperatorNameResponse,
-	CreateTeamRequest,
-	CreateTeamResponse,
-	# UpdateOperatorTeamRequest,
-	# UpdateOperatorTeamResponse,
-	# UpdateTeamSegmentRequest,
-	# UpdateTeamSegmentResponse,
+    CreateTeamRequest,
+	UpdateTeamRequest,
+    DeleteTeamRequest,
+)
+from external_offers.repositories.postgresql.teams import (
+    create_team,
+    update_team_by_id,
+    delete_team_by_id,
 )
 
 
-async def operator_name_public(request: UpdateOperatorNameRequest, user_id) -> UpdateOperatorNameResponse:
-    name = request.name
-    exists = await operator_with_id_exists(user_id)
-    if exists:
-        await create_operator(
-            id=user_id,
-            name=name,
+async def create_team_public(request: CreateTeamRequest, user_id: int) -> BasicResponse:
+    success = False
+    try:
+        id = generate_guid()
+        await create_team(
+            id=id,
+            name=request.name,
+            lead_id=request.lead_id,
+            segment=request.segment,
         )
-    else:
-        await update_operator_name_by_id(name)
-		# TO DO: сделать так чтобы менеджер мог сам себя перекинуть в другую команду  
-        # team_id = request.team_id
-    return UpdateOperatorNameResponse(
-        success=True,
-        message='',
+        success = True
+        message = 'Команда была успешно создана.'
+    except UniqueViolationError as e:
+        message = f'Такая команда уже существует: {e}'
+    except PostgresError as e:
+        message = f'Во время создания команды произошла ошибка: {e}'
+    return BasicResponse(
+        success=success,
+        message=message,
     )
 
 
-async def create_team_public(request: CreateTeamRequest, user_id: int) -> CreateTeamResponse:
-    name = request.name
-    await create_team(name)
-    return CreateTeamResponse(
-        success=True,
-        message="Команда была успешно создана.",
+async def update_team_public(request: UpdateTeamRequest, user_id: int) -> BasicResponse:
+    success = False
+    try:
+        await update_team_by_id(
+            id=request.id,
+            name=request.name,
+            lead_id=request.lead_id,
+            segment=getattr(request.segment, 'value', None),
+        )
+        success = True
+        message = 'Информация про команду была успешно обновлена.'
+    except PostgresError as e:
+        message = f'Во время обновления команды произошла ошибка: {e}'
+    return BasicResponse(
+        success=success,
+        message=message,
     )
 
 
-async def update_team_name_public(request: UpdateTeamNameRequest, user_id: int) -> UpdateTeamNameResponse:
-    name = request.name
-    team_id = request.team_id
-    await update_team_name_by_team_id(
-        name=name,
-        id=team_id
+async def delete_team_public(request: DeleteTeamRequest, user_id: int) -> BasicResponse:
+    success = False
+    try:
+        await delete_team_by_id(id=request.id)
+        success = True
+        message='Команда была успешно удалена.'
+    except PostgresError as e:
+        message = f'Во время обновления команды произошла ошибка: {e}'
+    return BasicResponse(
+        success=success,
+        message=message,
     )
-    return UpdateTeamNameResponse(
-        success=True,
-        message='Название команды было успешно обновлено',
-    )
-
-
-# async def update_operators_team_public(request: UpdateOperatorsTeamRequest, user_id: int) -> updateOperatorsTeamResponse:
-#     await update_operators_team()
-# 	return UpdateOperatorsTeamResponse(
-#         success=True,
-#         message='Состав команды был успешно изменен',
-#     )
-
-
-# async def update_team_settings_public(request: UpdateTeamSettingsRequest, user_id: int) -> UpdateTeamSettingsResponse:
-#     await update_team_settings()
-# 	return UpdateTeamSettingsResponse(
-#         success=True,
-#         message='Настройки команды были успешно изменены.',
-#     )
-
-
-
-# async def update_operator_team_public(request: UpdateOperatorTeamRequest, user_id: int) -> UpdateOperatorTeamResponse:
-# 	# if not (await check_if_teamlead(user_id)):
-# 	#     return UpdateOperatorTeamResponse(success=False, message="Вы должны обладать правами тимлида для выполнения этого действия.")
-# 	operator_id = request.operator_id
-# 	team_id = request.team_id
-# 	await update_operator_team(
-# 		operator_id=operator_id,
-# 		team_id=team_id,
-# 	)
-# 	return UpdateOperatorTeamResponse(
-# 		success=True,
-# 		message="",
-# 	)
-
-
-# async def update_team_segment_public(request: UpdateTeamSegmentRequest, user_id: int) -> UpdateTeamSegmentResponse:
-# 	# if not check_if_teamlead(user_id):
-# 	#     return UpdateOperatorTeamResponse(success=False, message="Вы должны обладать правами тимлида для выполнения этого действия.")
-# 	team_id = request.team_id
-# 	segment = request.segment
-# 	await update_team_segment(
-# 		team_id=team_id,
-# 		segment=segment,
-# 	)
-# 	return UpdateTeamSegmentResponse(
-# 		success=True,
-# 		message="",
-# 	)
-

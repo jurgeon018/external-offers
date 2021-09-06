@@ -1,40 +1,53 @@
 from dataclasses import dataclass
 from typing import Optional
-from external_offers.entities.response import BasicResponse
 from external_offers.enums.user_segment import UserSegment
 from external_offers.enums.teams import TeamSettings
 
 
 @dataclass
 class Team:
-    id: int
+    id: str
     """ ID команды """
     name: str
-    """ Название команды """
-    segment: Optional[UserSegment]
-    """ Сегмент пользователей, которые выдаются команде  """
-    settings: Optional[TeamSettings]
-    """
-    Настройки команды, которые используются для
-    - фильтрации обьявлений
-    - фильтрации пользователей,
-    - сортировки заданий
-    - параметров выдаваемого пакета
-    """
+    """Название команды """
+    lead_id: str
+    """ ID лида команды """
+    segment: Optional[UserSegment] = None
+    """ Сегмент пользователей, которых будет обрабатывать команда """
+    settings: Optional[TeamSettings] = None
+    """Настройки команды"""
 
 
 @dataclass
-class Operator:
-    id: int
-    """ ID оператора """
-    name: Optional[str] = None
-    """Имя оператора """
-    team_id: Optional[int] = None
-    """ ID команды оператора """
-    role_id: Optional[int] = None
-    """ ID роли оператора """
-    is_teamlead: bool = False
-    """ Является ли оператор тимлидом """
+class CreateTeamRequest:
+    name: str
+    """Название команды"""
+    lead_id: str
+    """ ID лида команды """
+    segment: Optional[UserSegment] = None
+    """ Сегмент пользователей, которых будет обрабатывать команда """
+    settings: Optional[TeamSettings] = None
+    """Настройки команды"""
+
+
+@dataclass
+class UpdateTeamRequest:
+    id: str
+    """ ID команды"""
+    lead_id: str
+    """ ID лида команды """
+    name: str
+    """Название команды"""
+    segment: Optional[UserSegment] = None
+    """ Сегмент пользователей, которых будет обрабатывать команда """
+    settings: Optional[TeamSettings] = None
+    """Настройки команды"""
+
+
+@dataclass
+class DeleteTeamRequest:
+    id: str
+    """ID команды которую нужно удалить"""
 
 
 # TODO: возможно в будущем отказаться от отдельой таблички с 
@@ -43,54 +56,7 @@ class Operator:
 # существуют на циане, и нельзя будет создать внутренние админочные роли.
 @dataclass
 class Role:
-    id: int
+    id: str
     """ ID роли """
     name: str
     """ Название роли """
-
-
-@dataclass
-class UpdateOperatorNameRequest:
-    name: str
-    """Имя оператора"""
-
-@dataclass
-class UpdateOperatorNameResponse(BasicResponse):
-    pass
-
-
-# @dataclass
-# class UpdateOperatorTeamRequest:
-#     team_id: int
-#     """ ID команды, в которую нужно добавить оператора """
-#     operator_id: int
-#     """ ID оператора, которого нужно добавить в команду """
-
-
-# @dataclass
-# class UpdateTeamSegmentRequest:
-#     team_id: int
-#     """ ID команды, у которой нужно поменять сегмент"""
-#     segment: UserSegment
-#     """ Сегмент пользователя """
-
-
-@dataclass
-class CreateTeamRequest:
-    name: str
-    """Название команды"""
-
-
-# @dataclass
-# class UpdateOperatorTeamResponse(BasicResponse):
-#     pass
-
-
-# @dataclass
-# class UpdateTeamSegmentResponse(BasicResponse):
-#     pass
-
-
-@dataclass
-class CreateTeamResponse(BasicResponse):
-    pass

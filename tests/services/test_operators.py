@@ -1,0 +1,4 @@
+
+test_create_operator
+test_update_operator
+test_delete_operator

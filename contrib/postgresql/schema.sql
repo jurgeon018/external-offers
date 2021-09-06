@@ -58,19 +58,19 @@ CREATE TABLE offers_for_call
 
 CREATE TABLE clients
 (
-    client_id        varchar     not null primary key,
-    avito_user_id    varchar     not null,
-    cian_user_id     bigint,
-    client_name      varchar,
-    client_phones    varchar[]   not null,
-    client_email     varchar(50),
-    operator_user_id bigint,
-    status           client_status_type,
-    segment          varchar(1),
-    next_call        timestamp with time zone,
-    calls_count      smallint,
-    last_call_id     varchar,
-    comment          varchar,
+    client_id           varchar     not null primary key,
+    avito_user_id       varchar     not null,
+    cian_user_id        bigint,
+    client_name         varchar,
+    client_phones       varchar[]   not null,
+    client_email        varchar(50),
+    operator_user_id    bigint,
+    status              client_status_type,
+    segment             varchar(1),
+    next_call           timestamp with time zone,
+    calls_count         smallint,
+    last_call_id        varchar,
+    comment             varchar,
     synced_with_grafana boolean  not null  default false,
     is_test             boolean  not null  default false,
     main_account_chosen boolean  not null  default false
@@ -105,8 +105,19 @@ create table parsed_offers
 CREATE INDEX ON clients(avito_user_id);
 ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);
 
+
+
+
+
+
+
+
+
+DROP TABLE teams;
+DROP TABLE operators;
+DROP TABLE roles;
+DROP TYPE segment_type;
 CREATE TYPE segment_type AS enum (
-	'all',
 	'a',
 	'b',
 	'c',
@@ -114,23 +125,20 @@ CREATE TYPE segment_type AS enum (
 	'commercial'
 );
 
-CREATE TABLE roles (
-    id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
-    segment segment_type NOT NULL DEFAULT 'all'
-);
-
 CREATE TABLE teams
 (
-    id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
-    name VARCHAR UNIQUE,
-    role_id VARCHAR,
-    settings JSONB
+    id       VARCHAR UNIQUE NOT NULL PRIMARY KEY,
+    name     VARCHAR UNIQUE NULL,
+    lead_id  VARCHAR        NOT NULL,
+    segment  segment_type   NULL,
+    settings JSONB          NULL
 );
 
 CREATE TABLE operators
 (
-    id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
-    name VARCHAR
-    team_id VARCHAR,
-    is_teamlead BOOLEAN NOT NULL DEFAULT FALSE
+    id          VARCHAR UNIQUE NOT NULL PRIMARY KEY,
+    name        VARCHAR        NULL,
+    team_id     VARCHAR        NULL,
+    is_teamlead BOOLEAN        NOT NULL DEFAULT FALSE,
+    role_id     VARCHAR        NULL
 );

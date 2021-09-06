@@ -1,9 +1,48 @@
 <html>
 <head>
 <style>
-    .help_block {
-        font-size: 10px;
-    } 
+    .table-block {
+    margin: 1em;
+    display: block;
+    }
+    .table-block-title {
+    font-weight: bold;
+    padding: 0.5em 0;
+    }
+    .row.row-header {
+    border-top: 2px solid #000000;
+    }
+    .column.columnheader {
+    font-weight: bold;
+    }
+    .column.column-identifier {
+    cursor: pointer;
+    color: #337AB7;
+    font-weight: bold;
+    }
+    .column.column-identifier:hover {
+    text-decoration: underline;
+    color: #22527C;
+    }
+    .client-info-profile-url:hover {
+    text-decoration: none;
+    text-shadow: 0.5px 0.5px 0.5px #555;
+    }
+    .row {
+    border-top: 0;
+    border-bottom: 2px solid #000000;
+    border-left: 2px solid #000000;
+    border-right: 2px solid #000000;
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-columns: 0.5fr 0.5fr 1fr 0.30fr 0.25fr 0.25fr 0.25fr;
+    border-radius: 2px;
+    padding: 1em;
+    }
+
 </style>
 <meta charset="utf-8">
 </head>
@@ -11,84 +50,230 @@
 <div class="container">
     <hr>
     <div class="block">
-        <input id="updateOperatorName" type='text' name='name' placeholder='введите свое имя'/>
-        {# TODO: updateOperatorTeam. селект с командами, чтобы менеджер мог сам себя перекинуть в другую команду  #}
+        <button data-url="/admin/offers-list/" onclick="onClickRedirect(this)">
+            Вернуться к заданиям
+        </button>
+        {# персональная инфо #}
+        <button data-url="/admin/operator-card/{{current_operator.id}}/" onclick="onClickRedirect(this)">
+            Перейти в свой профиль
+        </button>
+        {% if current_operator.team_id %}
+        <button data-url="/admin/team-card/{{current_operator.team_id}}/" onclick="onClickRedirect(this)">
+            Перейти в свою команду
+        </button>
         <br>
-        <button id="updateOperatorBtn">обновить персональную информацию</button>
-    </div>
-    {% if operator_is_teamlead %}
-        {% if not operator_team_id %}
-            <hr>
-            <div class="block">
-                <input id="createTeamName" type='text' name='name' placeholder='введите название команды'/>
-                <br>
-                <button id="createTeamBtn">создать команду</button>
-            </div>
-        {% else %}
-            <hr>
-            <div class="block">
-                <input id="updateTeamId" type="hidden" name="team_id" value="{{operator_team_id}}"/>
-                <input id="updateTeamName" type='text' name='name' placeholder='введите название команды'/>
-                <br>
-                <button id="updateTeamBtn">изменить название команды</button>
-            </div>
-            <hr>
-            <div class="block">
-                <select id="updateOperatorsTeamSelect" multiple size='5'>
-                    {% for operator in operators %}
-                        <option 
-                            id="updateOperatorsTeamSelectOption"
-                            value='{{operator}}{{operator.id}}'
-                            {# {% if operator.team_id != operator_team_id %}
-                                disabled
-                            {% endif %} #}
-                        >
-                            operator {{operator}} {{operator.name}}(id:{{operator.id}}, team_id:{{operator.team_id}})
-                        </option>
-                    {% endfor %}
-                </select>
-                <div class="help_block">для того чтобы выбрать несколько членов команды зажмите левый ctrl</div>
-                <br>
-                <div class="help_block">неактивные операторы - те которые уже числятся в других командах</div>
-                <button id="updateOperatorsTeamBtn">изменить состав команды</button>
-            </div>
-            <hr>
-            <div class="block">
-                <input id="updateTeamSettingsSegment" type='text' name='segment' placeholder='введите сегмент'/>
-                <br>
-                <button id="updateTeamSettingsBtn">сохранить настройки команды</button>
-            </div>
         {% endif %}
+    </div>
+    <hr>
+    {# !персональная инфо #}
+    {# Команды #}
+    {% if teams %}
+    <div class="table-block">
+        <div class="table-block-title">
+            Команды
+        </div>
+        <div class="grid">
+            <div class="row row-header">
+                <div class="column columnheader">ID</div>
+                <div class="column columnheader">ID лида</div>
+                <div class="column columnheader">Сегмент</div>
+                <div class="column columnheader">Название</div>
+            </div>
+            {% for team in teams %}
+            <div class="row">
+                <div class="column column-identifier" data-url="/admin/team-card/{{team.id}}/" onclick="onClickRedirect(this)">
+                    {{team.id}}
+                </div>
+                <div class="column column-identifier" data-url="/admin/operator-card/{{team.lead_id}}/" onclick="onClickRedirect(this)">
+                    {% if team.lead_id %}{{team.lead_id}}{% else %}-{% endif %}
+                </div>
+                <div class="column">
+                    {% if team.segment %}{{team.segment.value}}{% else %}-{% endif %}
+                </div>
+                <div class="column">
+                    {{team.name}}
+                </div>
+                <div class=column>
+                    <button style="display:inline" onclick="deleteTeam('{{team.id}}')">
+                        Удалить
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
     {% endif %}
+    <div class="block">
+        <input id="teamName" type='text' name='name' placeholder='введите название команды'/>
+        <br>
+        <button onclick="createTeam()">Cоздать команду</button>
+    </div>
+    <hr>
+    {# !Команды #}
+    {# Операторы #}
+    {% if operators %}
+    <div class="table-block">
+        <div class="table-block-title">
+            Операторы
+        </div>
+        <div class="grid">
+            <div class="row row-header">
+                <div class="column columnheader">ID</div>
+                <div class="column columnheader">ID команды</div>
+                <div class="column columnheader">Имя</div>
+            </div>
+            {% for operator in operators %}
+            <div class="row">
+                <div class="column column-identifier" data-url="/admin/operator-card/{{operator.id}}/" onclick="onClickRedirect(this)">
+                    {{ operator.id }}
+                </div>
+                {% if operator.team_id%}
+                <div class="column column-identifier" data-url="/admin/team-card/{{operator.team_id}}/" onclick="onClickRedirect(this)">
+                    {{ operator.team_id }}
+                </div>
+                {% else %}
+                <div class="column">
+                -
+                </div>
+                {% endif %}
+                <div class="column">
+                    {{operator.name}}
+                </div>
+                <div class=column>
+                    <button style="display:inline" onclick="deleteOperator('{{operator.id}}')">
+                        Удалить
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="block">
+        <input id="operatorId" type='text' name='id' placeholder='введите ID оператора'/>
+        <br>
+        <input id="operatorName" type='text' name='name' placeholder='введите имя оператора'/>
+        <br>
+        <button onclick="createOperator()">Cоздать оператора</button>
+    </div>
+    <hr>
+    {# !Операторы #}
 </div>
 <script>
-    const updateOperatorBtn = document.getElementById('updateOperatorBtn')
-    const createTeamBtn = document.getElementById('createTeamBtn')
-    const updateTeamBtn = document.getElementById('updateTeamBtn')
-    const updateOperatorsTeamBtn = document.getElementById('updateOperatorsTeamBtn')
-    const updateTeamSettingsBtn = document.getElementById('updateTeamSettingsBtn')
-    function updateOperator(event){
-        console.log(event.target)
+    let DEBUG = 'True' === '{{debug}}';
+    function formDataFromObject(obj) {
+        var form_data = new URLSearchParams();
+        for ( var key in obj ) {
+            form_data.append(key, obj[key]);
+        }
+        return form_data
     }
-    function createTeam(event){
-        console.log(event.target)
+    function getBody(obj){
+        return DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
     }
-    function updateTeam(event){
-        console.log(event.target)
+    function onClickRedirect(element) {
+        let url = element.dataset.url
+        if (DEBUG) {
+            window.location.href = url;
+        } else {
+            // workaround to redirect when on service.cian.ru
+            queryParams = new URLSearchParams(window.location.search)
+            queryParams.set("url", url);
+            history.pushState(null, null, "?"+queryParams.toString());
+            location.reload()
+        }
     }
-    function updateOperatorsTeam(event){
-        console.log(event.target)
+    // crud
+    async function deleteTeam(id){
+        let obj = {
+            "id": id,
+        }
+        const response = await fetch("/api/admin/v1/delete-team-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            location.reload()
+        } else if (resp.success === false){
+            alert(resp.message)
+        }else {
+            alert('Не удалось удалить команду.')
+        }
     }
-    function updateTeamSettings(event){
-        console.log(event.target)
+    async function deleteOperator(id){
+        let obj = {
+            "id": id,
+        }
+        const response = await fetch("/api/admin/v1/delete-operator-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            location.reload()
+        } else if (resp.success === false){
+            alert(resp.message)
+        } else {
+            alert('Не удалось удалить оператора.')
+        }
     }
-    updateOperatorBtn.addEventListener('click', updateOperator)
-    if(createTeamBtn){
-        createTeamBtn.addEventListener('click', createTeam)
-    }else{
-        updateTeamBtn.addEventListener('click', updateTeam)
-        updateOperatorsTeamBtn.addEventListener('click', updateOperatorsTeam)
-        updateTeamSettingsBtn.addEventListener('click', updateTeamSettings)
+    async function createOperator(){
+        let name = document.getElementById('operatorName').value
+        let id = document.getElementById('operatorId').value
+        if(!name){
+            alert('Введите имя оператора!')
+            return
+        }
+        if(!id){
+            alert('Введите ID оператора!')
+            return
+        }
+        let obj = {
+            "name": name,
+            "id": id,
+        }
+        const response = await fetch("/api/admin/v1/create-operator-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            location.reload()
+        } else if (resp.success === false) {
+            alert(resp.message)
+        }else {
+            alert('Не удалось создать оператора.')
+        }
+    }
+    async function createTeam(){
+        let name = document.getElementById('teamName').value;
+        let leadId = '{{current_operator.id}}';
+        if(!name){
+            alert('Введите название команды!')
+            return
+        }
+        let obj = {
+            "name": name,
+            "leadId": leadId,
+            "segment": null,
+        }
+        const response = await fetch("/api/admin/v1/create-team-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            location.reload()
+        } else if (resp.success === false) {
+            alert(resp.message)
+        } else {
+            alert('Не удалось создать команду.')
+        }
     }
 </script>
 </body>

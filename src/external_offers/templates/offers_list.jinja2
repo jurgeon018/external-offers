@@ -115,6 +115,11 @@
          padding: 1.5em 0 0 0;
          display: flex;
          }
+         .block {
+         margin: auto;
+         padding: 1.5em 0 0 0;
+         display: flex;           
+         }
         #createTestClient{
           margin: auto;
           margin-bottom: 3px;
@@ -138,6 +143,10 @@
    </head>
    <body>
       <div class="update-offers-block">
+        <div class="block">
+          <button onclick="redirectToTeamsPage()">Команды</button>
+        </div>
+        <hr>
         {% if operator_is_tester %}
           <div class="test_block">
               <input id="sourceUserIdInput" type="text" placeholder="Введите sourceUserId клиента"/>
@@ -167,8 +176,6 @@
             </div>
         </div>
         <div class="update-offers-messages" id="updateOffersMessages1"></div>
-
-
       </div>
       <div class="client-info-block">
          <div class="client-info-block-title">Клиент</div>
@@ -261,7 +268,17 @@
          
             return form_data
          }
-         
+         function redirectToTeamsPage(){
+            if (DEBUG) {
+               window.location.href = `/admin/teams/`;
+            } else {
+               // workaround to redirect when on service.cian.ru
+               queryParams = new URLSearchParams(window.location.search)
+               queryParams.set("url", `/admin/offer-card/`);
+               history.pushState(null, null, "?"+queryParams.toString());
+               location.reload()
+            }
+         }
          function onClickOfferRowIdentifier(element) {
             if (DEBUG) {
                window.location.href = `/admin/offer-card/${element.innerHTML}/`;

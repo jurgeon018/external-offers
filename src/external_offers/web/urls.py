@@ -4,6 +4,8 @@ from tornado.web import url
 
 from external_offers import entities
 from external_offers.services import admin
+from external_offers.services import teams
+from external_offers.services import operators
 from external_offers.services.return_client_by_phone import return_client_by_phone
 from external_offers.services.save_offer import save_offer_public
 from external_offers.services.test_objects import (
@@ -14,11 +16,6 @@ from external_offers.services.test_objects import (
 from external_offers.services.update_client_comment import update_client_comment_public
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_offer_category import update_offer_category_public
-from external_offers.services.teams import (
-    update_operator_team_public,
-    update_team_segment_public,
-    create_team_public,
-)
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
@@ -26,8 +23,10 @@ from external_offers.web.handlers.base import PublicHandler
 urlpatterns = base_urls.urlpatterns + [
     # admin
     url('/admin/offers-list/$', handlers.AdminOffersListPageHandler),
-    url('/admin/teams/$', handlers.AdminTeamsPageHandler),
     url(r'/admin/offer-card/(?P<offer_id>[a-zA-Z0-9-]+)/$', handlers.AdminOffersCardPageHandler),
+    url('/admin/teams/$', handlers.AdminTeamsPageHandler),
+    url(r'/admin/operator-card/(?P<operator_id>[a-zA-Z0-9-]+)/$', handlers.AdminOperatorCardPageHandler),
+    url(r'/admin/team-card/(?P<team_id>[a-zA-Z0-9-]+)/$', handlers.AdminTeamCardPageHandler),
 
     # admin actions
     url('/api/admin/v1/update-offers-list/$', get_handler(
@@ -149,26 +148,48 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.UpdateClientCommentResponse,
         base_handler_cls=PublicHandler,
     )),
+    # operators
+    url('/api/admin/v1/create-operator-public/$', get_handler(
+        service=operators.create_operator_public,
+        method='POST',
+        request_schema=entities.CreateOperatorRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-operator-public/$', get_handler(
+        service=operators.update_operator_public,
+        method='POST',
+        request_schema=entities.UpdateOperatorRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/delete-operator-public/$', get_handler(
+        service=operators.delete_operator_public,
+        method='POST',
+        request_schema=entities.DeleteOperatorRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
     # teams
-    url('/api/admin/v1/update-operator-team/$', get_handler(
-        service=update_operator_team_public,
-        method='POST',
-        request_schema=entities.UpdateOperatorTeamRequest,
-        response_schema=entities.UpdateOperatorTeamResponse,
-        base_handler_cls=PublicHandler,
-    )),
-    url('/api/admin/v1/update-team-segment/$', get_handler(
-        service=update_team_segment_public,
-        method='POST',
-        request_schema=entities.UpdateTeamSegmentRequest,
-        response_schema=entities.UpdateTeamSegmentResponse,
-        base_handler_cls=PublicHandler,
-    )),
-    url('/api/admin/v1/create-team/$', get_handler(
-        service=create_team_public,
+    url('/api/admin/v1/create-team-public/$', get_handler(
+        service=teams.create_team_public,
         method='POST',
         request_schema=entities.CreateTeamRequest,
-        response_schema=entities.CreateTeamResponse,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-team-public/$', get_handler(
+        service=teams.update_team_public,
+        method='POST',
+        request_schema=entities.UpdateTeamRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/delete-team-public/$', get_handler(
+        service=teams.delete_team_public,
+        method='POST',
+        request_schema=entities.DeleteTeamRequest,
+        response_schema=entities.BasicResponse,
         base_handler_cls=PublicHandler,
     )),
 ]

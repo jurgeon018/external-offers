@@ -6,7 +6,7 @@ from jinja2 import Environment, PackageLoader
 
 from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer
 from external_offers.entities.parsed_offers import ParsedObjectModel
-from external_offers.entities.teams import Operator
+from external_offers.entities import Operator, Team
 from external_offers.templates.filters import custom_filters
 
 
@@ -58,14 +58,45 @@ def get_offer_card_html(
 
 
 def get_teams_page_html(
-    operator_is_teamlead: int,
-    operator_team_id: int,
+    current_operator: Operator,
     operators: list[Operator],
+    teams: list[Team],
 ) -> str:
     template = templates.get_template('teams.jinja2')
     return template.render(
         debug=runtime_settings.DEBUG,
-        operator_is_teamlead=operator_is_teamlead,
-        operator_team_id=operator_team_id,
+        current_operator=current_operator,
         operators=operators,
+        teams=teams,
+    )
+
+
+def get_team_card_html(
+    current_operator: Operator,
+    team: Team,
+    operators: list[Operator],
+    teams: list[Team],
+) -> str:
+    template = templates.get_template('team_card.jinja2')
+    return template.render(
+        debug=runtime_settings.DEBUG,
+        current_operator=current_operator,
+        team=team,
+        operators=operators,
+        teams=teams,
+    )
+
+def get_operator_card_html(
+    current_operator: Operator,
+    operator: Operator,
+    operators: list[Operator],
+    teams: list[Team],
+) -> str:
+    template = templates.get_template('operator_card.jinja2')
+    return template.render(
+        debug=runtime_settings.DEBUG,
+        current_operator=current_operator,
+        operator=operator,
+        operators=operators,
+        teams=teams,
     )

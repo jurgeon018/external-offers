@@ -41,11 +41,17 @@ from external_offers.entities.update_client_phone import (
 )
 from external_offers.entities.update_offer_category import UpdateOfferCategoryRequest, UpdateOfferCategoryResponse
 from external_offers.entities.teams import (
-    UpdateOperatorTeamRequest,
-    UpdateOperatorTeamResponse,
-    UpdateTeamSegmentRequest,
-    UpdateTeamSegmentResponse,
+    Team,
     CreateTeamRequest,
-    CreateTeamResponse,
+    UpdateTeamRequest,
+    DeleteTeamRequest,
+    Role,
+)
+from external_offers.entities.operators import (
+    Operator,
+    CreateOperatorRequest,
+    UpdateOperatorRequest,
+    DeleteOperatorRequest,
+    UpdateOperatorsTeamRequest,
 )
 from external_offers.entities.response import BasicResponse

@@ -10,8 +10,23 @@ from external_offers.repositories.postgresql import (
     get_enriched_offers_in_progress_by_operator,
     get_parsed_offer_object_model_by_offer_id,
 )
+from external_offers.repositories.postgresql.teams import (
+    get_teams,
+    get_team_by_id,
+)
+from external_offers.repositories.postgresql.operators import (
+    get_operator_by_id,
+    get_operators,
+    create_operator,
+)
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
-from external_offers.templates import get_offer_card_html, get_offers_list_html, get_teams_page_html
+from external_offers.templates import (
+    get_offer_card_html,
+    get_offers_list_html,
+    get_teams_page_html,
+    get_operator_card_html,
+    get_team_card_html,
+)
 from external_offers.web.handlers.base import PublicHandler
 
 
@@ -90,15 +105,50 @@ class AdminTeamsPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        # operator_is_teamlead = await get_operator_is_teamlead_by_operator_id(self.realty_user_id)
-        # operator_team_id = await get_operator_team_id_by_operator_id(self.realty_user_id)
-        # operators = await get_enriched_operators()
-        operator_is_teamlead = True
-        operator_team_id = 1 or None
-        operators = [1,2,3,4,5,6,7,8]
-        offer_html = get_teams_page_html(
-            operator_is_teamlead=operator_is_teamlead,
-            operator_team_id=operator_team_id,
+        current_operator = await get_operator_by_id(self.realty_user_id)
+        if not current_operator:
+            await create_operator(
+                id=self.realty_user_id,
+                name=None,
+                team_id=None,
+            )
+            current_operator = await get_operator_by_id(self.realty_user_id)
+        operators = await get_operators()
+        teams = await get_teams()
+        self.write(get_teams_page_html(
+            current_operator=current_operator,
             operators=operators,
-        )
-        self.write(offer_html)
+            teams=teams,
+        ))
+
+
+class AdminOperatorCardPageHandler(PublicHandler):
+
+    async def get(self, operator_id: str) -> None:
+        self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        current_operator = await get_operator_by_id(self.realty_user_id)
+        operator = await get_operator_by_id(operator_id)
+        operators = await get_operators()
+        teams = await get_teams()
+        self.write(get_operator_card_html(
+            current_operator=current_operator,
+            operator=operator,
+            operators=operators,
+            teams=teams,
+        ))
+
+
+class AdminTeamCardPageHandler(PublicHandler):
+
+    async def get(self, team_id: str) -> None:
+        self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        current_operator = await get_operator_by_id(self.realty_user_id)
+        team = await get_team_by_id(team_id)
+        operators = await get_operators()
+        teams = await get_teams()
+        self.write(get_team_card_html(
+            current_operator=current_operator,
+            team=team,
+            operators=operators,
+            teams=teams,
+        ))
