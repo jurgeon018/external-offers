@@ -20,7 +20,7 @@ class ParsedOfferMessage:
     """Уникальный ключ"""
     source_object_id: str
     """ID объявления на внешней площадке"""
-    source_object_model: dict[str, Any]
+    source_object_model: dict
     """Данные об объявлении"""
     is_calltracking: Optional[bool]
     """Есть ли коллтрекинг у объявления"""
@@ -42,7 +42,7 @@ class ParsedOffer:
     """Уникальный ключ"""
     source_object_id: str
     """ID объявления на внешней площадке"""
-    source_object_model: dict[str, Any]
+    source_object_model: dict
     """Данные об объявлении"""
     is_calltracking: bool
     """Есть ли коллтрекинг у объявления"""
