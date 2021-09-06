@@ -52,5 +52,6 @@ parsed_offer_for_creation_mapper = EntityMapper(
     without_camelcase=True,
     mappers={
         'timestamp': ValueMapper(),
+        'external_offer_type': IntEnumMapper(),
     }
 )

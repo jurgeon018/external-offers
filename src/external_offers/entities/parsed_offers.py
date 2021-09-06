@@ -61,6 +61,7 @@ class ParsedOffer:
     is_test: bool = False
     """Флаг тестового обьявления""",
     external_offer_type: Optional[ExternalOfferType] = None
+    """Тип объявления"""
 
 
 @dataclass
@@ -278,3 +279,5 @@ class ParsedOfferForCreation:
     """Категория"""
     is_test: bool = False
     """Флаг тестового обьявления"""
+    external_offer_type: Optional[ExternalOfferType] = None
+    """Тип объявления"""

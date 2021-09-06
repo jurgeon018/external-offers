@@ -226,6 +226,7 @@ async def sync_offers_for_call_with_parsed():
                 synced_at=parsed_offer.timestamp,
                 parsed_created_at=parsed_offer.created_at,
                 category=parsed_offer.category,
+                external_offer_type=parsed_offer.external_offer_type,
             )
             await save_offer_for_call(offer=offer)
 
