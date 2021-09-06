@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 from external_offers.enums.external_offer_type import ExternalOfferType
 from external_offers.enums.object_model import Category
@@ -59,7 +59,7 @@ class ParsedOffer:
     user_segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
     is_test: bool = False
-    """Флаг тестового обьявления""",
+    """Флаг тестового обьявления"""
     external_offer_type: Optional[ExternalOfferType] = None
     """Тип объявления"""
 

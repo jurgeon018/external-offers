@@ -1,8 +1,6 @@
-from enum import IntEnum
+from cian_enum import StrEnum
 
 
-class ExternalOfferType(IntEnum):
-    Default = 10
-    """По умолчанию (сейчас это вторичка, загородка)"""
-    Commercial = 20
+class ExternalOfferType(StrEnum):
+    commercial = 'commercial'
     """Коммерческая"""

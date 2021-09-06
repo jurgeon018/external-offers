@@ -55,7 +55,7 @@ CREATE TABLE offers_for_call
     synced_with_grafana boolean                  not null default false,
     is_test             boolean                  not null default false,
     parsed_created_at   timestamp with time zone not null default current_timestamp,
-    external_offer_type int
+    external_offer_type varchar
 );
 
 CREATE TABLE clients
@@ -103,7 +103,7 @@ create table parsed_offers
     updated_at          timestamp with time zone not null,
     is_test             boolean                  not null default false,
     synced              boolean                  not null,
-    external_offer_type int
+    external_offer_type varchar
 );
 
 CREATE INDEX ON clients(avito_user_id);
