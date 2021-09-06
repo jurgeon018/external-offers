@@ -31,7 +31,7 @@ async def test_get_offers_in_progress_by_operator():
     pg.get().fetch.assert_called_with(query, operator_id)
 
 
-async def test_set_undrafted_offers_in_progress_by_client():
+async def test_set_offers_in_progress_by_client():
     # arrange
     query = ('UPDATE offers_for_call SET status=$3, last_call_id=$2 WHERE offers_for_call.client_id = $1 AND '
              'offers_for_call.status != $4 RETURNING offers_for_call.id')
@@ -40,7 +40,7 @@ async def test_set_undrafted_offers_in_progress_by_client():
     pg.get().fetch.return_value = future([])
 
     # act
-    await postgresql.set_undrafted_offers_in_progress_by_client(
+    await postgresql.set_offers_in_progress_by_client(
         client_id=client_id,
         call_id=call_id
     )
@@ -52,6 +52,32 @@ async def test_set_undrafted_offers_in_progress_by_client():
         call_id,
         'inProgress',
         'draft'
+    )
+
+
+async def test_set_offers_in_progress_by_drafted_client():
+    # arrange
+    query = ('UPDATE offers_for_call SET status=$4, last_call_id=$2 WHERE offers_for_call.client_id = $1 AND '
+             'offers_for_call.publication_status = $3 RETURNING offers_for_call.id')
+
+    client_id = '1'
+    call_id = 'test'
+    pg.get().fetch.return_value = future([])
+
+    # act
+    await postgresql.set_offers_in_progress_by_client(
+        client_id=client_id,
+        call_id=call_id,
+        drafted=True,
+    )
+
+    # assert
+    pg.get().fetch.assert_called_with(
+        query,
+        client_id,
+        call_id,
+        'Draft',
+        'inProgress',
     )
 
 

@@ -16,6 +16,8 @@ from external_offers.entities.test_objects import (
     CreateTestOfferResponse,
     DeleteTestObjectsRequest,
     DeleteTestObjectsResponse,
+    UpdateTestObjectsPublicationStatusRequest,
+    UpdateTestObjectsPublicationStatusResponse,
 )
 from external_offers.enums.client_status import ClientStatus
 from external_offers.enums.offer_status import OfferStatus
@@ -28,6 +30,8 @@ from external_offers.repositories.postgresql.clients import (
 )
 from external_offers.repositories.postgresql.offers import (
     delete_test_offers_for_call,
+    get_offer_is_test_by_offer_cian_id,
+    get_offer_row_version_by_offer_cian_id,
     save_offer_for_call,
     set_waiting_offers_priority_by_offer_ids,
 )
@@ -37,6 +41,7 @@ from external_offers.repositories.postgresql.parsed_offers import (
     get_parsed_offer_for_creation_by_id,
     save_test_parsed_offer,
 )
+from external_offers.services.announcement import update_publication_status
 
 
 async def get_default_test_offer():
@@ -265,4 +270,38 @@ async def delete_test_objects_public(request: DeleteTestObjectsRequest, user_id:
     return DeleteTestObjectsResponse(
         success=True,
         message='Тестовые обьекты были успешно удалены.',
+    )
+
+
+async def update_test_objects_publication_status_public(request: UpdateTestObjectsPublicationStatusRequest, user_id: int) -> UpdateTestObjectsPublicationStatusResponse:
+    row_version = request.row_version
+    offer_cian_id = request.offer_cian_id
+    publication_status = request.publication_status
+    success = False
+    message = ""
+    try:
+        offer_is_test = await get_offer_is_test_by_offer_cian_id(offer_cian_id)
+        if offer_is_test is False:
+            message = f'Обьявление с offer_cian_id {offer_cian_id} не тестовое.'
+        elif offer_is_test is None:
+            message = f'Обьявление с offer_cian_id {offer_cian_id} не существует.'
+        else:
+            old_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
+            if old_row_version is None:
+                message = f"Не существует обьявления с offer_cian_id {offer_cian_id}"
+            elif old_row_version > row_version:
+                message = f"new_version должен быть > {old_row_version}"
+            else:
+                await update_publication_status(
+                    publication_status=publication_status,
+                    row_version=row_version,
+                    offer_cian_id=offer_cian_id,
+                )
+                success = True
+                message = f'Успех! Статус был изменен на {publication_status.value}.'
+    except PostgresError as e:
+        message = str(e)
+    return UpdateTestObjectsPublicationStatusResponse(
+        success=success,
+        message=message,
     )

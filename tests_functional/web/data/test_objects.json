@@ -1,6 +1,6 @@
 {
     "TEST_OFFER_REQUEST": {
-        "offerCianId": null,
+        "offerCianId": 12321,
         "offerPriority": 1,
         "parsedId": "ad49365b-caa3-4d8a-be58-02360ad338d5",
         "isCalltracking": false,

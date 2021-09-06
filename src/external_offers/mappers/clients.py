@@ -1,6 +1,6 @@
 from cian_entities import EntityMapper
 
-from external_offers.entities import Client, ClientWaitingOffersCount
+from external_offers.entities import Client, ClientDraftOffersCount, ClientWaitingOffersCount
 
 
 client_mapper = EntityMapper(
@@ -10,5 +10,10 @@ client_mapper = EntityMapper(
 
 client_waiting_offers_count_mapper = EntityMapper(
     ClientWaitingOffersCount,
+    without_camelcase=True,
+)
+
+client_draft_offers_count_mapper = EntityMapper(
+    ClientDraftOffersCount,
     without_camelcase=True,
 )

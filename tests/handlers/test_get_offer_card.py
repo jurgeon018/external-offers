@@ -1,6 +1,12 @@
+from datetime import datetime
+
 import pytest
+import pytz
 from cian_test_utils import future
 from simple_settings.utils import settings_stub
+
+from external_offers.entities.offers import Offer
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 
 @pytest.mark.gen_test
@@ -31,6 +37,19 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
     get_offer_card_html_mock = mocker.patch('external_offers.web.handlers.admin.get_offer_card_html')
     get_offer_card_html_mock.return_value = ''
 
+    offer = Offer(
+        id='1',
+        parsed_id='parsed',
+        client_id='client',
+        status='inProgress',
+        created_at=datetime.now(pytz.utc),
+        parsed_created_at=datetime.now(pytz.utc),
+        synced_at=datetime.now(pytz.utc),
+        publication_status=PublicationStatus.draft,
+    )
+    get_offer_by_offer_id_mock = mocker.patch('external_offers.web.handlers.admin.get_offer_by_offer_id')
+    get_offer_by_offer_id_mock.return_value = future(offer)
+
     # act
     with settings_stub(SAVE_OFFER_MSG=save_offer_msg):
         await http_client.fetch(
@@ -50,7 +69,8 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                 offer_id=offer_id,
                 client=client_mock,
                 client_accounts=[],
-                exist_drafts=False
+                exist_drafts=False,
+                offer_is_draft=True,
             )
         ]
     )

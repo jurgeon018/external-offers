@@ -346,3 +346,190 @@ async def test_delete_test_objects(
     assert test_offers_before_api_call != 0
     assert test_parsed_offers_before_api_call != 0
     assert test_clients_before_api_call != 0
+
+
+async def test_update_test_object_publication_status__offer_doesnt_exists__success_is_false(
+    http,
+    pg,
+    runtime_settings,
+):
+    # arrange
+    non_existing_offer_cian_id = 1
+    # act
+    update_response = await http.request(
+        'POST',
+        '/api/admin/v1/update-test-object-publication-status/',
+        json={
+            'offerCianId': non_existing_offer_cian_id,
+            'rowVersion': 3,
+            'publicationStatus': 'Draft',
+        },
+        headers={
+            'X-Real-UserId': '1'
+        },
+        expected_status=200
+    )
+    resp = json.loads(update_response.body.decode('utf-8'))
+    # assert
+    assert resp['success'] is False
+    assert resp['message'] == f'Обьявление с offer_cian_id {non_existing_offer_cian_id} не существует.'
+
+
+async def test_update_test_object_publication_status__offer_is_not_test__success_is_false(
+    http,
+    pg,
+):
+    # arrange
+    # Создается нетестовое задание
+    offer_cian_id = 10
+    await pg.execute(f"""
+    INSERT INTO public.offers_for_call (
+        is_test, offer_cian_id, id, parsed_id, client_id, status, created_at, synced_at
+    ) VALUES (
+        'f', {offer_cian_id}, 1, 1, 1, 'waiting', 'now()', 'now()'
+    );
+    """)
+    operator_id = '11111111'
+    publication_status = 'Draft'
+
+    # act
+    update_response = await http.request(
+        'POST',
+        '/api/admin/v1/update-test-object-publication-status/',
+        json={
+            'offerCianId': offer_cian_id,
+            'rowVersion': 3,
+            'publicationStatus': publication_status,
+        },
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        expected_status=200
+    )
+    resp = json.loads(update_response.body.decode('utf-8'))
+    # assert
+    assert resp['success'] is False
+    assert resp['message'] == f'Обьявление с offer_cian_id {offer_cian_id} не тестовое.'
+
+
+async def test_update_test_object_publication_status__invalid_row_version__success_is_false(
+    http,
+    pg,
+    runtime_settings,
+):
+    # arrange
+    row_version = -1
+    use_default = False
+    operator_id = '11111111'
+    source_user_id = '12345'
+    source_object_id = '1_356645'
+    publication_status = 'Draft'
+
+    test_objects = load_json_data(__file__, 'test_objects.json')
+
+    TEST_CLIENT_REQUEST = test_objects['TEST_CLIENT_REQUEST']
+    TEST_CLIENT_REQUEST['useDefault'] = use_default
+    TEST_CLIENT_REQUEST['sourceUserId'] = source_user_id
+
+    TEST_OFFER_REQUEST = test_objects['TEST_OFFER_REQUEST']
+    TEST_OFFER_REQUEST['useDefault'] = use_default
+    TEST_OFFER_REQUEST['sourceObjectId'] = source_object_id
+    TEST_OFFER_REQUEST['sourceUserId'] = source_user_id
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/create-test-client/',
+        json=TEST_CLIENT_REQUEST,
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        expected_status=200
+    )
+    await http.request(
+        'POST',
+        '/api/admin/v1/create-test-offer/',
+        json=TEST_OFFER_REQUEST,
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        expected_status=200
+    )
+    update_response = await http.request(
+        'POST',
+        '/api/admin/v1/update-test-object-publication-status/',
+        json={
+            'offerCianId': TEST_OFFER_REQUEST['offerCianId'],
+            'rowVersion': row_version,
+            'publicationStatus': publication_status,
+        },
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        expected_status=200
+    )
+    resp = json.loads(update_response.body.decode('utf-8'))
+    # assert
+    assert resp['success'] is False
+    assert resp['message'] == f'new_version должен быть > 0'
+
+
+async def test_update_test_object_publication_status__params_are_valid__success_is_true(
+    http,
+    pg,
+    runtime_settings,
+):
+    # arrange
+    use_default = False
+    operator_id = '11111111'
+    source_user_id = '12345'
+    source_object_id = '1_356645'
+    publication_status = 'Draft'
+
+    test_objects = load_json_data(__file__, 'test_objects.json')
+
+    TEST_CLIENT_REQUEST = test_objects['TEST_CLIENT_REQUEST']
+    TEST_CLIENT_REQUEST['useDefault'] = use_default
+    TEST_CLIENT_REQUEST['sourceUserId'] = source_user_id
+
+    TEST_OFFER_REQUEST = test_objects['TEST_OFFER_REQUEST']
+    TEST_OFFER_REQUEST['useDefault'] = use_default
+    TEST_OFFER_REQUEST['sourceObjectId'] = source_object_id
+    TEST_OFFER_REQUEST['sourceUserId'] = source_user_id
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/create-test-client/',
+        json=TEST_CLIENT_REQUEST,
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        expected_status=200
+    )
+    await http.request(
+        'POST',
+        '/api/admin/v1/create-test-offer/',
+        json=TEST_OFFER_REQUEST,
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        expected_status=200
+    )
+    update_response = await http.request(
+        'POST',
+        '/api/admin/v1/update-test-object-publication-status/',
+        json={
+            'offerCianId': TEST_OFFER_REQUEST['offerCianId'],
+            'rowVersion': 3,
+            'publicationStatus': publication_status,
+        },
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        expected_status=200
+    )
+    resp = json.loads(update_response.body.decode('utf-8'))
+    # assert
+    assert resp['message'] == f'Успех! Статус был изменен на {publication_status}.'
+    assert resp['success'] is True

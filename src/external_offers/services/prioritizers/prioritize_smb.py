@@ -59,6 +59,7 @@ async def choose_main_smb_client_profile(
             user_source_type
             and (
                 user_source_type.is_emls
+                or user_source_type.is_sub_agents
                 or user_source_type.is_n1
                 or user_source_type.is_mlsn
             )
