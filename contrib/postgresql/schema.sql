@@ -9,7 +9,8 @@ CREATE TYPE offer_status_type AS enum (
     'alreadyPublished',
     'phoneUnavailable',
     'callInterrupted',
-    'promoGiven'
+    'promoGiven',
+    'done'
 );
 CREATE TYPE offer_publication_status_type AS enum (
     'Draft',
@@ -41,7 +42,7 @@ CREATE TABLE offers_for_call
     offer_cian_id bigint,
     client_id     int                      not null,
     status        offer_status_type        not null,
-    publication_status offer_publicattion_status_type  null,
+    publication_status offer_publication_status_type  null,
     created_at    timestamp with time zone not null,
     synced_at     timestamp with time zone not null,
     started_at    timestamp with time zone,
@@ -58,22 +59,23 @@ CREATE TABLE offers_for_call
 
 CREATE TABLE clients
 (
-    client_id           varchar     not null primary key,
-    avito_user_id       varchar     not null,
-    cian_user_id        bigint,
-    client_name         varchar,
-    client_phones       varchar[]   not null,
-    client_email        varchar(50),
-    operator_user_id    bigint,
-    status              client_status_type,
-    segment             varchar(1),
-    next_call           timestamp with time zone,
-    calls_count         smallint,
-    last_call_id        varchar,
-    comment             varchar,
-    synced_with_grafana boolean  not null  default false,
-    is_test             boolean  not null  default false,
-    main_account_chosen boolean  not null  default false
+    client_id            varchar     not null primary key,
+    avito_user_id        varchar     not null,
+    cian_user_id         bigint,
+    client_name          varchar,
+    client_phones        varchar[]   not null,
+    client_email         varchar(50),
+    operator_user_id     bigint,
+    status               client_status_type,
+    segment              varchar(1),
+    next_call            timestamp with time zone,
+    calls_count          smallint,
+    last_call_id         varchar,
+    comment              varchar,
+    main_account_chosen  boolean  not null  default false,
+    synced_with_grafana  boolean  not null  default false,
+    unactivated          boolean  not null  default false,
+    is_test              boolean  not null  default false
 );
 
 CREATE TABLE event_log
@@ -103,6 +105,8 @@ create table parsed_offers
 );
 
 CREATE INDEX ON clients(avito_user_id);
+CREATE INDEX ON offers_for_call(offer_cian_id);
+CREATE INDEX ON offers_for_call(client_id); 
 ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);
 
 

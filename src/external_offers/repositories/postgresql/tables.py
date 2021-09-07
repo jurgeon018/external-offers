@@ -39,6 +39,7 @@ clients = sa.Table(
     sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
     sa.Column('comment', sa.VARCHAR, nullable=True),
+    sa.Column('unactivated', sa.BOOLEAN, nullable=False, default=False),
 )
 
 offers_for_call = sa.Table(

@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 
 import pytest
@@ -8,6 +9,100 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 async def test_get_offers_list__without_x_real_userid__returns_400(http):
     # act && assert
     await http.request('GET', '/admin/offers-list/', expected_status=400)
+
+
+async def test_update_offers_list_with_unactivated_clients__operator_without_client__return_success(
+        pg,
+        http,
+        offers_and_clients_fixture,
+        users_mock,
+
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    expected_operator_client = '224'
+    expected_operator_offer = '226'
+    await pg.execute("""
+        INSERT INTO clients (
+            segment, unactivated, client_id, avito_user_id, client_phones, status
+        ) VALUES
+        (NULL, 't', 221, 221, '{+7232121}', 'accepted'),
+        ('c',  't', 222, 222, '{+7232122}', 'accepted'),
+        ('d',  't', 223, 223, '{+7232123}', 'accepted'),
+        ('d',  't', 224, 224, '{+7232123}', 'accepted');
+    """)
+    await pg.execute(f"""
+        INSERT INTO offers_for_call (
+            id, parsed_id, client_id, priority, publication_status,status,category,created_at,synced_at
+        ) VALUES
+        (221, 221, 221, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (222, 222, 222, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (223, 223, 222, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (224, 224, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        (225, 225, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
+        ({expected_operator_offer}, {expected_operator_offer}, {expected_operator_client}, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()');
+    """)
+    await pg.execute("""
+        INSERT INTO parsed_offers (
+            id, source_object_id, source_user_id,source_object_model,is_calltracking,timestamp,created_at,updated_at
+        ) VALUES
+        (221, 221, 221, '{\"region\": \"4568\"}',     'f', 'now()', 'now()', 'now()'),
+        (222, 222, 222, '{\"region\": \"4636\"}',     'f', 'now()', 'now()', 'now()'),
+        (223, 223, 222, '{\"region\": \"4624\"}',     'f', 'now()', 'now()', 'now()'),
+        (224, 224, 223, '{\"region\": \"4568\"}',     'f', 'now()', 'now()', 'now()'),
+        (225, 225, 223, '{\"region\": \"4636\"}',     'f', 'now()', 'now()', 'now()'),
+        (226, 226, 224, '{}',                         'f', 'now()', 'now()', 'now()');
+    """)
+
+    operator_without_offers_in_progress = 60024636
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={
+                'roles': [
+                    # {'id': 1, 'name': 'CommercialPrepublicationModerator'}
+                ],
+            }
+        ),
+    )
+
+    # act
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_without_offers_in_progress
+        },
+        json={},
+        expected_status=200
+    )
+    body = json.loads(response.body)
+    offers_event_log = await pg.fetch(
+        'SELECT * FROM event_log where operator_user_id=$1',
+        [
+            operator_without_offers_in_progress
+        ]
+    )
+    # assert
+    assert offers_event_log[0]['offer_id'] == expected_operator_offer
+    assert offers_event_log[0]['status'] == 'inProgress'
+    assert body['success'] is True
+    assert operator_without_offers_in_progress == await pg.fetchval(
+        'SELECT operator_user_id FROM clients WHERE client_id=$1 AND status=$2',
+        [
+            expected_operator_client,
+            'inProgress'
+        ]
+    )
+
+    assert expected_operator_offer == await pg.fetchval(
+        'SELECT id FROM offers_for_call WHERE client_id=$1 AND status = $2',
+        [
+            expected_operator_client,
+            'inProgress'
+        ]
+    )
 
 
 async def test_update_offers_list__with_is_test_false__returns_only_real_objects(
@@ -46,14 +141,15 @@ async def test_update_offers_list__with_is_test_true__assigns_test_object_to_ope
     await http.request(
         'POST',
         '/api/admin/v1/update-offers-list/',
-        headers={
-            'X-Real-UserId': operator_user_id
-        },
         json={
             'isTest': True,
         },
+        headers={
+            'X-Real-UserId': operator_user_id
+        },
         expected_status=200
     )
+
     # assert
     clients = await pg.fetch(f"""
         SELECT * FROM clients WHERE operator_user_id='{operator_user_id}'
@@ -684,7 +780,6 @@ async def test_delete_offer__exist_offers_in_progress__client_waiting_if_no_offe
             operator_user_id
         ]
     )
-
     assert offers_event_log[0]['offer_id'] == '8'
     assert offers_event_log[0]['status'] == 'cancelled'
     assert offers_event_log[1]['offer_id'] == '9'

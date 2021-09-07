@@ -371,7 +371,13 @@
             {% endif %}
     </form>
     </div>
-
+    {% if offer_is_draft %}
+    <div class="footer-block">
+        <div>
+            <div class="text-info">Обьявление уже опубликовано как черновик, но не активировано.</div>
+        </div>
+    </div>
+    {% else %}
     <div class="footer-block">
         <div>
             <div class="text-info">{{ info_message }}</div>
@@ -380,6 +386,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>  
 
 <script>

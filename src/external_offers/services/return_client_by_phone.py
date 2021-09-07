@@ -7,7 +7,7 @@ from external_offers.repositories.postgresql import (
     assign_client_to_operator_and_increase_calls_count,
     get_client_for_update_by_phone_number,
     save_event_log_for_offers,
-    set_undrafted_offers_in_progress_by_client,
+    set_offers_in_progress_by_client,
 )
 
 
@@ -54,9 +54,11 @@ async def return_client_by_phone(request: ReturnClientByPhoneRequest, user_id: i
             operator_id=user_id,
             call_id=call_id
         )
-        if offers_ids := await set_undrafted_offers_in_progress_by_client(
+
+        if offers_ids := await set_offers_in_progress_by_client(
             client_id=client.client_id,
-            call_id=call_id
+            call_id=call_id,
+            drafted=client.unactivated,
         ):
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
