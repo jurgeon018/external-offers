@@ -13,6 +13,7 @@ from tornado import gen
 from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus
+from external_offers.entities.offers import ExternalOfferType
 from external_offers.enums import UserSegment
 from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql import (
@@ -217,6 +218,7 @@ async def sync_offers_for_call_with_parsed():
 
             offer_id = generate_guid()
             now = datetime.now(tz=pytz.utc)
+            external_offer_type = parsed_offer.external_offer_type
             offer = Offer(
                 id=offer_id,
                 parsed_id=parsed_offer.id,
@@ -226,7 +228,7 @@ async def sync_offers_for_call_with_parsed():
                 synced_at=parsed_offer.timestamp,
                 parsed_created_at=parsed_offer.created_at,
                 category=parsed_offer.category,
-                external_offer_type=parsed_offer.external_offer_type,
+                external_offer_type=ExternalOfferType.from_str(external_offer_type) if external_offer_type else None,
             )
             await save_offer_for_call(offer=offer)
 
