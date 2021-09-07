@@ -6,8 +6,15 @@ from external_offers import entities
 from external_offers.services import admin
 from external_offers.services.return_client_by_phone import return_client_by_phone
 from external_offers.services.save_offer import save_offer_public
+from external_offers.services.test_objects import (
+    create_test_client_public,
+    create_test_offer_public,
+    delete_test_objects_public,
+    update_test_objects_publication_status_public,
+)
 from external_offers.services.update_client_comment import update_client_comment_public
 from external_offers.services.update_client_phone import update_client_phone_public
+from external_offers.services.update_clients_operator import update_clients_operator_public
 from external_offers.services.update_offer_category import update_offer_category_public
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
@@ -22,9 +29,25 @@ urlpatterns = base_urls.urlpatterns + [
     url('/api/admin/v1/update-offers-list/$', get_handler(
         service=admin.update_offers_list,
         method='POST',
+        request_schema=entities.AdminUpdateOffersListRequest,
         response_schema=entities.AdminResponse,
         base_handler_cls=PublicHandler,
     )),
+    url('/api/admin/v1/save-offer/$', get_handler(
+        service=save_offer_public,
+        method='POST',
+        request_schema=entities.SaveOfferRequest,
+        response_schema=entities.SaveOfferResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/return-client-by-phone/$', get_handler(
+        service=return_client_by_phone,
+        method='POST',
+        request_schema=entities.ReturnClientByPhoneRequest,
+        response_schema=entities.ReturnClientByPhoneResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    # перевод по статусам
     url('/api/admin/v1/decline-client/$', get_handler(
         service=admin.set_decline_status_for_client,
         method='POST',
@@ -81,25 +104,12 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.AdminResponse,
         base_handler_cls=PublicHandler,
     )),
-    url('/api/admin/v1/save-offer/$', get_handler(
-        service=save_offer_public,
-        method='POST',
-        request_schema=entities.SaveOfferRequest,
-        response_schema=entities.SaveOfferResponse,
-        base_handler_cls=PublicHandler,
-    )),
+    # изменения полей
     url('/api/admin/v1/update-client-phone/$', get_handler(
         service=update_client_phone_public,
         method='POST',
         request_schema=entities.UpdateClientPhoneRequest,
         response_schema=entities.UpdateClientPhoneResponse,
-        base_handler_cls=PublicHandler,
-    )),
-    url('/api/admin/v1/return-client-by-phone/$', get_handler(
-        service=return_client_by_phone,
-        method='POST',
-        request_schema=entities.ReturnClientByPhoneRequest,
-        response_schema=entities.ReturnClientByPhoneResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-offer-category/$', get_handler(
@@ -109,11 +119,46 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.UpdateOfferCategoryResponse,
         base_handler_cls=PublicHandler,
     )),
+    url('/api/admin/v1/create-test-offer/$', get_handler(
+        service=create_test_offer_public,
+        method='POST',
+        request_schema=entities.CreateTestOfferRequest,
+        response_schema=entities.CreateTestOfferResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/create-test-client/$', get_handler(
+        service=create_test_client_public,
+        method='POST',
+        request_schema=entities.CreateTestClientRequest,
+        response_schema=entities.CreateTestClientResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/delete-test-objects/$', get_handler(
+        service=delete_test_objects_public,
+        method='POST',
+        request_schema=entities.DeleteTestObjectsRequest,
+        response_schema=entities.DeleteTestObjectsResponse,
+        base_handler_cls=PublicHandler,
+    )),
     url('/api/admin/v1/update-client-comment/$', get_handler(
         service=update_client_comment_public,
         method='POST',
         request_schema=entities.UpdateClientCommentRequest,
         response_schema=entities.UpdateClientCommentResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-clients-operator/$', get_handler(
+        service=update_clients_operator_public,
+        method='POST',
+        request_schema=entities.UpdateClientsOperatorRequest,
+        response_schema=entities.UpdateClientsOperatorResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-test-object-publication-status/$', get_handler(
+        service=update_test_objects_publication_status_public,
+        method='POST',
+        request_schema=entities.UpdateTestObjectsPublicationStatusRequest,
+        response_schema=entities.UpdateTestObjectsPublicationStatusResponse,
         base_handler_cls=PublicHandler,
     )),
 ]

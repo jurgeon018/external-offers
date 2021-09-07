@@ -31,10 +31,14 @@ class Client:
     """Количество звонков"""
     main_account_chosen: bool = False
     """Флаг выбора главного аккаунта(аккаунт выбранный при первом сохранении черновика)"""
+    unactivated: bool = False
+    """Флаг добивочного клиента с неактивированым черновиком(нужен для разделения обычных и добивочных клиентов)"""
     comment: Optional[str] = None
     """Коментарий к карточке от оператора"""
     next_call: Optional[datetime] = None
     """Дата следующего звонка клиенту"""
+    is_test: bool = False
+    """Тестовое обьявление"""
 
 
 @dataclass
@@ -43,6 +47,14 @@ class ClientWaitingOffersCount:
     """Идентификатор клиента"""
     waiting_offers_count: int
     """Количество объявлений в ожидании"""
+
+
+@dataclass
+class ClientDraftOffersCount:
+    client_id: str
+    """Идентификатор клиента"""
+    draft_offers_count: int
+    """Количество неактивированых черновиков"""
 
 
 @dataclass

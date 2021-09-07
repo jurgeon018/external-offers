@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
 
+from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_operator_and_offer_id,
     get_client_in_progress_by_operator,
     get_enriched_offers_in_progress_by_operator,
+    get_offer_by_offer_id,
     get_parsed_offer_object_model_by_offer_id,
 )
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
@@ -22,8 +25,12 @@ class AdminOffersListPageHandler(PublicHandler):
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
+        unactivated = False
+        if client:
+            unactivated = client.unactivated
         offers = await get_enriched_offers_in_progress_by_operator(
-            operator_id=self.realty_user_id
+            operator_id=self.realty_user_id,
+            unactivated=unactivated,
         )
         now = datetime.now()
         next_call_day = now + timedelta(days=settings.NEXT_CALL_DAY)
@@ -36,7 +43,8 @@ class AdminOffersListPageHandler(PublicHandler):
         self.write(get_offers_list_html(
             offers=offers,
             client=client,
-            default_next_call_datetime=next_call_datetime
+            default_next_call_datetime=next_call_datetime,
+            operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
         ))
 
 
@@ -72,13 +80,16 @@ class AdminOffersCardPageHandler(PublicHandler):
         exist_drafts = await exists_offers_draft_by_client(
             client_id=client.client_id
         )
+        offer = await get_offer_by_offer_id(offer_id=offer_id)
+        offer_is_draft = offer.publication_status == PublicationStatus.draft
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
             offer_id=offer_id,
             client=client,
             client_accounts=client_accounts_result.value,
-            exist_drafts=exist_drafts
+            exist_drafts=exist_drafts,
+            offer_is_draft=offer_is_draft,
         )
 
         self.write(offer_html)

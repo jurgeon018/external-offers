@@ -13,7 +13,8 @@ async def get_unsynced_waiting_objects_count(table_name: str) -> Optional[int]:
     return await pg.get().fetchval(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting';
+        AND status = 'waiting'
+        AND is_test IS FALSE;
     """)
 
 
@@ -22,7 +23,8 @@ async def sync_waiting_objects_with_grafana(table_name: str) -> None:
         UPDATE {table_name}
         SET synced_with_grafana = TRUE
         WHERE synced_with_grafana IS NOT TRUE
-        AND status = 'waiting';
+        AND status = 'waiting'
+        AND is_test IS FALSE;
     """)
 
 
@@ -136,7 +138,7 @@ async def fetch_segmented_objects(
                 ON clients.client_id = ofc.client_id
             JOIN parsed_offers
                 ON parsed_offers.id = ofc.parsed_id
-            {status_query};
+            {status_query} AND ofc.is_test IS FALSE AND clients.is_test IS FALSE;
         """
         rows = await pg.get().fetch(segmentation_query)
 
@@ -164,7 +166,7 @@ async def fetch_segmented_objects(
                 ON clients.client_id = ofc.client_id
             JOIN parsed_offers
                 ON parsed_offers.id = ofc.parsed_id
-            {status_query}
+            {status_query} AND ofc.is_test IS FALSE AND clients.is_test IS FALSE
             GROUP BY {field_name};
         """
         rows = await pg.get().fetch(segmentation_query)

@@ -9,8 +9,9 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def start(pg):
+async def start(pg, runner):
     await pg.execute_scripts((Path('contrib') / 'postgresql' / 'migrations').glob('*.sql'))
+    await runner.start_background_python_command('process_announcement_consumer')
 
 
 @pytest.fixture(name='pg', scope='session')
@@ -51,6 +52,11 @@ def parsed_offers_fixture_for_offers_for_call_test(database_fixture_folder):
 @pytest.fixture
 def segmentation_rows_fixture(database_fixture_folder):
     return database_fixture_folder / 'segmentation_rows.sql'
+
+
+@pytest.fixture
+def test_objects_fixture(database_fixture_folder):
+    return database_fixture_folder / 'test_objects.sql'
 
 
 @pytest.fixture

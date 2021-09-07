@@ -8,6 +8,7 @@ from simple_settings import settings
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, delete, func, not_, select, update
+from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import (
@@ -51,7 +52,32 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
                 'is_calltracking': insert_query.excluded.is_calltracking,
                 'updated_at': insert_query.excluded.updated_at,
                 'timestamp': insert_query.excluded.timestamp,
+                'external_offer_type': insert_query.excluded.external_offer_type,
             }
+        )
+    )
+
+    await pg.get().execute(query, *params)
+
+
+async def save_test_parsed_offer(
+    *,
+    parsed_offer: ParsedOfferMessage
+) -> None:
+    insert_query = insert(tables.parsed_offers)
+
+    values = parsed_offer_message_mapper.map_to(parsed_offer)
+
+    now = datetime.now(tz=pytz.UTC)
+
+    values['updated_at'] = now
+    values['created_at'] = now
+    values['is_test'] = True
+    values['synced'] = False
+
+    query, params = asyncpgsa.compile_query(
+        insert_query.values(
+            [values]
         )
     )
 
@@ -104,6 +130,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
             tables.parsed_offers.c.id,
             tables.parsed_offers.c.source_user_id,
             tables.parsed_offers.c.timestamp,
+            tables.parsed_offers.c.external_offer_type,
             tables.parsed_offers.c.created_at,
             tables.parsed_offers.c.user_segment,
             tables.parsed_offers.c.source_object_model['phones'].label('phones'),
@@ -111,9 +138,21 @@ async def set_synced_and_fetch_parsed_offers_chunk(
             tables.parsed_offers.c.source_object_model['category'].as_string().label('category')
         )
     )
-    rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
 
+    rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
     return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
+
+
+async def get_parsed_offer_for_creation_by_id(*, id: int) -> ParsedOfferForCreation:
+    fetch_offer_query, fetch_offer_params = asyncpgsa.compile_query(
+        select(
+            [tables.parsed_offers]
+        ).where(
+            tables.parsed_offers.c.id == id
+        ).limit(1)
+    )
+    row = await pg.get().fetchrow(fetch_offer_query, *fetch_offer_params)
+    return parsed_offer_for_creation_mapper.map_from(row)
 
 
 async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optional[ParsedObjectModel]:
@@ -196,7 +235,10 @@ async def iterate_over_parsed_offers_sorted(
         select(
             [po]
         ).where(
-            po.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
+            and_(
+                po.c.is_test == false(),
+                po.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
+            )
         ).order_by(
             po.c.created_at.asc(),
             po.c.id.asc()
@@ -252,3 +294,27 @@ async def update_offer_categories_by_offer_id(
     """
 
     await pg.get().execute(query)
+
+
+async def exists_parsed_offer_by_source_object_id(
+    *,
+    source_object_id: str,
+):
+    query = f"""
+    SELECT COUNT(*) FROM parsed_offers
+    WHERE source_object_id = '{source_object_id}';
+    """
+    result = await pg.get().fetchval(query)
+
+    return bool(result)
+
+
+async def delete_test_parsed_offers() -> None:
+    query, params = asyncpgsa.compile_query(
+        delete(
+            tables.parsed_offers
+        ).where(
+            tables.parsed_offers.c.is_test == true()
+        )
+    )
+    await pg.get().execute(query, *params)

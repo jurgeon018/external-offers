@@ -37,6 +37,7 @@ types-pytz = "^2021.1.0"
 pytils = "^0.3"
 aioamqp = "^0.14.0"
 aioamqp-consumer-best = "^2.2.2"
+backoff = "^1.11.1"
 
 [tool.poetry.dev-dependencies]
 cian-functional-test-utils = {version = "*", extras = ["python", "postgres", "kafka", "rabbitmq", "cache"]}

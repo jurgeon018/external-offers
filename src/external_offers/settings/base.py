@@ -28,14 +28,20 @@ ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL: bool = False
 CLEAR_WAITING_OFFERS_FOR_CALL_AGE_IN_DAYS: int = 14
 
 # Настройки приоритетов в очереди
-# Приоритет собирается из 4 частей в число равной длины для всех заданий(для сквозной сортировки)
+# Приоритет собирается из 7 частей в число равной длины для всех заданий(для сквозной сортировки)
 
-# 1 часть - статус звонка, все новые задания идут с приоритетом 3 в начале, недозвоны - 2, перезвоны - 1
+# 1-5 - части приоритета для клиента
+
+# 1 часть - тип клиента: добивочный клиент с неактивированым черновиком, новый клиент
+UNACTIVATED_CLIENT_PRIORITY: int = 1
+NEW_CLIENT_PRIORITY: int = 2
+
+# 2 часть - статус звонка, все новые задания идут с приоритетом 3 в начале, недозвоны - 2, перезвоны - 1
 CALL_LATER_PRIORITY: int = 1
 CALL_MISSED_PRIORITY: int = 2
 WAITING_PRIORITY: int = 3
 
-# 2 часть - регион, основные регионы из ключей настройки ниже ранжируются по значениям, остальные - все вместе
+# 3 часть - регион, основные регионы из ключей настройки ниже ранжируются по значениям, остальные - все вместе
 MAIN_REGIONS_PRIORITY: Dict[str, int] = {
     '2':    1,  # Санкт-Петербург
     '4588': 2,  # Ленинградская
@@ -107,11 +113,11 @@ MAIN_REGIONS_PRIORITY: Dict[str, int] = {
     '4583': 68,  # Костромская область
     '4631': 69,  # Чеченская Республика
 }
-# 3 часть - сегмент: собственник или smb
+# 4 часть - сегмент: собственник или smb
 SMB_PRIORITY: int = 1
 HOMEOWNER_PRIORITY: int = 2
 
-# 4 часть - статус учетной записи: нет лк на Циан, нет активных объявлений, соблюдена пропорция заданий в админке
+# 5 часть - статус учетной записи: нет лк на Циан, нет активных объявлений, соблюдена пропорция заданий в админке
 # и уже активных объявлений у клиента, для smb дополнительный приоритет - активный лк
 NO_LK_SMB_PRIORITY: int = 1
 NO_ACTIVE_SMB_PRIORITY: int = 2
@@ -119,11 +125,13 @@ KEEP_PROPORTION_SMB_PRIORITY: int = 3
 NO_LK_HOMEOWNER_PRIORITY: int = 1
 ACTIVE_LK_HOMEOWNER_PRIORITY: int = 2
 
-# 5 часть - тип сделки: продажа, аренда
+# 6-7 - части приоритета для обьявления
+
+# 6 часть - тип сделки: продажа, аренда
 SALE_PRIORITY: int = 1
 RENT_PRIORITY: int = 2
 
-# 6 часть - тип недвижимости: городская, загородная, комерческая
+# 7 часть - тип недвижимости: городская, загородная, комерческая
 FLAT_PRIORITY: int = 1
 SUBURBAN_PRIORITY: int = 2
 COMMERCIAL_PRIORITY: int = 3
@@ -155,7 +163,7 @@ PROMOCODE_POLYGONS: List[int] = [2000]
 
 REGIONS_WITH_PAID_PUBLICATION: List[int] = [1, 2, 4588, 4593]
 
-TEST_OPERATOR_IDS = [58116185]
+TEST_OPERATOR_IDS = [58116185, 73478905]
 
 AVITO_SOURCE_NAME = 'avito'
 YANDEX_SOURCE_NAME = 'yandex'
@@ -175,7 +183,7 @@ OFFER_UPDATE_CHECK_WINDOW_IN_HOURS = 24
 OFFERS_FOR_CALL_FOR_KAFKA_FETCH_LIMIT = 10000
 PARSED_OFFERS_FOR_KAFKA_FETCH_LIMIT = 10000
 DEFAULT_PREFETCH = 500
-WAITING_OFFERS_FOR_CALL_PREFETCH = 5000
+OFFERS_FOR_PRIORITIZATION_PREFETCH = 5000
 
 UNDERGROUND_SEARCH_RADIUS = 3000
 MAX_GEOCODE_STATIONS = 3
@@ -190,10 +198,51 @@ NEXT_CALL_MINUTES = 0
 NEXT_CALL_SECONDS = 0
 
 ITERATE_OVER_LIST_DEFAULT_CHUNK = 100
+ITERATE_OVER_OFFERS_FOR_PRIORITIZATION_BY_CLIENT_IDS_CHUNK = 20000
 SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK = 20000
 SYNC_OFFERS_FOR_CALL_WITH_KAFKA_BY_IDS_CHUNK = 1000
 
 SUITABLE_EXTERNAL_SOURCES_FOR_SAVE = ['1']
 SUITABLE_EXTERNAL_SOURCES_FOR_SEND = ['1']
 
+EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT = 3
+
 DEBUG: bool = False
+
+# Дефолтные обьекты для тестирования
+DEFAULT_TEST_OFFER = """{
+    "offer_cian_id": null,
+    "offer_priority": 1,
+    "parsed_id": "ad49365b-caa3-4d8a-be58-02360ad338d5",
+    "is_calltracking": false,
+    "user_segment": "c",
+    "lat": 55.799034118652344,
+    "lng": 37.782142639160156,
+    "url": "https://www.avito.ru/moskva/komnaty/komnata_13_m_v_3-k_35_et._1308836235",
+    "town": "moscow",
+    "price": 11000,
+    "title": "room 13 square meters, 2 floor",
+    "phone": "3333333333",
+    "region": 1,
+    "address": "moscow, gagarina street",
+    "contact": "test client",
+    "category": "flatRent",
+    "is_agency": 1,
+    "is_studio": null,
+    "price_type": 6,
+    "total_area": 13,
+    "living_area": null,
+    "rooms_count": 4,
+    "description": "description",
+    "floor_number": 3,
+    "floors_count": 6,
+    "is_developer": null
+}"""
+DEFAULT_TEST_CLIENT = """{
+    "segment":  "c",
+    "client_phone": "3333333333",
+    "client_name": "test client",
+    "cian_user_id": null,
+    "client_email": "111@21.11",
+    "main_account_chosen": false
+}"""

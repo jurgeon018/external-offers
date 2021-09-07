@@ -49,7 +49,7 @@ memory = 256
 [job.create-offers-for-call-from-parsed]
 type = "cron"
 command = "create-offers-for-call"
-cron = "0 2 * * *"
+cron = "0 4 * * *"
 
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "cron"

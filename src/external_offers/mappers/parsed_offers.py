@@ -9,6 +9,7 @@ parsed_offer_message_mapper = EntityMapper(
     without_camelcase=True,
     mappers={
         'timestamp': ValueMapper(),
+        'external_offer_type': ValueMapper(),
     }
 )
 
@@ -19,6 +20,7 @@ parsed_offer_mapper = EntityMapper(
         'timestamp': ValueMapper(),
         'created_at': ValueMapper(),
         'updated_at': ValueMapper(),
+        'external_offer_type': ValueMapper(),
     }
 )
 
@@ -27,5 +29,6 @@ parsed_offer_for_creation_mapper = EntityMapper(
     without_camelcase=True,
     mappers={
         'timestamp': ValueMapper(),
+        'external_offer_type': ValueMapper(),
     }
 )

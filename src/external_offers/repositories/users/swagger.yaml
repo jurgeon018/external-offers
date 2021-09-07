@@ -21,6 +21,34 @@ definitions:
     required:
     - message
     type: object
+  WebApi.Models.GetUserRolesResponse:
+    description: Ответ на получение ролей пользователя
+    properties:
+      roles:
+        description: Роли
+        items:
+          $ref: '#/definitions/WebApi.Models.RoleModel'
+        type: array
+    required:
+    - roles
+    type: object
+  WebApi.Models.RoleModel:
+    description: Модель роли
+    properties:
+      comment:
+        description: Описание
+        type: string
+      id:
+        description: Id
+        format: int64
+        type: integer
+      name:
+        description: Название
+        type: string
+    required:
+    - id
+    - name
+    type: object
   WebApi.Models.UserModelV2:
     description: Пользователь
     properties:
@@ -48,8 +76,10 @@ definitions:
         - emls
         - subAgents
         - n1
+        - mlsn
         type: string
         x-emls: Пользователи из ЕМЛС
+        x-mlsn: Mlsn
         x-n1: Партнер N1
         x-subAgents: Субагенты
       firstName:
@@ -164,6 +194,30 @@ info:
   title: users
   version: v1
 paths:
+  /v1/get-user-roles/:
+    get:
+      parameters:
+      - format: int64
+        in: query
+        name: userId
+        type: integer
+      - default: false
+        in: query
+        name: useCache
+        type: boolean
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Models.GetUserRolesResponse'
+      summary: Получает все роли пользователя по его realtyUserId
+      tags:
+      - Roles
   /v1/register-user-by-phone/:
     post:
       consumes:

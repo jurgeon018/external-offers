@@ -13,10 +13,12 @@ parsed_offers = sa.Table(
     sa.Column('source_user_id', sa.VARCHAR),
     sa.Column('source_object_model', JSONB(none_as_null=True), nullable=False),
     sa.Column('is_calltracking', sa.BOOLEAN, nullable=False),
-    sa.Column('synced', sa.BOOLEAN, nullable=False),
-    sa.Column('timestamp', sa.TIMESTAMP, nullable=False),
+    sa.Column('synced',     sa.BOOLEAN,   nullable=False),
+    sa.Column('is_test',    sa.BOOLEAN,   nullable=False, default=False),
+    sa.Column('timestamp',  sa.TIMESTAMP, nullable=False),
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('external_offer_type', sa.VARCHAR, nullable=True),
 )
 
 clients = sa.Table(
@@ -35,8 +37,10 @@ clients = sa.Table(
     sa.Column('calls_count', sa.SMALLINT),
     sa.Column('last_call_id', sa.VARCHAR),
     sa.Column('synced_with_grafana', sa.BOOLEAN, nullable=False, default=False),
+    sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
     sa.Column('comment', sa.VARCHAR, nullable=True),
+    sa.Column('unactivated', sa.BOOLEAN, nullable=False, default=False),
 )
 
 offers_for_call = sa.Table(
@@ -58,7 +62,9 @@ offers_for_call = sa.Table(
     sa.Column('last_call_id', sa.VARCHAR),
     sa.Column('synced_with_kafka', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('synced_with_grafana', sa.BOOLEAN, nullable=False, default=False),
+    sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('parsed_created_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('external_offer_type', sa.VARCHAR, nullable=True),
 )
 
 event_log = sa.Table(

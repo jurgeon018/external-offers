@@ -5,17 +5,24 @@ import asyncpgsa
 import pytz
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql.expression import true
 from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
+from external_offers.enums.operator_role import OperatorRole
+from external_offers.helpers.commercial_prepublication_categories import COMMERCIAL_PREPUBLICATION_CATEGORIES
 from external_offers.mappers import client_mapper
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
+from external_offers.utils.next_call import get_next_call_date_when_draft
 
 
 _NO_CALLS = 0
 _ONE_CALL = 1
+
+_NO_OFFER_CATEGORY = ''
 
 
 async def get_client_in_progress_by_operator(
@@ -41,9 +48,23 @@ async def get_client_in_progress_by_operator(
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
-    call_id: str
+    call_id: str,
+    operator_roles: List[str],
+    is_test: bool = False,
 ) -> str:
     now = datetime.now(pytz.utc)
+
+    is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
+
+    commercial_category_clause = (
+        coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY).in_(COMMERCIAL_PREPUBLICATION_CATEGORIES)
+    )
+
+    offer_category_clause = (
+        commercial_category_clause
+        if is_commercial_moderator
+        else ~commercial_category_clause
+    )
 
     first_suitable_offer_client_cte = (
         select(
@@ -59,19 +80,53 @@ async def assign_suitable_client_to_operator(
             skip_locked=True
         ).where(
             or_(
+                # новые клиенты
                 and_(
+                    # Достает клиентов в ожидании
+                    clients.c.unactivated.is_(False),
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
-                    clients.c.status == ClientStatus.waiting.value
+                    clients.c.status == ClientStatus.waiting.value,
+                    clients.c.is_test == is_test,
+                    offer_category_clause,
                 ),
                 and_(
+                    # Достает перезвоны и недозвоны
+                    clients.c.unactivated.is_(False),
                     clients.c.operator_user_id == operator_id,
                     offers_for_call.c.status.in_([
                         OfferStatus.call_later.value,
                         OfferStatus.call_missed.value,
                     ]),
-                    clients.c.next_call <= now
-                )
+                    clients.c.next_call <= now,
+                    clients.c.is_test == is_test,
+                    offer_category_clause,
+                ),
+                # добивочные клиенты
+                and_(
+                    # Достает добивочных клиентов с неактивироваными черновиками
+                    clients.c.unactivated.is_(True),
+                    clients.c.operator_user_id.is_(None),
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    clients.c.status.notin_([
+                        ClientStatus.declined.value,
+                    ]),
+                    clients.c.is_test == is_test,
+                    offer_category_clause,
+                ),
+                and_(
+                    # Достает перезвоны и недозвоны добивочных клиентов с неактивироваными черновиками
+                    clients.c.unactivated.is_(True),
+                    clients.c.operator_user_id == operator_id,
+                    offers_for_call.c.status.in_([
+                        OfferStatus.call_later.value,
+                        OfferStatus.call_missed.value,
+                    ]),
+                    clients.c.next_call <= now,
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    clients.c.is_test == is_test,
+                    offer_category_clause,
+                ),
             )
         ).order_by(
             nullslast(offers_for_call.c.priority.asc()),
@@ -98,6 +153,37 @@ async def assign_suitable_client_to_operator(
         )
     )
     return await pg.get().fetchval(query, *params)
+
+
+async def get_client_unactivated_by_client_id(*, client_id) -> bool:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.unactivated]
+        ).where(
+            clients.c.client_id == client_id
+        ).limit(1)
+    )
+    return await pg.get().fetchval(query, *params)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 async def assign_client_to_operator_and_increase_calls_count(
@@ -460,13 +546,97 @@ async def delete_waiting_clients_by_client_ids(
         delete(
             clients
         ).where(
-            and_(
-                clients.c.status == ClientStatus.waiting.value,
-                clients.c.client_id.in_(client_ids)
+            or_(
+                and_(
+                    clients.c.status == ClientStatus.waiting.value,
+                    clients.c.client_id.in_(client_ids)
+                ),
+                and_(
+                    clients.c.unactivated.is_(True),
+                    clients.c.client_id.in_(client_ids)
+                )
             )
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
 
+    await pg.get().execute(query, *params)
+
+
+async def update_clients_operator(
+    *,
+    old_operator_id: int,
+    new_operator_id: int,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            operator_user_id=new_operator_id,
+        ).where(
+            clients.c.operator_user_id == old_operator_id,
+        )
+    )
+    return await pg.get().execute(query, *params)
+
+
+async def get_client_id_by_offer_cian_id(offer_cian_id: int) -> str:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.client_id]
+        ).where(
+            offers_for_call.c.offer_cian_id == offer_cian_id,
+        ).limit(1)
+    )
+    client_id = await pg.get().fetchval(query, *params)
+    return client_id
+
+
+async def set_client_done_by_offer_cian_id(offer_cian_id: int) -> None:
+    client_id = await get_client_id_by_offer_cian_id(
+        offer_cian_id=offer_cian_id,
+    )
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            unactivated=False,
+            next_call=None,
+            status=ClientStatus.accepted.value,
+        ).where(
+            clients.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def set_client_unactivated_by_offer_cian_id(offer_cian_id: int) -> None:
+    """
+    Помечает добивочных клиентов, обнуляет номер попытки звонка,
+    и проставляет новую дату для следующего прозвона(+3 дня)
+    """
+    client_id = await get_client_id_by_offer_cian_id(offer_cian_id)
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            unactivated=True,
+            calls_count=0,
+            next_call=get_next_call_date_when_draft(),
+        ).where(
+            clients.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def delete_test_clients() -> None:
+    query, params = asyncpgsa.compile_query(
+        delete(
+            clients
+        ).where(
+            clients.c.is_test == true()
+        )
+    )
     await pg.get().execute(query, *params)
