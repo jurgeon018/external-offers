@@ -1,4 +1,5 @@
 from typing import Optional
+
 from cian_enum import StrEnum
 
 
