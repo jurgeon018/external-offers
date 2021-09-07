@@ -717,20 +717,24 @@ async def get_waiting_offer_counts_by_clients() -> list[ClientWaitingOffersCount
 async def get_offers_for_prioritization_by_client_ids(
     client_ids: list[str]
 ) -> AsyncGenerator[OfferForPrioritization, None]:
-    query, params = asyncpgsa.compile_query(
-        select(
-            [offers_for_call]
-        ).where(
-            offers_for_call.c.client_id.in_(client_ids)
+    for client_ids_chunk in iterate_over_list_by_chunks(
+        iterable=client_ids,
+        chunk_size=runtime_settings.ITERATE_OVER_OFFERS_FOR_PRIORITIZATION_BY_CLIENT_IDS_CHUNK,
+    ):
+        query, params = asyncpgsa.compile_query(
+            select(
+                [offers_for_call]
+            ).where(
+                offers_for_call.c.client_id.in_(client_ids_chunk)
+            )
         )
-    )
-    cursor = await pg.get().cursor(
-        query,
-        *params,
-        prefetch=runtime_settings.OFFERS_FOR_PRIORITIZATION_PREFETCH,
-    )
-    async for row in cursor:
-        yield offer_for_prioritization_mapper.map_from(row)
+        cursor = await pg.get().cursor(
+            query,
+            *params,
+            prefetch=runtime_settings.OFFERS_FOR_PRIORITIZATION_PREFETCH,
+        )
+        async for row in cursor:
+            yield offer_for_prioritization_mapper.map_from(row)
 
 
 async def get_offers_regions_by_client_id(*, client_id: str) -> list[int]:
