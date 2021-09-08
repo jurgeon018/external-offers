@@ -105,16 +105,6 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
     )
 
 
-async def test_update_offers_list__with_is_test_false__returns_only_real_objects(
-    pg,
-    http,
-    offers_and_clients_fixture,
-    parsed_offers_fixture,
-    test_objects_fixture
-):
-    pass
-
-
 async def test_update_offers_list__with_is_test_true__assigns_test_object_to_operator(
     pg,
     http,
