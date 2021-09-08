@@ -726,9 +726,11 @@ async def get_offers_for_prioritization_by_client_ids(
             select(
                 [offers_for_call]
             ).where(
-                offers_for_call.c.client_id.in_(client_ids_chunk),
-                offers_for_call.c.id.isnot(None),
-                offers_for_call.c.category.isnot(None),
+                and_(
+                    offers_for_call.c.client_id.in_(client_ids_chunk),
+                    offers_for_call.c.id.isnot(None),
+                    offers_for_call.c.category.isnot(None),
+                )
             )
         )
         cursor = await pg.get().cursor(
