@@ -16,20 +16,20 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         http,
         offers_and_clients_fixture,
         users_mock,
-
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     expected_operator_client = '224'
     expected_operator_offer = '226'
-    await pg.execute("""
+    next_call = (datetime.now(pytz.utc) - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    await pg.execute(f"""
         INSERT INTO clients (
-            segment, unactivated, client_id, avito_user_id, client_phones, status
+            segment, unactivated, client_id, avito_user_id, client_phones, status, next_call
         ) VALUES
-        (NULL, 't', 221, 221, '{+7232121}', 'accepted'),
-        ('c',  't', 222, 222, '{+7232122}', 'accepted'),
-        ('d',  't', 223, 223, '{+7232123}', 'accepted'),
-        ('d',  't', 224, 224, '{+7232123}', 'accepted');
+        (NULL, 't', 221, 221, '{{+7232121}}', 'accepted', NULL),
+        ('c',  't', 222, 222, '{{+7232122}}', 'accepted', NULL),
+        ('d',  't', 223, 223, '{{+7232123}}', 'accepted', NULL),
+        ('d',  't', {expected_operator_client}, {expected_operator_client}, '{{+7232123}}', 'accepted', '{next_call}');
     """)
     await pg.execute(f"""
         INSERT INTO offers_for_call (
