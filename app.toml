@@ -1,5 +1,5 @@
 name = "external-offers"
-team = "b2b"
+team = "b2b-core"
 [runtime]
 name = "python"
 version = "3.9"
@@ -38,13 +38,11 @@ command = "send-parsed-offers"
 [job.process_announcement_consumer]
 type = "consumer"
 command = "process_announcement_consumer"
-
-[job.process_announcement_consumer.prod]
-type = "consumer"
-command = "process_announcement_consumer"
-instances = 10
 cpu = 0.1
 memory = 256
+autoscale.metric_type = "auto"
+autoscale.min = 1
+autoscale.max = 10
 
 [job.create-offers-for-call-from-parsed]
 type = "cron"
