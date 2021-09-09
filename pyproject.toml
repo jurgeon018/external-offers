@@ -18,19 +18,19 @@ url = "https://nexus.cian.tech/repository/cian/simple/"
 default = true
 
 [tool.poetry.dependencies]
-cian-core = {version = "^1.44", extras = ['rabbitmq_consumer_cli', 'postgres', 'kafka', 'graphite', 'cache']}
+cian-core = {version = "^1.56", extras = ['rabbitmq_consumer_cli', 'postgres', 'kafka', 'graphite', 'cache']}
 cian-kafka = "^1.2"
 cian-entities = "^1.8"
 cian-enum = "^1.1"
 cian-http = ">=0.25,<1"
 cian-schemas = "^2.8"
 cian-web = "^2.2"
-click = "^7.0"
+click = "^8.0"
 python = "^3.9"
-simple-settings = "^0.19"
+simple-settings = "^1.0"
 tornado = "^6.0"
-jinja2 = "^2.11.2"
-asyncpgsa = "^0.26"
+jinja2 = "^3.0.1"
+asyncpgsa = "^0.27"
 cian-cache = "^1.4.0"
 sqlalchemy = "<1.4"
 types-pytz = "^2021.1.0"
@@ -41,7 +41,7 @@ backoff = "^1.11.1"
 
 [tool.poetry.dev-dependencies]
 cian-functional-test-utils = {version = "*", extras = ["python", "postgres", "kafka", "rabbitmq", "cache"]}
-cian-test-utils = "^1.2"
+cian-test-utils = "^1.8"
 pytest = "*"
 pytest-mock = "*"
 pytest-tornado = "*"
