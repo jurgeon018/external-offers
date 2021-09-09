@@ -819,7 +819,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-test-utils"
-version = "1.8.0"
+version = "1.9.0"
 description = ""
 category = "dev"
 optional = false
@@ -2612,7 +2612,7 @@ reference = "cian"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8bedc4b20108852de67e435f513c035b8a7be9ed5588fde80d3276e9f6ba5188"
+content-hash = "2bed11b9be30f72ed55812cfe5c1c9efdb9a8be69f2546222df08cde6098c555"
 
 [metadata.files]
 aioamqp = [
@@ -2860,8 +2860,8 @@ cian-swagger = [
     {file = "cian_swagger-1.14.1-py3-none-any.whl", hash = "md5:0cc4ae282f9a344aa9cb64747727730d"},
 ]
 cian-test-utils = [
-    {file = "cian-test-utils-1.8.0.tar.gz", hash = "md5:7bce890d8a4ed26dcc198a109c63fe74"},
-    {file = "cian_test_utils-1.8.0-py3-none-any.whl", hash = "md5:9369f050f42a903f6400bb037e592341"},
+    {file = "cian-test-utils-1.9.0.tar.gz", hash = "md5:160bdde3edb624266905fdf351282972"},
+    {file = "cian_test_utils-1.9.0-py3-none-any.whl", hash = "md5:a4225595bc8693a6c79a869c5dfe7f42"},
 ]
 cian-tools = [
     {file = "cian-tools-0.11.1.tar.gz", hash = "md5:3d55cda0752ffe0ff06cf0fdab9da8ce"},
