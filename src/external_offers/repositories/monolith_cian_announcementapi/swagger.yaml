@@ -827,11 +827,25 @@ definitions:
           type: string
         type: array
       types:
-        description: Возможное назначение (<a href="https://www.cian.ru/xml_import/commercial-possible-appointments.xml"
-          target="_blank">ссылка на справочник</a>)
+        description: "Возможное назначение (<a href=\"https://www.cian.ru/xml_import/commercial-possible-appointments.xml\"\
+          \ target=\"_blank\">ссылка на справочник</a>)<br />\r\nДля категории продажа\
+          \ \"Готовой бизнес\" с типом \"Арендный бизнес\" элементов должно быть не\
+          \ более 5, а для типа \"Другое\" не более 1."
         items:
           type: string
         type: array
+    type: object
+  RealtyApi.Models.Announcements.Swagger.CommunicationSchema:
+    description: Виды коммуникаций с пользователями
+    properties:
+      preferredCommunicationType:
+        description: Предпочитаемый тип связи
+        enum:
+        - phone
+        - forms
+        type: string
+        x-forms: С помощью анкет
+        x-phone: По телефону
     type: object
   RealtyApi.Models.Announcements.Swagger.CoordinatesSchema:
     properties:
@@ -1112,6 +1126,9 @@ definitions:
       isDealRent:
         description: Объявление из сделки в аренде.
         type: boolean
+      isMultiListing:
+        description: Объявление размещается как мультилистинг (можно частями).
+        type: boolean
     type: object
   RealtyApi.Models.Announcements.Swagger.FlatSchema:
     properties:
@@ -1250,6 +1267,10 @@ definitions:
         items:
           $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.RailwayInfoSchema'
         type: array
+      regionId:
+        description: Id Региона
+        format: int32
+        type: integer
       undergrounds:
         description: Метро
         items:
@@ -1292,6 +1313,19 @@ definitions:
       houseNumber:
         description: Номер дома
         type: string
+      identificationPersonType:
+        description: Идентификация персонального лица.
+        enum:
+        - natural
+        - ip
+        - legal
+        type: string
+        x-ip: ИП
+        x-legal: Юридическое лицо
+        x-natural: Физическое лицо
+      inn:
+        description: ИНН (для юр. лица или ИП).
+        type: string
       lastName:
         description: Фамилия собственника
         type: string
@@ -1311,6 +1345,9 @@ definitions:
           >форму обратной связи</a>."
         format: int64
         type: integer
+      isHandOver:
+        description: Корпус сдан
+        type: boolean
       name:
         description: Название
         type: string
@@ -1368,7 +1405,7 @@ definitions:
         description: Возможно изменить статус
         type: boolean
       status:
-        description: Категория земли
+        description: Статус земли
         enum:
         - farm
         - privateFarm
@@ -1476,6 +1513,13 @@ definitions:
         description: Прибыль
         format: double
         type: number
+    type: object
+  RealtyApi.Models.Announcements.Swagger.MultipostingSchema:
+    description: Мультипостинг
+    properties:
+      enabled:
+        description: Мультипостинг включён
+        type: boolean
     type: object
   RealtyApi.Models.Announcements.Swagger.ObjectModel:
     description: Модель объявления.
@@ -1657,6 +1701,9 @@ definitions:
         description: Количество совместных санузлов
         format: int64
         type: integer
+      communication:
+        $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.CommunicationSchema'
+        description: Виды коммуникации с пользователями
       conditionRatingType:
         description: Состояние
         enum:
@@ -2002,6 +2049,10 @@ definitions:
       isLegalAddressProvided:
         description: Юридический адрес
         type: boolean
+      isNeedHideExactAddress:
+        description: Если необходимо скрыть точный адрес (адрес в объявлении будет
+          отображаться до улицы).
+        type: boolean
       isOccupied:
         description: Помещение занято
         type: boolean
@@ -2068,6 +2119,9 @@ definitions:
       monthlyIncome:
         $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.MonthlyIncomeSchema'
         description: Месячная прибыль
+      multiposting:
+        $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.MultipostingSchema'
+        description: Мультипостинг
       name:
         description: Наименование
         type: string
@@ -2171,6 +2225,14 @@ definitions:
         description: ID пользователя в Realty от имени которого оно отображается
         format: int64
         type: integer
+      readyBusinessType:
+        description: Тип готового бизнеса
+        enum:
+        - rentalBusiness
+        - other
+        type: string
+        x-other: Другое
+        x-rentalBusiness: Арендный бизнес
       rentByPartsDescription:
         description: Описание сдачи части в аренду
         type: string
@@ -2486,6 +2548,9 @@ definitions:
     type: object
   RealtyApi.Models.Announcements.Swagger.PlatformSchema:
     properties:
+      externalId:
+        description: Внешний id объявления
+        type: string
       externalSource:
         enum:
         - emls
@@ -2591,14 +2656,59 @@ definitions:
       autoprolong:
         description: Автопродление включено
         type: boolean
+      expirationDate:
+        description: Дата окончания публикации
+        format: date-time
+        type: string
       infinitePublishPeriod:
         description: "Если true, то будет использован бесконечный период публикации.\r\
           \nТолько для выгрузок, при ручной подаче игнорируем."
         type: boolean
+      mainService:
+        description: Основная услуга, используется для выдачи
+        enum:
+        - free
+        - highlight
+        - paid
+        - premium
+        - top3
+        - calltracking
+        - auction
+        type: string
+        x-auction: Аукцион
+        x-calltracking: Защита номера
+        x-free: Бесплатное
+        x-highlight: <a href="http://www.cian.ru/promo/adv/#color" target="_blank">Выделение
+          цветом</a>
+        x-paid: Платное
+        x-premium: <a href="http://www.cian.ru/promo/adv/#premium" target="_blank">Премиум-объявление</a>
+        x-top3: <a href="http://www.cian.ru/promo/adv/#top3" target="_blank">Топ</a>
       payerUserId:
         description: Id пользователя оплативнего размещение
         format: int64
         type: integer
+      publicationTerm:
+        $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PublishTermSchema'
+        description: Условия публикации, используется для основного контракта
+      selectedService:
+        description: Выбранная услуга, используется для стратегий
+        enum:
+        - free
+        - highlight
+        - paid
+        - premium
+        - top3
+        - calltracking
+        - auction
+        type: string
+        x-auction: Аукцион
+        x-calltracking: Защита номера
+        x-free: Бесплатное
+        x-highlight: <a href="http://www.cian.ru/promo/adv/#color" target="_blank">Выделение
+          цветом</a>
+        x-paid: Платное
+        x-premium: <a href="http://www.cian.ru/promo/adv/#premium" target="_blank">Премиум-объявление</a>
+        x-top3: <a href="http://www.cian.ru/promo/adv/#top3" target="_blank">Топ</a>
       skipBilling:
         description: "Пропускает биллинг объявления.\r\nТолько для выгрузок, при ручной\
           \ подаче игнорируем."
@@ -2612,6 +2722,9 @@ definitions:
         items:
           $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PublishTermSchema'
         type: array
+      usePromotionFromAuction:
+        description: Использовать стоимость аукциона как итоговую стоимость продвижения
+        type: boolean
     type: object
   RealtyApi.Models.Announcements.Swagger.RailwayInfoSchema:
     description: Жд станция
@@ -3015,6 +3128,9 @@ definitions:
         description: "ИНН пользователя <br />\r\nЕсли пришло null - значит пользователь\
           \ стёр свой ИНН"
         type: string
+      isEnabled:
+        description: Пользователь указал себя в качестве самозанятого лица
+        type: boolean
     type: object
   Web.AnnouncementApi.App.Announcements.Models.UserPublicationData.UserData:
     description: Данные о пользователе, передаваемые при публикации объявления
@@ -3029,8 +3145,10 @@ definitions:
     example:
       errors:
       - Code: announcement_with_no_phones
-        Message: 'Не указан ни один номер телефона для объявления. '
-      message: 'Не указан ни один номер телефона для объявления. '
+        Message: Не указан контактный телефон. Проверьте корректность заполнения тега
+          Phones.
+      message: Не указан контактный телефон. Проверьте корректность заполнения тега
+        Phones.
     properties:
       errors:
         description: список объектов с информацие о каждой ошибке

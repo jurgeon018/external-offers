@@ -151,7 +151,13 @@ async def test_set_offers_set_call_missed_by_client():
 async def test_get_enriched_offers_in_progress_by_operator():
     # arrange
     query = (
-        "\n        SELECT\n            ofc.*,\n            po.source_object_model->>'title' as title,\n            po.source_object_model->>'address' as address\n        FROM\n            offers_for_call as ofc\n        INNER JOIN\n            clients as c\n        ON\n            ofc.client_id = c.client_id\n        INNER JOIN\n            parsed_offers as po\n        ON\n            ofc.parsed_id = po.id\n        WHERE\n            c.operator_user_id = $1\n            AND (ofc.status = 'inProgress' AND ofc.publication_status = 'Draft')\n    "
+        '\n        SELECT\n            ofc.*,\n            po.source_object_model->>\'title\' as title,'
+        '\n            po.source_object_model->>\'address\' as address\n        FROM\n            '
+        'offers_for_call as ofc\n        INNER JOIN\n            clients as c\n        ON\n            '
+        'ofc.client_id = c.client_id\n        INNER JOIN\n            parsed_offers as po\n        '
+        'ON\n            ofc.parsed_id = po.id\n        WHERE\n            '
+        'c.operator_user_id = $1\n            '
+        'AND (ofc.status = \'inProgress\' AND ofc.publication_status = \'Draft\')\n    '
     )
     operator_id = 123123
     pg.get().fetch.return_value = future([])
