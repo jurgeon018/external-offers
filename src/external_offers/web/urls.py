@@ -3,9 +3,7 @@ from cian_web import get_handler
 from tornado.web import url
 
 from external_offers import entities
-from external_offers.services import admin
-from external_offers.services import teams
-from external_offers.services import operators
+from external_offers.services import admin, operators, teams
 from external_offers.services.return_client_by_phone import return_client_by_phone
 from external_offers.services.save_offer import save_offer_public
 from external_offers.services.test_objects import (

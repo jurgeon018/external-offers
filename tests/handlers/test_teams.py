@@ -1,12 +1,5 @@
-from datetime import datetime
-
 import pytest
-import pytz
 from cian_test_utils import future
-from simple_settings.utils import settings_stub
-
-from external_offers.entities.offers import Offer
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 
 @pytest.mark.gen_test
@@ -33,7 +26,7 @@ async def test_teams_page_handler(mocker, http_client, base_url):
     )
     get_teams_page_html_mock = mocker.patch(
         'external_offers.web.handlers.admin.get_teams_page_html',
-        return_value=""
+        return_value=''
     )
     # act
     await http_client.fetch(
@@ -85,7 +78,7 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     )
     get_operator_card_html_mock = mocker.patch(
         'external_offers.web.handlers.admin.get_operator_card_html',
-        return_value=""
+        return_value=''
     )
     # act
     await http_client.fetch(
@@ -101,22 +94,20 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
         mocker.call(
             id=int(user_id)
         ),
-            mocker.call(
+        mocker.call(
             id=str(operator_id)
         ),
     ])
     get_operators_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
-    get_operator_card_html_mock.assert_has_calls(
-        [
-            mocker.call(
-                current_operator=current_operator,
-                operator=operator,
-                operators=operators,
-                teams=teams,
-            )
-        ]
-    )
+    get_operator_card_html_mock.assert_has_calls([
+        mocker.call(
+            current_operator=current_operator,
+            operator=operator,
+            operators=operators,
+            teams=teams,
+        )
+    ])
 
 
 @pytest.mark.gen_test
@@ -145,7 +136,7 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     )
     get_team_card_html_mock = mocker.patch(
         'external_offers.web.handlers.admin.get_team_card_html',
-        return_value=""
+        return_value=''
     )
     # act
     await http_client.fetch(

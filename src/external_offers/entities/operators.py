@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional
 
 
 @dataclass
@@ -38,11 +38,3 @@ class UpdateOperatorRequest:
 class DeleteOperatorRequest:
     id: str
     """ID оператора которого нужно удалить"""
-    
-
-@dataclass
-class UpdateOperatorsTeamRequest:
-    team_id: str
-    """ ID команды, в которую нужно добавить операторов """
-    operators_id: Optional[List[str]] = None
-    """ ID операторов, которых нужно добавить в команду """

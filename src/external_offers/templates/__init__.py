@@ -4,9 +4,8 @@ from typing import List, Optional
 from cian_core.runtime_settings import runtime_settings
 from jinja2 import Environment, PackageLoader
 
-from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer
+from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer, Operator, Team
 from external_offers.entities.parsed_offers import ParsedObjectModel
-from external_offers.entities import Operator, Team
 from external_offers.templates.filters import custom_filters
 
 
@@ -87,6 +86,7 @@ def get_team_card_html(
         operators=operators,
         teams=teams,
     )
+
 
 def get_operator_card_html(
     current_operator: Operator,

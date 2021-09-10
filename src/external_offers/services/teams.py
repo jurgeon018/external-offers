@@ -1,16 +1,9 @@
 from asyncpg.exceptions import PostgresError, UniqueViolationError
-from external_offers.helpers.uuid import generate_guid
+
 from external_offers.entities.response import BasicResponse
-from external_offers.entities.teams import (
-    CreateTeamRequest,
-	UpdateTeamRequest,
-    DeleteTeamRequest,
-)
-from external_offers.repositories.postgresql.teams import (
-    create_team,
-    update_team_by_id,
-    delete_team_by_id,
-)
+from external_offers.entities.teams import CreateTeamRequest, DeleteTeamRequest, UpdateTeamRequest
+from external_offers.helpers.uuid import generate_guid
+from external_offers.repositories.postgresql.teams import create_team, delete_team_by_id, update_team_by_id
 
 
 async def create_team_public(request: CreateTeamRequest, user_id: int) -> BasicResponse:
@@ -59,7 +52,7 @@ async def delete_team_public(request: DeleteTeamRequest, user_id: int) -> BasicR
     try:
         await delete_team_by_id(id=request.id)
         success = True
-        message='Команда была успешно удалена.'
+        message = 'Команда была успешно удалена.'
     except PostgresError as e:
         message = f'Во время удаления команды произошла ошибка: {e}'
     return BasicResponse(

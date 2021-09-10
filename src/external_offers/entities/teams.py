@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
-from external_offers.enums.user_segment import UserSegment
+
 from external_offers.enums.teams import TeamSettings
+from external_offers.enums.user_segment import UserSegment
 
 
 @dataclass
@@ -50,10 +51,6 @@ class DeleteTeamRequest:
     """ID команды которую нужно удалить"""
 
 
-# TODO: возможно в будущем отказаться от отдельой таблички с 
-# ролями, и хранить роли из ручки в строковом поле в табличке оператора.
-# в таком случае в админке будут храниться только те роли, которые
-# существуют на циане, и нельзя будет создать внутренние админочные роли.
 @dataclass
 class Role:
     id: str

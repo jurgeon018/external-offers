@@ -1,7 +1,8 @@
-import pytest
 import json
-from cian_test_utils import future
+
+import pytest
 from asyncpg.exceptions import PostgresError, UniqueViolationError
+from cian_test_utils import future
 
 
 # test_create_team
@@ -19,9 +20,9 @@ async def test_create_team__success_is_true(http_client, base_url, mocker):
         base_url+'/api/admin/v1/create-team-public/',
         method='POST',
         body=json.dumps({
-            'name': "name",
-            'leadId': "1",
-            'segment': "c",
+            'name': 'name',
+            'leadId': '1',
+            'segment': 'c',
             'settings': None,
         }),
         headers={
@@ -47,9 +48,9 @@ async def test_create_team__unique_violation_error(http_client, base_url, mocker
         base_url+'/api/admin/v1/create-team-public/',
         method='POST',
         body=json.dumps({
-            'name': "name",
-            'leadId': "1",
-            'segment': "c",
+            'name': 'name',
+            'leadId': '1',
+            'segment': 'c',
             'settings': None,
         }),
         headers={
@@ -75,9 +76,9 @@ async def test_create_team__postgres_error(http_client, base_url, mocker):
         base_url+'/api/admin/v1/create-team-public/',
         method='POST',
         body=json.dumps({
-            'name': "name",
-            'leadId': "1",
-            'segment': "c",
+            'name': 'name',
+            'leadId': '1',
+            'segment': 'c',
             'settings': None,
         }),
         headers={
@@ -105,10 +106,10 @@ async def test_update_team__success_is_true(http_client, base_url, mocker):
         base_url+'/api/admin/v1/update-team-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
-            'name': "name",
-            'leadId': "1",
-            'segment': "c",
+            'id': '1',
+            'name': 'name',
+            'leadId': '1',
+            'segment': 'c',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -118,7 +119,6 @@ async def test_update_team__success_is_true(http_client, base_url, mocker):
     # assert
     assert body['success'] is True
     assert body['message'] == 'Информация про команду была успешно обновлена.'
-
 
 
 @pytest.mark.gen_test
@@ -134,10 +134,10 @@ async def test_update_team__postgres_error(http_client, base_url, mocker):
         base_url+'/api/admin/v1/update-team-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
-            'name': "name",
-            'leadId': "1",
-            'segment': "c",
+            'id': '1',
+            'name': 'name',
+            'leadId': '1',
+            'segment': 'c',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -164,7 +164,7 @@ async def test_delete_team__success_is_true(http_client, base_url, mocker):
         base_url+'/api/admin/v1/delete-team-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
+            'id': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -189,7 +189,7 @@ async def test_delete_team__postgres_error(http_client, base_url, mocker):
         base_url+'/api/admin/v1/delete-team-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
+            'id': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -199,4 +199,3 @@ async def test_delete_team__postgres_error(http_client, base_url, mocker):
     # assert
     assert body['success'] is False
     assert body['message'] == f'Во время удаления команды произошла ошибка: {msg}'
-

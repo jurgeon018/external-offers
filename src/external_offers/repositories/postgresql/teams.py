@@ -1,16 +1,13 @@
-from typing import Optional, List
+from typing import List, Optional
+
 import asyncpgsa
-from simple_settings import settings
-from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, delete, func, not_, select, update
-from sqlalchemy.sql.expression import false, true
+from sqlalchemy.sql import delete, select, update
+
 from external_offers import pg
-from external_offers.enums.user_segment import UserSegment
-from external_offers.entities.teams import Team, Role
-from external_offers.entities.operators import Operator
-from external_offers.repositories.postgresql.tables import teams
+from external_offers.entities.teams import Team
 from external_offers.mappers.teams import teams_mapper
+from external_offers.repositories.postgresql.tables import teams
 
 
 async def get_teams() -> List[Team]:
@@ -85,4 +82,3 @@ async def delete_team_by_id(id: str) -> None:
         )
     )
     await pg.get().execute(query, *params)
-

@@ -1,15 +1,13 @@
-from typing import Optional, List
+from typing import List, Optional
+
 import asyncpgsa
-from simple_settings import settings
-from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, delete, func, not_, select, update
-from sqlalchemy.sql.expression import false, true
+from sqlalchemy.sql import delete, select, update
+
 from external_offers import pg
-from external_offers.enums.user_segment import UserSegment
 from external_offers.entities import Operator
-from external_offers.repositories.postgresql.tables import operators
 from external_offers.mappers.teams import operators_mapper
+from external_offers.repositories.postgresql.tables import operators
 
 
 async def get_operators() -> List[Operator]:
@@ -97,4 +95,3 @@ async def update_operators_team(
         )
     )
     await pg.get().execute(query, *params)
-

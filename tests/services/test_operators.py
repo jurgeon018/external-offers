@@ -1,7 +1,8 @@
-import pytest
 import json
-from cian_test_utils import future
+
+import pytest
 from asyncpg.exceptions import PostgresError, UniqueViolationError
+from cian_test_utils import future
 
 
 # test_create_operator
@@ -20,8 +21,8 @@ async def test_create_operator__success_is_true(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'id': '123',
-            'name': "name",
-            'teamId': "1",
+            'name': 'name',
+            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -47,8 +48,8 @@ async def test_create_operator__unique_violation_error(http_client, base_url, mo
         method='POST',
         body=json.dumps({
             'id': '123',
-            'name': "name",
-            'teamId': "1",
+            'name': 'name',
+            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -74,8 +75,8 @@ async def test_create_operator__postgres_error(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'id': '123',
-            'name': "name",
-            'teamId': "1",
+            'name': 'name',
+            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -102,9 +103,9 @@ async def test_update_operator__success_is_true(http_client, base_url, mocker):
         base_url+'/api/admin/v1/update-operator-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
-            'name': "name",
-            'teamId': "1",
+            'id': '1',
+            'name': 'name',
+            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -114,7 +115,6 @@ async def test_update_operator__success_is_true(http_client, base_url, mocker):
     # assert
     assert body['success'] is True
     assert body['message'] == 'Информация про оператора была успешно обновлена.'
-
 
 
 @pytest.mark.gen_test
@@ -130,9 +130,9 @@ async def test_update_operator__postgres_error(http_client, base_url, mocker):
         base_url+'/api/admin/v1/update-operator-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
-            'name': "name",
-            'teamId': "1",
+            'id': '1',
+            'name': 'name',
+            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -159,7 +159,7 @@ async def test_delete_operator__success_is_true(http_client, base_url, mocker):
         base_url+'/api/admin/v1/delete-operator-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
+            'id': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -184,7 +184,7 @@ async def test_delete_operator__postgres_error(http_client, base_url, mocker):
         base_url+'/api/admin/v1/delete-operator-public/',
         method='POST',
         body=json.dumps({
-            'id': "1",
+            'id': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -194,4 +194,3 @@ async def test_delete_operator__postgres_error(http_client, base_url, mocker):
     # assert
     assert body['success'] is False
     assert body['message'] == f'Во время удаления оператора произошла ошибка: {msg}'
-
