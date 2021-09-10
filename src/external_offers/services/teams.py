@@ -61,7 +61,7 @@ async def delete_team_public(request: DeleteTeamRequest, user_id: int) -> BasicR
         success = True
         message='Команда была успешно удалена.'
     except PostgresError as e:
-        message = f'Во время обновления команды произошла ошибка: {e}'
+        message = f'Во время удаления команды произошла ошибка: {e}'
     return BasicResponse(
         success=success,
         message=message,

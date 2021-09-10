@@ -114,14 +114,14 @@ class AdminTeamsPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_operator_by_id(self.realty_user_id)
+        current_operator = await get_operator_by_id(id=self.realty_user_id)
         if not current_operator:
             await create_operator(
-                id=self.realty_user_id,
+                id=str(self.realty_user_id),
                 name=None,
                 team_id=None,
             )
-            current_operator = await get_operator_by_id(self.realty_user_id)
+            current_operator = await get_operator_by_id(id=self.realty_user_id)
         operators = await get_operators()
         teams = await get_teams()
         self.write(get_teams_page_html(

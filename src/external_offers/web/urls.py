@@ -209,5 +209,5 @@ urlpatterns = base_urls.urlpatterns + [
         request_schema=entities.DeleteTeamRequest,
         response_schema=entities.BasicResponse,
         base_handler_cls=PublicHandler,
-    ),
+    )),
 ]

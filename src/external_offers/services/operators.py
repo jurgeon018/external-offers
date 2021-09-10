@@ -40,7 +40,7 @@ async def update_operator_public(request: UpdateOperatorRequest, user_id: int) -
             name=request.name,
             team_id=request.team_id,
         )
-        message = 'Персональная информация про оператора была успешно изменена.'
+        message = 'Информация про оператора была успешно обновлена.'
         success = True
     except PostgresError as e:
         message = f'Во время обновления оператора произошла ошибка: {e}'
