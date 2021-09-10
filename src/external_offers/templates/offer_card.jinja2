@@ -226,30 +226,92 @@
             </div>
 
             <!--Commercial-->
-            <!--BuildingType-->
             {% if parsed_object_model.is_shopping_area %}
                 <div class="offerBuildingTypeTitle">
                     <span class="">Тип помещения</span>
                 </div>
-                <div class="offerCategoryTypeSelect" style="display: {% if parsed_object_model.is_shopping_area %} block {% else %}none{% endif %};">
+                <div class="offerCategoryTypeSelect">
                     <select class="select-control" id="getBuildingType">
                         <option value="" selected disabled>Не выбрано</option>
-                        <option value="flat">помещение в торговом комплексе</option>
-                        <option value="apartments">street retail</option>
+                        <option value="shoppingMall">помещение в торговом комплексе</option>
+                        <option value="streetRetail">street retail</option>
                     </select>
                 </div>
             {% endif %}
 
-            <!--BusinessSaleType-->
+
+{#            {% if parsed_object_model.is_business_sale %}#}
+{#                <div class="offerBuildingTypeTitle">#}
+{#                    <span class="">Тип готового бизнеса</span>#}
+{#                </div>#}
+{#                <div class="offerCategoryTypeSelect">#}
+{#                    <select class="select-control" id="getBusinesSaleType">#}
+{#                        <option value="" selected disabled>Не выбрано</option>#}
+{#                        <option value="flat">арендный бизнес</option>#}
+{#                        <option value="apartments">другое</option>#}
+{#                    </select>#}
+{#                </div>#}
+{#            {% endif %}#}
+
+
             {% if parsed_object_model.is_business_sale %}
-                <div class="offerBuildingTypeTitle">
-                    <span class="">Тип готового бизнеса</span>
+                <div class="offerMonthlyIncomeTitle">
+                    <span class="">Месячная прибыль</span>
                 </div>
-                <div class="offerCategoryTypeSelect" style="display: {% if parsed_object_model.is_business_sale %} block {% else %}none{% endif %};">
-                    <select class="select-control" id="getBusinesSaleType">
+                <div class="offerMonthlyIncomeInput">
+                    <input type="number" required value=""
+                           placeholder="Месячная прибыль"
+                           class="input-control" id="getMonthlyIncome">
+                </div>
+            {% endif %}
+
+
+            {% if parsed_object_model.is_building %}
+                <div class="offerAppointmentBuildingTypeTitle">
+                    <span class="">Возможное назначение(Тип здания)</span>
+                </div>
+
+                <div class="offerAppointmentSelect">
+                    <select class="select-control" id="getAppointmentBuildingType">
                         <option value="" selected disabled>Не выбрано</option>
-                        <option value="flat">арендный бизнес</option>
-                        <option value="apartments">другое</option>
+                    </select>
+                </div>
+            {% endif %}
+
+            {% if parsed_object_model.is_free_appointment_object or parsed_object_model.is_business %}
+                <div class="offerAppointmentTitle">
+                    <span class="">Назначение</span>
+                </div>
+
+                <div class="offerAppointmentSelect">
+                    <select class="select-control" id="getAppointmentType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        {% if not appointments %}
+                            <option value="7026" >Офис</option>
+                            <option value="7130" >Торговое помещение</option>
+                            <option value="7113" >Склад</option>
+                            <option value="7031" >Общепит</option>
+                            <option value="7009" >Автосервис</option>
+                        {% endif %}
+                        {% for appointment in appointments %}
+                            <option value="{{ appointment.id }}">{{ appointment.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
+
+
+            {% if parsed_object_model.is_commercial_land %}
+                <div class="offerCommercialLangTitle">
+                    <span class="">Категория земли</span>
+                </div>
+                <div class="offerCommercialLangSelect">
+                    <select class="select-control" id="getCommercialLangType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="settlements">поселений</option>
+                        <option value="for_agricultural_purposes">сельскохозяйственного назначения</option>
+                        <option value="industry_transport_communications">промышленности, энергетики, связи и иного не сельхоз. назначения</option>
                     </select>
                 </div>
             {% endif %}
@@ -528,8 +590,160 @@
         const is_allow_realty_type_options = $(".is_allow_realty_type_option")
         const is_suburban_sale_options = $(".is_suburban_sale_option")
         const is_commercial_options = $(".is_commercial_option");
-        const house_option = $('#house')
-
+        const house_option = $('#house');
+        const getAppointmentBuildingType = $('#getAppointmentBuildingType');
+        const buildingTypes = [
+            {   text: 'Административное здание',
+                value: 'administrativeBuilding'
+            }, {
+                text: 'Бизнес-центр',
+                value: 'businessCenter'
+            }, {
+                text: 'Деловой центр',
+                value: 'businessCenter2'
+            }, {
+                text: 'Деловой квартал',
+                value: 'businessQuarter2',
+            }, {
+                text: 'Деловой дом',
+                value: 'businessHouse',
+            }, {
+                text: 'Бизнес-парк',
+                value: 'businessPark'
+            }, {
+                text: 'Бизнес-квартал',
+                value: 'businessQuarter'
+            }, {
+                text: 'Объект свободного назначения',
+                value: 'free'
+            }, {
+                text: 'Объект свободного назначения',
+                value: 'freeAppointmentObject'
+            }, {
+                text: 'Производственный комплекс',
+                value: 'industrialComplex'
+            }, {
+                text: 'Индустриальный парк',
+                value: 'industrialPark'
+            }, {
+                text: 'Промплощадка',
+                value: 'industrialSite'
+            }, {
+                text: 'Производственно-складской комплекс',
+                value: 'industrialWarehouseComplex'
+            }, {
+                text: 'Логистический центр',
+                value: 'logisticsCenter'
+            }, {
+                text: 'Логистический комплекс',
+                value: 'logisticsComplex'
+            }, {
+                text: 'Особняк',
+                value: 'mansion'
+            }, {
+                text: 'Производственное здание',
+                value: 'manufactureBuilding'
+            }, {
+                text: 'Производственный цех',
+                value: 'manufacturingFacility'
+            }, {
+                text: 'Модульное здание',
+                value: 'modular'
+            }, {
+                text: 'Многофункциональный комплекс',
+                value: 'multifunctionalComplex'
+            }, {
+                text: 'Офисный центр',
+                value: 'officeCenter'
+            }, {
+                text: 'Офисный комплекс',
+                value: 'officeComplex'
+            }, {
+                text: 'Офисный квартал',
+                value: 'officeQuarter'
+            }, {
+                text: 'Офисно-гостиничный комплекс',
+                value: 'officeAndHotelComplex'
+            }, {
+                text: 'Офисно-жилой комплекс',
+                value: 'officeAndResidentialComplex'
+            }, {
+                text: 'Офисно-складское',
+                value: 'officeAndWarehouse'
+            }, {
+                text: 'Офисно-складской комплекс',
+                value: 'officeAndWarehouseComplex'
+            }, {
+                text: 'Офисное здание',
+                value: 'officeBuilding'
+            }, {
+                text: 'Офисно-производственный комплекс',
+                value: 'officeIndustrialComplex'
+            }, {
+                text: 'Старый фонд',
+                value: 'old'
+            }, {
+                text: 'Другое',
+                value: 'other'
+            }, {
+                text: 'Аутлет',
+                value: 'outlet'
+            }, {
+                text: 'Имущественный комплекс',
+                value: 'propertyComplex'
+            }, {
+                text: 'Жилой комплекс',
+                value: 'residentialComplex'
+            }, {
+                text: 'Жилой фонд',
+                value: 'residentialFund'
+            }, {
+                text: 'Жилой дом',
+                value: 'residentialHouse'
+            }, {
+                text: 'Торгово-деловой комплекс',
+                value: 'shoppingAndBusinessComplex'
+            }, {
+                text: 'Торгово-общественный центр',
+                value: 'shoppingAndCommunityCenter'
+            }, {
+                text: 'Торгово-развлекательный центр',
+                value: 'shoppingAndEntertainmentCenter'
+            }, {
+                text: 'Торговый центр',
+                value: 'shoppingCenter'
+            }, {
+                text: 'Торговый комплекс',
+                value: 'shoppingComplex'
+            }, {
+                text: 'Торговый дом',
+                value: 'tradingHouse'
+            }, {
+                text: 'Специализированный торговый центр',
+                value: 'specializedShoppingCenter'
+            }, {
+                text: 'Отдельно стоящее здание',
+                value: 'standaloneBuilding'
+            }, {
+                text: 'Технопарк',
+                value: 'technopark'
+            }, {
+                text: 'Торгово-выставочный комплекс',
+                value: 'tradeAndExhibitionComplex'
+            }, {
+                text: 'Торгово-офисный комплекс',
+                value: 'tradingOfficeComplex'
+            }, {
+                text: 'Нежилой фонд',
+                value: 'uninhabitedFund'
+            }, {
+                text: 'Склад',
+                value: 'warehouse'
+            }, {
+                text: 'Складской комплекс',
+                value: 'warehouseComplex'
+            }
+        ];
 
         $('.ajax-form').on('submit', (event) => {
             event.preventDefault();
@@ -546,6 +760,15 @@
 
         function getValueOrStrNull(obj) {
             return obj === '' ? (DEBUG ? null : "null") : obj
+        }
+
+        function onClickAppointmentBuildingTypeAddOptions() {
+            $.each(buildingTypes, function (i, item) {
+                getAppointmentBuildingType.append($('<option>', {
+                    value: item.value,
+                    text : item.text
+                }));
+            });
         }
 
         function onClickCreateNewAccountRadio() {
@@ -775,7 +998,7 @@
             if(termType) obj.termType = termType;
             $.post("/api/admin/v1/update-offer-category/",
                 {# DEBUG ? JSON.stringify(obj) : obj #}
-                obj
+                JSON.stringify(obj)
             ).then((response) => {
                 if(response.success == true){
                     alert(`${response.message}`);
@@ -818,6 +1041,10 @@
 
         updateOfferCategoryBtn.click(() => {
             updateOfferCategory()
+        })
+
+        getAppointmentBuildingType.ready(() => {
+            onClickAppointmentBuildingTypeAddOptions()
         })
 
         saveOfferBtn.click(() => {
