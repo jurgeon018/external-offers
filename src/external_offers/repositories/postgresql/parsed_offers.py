@@ -18,6 +18,7 @@ from external_offers.entities.parsed_offers import (
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
+from external_offers.enums.external_offer_type import ExternalOfferType
 from external_offers.enums.object_model import Category
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
@@ -87,6 +88,7 @@ async def save_test_parsed_offer(
 
 def _get_commercial_options(source: Alias) -> List[bool]:
     return [
+        source.c.external_offer_type == ExternalOfferType.commercial.value,
         source.c.source_object_model['category'].as_string().in_(settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES),
         source.c.user_segment.in_(settings.COMMERCIAL_OFFER_TASK_CREATION_SEGMENTS),
     ]
