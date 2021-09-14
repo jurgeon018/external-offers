@@ -78,20 +78,3 @@ async def delete_operator_by_id(id: str):
         )
     )
     await pg.get().execute(query, *params)
-
-
-async def update_operators_team(
-    *,
-    operators_id: List[int],
-    team_id: int,
-) -> None:
-    query, params = asyncpgsa.compile_query(
-        update(
-            operators
-        ).values(
-            team_id=team_id
-        ).where(
-            operators.c.id.in_(operators_id)
-        )
-    )
-    await pg.get().execute(query, *params)

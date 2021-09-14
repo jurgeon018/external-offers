@@ -1,71 +1,113 @@
 import json
 
-
-# create
-
-
-async def test_create_operator(
-    pg, http, runtime_settings,
-):
-    pass
+import pytest
 
 
-# update
-
-
-async def test_update_operator(
-    pg, http, runtime_settings,
-):
+async def test_operators(pg, http):
     # arrange
-    user_id = 1
+    operator_id = '123'
+    name = 'operator'
+    team_id = '5'
+    new_name = 'new operator'
+    new_team_id = '6'
     # act
-    # response = await http.request(
-    #     'POST',
-    #     '/api/admin/v1/update-operator-team/',
-    #     json={
-    #         # 'offerId': offer_id,
-    #         # # wrong parameters
-    #         # 'termType': 'daily',
-    #         # 'categoryType': 'land',
-    #         # 'dealType': 'sale',
-    #         # 'offerType': 'suburban',
-    #     },
-    #     headers={
-    #         'X-Real-UserId': user_id
-    #     },
-    #     expected_status=200
-    # )
+    # create
+    create_response = await http.request(
+        'POST',
+        '/api/admin/v1/create-operator-public/',
+        json={
+            'id': operator_id,
+            'name': name,
+            'teamId': team_id,
+        },
+        headers={
+            'X-Real-UserId': 1
+        },
+        expected_status=200
+    )
+    create_response = json.loads(create_response.body.decode('utf-8'))
+    operators_after_creation = await pg.fetch('SELECT * FROM operators')
+    # update
+    update_response = await http.request(
+        'POST',
+        '/api/admin/v1/update-operator-public/',
+        json={
+            'id': operator_id,
+            'name': new_name,
+            'teamId': new_team_id,
+        },
+        headers={
+            'X-Real-UserId': 1
+        },
+        expected_status=200
+    )
+    update_response = json.loads(update_response.body.decode('utf-8'))
+    operators_after_update = await pg.fetch('SELECT * FROM operators')
+    # delete
+    delete_response = await http.request(
+        'POST',
+        '/api/admin/v1/delete-operator-public/',
+        json={
+            'id': operator_id,
+        },
+        headers={
+            'X-Real-UserId': 1
+        },
+        expected_status=200
+    )
+    delete_response = json.loads(delete_response.body.decode('utf-8'))
+    operators_after_deletion = await pg.fetch('SELECT * FROM operators')
+    # assert
+    # create
+    assert create_response['success'] is True
+    assert create_response['message'] == 'Оператор был успешно создан.'
+    assert len(operators_after_creation) == 1
+    assert operators_after_creation[0]['id'] == operator_id
+    assert operators_after_creation[0]['name'] == name
+    assert operators_after_creation[0]['team_id'] == team_id
+    # update
+    assert update_response['success'] is True
+    assert update_response['message'] == 'Информация про оператора была успешно обновлена.'
+    assert len(operators_after_update) == 1
+    assert operators_after_update[0]['id'] == operator_id
+    assert operators_after_update[0]['name'] == new_name
+    assert operators_after_update[0]['team_id'] == new_team_id
+    # delete
+    assert delete_response['success'] is True
+    assert delete_response['message'] == 'Оператор был успешно удален.'
+    assert len(operators_after_deletion) == 0
 
-    # offer_for_call_after_api_call = await pg.fetchrow(
-    #     """
-    #     SELECT * FROM offers_for_call WHERE id=$1;
-    #     """,
-    #     # [offer_id, ]
-    # )
-    # parsed_offer_after_api_call = await pg.fetchrow(
-    #     """
-    #     SELECT * FROM parsed_offers WHERE id=$1;
-    #     """,
-    #     # [offer_for_call_after_api_call['parsed_id']]
-    # )
-    # body = json.loads(response.body.decode('utf-8'))
-    # # assert
-    assert True
 
+@pytest.mark.html
+async def test_render_operator_card(http, pg):
+    # arrange
+    user_id = 100
+    operator_id = '1'
+    name = 'Оператор'
+    team_id = '1'
+    await http.request(
+        'POST',
+        '/api/admin/v1/create-operator-public/',
+        json={
+            'id': operator_id,
+            'name': name,
+            'teamId': team_id,
+        },
+        headers={
+            'X-Real-UserId': user_id
+        },
+        expected_status=200
+    )
+    # act
+    resp = await http.request(
+        'GET',
+        f'/admin/operator-card/{operator_id}/',
+        headers={
+            'X-Real-UserId': user_id
+        },
+        expected_status=200
+    )
 
-# delete
-
-
-async def test_delete_operator(
-    pg, http, runtime_settings,
-):
-    pass
-
-
-# test render operator_card.jinja2
-
-
-async def test_render_operator_card(
-    pg, http, runtime_settings,
-):
-    pass
+    html = resp.body.decode('utf-8')
+    # assert
+    assert html is not None
