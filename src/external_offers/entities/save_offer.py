@@ -1,10 +1,17 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 
 from external_offers.enums import SaveOfferCategory, SaveOfferTerm
 from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.repositories.monolith_cian_announcementapi.entities.land import AreaUnitType, Status
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
+    PlacementType,
+)
+from external_offers.repositories.monolith_cian_announcementapi.entities.building import (
+    Type,
+)
+
 
 
 @dataclass
@@ -55,6 +62,14 @@ class SaveOfferRequest:
     """Единицы измерения площади участка"""
     land_status: Optional[Status] = None
     """Тип землепользования для загородки"""
+    building_type: Optional[PlacementType] = None
+    """Тип помещения для коммерческой"""
+    appointment_building_type: Optional[Type] = None
+    """Тип возможного назначения(тип здания)"""
+    specialty_type: Optional[List[str]] = None
+    """Возможное назначение для ГБ и ПСН"""
+    commercial_land_type: Optional[Status] = None
+    """Тип землепользования для коммерческой"""
 
 @dataclass
 class SaveOfferResponse:

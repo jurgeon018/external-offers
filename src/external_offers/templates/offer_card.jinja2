@@ -240,32 +240,6 @@
             {% endif %}
 
 
-{#            {% if parsed_object_model.is_business_sale %}#}
-{#                <div class="offerBuildingTypeTitle">#}
-{#                    <span class="">Тип готового бизнеса</span>#}
-{#                </div>#}
-{#                <div class="offerCategoryTypeSelect">#}
-{#                    <select class="select-control" id="getBusinesSaleType">#}
-{#                        <option value="" selected disabled>Не выбрано</option>#}
-{#                        <option value="flat">арендный бизнес</option>#}
-{#                        <option value="apartments">другое</option>#}
-{#                    </select>#}
-{#                </div>#}
-{#            {% endif %}#}
-
-
-            {% if parsed_object_model.is_business_sale %}
-                <div class="offerMonthlyIncomeTitle">
-                    <span class="">Месячная прибыль</span>
-                </div>
-                <div class="offerMonthlyIncomeInput">
-                    <input type="number" required value=""
-                           placeholder="Месячная прибыль"
-                           class="input-control" id="getMonthlyIncome">
-                </div>
-            {% endif %}
-
-
             {% if parsed_object_model.is_building %}
                 <div class="offerAppointmentBuildingTypeTitle">
                     <span class="">Возможное назначение(Тип здания)</span>
@@ -284,7 +258,7 @@
                 </div>
 
                 <div class="offerAppointmentSelect">
-                    <select class="select-control" id="getAppointmentType">
+                    <select class="select-control" id="getSpecialtyType">
                         <option value="" selected disabled>Не выбрано</option>
                         {% if not appointments %}
                             <option value="7026" >Офис</option>
@@ -307,11 +281,11 @@
                     <span class="">Категория земли</span>
                 </div>
                 <div class="offerCommercialLangSelect">
-                    <select class="select-control" id="getCommercialLangType">
+                    <select class="select-control" id="getCommercialLandType">
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="settlements">поселений</option>
-                        <option value="for_agricultural_purposes">сельскохозяйственного назначения</option>
-                        <option value="industry_transport_communications">промышленности, энергетики, связи и иного не сельхоз. назначения</option>
+                        <option value="forAgriculturalPurposes">сельскохозяйственного назначения</option>
+                        <option value="industryTransportCommunications">промышленности, энергетики, связи и иного не сельхоз. назначения</option>
                     </select>
                 </div>
             {% endif %}
@@ -370,10 +344,10 @@
             </div>
             
             {# parsed_object_model.is_suburban_sale #}
-            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
+            <div class="offerLandAreaTitle" style="display: {% if parsed_object_model.is_suburban_sale or parsed_object_model.is_commercial_land %}block{% else %}none{% endif %};">
                 <span class="">Площадь участка</span>
             </div>
-            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale %}block{% else %}none{% endif %};">
+            <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale or parsed_object_model.is_commercial_land %}block{% else %}none{% endif %};">
                 <input type="number" required value="{{ parsed_object_model.land_area }}"
                     placeholder="Площать участка в сотках"
                     class="input-control" id="getLandArea">
@@ -400,6 +374,19 @@
             <div class='table-block-header'>
                 <td><span class="text-header">Условия сделки</span></td>
             </div>
+
+            {% if parsed_object_model.is_rent %}
+                <div class="offerLeaseTypeTitle">
+                    <span class="">	Тип аренды</span>
+                </div>
+                <div class="offerLeaseTypeSelect">
+                    <select class="select-control" id="getLeaseType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="direct">прямая аренда</option>
+                        <option value="sublease">субаренда</option>
+                    </select>
+                </div>
+            {% endif %}
 
             <div class="offerPriceTitle"> <span class="">Цена</span></div>
             <div class="offerPriceInput">
@@ -584,7 +571,7 @@
         const getUseExistingAccount = $('#getUseExistingAccount');
         const getTransformAccountToSpecialist = $('#getTransformAccountToSpecialist');
         const getLandArea = $('#getLandArea');
-        const getAreaUnit = $('#getAreaUnit')
+        const getAreaUnit = $('#getAreaUnit');
         const getLandStatus = $('#getLandStatus');
         const updateOfferCategoryBtn = $('#updateOfferCategory');
         const is_allow_realty_type_options = $(".is_allow_realty_type_option")
@@ -592,6 +579,11 @@
         const is_commercial_options = $(".is_commercial_option");
         const house_option = $('#house');
         const getAppointmentBuildingType = $('#getAppointmentBuildingType');
+        const getBuildingType = $('#getBuildingType');
+        const getMonthlyIncome = $('#getMonthlyIncome');
+        const getSpecialtyType = $('#getSpecialtyType');
+        const getCommercialLandType = $('#getCommercialLandType');
+        const getLeaseType = $('#getLeaseType');
         const buildingTypes = [
             {   text: 'Административное здание',
                 value: 'administrativeBuilding'
@@ -762,6 +754,10 @@
             return obj === '' ? (DEBUG ? null : "null") : obj
         }
 
+        function getArrayValueOrStrNull(obj) {
+            return obj ? [obj] : (DEBUG ? null : "null")
+        }
+
         function onClickAppointmentBuildingTypeAddOptions() {
             $.each(buildingTypes, function (i, item) {
                 getAppointmentBuildingType.append($('<option>', {
@@ -884,6 +880,7 @@
         }
 
         const saveOffer = () => {
+            let category = getCategoryType.val();
             if (getPrice.val() === "") {
                 alert('Цена обязательный параметр!');
                 return
@@ -897,6 +894,26 @@
                 alert('Описание объявления обязательный параметр!');
                 return
             }
+            if (category === "shoppingArea" &&  getBuildingType.val() === null) {
+                alert('Тип помещения обязательный параметр!');
+                return
+            }
+            if (category === "building" &&  getAppointmentBuildingType.val() === null) {
+                alert('Возможное назначение обязательный параметр!');
+                return
+            }
+            if (
+                (category === "freeAppointmentObject" || category === "business") && getSpecialtyType.val() === null
+            ) {
+                alert('Назначение обязательный параметр!');
+                return
+            }
+
+            if (category === "commercialLand" && getCommercialLandType.val() === null) {
+                alert('Категория земли обязательный параметр!');
+                return
+            }
+
             var createNewAccount = getCreateNewAccount.is(':checked')
             var publishAsHomeowner = null
 
@@ -911,7 +928,7 @@
             let obj = {
                 dealType: getDealType.val(),
                 offerType: getOfferType.val(),
-                category: getCategoryType.val(),
+                category: category,
                 address: getAddress.val(),
                 totalArea: parseInt(getTotalArea.val()),
                 price: parseInt(getPrice.val()),
@@ -941,6 +958,11 @@
             if(landArea) obj.landArea = landArea;
             if(landAreaUnitType) obj.landAreaUnitType = landAreaUnitType;
             if(landStatus) obj.landStatus = landStatus;
+            if (getBuildingType) obj.buildingType = getValueOrStrNull(getBuildingType.val());
+            if (getAppointmentBuildingType) obj.appointmentBuildingType = getValueOrStrNull(getAppointmentBuildingType.val());
+            if (getSpecialtyType) obj.specialtyType = getArrayValueOrStrNull(getSpecialtyType.val());
+            if (getCommercialLandType) obj.commercialLandType = getValueOrStrNull(getCommercialLandType.val());
+
 
             {% if parsed_object_model.is_rent %}
                 let deposit = getNumberOrStrNull(getDeposit.val())

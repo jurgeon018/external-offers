@@ -6,6 +6,7 @@ from external_offers.helpers.uuid import generate_uppercase_guid
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     BargainTerms,
     Building,
+    CommercialSpecialty,
     GeoCodeAnnouncementResponse,
     Land,
     ObjectModel,
@@ -96,7 +97,8 @@ def map_save_request_to_publication_model(
                 )
             ),
             building=Building(
-                floors_count=request.floors_count
+                floors_count=request.floors_count,
+                type=request.appointment_building_type,
             ),
             total_area=request.total_area,
             is_apartments=realty_type_to_is_aparments.get(request.realty_type, None),
@@ -135,8 +137,12 @@ def map_save_request_to_publication_model(
             land=Land(
                 area=request.land_area,
                 area_unit_type=request.land_area_unit_type,
-                status=request.land_status,
-            )
+                status=request.commercial_land_type if request.commercial_land_type else request.land_status,
+            ),
+            placement_type=request.building_type,
+            specialty=CommercialSpecialty(
+                types=request.specialty_type,
+            ),
         ),
         platform=Platform.web_site  # если этот параметр не слать, шарп 500ит
     )
