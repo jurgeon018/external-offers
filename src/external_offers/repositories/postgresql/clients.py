@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 
 import asyncpgsa
-from cian_core.runtime_settings import runtime_settings
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import true
