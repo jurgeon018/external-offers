@@ -4,10 +4,10 @@ from typing import Any, Dict, Optional, Tuple
 
 import pytz
 from cian_core.runtime_settings import runtime_settings
-from simple_settings import settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException, BadRequestException, TimeoutException
 from cian_kafka._producer.exceptions import KafkaProducerError
+from simple_settings import settings
 
 from external_offers import pg
 from external_offers.entities.kafka import CallsKafkaMessage, DraftAnnouncementsKafkaMessage
