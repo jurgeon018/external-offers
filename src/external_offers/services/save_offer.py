@@ -16,7 +16,12 @@ from external_offers.enums import CallStatus, OfferStatus, SaveOfferCategory, Sa
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.helpers import transform_phone_number_to_canonical_format
 from external_offers.mappers import map_save_request_to_promocode_detail_model, map_save_request_to_publication_model
-from external_offers.queue.kafka import kafka_preposition_calls_producer, kafka_preposition_drafts_producer
+from external_offers.queue.helpers import create_offers_kafka_message
+from external_offers.queue.kafka import (
+    kafka_preposition_calls_producer,
+    kafka_preposition_drafts_producer,
+    offers_for_call_change_producer,
+)
 from external_offers.repositories.monolith_cian_announcementapi import v1_geo_geocode, v2_announcements_draft
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     AddDraftResult,
@@ -171,9 +176,13 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                             status=CallStatus.main_account_changed,
                             call_id=offer.last_call_id,
                             date=now,
-                            source=settings.AVITO_SOURCE_NAME
+                            source=runtime_settings.AVITO_SOURCE_NAME
                         ),
-                        timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                        timeout=runtime_settings.DEFAULT_KAFKA_TIMEOUT
+                    )
+                    await offers_for_call_change_producer(
+                        message=create_offers_kafka_message(offer=offer),
+                        timeout=runtime_settings.DEFAULT_KAFKA_TIMEOUT,
                     )
 
                 cian_user_id = request.account_for_draft or cian_user_id
@@ -437,10 +446,15 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                             status=CallStatus.accepted,
                             call_id=offer.last_call_id,
                             date=now,
-                            source=settings.AVITO_SOURCE_NAME
+                            source=runtime_settings.AVITO_SOURCE_NAME
                         ),
-                        timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                        timeout=runtime_settings.DEFAULT_KAFKA_TIMEOUT
                     )
+                    await offers_for_call_change_producer(
+                        message=create_offers_kafka_message(offer=offer),
+                        timeout=runtime_settings.DEFAULT_KAFKA_TIMEOUT,
+                    )
+
             except KafkaProducerError:
                 logger.warning('Не удалось отправить событие аналитики для объявления %s', request.offer_id)
 

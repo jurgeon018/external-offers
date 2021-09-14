@@ -19,6 +19,7 @@ from external_offers.mappers import (
     enriched_offer_mapper,
     offer_for_prioritization_mapper,
     offer_mapper,
+    offers,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
@@ -85,7 +86,7 @@ async def get_enriched_offers_in_progress_by_operator(
 ) -> list[EnrichedOffer]:
 
     if unactivated:
-        status_query = """(ofc.status = 'inProgress' OR ofc.publication_status = 'Draft')"""
+        status_query = """(ofc.status = 'inProgress' AND ofc.publication_status = 'Draft')"""
     else:
         status_query = """ofc.status = 'inProgress'"""
     query = f"""
@@ -725,7 +726,11 @@ async def get_offers_for_prioritization_by_client_ids(
             select(
                 [offers_for_call]
             ).where(
-                offers_for_call.c.client_id.in_(client_ids_chunk)
+                and_(
+                    offers_for_call.c.client_id.in_(client_ids_chunk),
+                    offers_for_call.c.id.isnot(None),
+                    offers_for_call.c.category.isnot(None),
+                )
             )
         )
         cursor = await pg.get().cursor(
