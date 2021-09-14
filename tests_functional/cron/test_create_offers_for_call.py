@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
+from pprint import pprint
 
 import pytz
 from cian_functional_test_utils.pytest_plugin import MockResponse
@@ -112,6 +113,44 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     )
     assert row['status'] == 'waiting'
     assert row['parsed_created_at'] == datetime(2020, 10, 27, 11, 59, 1, 123093, tzinfo=pytz.utc)
+
+
+async def test_create_offers__exist_suitable_commercial_parsed_offer__creates_waiting_offer(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
+        'COMMERCIAL_OFFER_TASK_CREATION_SEGMENTS': ['c'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES': ['officeRent', 'businessRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580, 184723],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+    })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+
+    # assert
+    row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = '821ff03a-573c-4bac-8599-28f17e68a0d8'
+        """
+    )
+    assert row['status'] == 'waiting'
 
 
 async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_offer(
