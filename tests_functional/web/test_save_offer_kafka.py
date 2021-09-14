@@ -285,13 +285,12 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
     )
 
     # assert
-    messages = await kafka_service.wait_messages(
+    calls_messages = await kafka_service.wait_messages(
         topic='preposition-admin.calls',
         timeout=2.5,
         count=1
     )
-
-    assert messages[0].data == {
+    assert calls_messages[0].data == {
         'managerId': operator_user_id,
         'sourceUserId': '555bb598767308327e1dffbe7241486c',
         'date': ANY,
@@ -301,6 +300,21 @@ async def test_save_offer__client_with_no_offers_left__expected_message_to_kafka
         'status': 'accepted',
         'source': 'avito'
     }
+    offers_messages = await kafka_service.wait_messages(
+        topic='offers-for-call.change',
+        timeout=2.5,
+        count=1
+    )
+    assert offers_messages[0].data['offer']['id'] == '1'
+    assert offers_messages[0].data['offer']['parsedId'] == 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6'
+    assert offers_messages[0].data['offer']['clientId'] == '7'
+    assert offers_messages[0].data['offer']['status'] == 'inProgress'
+    assert offers_messages[0].data['offer']['createdAt'] == ANY
+    assert offers_messages[0].data['offer']['syncedAt'] == ANY
+    assert offers_messages[0].data['offer']['startedAt'] == ANY
+    assert offers_messages[0].data['offer']['syncedWithKafka'] is False
+    assert offers_messages[0].data['offer']['isTest'] is False
+    assert offers_messages[0].data['offer']['rowVersion'] == 0
 
 
 async def test_save_offer__client_with_offers_left__expected_no_message_to_kafka(
@@ -796,11 +810,28 @@ async def test_save_offer__account_for_draft_changed__expected_message_to_kafka(
     )
 
     # assert
-    messages = await kafka_service.wait_messages(
+    calls_messages = await kafka_service.wait_messages(
         topic='preposition-admin.calls',
         timeout=3.5,
         count=1
     )
 
-    assert messages[0].data['userId'] == expected_cian_user_id
-    assert messages[0].data['status'] == 'mainAccountChanged'
+    assert calls_messages[0].data['userId'] == expected_cian_user_id
+    assert calls_messages[0].data['status'] == 'mainAccountChanged'
+
+    offers_messages = await kafka_service.wait_messages(
+        topic='offers-for-call.change',
+        timeout=3.5,
+        count=1
+    )
+    assert offers_messages[0].data['offer']['id'] == '1'
+    assert offers_messages[0].data['offer']['parsedId'] == 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6'
+    assert offers_messages[0].data['offer']['clientId'] == '7'
+    assert offers_messages[0].data['offer']['status'] == 'inProgress'
+    assert offers_messages[0].data['offer']['createdAt'] == '2020-10-12T04:05:06+00:00'
+    assert offers_messages[0].data['offer']['syncedAt'] == '2020-10-12T04:05:06+00:00'
+    assert offers_messages[0].data['offer']['lastCallId'] == 'ddd86dec-20f5-4a70-bb3a-077b2754df77'
+    assert offers_messages[0].data['offer']['startedAt'] == '2020-10-12T04:05:06+00:00'
+    assert offers_messages[0].data['offer']['syncedWithKafka'] is False
+    assert offers_messages[0].data['offer']['isTest'] is False
+    assert offers_messages[0].data['offer']['rowVersion'] == 0
