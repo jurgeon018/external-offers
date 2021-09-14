@@ -6,8 +6,8 @@ from jinja2 import Environment, PackageLoader
 
 from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer
 from external_offers.entities.parsed_offers import ParsedObjectModel
-from external_offers.templates.filters import custom_filters
 from external_offers.repositories.announcements.entities.get_possible_appointment_item import GetPossibleAppointmentItem
+from external_offers.templates.filters import custom_filters
 
 
 templates = Environment(

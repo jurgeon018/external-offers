@@ -6,6 +6,9 @@ from cian_test_utils import future
 from simple_settings.utils import settings_stub
 
 from external_offers.entities.offers import Offer
+from external_offers.repositories.announcements.entities.get_possible_appointments_response import (
+    GetPossibleAppointmentsResponse,
+)
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 
@@ -30,6 +33,12 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                                         'counts_by_phone_number_degradation_handler')
     client_account = mocker.MagicMock(value=[])
     client_accounts_mock.return_value = future(client_account)
+
+    get_possible_appointments_mock = mocker.patch(
+        'external_offers.services.possible_appointments.v1_get_possible_appointments_with_degradation'
+    )
+    appointments = mocker.MagicMock(value=GetPossibleAppointmentsResponse(items=[]))
+    get_possible_appointments_mock.return_value = future(appointments)
 
     exist_drafts_mock = mocker.patch('external_offers.web.handlers.admin.exists_offers_draft_by_client')
     exist_drafts_mock.return_value = future(False)
@@ -68,6 +77,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                 info_message=save_offer_msg,
                 offer_id=offer_id,
                 client=client_mock,
+                appointments=[],
                 client_accounts=[],
                 exist_drafts=False,
                 offer_is_draft=True,

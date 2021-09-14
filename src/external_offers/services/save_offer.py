@@ -81,9 +81,13 @@ mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
         SaveOfferTerm.long_term, SaveOfferCategory.free_appointment_object, DealType.rent, OfferType.commercial
     ): Category.free_appointment_object_rent,
     (None, SaveOfferCategory.shopping_area, DealType.sale, OfferType.commercial): Category.shopping_area_sale,
-    (SaveOfferTerm.long_term, SaveOfferCategory.shopping_area, DealType.rent, OfferType.commercial): Category.shopping_area_rent,
+    (
+        SaveOfferTerm.long_term, SaveOfferCategory.shopping_area, DealType.rent, OfferType.commercial
+    ): Category.shopping_area_rent,
     (None, SaveOfferCategory.warehouse, DealType.sale, OfferType.commercial): Category.warehouse_sale,
-    (SaveOfferTerm.long_term, SaveOfferCategory.warehouse, DealType.rent, OfferType.commercial): Category.warehouse_rent,
+    (
+        SaveOfferTerm.long_term, SaveOfferCategory.warehouse, DealType.rent, OfferType.commercial
+    ): Category.warehouse_rent,
     (None, SaveOfferCategory.industry, DealType.sale, OfferType.commercial): Category.industry_sale,
     (SaveOfferTerm.long_term, SaveOfferCategory.industry, DealType.rent, OfferType.commercial): Category.industry_rent,
     (None, SaveOfferCategory.building, DealType.sale, OfferType.commercial): Category.building_sale,
@@ -91,7 +95,9 @@ mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (None, SaveOfferCategory.business, DealType.sale, OfferType.commercial): Category.business_sale,
     (SaveOfferTerm.long_term, SaveOfferCategory.business, DealType.rent, OfferType.commercial): Category.business_rent,
     (None, SaveOfferCategory.commercial_land, DealType.sale, OfferType.commercial): Category.commercial_land_sale,
-    (SaveOfferTerm.long_term, SaveOfferCategory.commercial_land, DealType.rent, OfferType.commercial): Category.commercial_land_rent,
+    (
+        SaveOfferTerm.long_term, SaveOfferCategory.commercial_land, DealType.rent, OfferType.commercial
+    ): Category.commercial_land_rent,
 }
 
 

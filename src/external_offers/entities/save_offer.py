@@ -1,17 +1,12 @@
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import List, Optional
 
 from external_offers.enums import SaveOfferCategory, SaveOfferTerm
 from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
+from external_offers.repositories.monolith_cian_announcementapi.entities.building import Type
 from external_offers.repositories.monolith_cian_announcementapi.entities.land import AreaUnitType, Status
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
-    PlacementType,
-)
-from external_offers.repositories.monolith_cian_announcementapi.entities.building import (
-    Type,
-)
-
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import PlacementType
 
 
 @dataclass
