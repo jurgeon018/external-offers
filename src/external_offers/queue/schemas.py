@@ -1,8 +1,8 @@
 from cian_schemas import EntitySchema
 
-from external_offers.queue.entities import AnnouncementMessage
+from external_offers.repositories.monolith_cian_announcementapi.entities import AnnouncementReportingChangedQueueMessage
 
 
 class RabbitMQAnnouncementMessageSchema(EntitySchema):
     class Meta:
-        entity = AnnouncementMessage
+        entity = AnnouncementReportingChangedQueueMessage
