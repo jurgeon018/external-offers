@@ -14,11 +14,11 @@
         <button data-url="/admin/teams/" onclick="onClickRedirect(this)">
             Вернуться к списку обьектов
         </button>
-        <button style="color:red;" data-url="/admin/teams/" onclick="deleteTeam('{{team.id}}')">
+        <button style="color:red;" data-url="/admin/teams/" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
         <hr>
-        ID: {{team.id}}
+        ID: {{team.team_id}}
         <br>
         ID лида команды: 
         {% if team.lead_id %}
@@ -35,8 +35,8 @@
                 -
             </option>
             {% for operator in operators %}
-                <option value="{{operator.id}}" {% if team.lead_id == operator.id %}selected{%endif%}>
-                    {{operator.name}}({{operator.id}})
+                <option value="{{operator.operator_id}}" {% if team.lead_id == operator.operator_id %}selected{%endif%}>
+                    {{operator.name}}({{operator.operator_id}})
                 </option>
             {% endfor %}
         </select>
@@ -89,7 +89,7 @@
     }
     // crud
     async function updateTeam(){
-        let teamId = '{{team.id}}'
+        let teamId = '{{team.team_id}}'
         let name = document.getElementById('teamName').value;
         let segment = document.getElementById('teamSegment').value;
         let leadId = document.getElementById('teamLeadId').value;
@@ -105,7 +105,7 @@
             segment = null
         }
         let obj = {
-            'id': teamId,
+            'teamId': teamId,
             'leadId': leadId,
             "name": name,
             "segment": segment,
@@ -126,7 +126,7 @@
     }
     async function deleteTeam(id){
         let obj = {
-            "id": id,
+            "teamId": id,
         }
         const response = await fetch("/api/admin/v1/delete-team-public/", {
             method: 'POST',

@@ -20,12 +20,12 @@ async def get_operators() -> List[Operator]:
     return [operators_mapper.map_from(row) for row in rows]
 
 
-async def get_operator_by_id(id: int) -> Optional[Operator]:
+async def get_operator_by_id(operator_id: int) -> Optional[Operator]:
     query, params = asyncpgsa.compile_query(
         select(
             [operators]
         ).where(
-            operators.c.id == str(id)
+            operators.c.operator_id == str(operator_id)
         ).limit(1)
     )
     row = await pg.get().fetchrow(query, *params)
@@ -34,17 +34,19 @@ async def get_operator_by_id(id: int) -> Optional[Operator]:
 
 async def create_operator(
     *,
-    id: int,
+    operator_id: int,
     name: str,
     team_id: str,
+    is_teamlead: bool = False,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         insert(
             operators
         ).values(
-            id=id,
+            operator_id=operator_id,
             name=name,
             team_id=team_id,
+            is_teamlead=is_teamlead,
         )
     )
     await pg.get().execute(query, *params)
@@ -52,7 +54,7 @@ async def create_operator(
 
 async def update_operator_by_id(
     *,
-    id: str,
+    operator_id: str,
     name: str,
     team_id: str
 ) -> None:
@@ -60,7 +62,7 @@ async def update_operator_by_id(
         update(
             operators
         ).where(
-            operators.c.id == id
+            operators.c.operator_id == operator_id
         ).values(
             name=name,
             team_id=team_id,
@@ -69,12 +71,12 @@ async def update_operator_by_id(
     await pg.get().execute(query, *params)
 
 
-async def delete_operator_by_id(id: str):
+async def delete_operator_by_id(operator_id: str):
     query, params = asyncpgsa.compile_query(
         delete(
             operators
         ).where(
-            operators.c.id == id
+            operators.c.operator_id == operator_id
         )
     )
     await pg.get().execute(query, *params)

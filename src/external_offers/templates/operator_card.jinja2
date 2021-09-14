@@ -14,14 +14,14 @@
         <button data-url="/admin/teams/" onclick="onClickRedirect(this)">
             Вернуться назад
         </button>
-        <button style="color:red;" data-url="/admin/teams/" onclick="deleteOperator('{{operator.id}}')">
+        <button style="color:red;" data-url="/admin/teams/" onclick="deleteOperator('{{operator.operator_id}}')">
             Удалить профиль
         </button>
     </div>
     <br>
     {% if operator.is_teamlead %} Тимлид {% else %} Не тимлид {% endif %}
     <br>
-    ID: {{operator.id}}
+    ID: {{operator.operator_id}}
     <br>
     Имя: {% if operator.name %}{{operator.name}}{% else %}-{% endif %}
     <input
@@ -44,8 +44,8 @@
             -
         </option>
         {% for team in teams %}
-        <option value="{{team.id}}" {% if operator.team_id == team.id %} selected {% endif %}>
-            {{team.name}} ({{team.id}})
+        <option value="{{team.team_id}}" {% if operator.team_id == team.team_id %} selected {% endif %}>
+            {{team.name}} ({{team.team_id}})
         </option>
         {% endfor %}
     </select>
@@ -92,7 +92,7 @@
             teamId = null;
         }
         let obj = {
-            "id": '{{operator.id}}',
+            "operatorId": '{{operator.operator_id}}',
             "name": name,
             "teamId": teamId,
         }
@@ -112,7 +112,7 @@
     }
     async function deleteOperator(id){
         let obj = {
-            "id": id,
+            "operatorId": id,
         }
         const response = await fetch("/api/admin/v1/delete-operator-public/", {
             method: 'POST',

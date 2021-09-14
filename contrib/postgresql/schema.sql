@@ -121,7 +121,6 @@ ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_o
 
 DROP TABLE teams;
 DROP TABLE operators;
-DROP TABLE roles;
 DROP TYPE segment_type;
 CREATE TYPE segment_type AS enum (
 	'a',
@@ -133,18 +132,18 @@ CREATE TYPE segment_type AS enum (
 
 CREATE TABLE teams
 (
-    id       VARCHAR UNIQUE NOT NULL PRIMARY KEY,
-    name     VARCHAR UNIQUE NULL,
+    team_id  VARCHAR UNIQUE NOT NULL PRIMARY KEY,
+    name     VARCHAR UNIQUE,
     lead_id  VARCHAR        NOT NULL,
-    segment  segment_type   NULL,
-    settings JSONB          NULL
+    segment  segment_type,
+    settings JSONB
 );
 
 CREATE TABLE operators
 (
-    id          VARCHAR UNIQUE NOT NULL PRIMARY KEY,
-    name        VARCHAR        NULL,
-    team_id     VARCHAR        NULL,
-    is_teamlead BOOLEAN        NOT NULL DEFAULT FALSE,
-    role_id     VARCHAR        NULL
+    operator_id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
+    is_teamlead BOOLEAN        NOT NULL,
+    name        VARCHAR,
+    team_id     VARCHAR,
+    role_id     VARCHAR
 );

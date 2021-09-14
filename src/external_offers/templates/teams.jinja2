@@ -54,7 +54,7 @@
             Вернуться к заданиям
         </button>
         {# персональная инфо #}
-        <button data-url="/admin/operator-card/{{current_operator.id}}/" onclick="onClickRedirect(this)">
+        <button data-url="/admin/operator-card/{{current_operator.operator_id}}/" onclick="onClickRedirect(this)">
             Перейти в свой профиль
         </button>
         {% if current_operator.team_id %}
@@ -81,8 +81,8 @@
             </div>
             {% for team in teams %}
             <div class="row">
-                <div class="column column-identifier" data-url="/admin/team-card/{{team.id}}/" onclick="onClickRedirect(this)">
-                    {{team.id}}
+                <div class="column column-identifier" data-url="/admin/team-card/{{team.team_id}}/" onclick="onClickRedirect(this)">
+                    {{team.team_id}}
                 </div>
                 <div class="column column-identifier" data-url="/admin/operator-card/{{team.lead_id}}/" onclick="onClickRedirect(this)">
                     {% if team.lead_id %}{{team.lead_id}}{% else %}-{% endif %}
@@ -94,7 +94,7 @@
                     {{team.name}}
                 </div>
                 <div class=column>
-                    <button style="display:inline" onclick="deleteTeam('{{team.id}}')">
+                    <button style="display:inline" onclick="deleteTeam('{{team.team_id}}')">
                         Удалить
                     </button>
                 </div>
@@ -124,8 +124,8 @@
             </div>
             {% for operator in operators %}
             <div class="row">
-                <div class="column column-identifier" data-url="/admin/operator-card/{{operator.id}}/" onclick="onClickRedirect(this)">
-                    {{ operator.id }}
+                <div class="column column-identifier" data-url="/admin/operator-card/{{operator.operator_id}}/" onclick="onClickRedirect(this)">
+                    {{ operator.operator_id }}
                 </div>
                 {% if operator.team_id%}
                 <div class="column column-identifier" data-url="/admin/team-card/{{operator.team_id}}/" onclick="onClickRedirect(this)">
@@ -140,7 +140,7 @@
                     {{operator.name}}
                 </div>
                 <div class=column>
-                    <button style="display:inline" onclick="deleteOperator('{{operator.id}}')">
+                    <button style="display:inline" onclick="deleteOperator('{{operator.operator_id}}')">
                         Удалить
                     </button>
                 </div>
@@ -186,7 +186,7 @@
     // crud
     async function deleteTeam(id){
         let obj = {
-            "id": id,
+            "teamId": id,
         }
         const response = await fetch("/api/admin/v1/delete-team-public/", {
             method: 'POST',
@@ -204,7 +204,7 @@
     }
     async function deleteOperator(id){
         let obj = {
-            "id": id,
+            "operatorId": id,
         }
         const response = await fetch("/api/admin/v1/delete-operator-public/", {
             method: 'POST',
@@ -222,18 +222,18 @@
     }
     async function createOperator(){
         let name = document.getElementById('operatorName').value
-        let id = document.getElementById('operatorId').value
+        let operatorId = document.getElementById('operatorId').value
         if(!name){
             alert('Введите имя оператора!')
             return
         }
-        if(!id){
+        if(!operatorId){
             alert('Введите ID оператора!')
             return
         }
         let obj = {
             "name": name,
-            "id": id,
+            "operatorId": operatorId,
         }
         const response = await fetch("/api/admin/v1/create-operator-public/", {
             method: 'POST',
@@ -251,7 +251,7 @@
     }
     async function createTeam(){
         let name = document.getElementById('teamName').value;
-        let leadId = '{{current_operator.id}}';
+        let leadId = '{{current_operator.operator_id}}';
         if(!name){
             alert('Введите название команды!')
             return

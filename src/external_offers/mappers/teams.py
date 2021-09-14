@@ -1,6 +1,6 @@
 from cian_entities import EntityMapper
 
-from external_offers.entities import Operator, Role, Team
+from external_offers.entities import Operator, Team
 
 
 teams_mapper = EntityMapper(
@@ -9,9 +9,5 @@ teams_mapper = EntityMapper(
 )
 operators_mapper = EntityMapper(
     Operator,
-    without_camelcase=True,
-)
-roles_mapper = EntityMapper(
-    Role,
     without_camelcase=True,
 )

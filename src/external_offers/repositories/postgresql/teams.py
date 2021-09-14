@@ -20,12 +20,12 @@ async def get_teams() -> List[Team]:
     return [teams_mapper.map_from(row) for row in rows]
 
 
-async def get_team_by_id(id: int) -> Optional[Team]:
+async def get_team_by_id(team_id: int) -> Optional[Team]:
     query, params = asyncpgsa.compile_query(
         select(
             [teams]
         ).where(
-            teams.c.id == str(id)
+            teams.c.team_id == str(team_id)
         ).limit(1)
     )
     row = await pg.get().fetchrow(query, *params)
@@ -34,7 +34,7 @@ async def get_team_by_id(id: int) -> Optional[Team]:
 
 async def create_team(
     *,
-    id: str,
+    team_id: str,
     name: str,
     lead_id: str,
     segment: str,
@@ -43,7 +43,7 @@ async def create_team(
         insert(
             teams
         ).values(
-            id=id,
+            team_id=team_id,
             name=name,
             lead_id=lead_id,
             segment=segment,
@@ -54,7 +54,7 @@ async def create_team(
 
 async def update_team_by_id(
     *,
-    id: str,
+    team_id: str,
     name: str,
     lead_id: str,
     segment: str,
@@ -63,7 +63,7 @@ async def update_team_by_id(
         update(
             teams
         ).where(
-            teams.c.id == id
+            teams.c.team_id == team_id
         ).values(
             name=name,
             lead_id=lead_id,
@@ -73,12 +73,12 @@ async def update_team_by_id(
     await pg.get().execute(query, *params)
 
 
-async def delete_team_by_id(id: str) -> None:
+async def delete_team_by_id(team_id: str) -> None:
     query, params = asyncpgsa.compile_query(
         delete(
             teams
         ).where(
-            teams.c.id == id
+            teams.c.team_id == team_id
         )
     )
     await pg.get().execute(query, *params)

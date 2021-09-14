@@ -106,7 +106,7 @@ async def test_update_team__success_is_true(http_client, base_url, mocker):
         base_url+'/api/admin/v1/update-team-public/',
         method='POST',
         body=json.dumps({
-            'id': '1',
+            'teamId': '1',
             'name': 'name',
             'leadId': '1',
             'segment': 'c',
@@ -134,7 +134,7 @@ async def test_update_team__postgres_error(http_client, base_url, mocker):
         base_url+'/api/admin/v1/update-team-public/',
         method='POST',
         body=json.dumps({
-            'id': '1',
+            'teamId': '1',
             'name': 'name',
             'leadId': '1',
             'segment': 'c',
@@ -164,7 +164,7 @@ async def test_delete_team__success_is_true(http_client, base_url, mocker):
         base_url+'/api/admin/v1/delete-team-public/',
         method='POST',
         body=json.dumps({
-            'id': '1',
+            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -189,7 +189,7 @@ async def test_delete_team__postgres_error(http_client, base_url, mocker):
         base_url+'/api/admin/v1/delete-team-public/',
         method='POST',
         body=json.dumps({
-            'id': '1',
+            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',

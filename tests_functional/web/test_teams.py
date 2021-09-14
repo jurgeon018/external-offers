@@ -28,13 +28,13 @@ async def test_teams(pg, http):
     )
     create_response = json.loads(create_response.body.decode('utf-8'))
     teams_after_creation = await pg.fetch('SELECT * FROM teams')
-    team_id = teams_after_creation[0]['id']
+    team_id = teams_after_creation[0]['team_id']
     # update
     update_response = await http.request(
         'POST',
         '/api/admin/v1/update-team-public/',
         json={
-            'id': team_id,
+            'teamId': team_id,
             'name': new_name,
             'leadId': new_lead_id,
             'segment': new_segment,
@@ -51,7 +51,7 @@ async def test_teams(pg, http):
         'POST',
         '/api/admin/v1/delete-team-public/',
         json={
-            'id': team_id,
+            'teamId': team_id,
         },
         headers={
             'X-Real-UserId': 1
@@ -65,7 +65,7 @@ async def test_teams(pg, http):
     assert create_response['message'] == 'Команда была успешно создана.'
     assert create_response['success'] is True
     assert len(teams_after_creation) == 1
-    assert teams_after_creation[0]['id'] == team_id
+    assert teams_after_creation[0]['team_id'] == team_id
     assert teams_after_creation[0]['lead_id'] == lead_id
     assert teams_after_creation[0]['name'] == name
     assert teams_after_creation[0]['segment'] == segment
@@ -73,7 +73,7 @@ async def test_teams(pg, http):
     assert update_response['success'] is True
     assert update_response['message'] == 'Информация про команду была успешно обновлена.'
     assert len(teams_after_update) == 1
-    assert teams_after_update[0]['id'] == team_id
+    assert teams_after_update[0]['team_id'] == team_id
     assert teams_after_update[0]['lead_id'] == new_lead_id
     assert teams_after_update[0]['name'] == new_name
     assert teams_after_update[0]['segment'] == new_segment
@@ -121,7 +121,7 @@ async def test_render_team_card(http, pg):
         },
         expected_status=200
     )
-    team_id = await pg.fetchval('SELECT id FROM teams LIMIT 1')
+    team_id = await pg.fetchval('SELECT team_id FROM teams LIMIT 1')
     # act
     resp = await http.request(
         'GET',

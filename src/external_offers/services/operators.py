@@ -13,9 +13,10 @@ async def create_operator_public(request: CreateOperatorRequest, user_id: int) -
     success = False
     try:
         await create_operator(
-            id=request.id,
+            operator_id=request.operator_id,
             name=request.name,
             team_id=request.team_id,
+            is_teamlead=False,
         )
         message = 'Оператор был успешно создан.'
         success = True
@@ -33,7 +34,7 @@ async def update_operator_public(request: UpdateOperatorRequest, user_id: int) -
     success = False
     try:
         await update_operator_by_id(
-            id=request.id,
+            operator_id=request.operator_id,
             name=request.name,
             team_id=request.team_id,
         )
@@ -50,7 +51,7 @@ async def update_operator_public(request: UpdateOperatorRequest, user_id: int) -
 async def delete_operator_public(request: DeleteOperatorRequest, user_id: int) -> BasicResponse:
     success = False
     try:
-        await delete_operator_by_id(id=request.id)
+        await delete_operator_by_id(operator_id=request.operator_id)
         success = True
         message = 'Оператор был успешно удален.'
     except PostgresError as e:

@@ -39,7 +39,7 @@ async def test_teams_page_handler(mocker, http_client, base_url):
 
     # assert
     create_operator_mock.assert_not_called()
-    get_operator_by_id_mock.assert_called_once_with(id=int(user_id))
+    get_operator_by_id_mock.assert_called_once_with(operator_id=int(user_id))
     get_operators_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
     get_teams_page_html_mock.assert_has_calls(
@@ -92,10 +92,10 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     # assert
     get_operator_by_id_mock.assert_has_calls([
         mocker.call(
-            id=int(user_id)
+            operator_id=int(user_id)
         ),
         mocker.call(
-            id=str(operator_id)
+            operator_id=str(operator_id)
         ),
     ])
     get_operators_mock.assert_called_once_with()
@@ -148,8 +148,8 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     )
 
     # assert
-    get_operator_by_id_mock.assert_called_once_with(id=int(user_id))
-    get_team_by_id_mock.assert_called_once_with(id=team_id)
+    get_operator_by_id_mock.assert_called_once_with(operator_id=int(user_id))
+    get_team_by_id_mock.assert_called_once_with(team_id=team_id)
     get_operators_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
     get_team_card_html_mock.assert_has_calls(

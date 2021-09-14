@@ -4,7 +4,7 @@ from typing import Optional
 
 @dataclass
 class Operator:
-    id: str
+    operator_id: str
     """ ID оператора """
     name: Optional[str] = None
     """Имя оператора """
@@ -16,7 +16,7 @@ class Operator:
 
 @dataclass
 class CreateOperatorRequest:
-    id: str
+    operator_id: str
     """ID оператора"""
     name: str
     """ Имя оператора"""
@@ -26,7 +26,7 @@ class CreateOperatorRequest:
 
 @dataclass
 class UpdateOperatorRequest:
-    id: str
+    operator_id: str
     """ID оператора"""
     name: str
     """Имя оператора"""
@@ -36,5 +36,5 @@ class UpdateOperatorRequest:
 
 @dataclass
 class DeleteOperatorRequest:
-    id: str
+    operator_id: str
     """ID оператора которого нужно удалить"""

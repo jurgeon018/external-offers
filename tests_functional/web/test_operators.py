@@ -16,7 +16,7 @@ async def test_operators(pg, http):
         'POST',
         '/api/admin/v1/create-operator-public/',
         json={
-            'id': operator_id,
+            'operatorId': operator_id,
             'name': name,
             'teamId': team_id,
         },
@@ -32,7 +32,7 @@ async def test_operators(pg, http):
         'POST',
         '/api/admin/v1/update-operator-public/',
         json={
-            'id': operator_id,
+            'operatorId': operator_id,
             'name': new_name,
             'teamId': new_team_id,
         },
@@ -48,7 +48,7 @@ async def test_operators(pg, http):
         'POST',
         '/api/admin/v1/delete-operator-public/',
         json={
-            'id': operator_id,
+            'operatorId': operator_id,
         },
         headers={
             'X-Real-UserId': 1
@@ -59,22 +59,22 @@ async def test_operators(pg, http):
     operators_after_deletion = await pg.fetch('SELECT * FROM operators')
     # assert
     # create
-    assert create_response['success'] is True
     assert create_response['message'] == 'Оператор был успешно создан.'
+    assert create_response['success'] is True
     assert len(operators_after_creation) == 1
-    assert operators_after_creation[0]['id'] == operator_id
+    assert operators_after_creation[0]['operator_id'] == operator_id
     assert operators_after_creation[0]['name'] == name
     assert operators_after_creation[0]['team_id'] == team_id
     # update
-    assert update_response['success'] is True
     assert update_response['message'] == 'Информация про оператора была успешно обновлена.'
+    assert update_response['success'] is True
     assert len(operators_after_update) == 1
-    assert operators_after_update[0]['id'] == operator_id
+    assert operators_after_update[0]['operator_id'] == operator_id
     assert operators_after_update[0]['name'] == new_name
     assert operators_after_update[0]['team_id'] == new_team_id
     # delete
-    assert delete_response['success'] is True
     assert delete_response['message'] == 'Оператор был успешно удален.'
+    assert delete_response['success'] is True
     assert len(operators_after_deletion) == 0
 
 
@@ -89,7 +89,7 @@ async def test_render_operator_card(http, pg):
         'POST',
         '/api/admin/v1/create-operator-public/',
         json={
-            'id': operator_id,
+            'operatorId': operator_id,
             'name': name,
             'teamId': team_id,
         },

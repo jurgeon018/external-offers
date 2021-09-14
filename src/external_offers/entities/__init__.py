@@ -38,7 +38,7 @@ from external_offers.entities.return_client_by_phone import (
     ReturnClientByPhoneResponse,
 )
 from external_offers.entities.save_offer import SaveOfferRequest, SaveOfferResponse
-from external_offers.entities.teams import CreateTeamRequest, DeleteTeamRequest, Role, Team, UpdateTeamRequest
+from external_offers.entities.teams import CreateTeamRequest, DeleteTeamRequest, Team, UpdateTeamRequest
 from external_offers.entities.test_objects import (
     CreateTestClientRequest,
     CreateTestClientResponse,
