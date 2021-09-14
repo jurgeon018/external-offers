@@ -16,20 +16,21 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         http,
         offers_and_clients_fixture,
         users_mock,
-
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
-    expected_operator_client = '224'
+    expected_client = '224'
     expected_operator_offer = '226'
-    await pg.execute("""
+    operator_id = 60024636
+    next_call = (datetime.now(pytz.utc) - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    await pg.execute(f"""
         INSERT INTO clients (
-            segment, unactivated, client_id, avito_user_id, client_phones, status
+            segment, unactivated, client_id, avito_user_id, client_phones, status, next_call, operator_user_id
         ) VALUES
-        (NULL, 't', 221, 221, '{+7232121}', 'accepted'),
-        ('c',  't', 222, 222, '{+7232122}', 'accepted'),
-        ('d',  't', 223, 223, '{+7232123}', 'accepted'),
-        ('d',  't', 224, 224, '{+7232123}', 'accepted');
+        (NULL,'t',221, 221,'{{+7232121}}','accepted', NULL, NULL),
+        ('c', 't',222, 222,'{{+7232122}}','accepted', NULL, NULL),
+        ('d', 't',223, 223,'{{+7232123}}','accepted', NULL, NULL),
+        ('d', 't',{expected_client},{expected_client},'{{+7232123}}','accepted','{next_call}',{operator_id});
     """)
     await pg.execute(f"""
         INSERT INTO offers_for_call (
@@ -40,7 +41,7 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         (223, 223, 222, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
         (224, 224, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
         (225, 225, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        ({expected_operator_offer}, {expected_operator_offer}, {expected_operator_client}, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()');
+        ({expected_operator_offer}, {expected_operator_offer}, {expected_client}, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()');
     """)
     await pg.execute("""
         INSERT INTO parsed_offers (
@@ -53,8 +54,6 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         (225, 225, 223, '{\"region\": \"4636\"}',     'f', 'now()', 'now()', 'now()'),
         (226, 226, 224, '{}',                         'f', 'now()', 'now()', 'now()');
     """)
-
-    operator_without_offers_in_progress = 60024636
     await users_mock.add_stub(
         method='GET',
         path='/v1/get-user-roles/',
@@ -72,7 +71,7 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         'POST',
         '/api/admin/v1/update-offers-list/',
         headers={
-            'X-Real-UserId': operator_without_offers_in_progress
+            'X-Real-UserId': operator_id
         },
         json={},
         expected_status=200
@@ -81,17 +80,17 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
     offers_event_log = await pg.fetch(
         'SELECT * FROM event_log where operator_user_id=$1',
         [
-            operator_without_offers_in_progress
+            operator_id
         ]
     )
     # assert
     assert offers_event_log[0]['offer_id'] == expected_operator_offer
     assert offers_event_log[0]['status'] == 'inProgress'
     assert body['success'] is True
-    assert operator_without_offers_in_progress == await pg.fetchval(
+    assert operator_id == await pg.fetchval(
         'SELECT operator_user_id FROM clients WHERE client_id=$1 AND status=$2',
         [
-            expected_operator_client,
+            expected_client,
             'inProgress'
         ]
     )
@@ -99,20 +98,10 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
     assert expected_operator_offer == await pg.fetchval(
         'SELECT id FROM offers_for_call WHERE client_id=$1 AND status = $2',
         [
-            expected_operator_client,
+            expected_client,
             'inProgress'
         ]
     )
-
-
-async def test_update_offers_list__with_is_test_false__returns_only_real_objects(
-    pg,
-    http,
-    offers_and_clients_fixture,
-    parsed_offers_fixture,
-    test_objects_fixture
-):
-    pass
 
 
 async def test_update_offers_list__with_is_test_true__assigns_test_object_to_operator(
