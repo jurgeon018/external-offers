@@ -1,15 +1,12 @@
 import logging
-import uuid
-from datetime import datetime
 from typing import List
 
-import pytz
 from cian_core.statsd import statsd
 from cian_kafka import KafkaProducerError
 from simple_settings import settings
 
 from external_offers import pg
-from external_offers.entities.kafka import OfferForCallKafkaMessage
+from external_offers.queue.helpers import create_offers_kafka_message
 from external_offers.queue.kafka import offers_for_call_change_producer
 from external_offers.repositories.postgresql import (
     iterate_over_offers_for_call_sorted,
@@ -28,15 +25,10 @@ async def send_offers_for_call_to_kafka():
         async for offer in iterate_over_offers_for_call_sorted(
             prefetch=settings.OFFERS_FOR_CALL_FOR_KAFKA_FETCH_LIMIT
         ):
-            now = datetime.now(pytz.utc)
 
             try:
                 await offers_for_call_change_producer(
-                    message=OfferForCallKafkaMessage(
-                        offer=offer,
-                        operation_id=str(uuid.uuid1()),
-                        date=now
-                    ),
+                    message=create_offers_kafka_message(offer=offer),
                     timeout=settings.DEFAULT_KAFKA_TIMEOUT
                 )
             except KafkaProducerError:
