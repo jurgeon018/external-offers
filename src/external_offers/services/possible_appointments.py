@@ -1,6 +1,5 @@
-from typing import List, NoReturn
+from typing import List
 
-import backoff
 from cian_core.degradation import DegradationResult, get_degradation_handler
 
 from external_offers.repositories.announcements import public_v1_get_possible_appointments
