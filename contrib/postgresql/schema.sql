@@ -111,17 +111,6 @@ CREATE INDEX ON offers_for_call(offer_cian_id);
 CREATE INDEX ON offers_for_call(client_id); 
 ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);
 
-
-
-
-
-
-
-
-
-DROP TABLE teams;
-DROP TABLE operators;
-DROP TYPE segment_type;
 CREATE TYPE segment_type AS enum (
 	'a',
 	'b',
