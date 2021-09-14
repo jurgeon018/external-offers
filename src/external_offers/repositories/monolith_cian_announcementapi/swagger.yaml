@@ -2939,6 +2939,22 @@ definitions:
     - timeFrom
     - timeTo
     type: object
+  RealtyCommon.Announcements.Queue.Messages.AnnouncementReportingChangedQueueMessage:
+    properties:
+      date:
+        format: date-time
+        type: string
+      model:
+        $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.ObjectModel'
+        description: Модель объявления
+        readOnly: true
+      operationId:
+        example: 00000000-0000-0000-0000-000000000000
+        format: uuid
+        type: string
+    required:
+    - date
+    type: object
   Rocks.BrokenRules.BrokenRule:
     properties:
       code:
@@ -3410,5 +3426,11 @@ schemes:
 - http
 swagger: '2.0'
 x-cian-mq:
-  exchanges: {}
+  exchanges:
+    announcements:
+      routing-keys:
+        announcement_reporting.change:
+          description: ''
+          schema:
+            $ref: '#/definitions/RealtyCommon.Announcements.Queue.Messages.AnnouncementReportingChangedQueueMessage'
   spec-version: '1.0'

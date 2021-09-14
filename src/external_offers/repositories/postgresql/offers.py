@@ -882,7 +882,7 @@ async def get_offer_publication_status_by_offer_cian_id(offer_cian_id: Optional[
 
 async def set_offer_done_by_offer_cian_id(
     *,
-    offer_cian_id: str,
+    offer_cian_id: int,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(

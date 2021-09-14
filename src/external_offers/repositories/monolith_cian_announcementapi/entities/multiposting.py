@@ -11,14 +11,10 @@ cian-codegen version: 1.17.0
 from dataclasses import dataclass
 from typing import Optional
 
-from .source_phone import SourcePhone
-
 
 @dataclass
-class Phone:
-    country_code: str
-    """Код страны"""
-    number: str
-    """Номер"""
-    source_phone: Optional[SourcePhone] = None
-    """Исходный номер телефона"""
+class Multiposting:
+    """Мультипостинг"""
+
+    enabled: Optional[bool] = None
+    """Мультипостинг включён"""
