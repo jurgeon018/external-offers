@@ -3,12 +3,13 @@ from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
 import pytz
+from cian_core.runtime_settings import runtime_settings as settings
 from cian_json import json
-from simple_settings import settings
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, delete, func, not_, select, update
+from sqlalchemy.sql import and_, delete, func, not_, or_, select, update
 from sqlalchemy.sql.expression import false, true
+from sqlalchemy.sql.selectable import Alias
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import (
@@ -17,6 +18,7 @@ from external_offers.entities.parsed_offers import (
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
+from external_offers.enums.external_offer_type import ExternalOfferType
 from external_offers.enums.object_model import Category
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
@@ -84,12 +86,35 @@ async def save_test_parsed_offer(
     await pg.get().execute(query, *params)
 
 
+def _get_commercial_options(source: Alias) -> List[bool]:
+    return [
+        source.c.external_offer_type == ExternalOfferType.commercial.value,
+        source.c.source_object_model['category'].as_string().in_(settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES),
+        source.c.user_segment.in_(settings.COMMERCIAL_OFFER_TASK_CREATION_SEGMENTS),
+    ]
+
+
+def _get_flat_options(source: Alias) -> List[bool]:
+    options = []
+
+    if settings.OFFER_TASK_CREATION_CATEGORIES:
+        options.append(
+            source.c.source_object_model['category'].as_string().in_(settings.OFFER_TASK_CREATION_CATEGORIES)
+        )
+
+    if settings.OFFER_TASK_CREATION_SEGMENTS:
+        options.append(source.c.user_segment.in_(settings.OFFER_TASK_CREATION_SEGMENTS))
+
+    return options
+
+
 async def set_synced_and_fetch_parsed_offers_chunk(
     *,
     last_sync_date: Optional[datetime]
 ) -> Optional[List[ParsedOfferForCreation]]:
     po = tables.parsed_offers.alias()
-    options = [
+
+    common_options = [
         po.c.source_object_model['phones'] != [],
         po.c.source_object_model['phones'] != JSON.NULL,
         po.c.source_object_model['phones'] != [''],
@@ -97,24 +122,26 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         not_(po.c.synced),
     ]
 
-    if settings.OFFER_TASK_CREATION_CATEGORIES:
-        options.append(po.c.source_object_model['category'].as_string().in_(settings.OFFER_TASK_CREATION_CATEGORIES))
-
-    if settings.OFFER_TASK_CREATION_SEGMENTS:
-        options.append(po.c.user_segment.in_(settings.OFFER_TASK_CREATION_SEGMENTS))
+    if last_sync_date:
+        common_options.append(po.c.timestamp > last_sync_date)
 
     if settings.OFFER_TASK_CREATION_REGIONS:
-        options.append(po.c.source_object_model['region'].as_integer().in_(settings.OFFER_TASK_CREATION_REGIONS))
+        common_options.append(
+            po.c.source_object_model['region'].as_integer().in_(settings.OFFER_TASK_CREATION_REGIONS)
+        )
 
-    if last_sync_date:
-        options.append(po.c.timestamp > last_sync_date)
+    flat_options = [*common_options, *_get_flat_options(source=po)]
+    commercial_options = [*common_options, *_get_commercial_options(source=po)]
 
     selected_non_synced_offers_cte = (
         select([
             po,
         ])
         .where(
-            and_(*options)
+            or_(
+                and_(*flat_options),
+                and_(*commercial_options),
+            )
         )
         .limit(settings.OFFER_TASK_CREATION_OFFER_FETCH_LIMIT)
         .cte('selected_non_synced_offers_cte')
