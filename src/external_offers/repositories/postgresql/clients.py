@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import asyncpgsa
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import true
@@ -12,7 +13,6 @@ from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.enums.operator_role import OperatorRole
-from external_offers.helpers.commercial_prepublication_categories import COMMERCIAL_PREPUBLICATION_CATEGORIES
 from external_offers.mappers import client_mapper
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql.tables import clients, offers_for_call
@@ -57,7 +57,8 @@ async def assign_suitable_client_to_operator(
     is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
     commercial_category_clause = (
-        coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY).in_(COMMERCIAL_PREPUBLICATION_CATEGORIES)
+        coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY)
+        .in_(runtime_settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES)
     )
 
     offer_category_clause = (
