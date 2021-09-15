@@ -144,7 +144,7 @@
    <body>
       <div class="update-offers-block">
         <div class="block">
-          <button onclick="redirectToTeamsPage()">Команды</button>
+          <button data-url='/admin/teams/' onclick="onClickRedirect(this)">Команды</button>
         </div>
         <hr>
         {% if operator_is_tester %}
@@ -242,7 +242,7 @@
             </div>
             {% for offer in offers %}
             <div class="offers-row">
-               <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">{{ offer.id }}</div>
+               <div class="offercolumn offer-column-identifier" data-url="/admin/offer-card/{{offer.id}}/" onclick="onClickRedirect(this)">{{ offer.id }}</div>
                <div class="offercolumn offer-column-title">{{ offer.title }}</div>
                <div class="offercolumn offer-column-address">{{ offer.address }}</div>
                <div class=offercolumn>{{ offer.created_at|date }} {{ offer.created_at|time }}</div>
@@ -264,7 +264,6 @@
       </div>
       <script>
          let DEBUG = 'True' === '{{ debug }}'
-         
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -273,29 +272,21 @@
          
             return form_data
          }
-         function redirectToTeamsPage(){
+         function redirect(url){
             if (DEBUG) {
-               window.location.href = `/admin/teams/`;
+               window.location.href = url;
             } else {
                // workaround to redirect when on service.cian.ru
                queryParams = new URLSearchParams(window.location.search)
-               queryParams.set("url", `/admin/teams/`);
+               queryParams.set("url", url);
                history.pushState(null, null, "?"+queryParams.toString());
                location.reload()
             }
          }
-         function onClickOfferRowIdentifier(element) {
-            if (DEBUG) {
-               window.location.href = `/admin/offer-card/${element.innerHTML}/`;
-            } else {
-               // workaround to redirect when on service.cian.ru
-               queryParams = new URLSearchParams(window.location.search)
-               queryParams.set("url", `/admin/offer-card/${element.innerHTML}/`);
-               history.pushState(null, null, "?"+queryParams.toString());
-               location.reload()
-            }
+         function onClickRedirect(element){
+            let url = element.dataset.url;
+            redirect(url);
          }
-
          async function onClickOfferRowDelete(offer_id, client_id) {
            let obj =  {
                'offerId': offer_id,
@@ -312,7 +303,6 @@
               alert('Не удалось удалить задание')
            }
          }
-
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
            let obj =  {
                'offerId': offer_id,

@@ -144,7 +144,7 @@
    <body>
       <div class="update-offers-block">
         <div class="block">
-          <button onclick="redirectToTeamsPage()">Команды</button>
+          <button data-url='/admin/teams/' onclick="onClickRedirect(this)">Команды</button>
         </div>
         <hr>
         
@@ -231,7 +231,6 @@
       </div>
       <script>
          let DEBUG = 'True' === 'True'
-         
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -240,29 +239,21 @@
          
             return form_data
          }
-         function redirectToTeamsPage(){
+         function redirect(url){
             if (DEBUG) {
-               window.location.href = `/admin/teams/`;
+               window.location.href = url;
             } else {
                // workaround to redirect when on service.cian.ru
                queryParams = new URLSearchParams(window.location.search)
-               queryParams.set("url", `/admin/teams/`);
+               queryParams.set("url", url);
                history.pushState(null, null, "?"+queryParams.toString());
                location.reload()
             }
          }
-         function onClickOfferRowIdentifier(element) {
-            if (DEBUG) {
-               window.location.href = `/admin/offer-card/${element.innerHTML}/`;
-            } else {
-               // workaround to redirect when on service.cian.ru
-               queryParams = new URLSearchParams(window.location.search)
-               queryParams.set("url", `/admin/offer-card/${element.innerHTML}/`);
-               history.pushState(null, null, "?"+queryParams.toString());
-               location.reload()
-            }
+         function onClickRedirect(element){
+            let url = element.dataset.url;
+            redirect(url);
          }
-
          async function onClickOfferRowDelete(offer_id, client_id) {
            let obj =  {
                'offerId': offer_id,
@@ -279,7 +270,6 @@
               alert('Не удалось удалить задание')
            }
          }
-
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
            let obj =  {
                'offerId': offer_id,

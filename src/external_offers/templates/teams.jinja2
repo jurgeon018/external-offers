@@ -171,8 +171,7 @@
     function getBody(obj){
         return DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
     }
-    function onClickRedirect(element) {
-        let url = element.dataset.url
+    function redirect(url){
         if (DEBUG) {
             window.location.href = url;
         } else {
@@ -182,6 +181,10 @@
             history.pushState(null, null, "?"+queryParams.toString());
             location.reload()
         }
+    }
+    function onClickRedirect(element) {
+        let url = element.dataset.url;
+        redirect(url);
     }
     // crud
     async function deleteTeam(id){
