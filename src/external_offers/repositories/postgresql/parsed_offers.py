@@ -180,10 +180,10 @@ async def get_lastest_event_timestamp() -> Optional[datetime]:
     query, params = asyncpgsa.compile_query(
         select([
             func.max(po.c.timestamp)
-        ])
-        .limit(1)
+        ]).where(
+            po.c.is_test.is_(False)
+        ).limit(1)
     )
-
     return await pg.get().fetchval(query, *params)
 
 
