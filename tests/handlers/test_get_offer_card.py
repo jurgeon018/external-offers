@@ -6,9 +6,6 @@ from cian_test_utils import future
 from simple_settings.utils import settings_stub
 
 from external_offers.entities.offers import Offer
-from external_offers.repositories.announcements.entities.get_possible_appointments_response import (
-    GetPossibleAppointmentsResponse,
-)
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 

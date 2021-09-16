@@ -13,8 +13,7 @@ from typing import List, Optional
 
 from cian_enum import NoFormat, StrEnum
 
-from .commercial_building_infrastructure import \
-    CommercialBuildingInfrastructure
+from .commercial_building_infrastructure import CommercialBuildingInfrastructure
 from .cranage_type import CranageType
 from .deadline import Deadline
 from .lift_type import LiftType
