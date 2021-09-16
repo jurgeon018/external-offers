@@ -261,14 +261,14 @@
                     <select class="select-control" id="getSpecialtyType">
                         <option value="" selected disabled>Не выбрано</option>
                         {% if not appointments %}
-                            <option value="7026" >Офис</option>
-                            <option value="7130" >Торговое помещение</option>
-                            <option value="7113" >Склад</option>
-                            <option value="7031" >Общепит</option>
-                            <option value="7009" >Автосервис</option>
+                            <option value="office" >Офис</option>
+                            <option value="shoppingComplex" >Торговое помещение</option>
+                            <option value="warehouse" >Склад</option>
+                            <option value="publicCatering" >Общепит</option>
+                            <option value="carService" >Автосервис</option>
                         {% endif %}
                         {% for appointment in appointments %}
-                            <option value="{{ appointment.id }}">{{ appointment.name }}</option>
+                            <option value="{{ appointment.eng_name }}">{{ appointment.rus_name }}</option>
                         {% endfor %}
                     </select>
                 </div>

@@ -99,6 +99,7 @@ def map_save_request_to_publication_model(
             building=Building(
                 floors_count=request.floors_count,
                 type=request.appointment_building_type,
+                total_area=request.total_area,
             ),
             total_area=request.total_area,
             is_apartments=realty_type_to_is_aparments.get(request.realty_type, None),

@@ -12,7 +12,6 @@ from cian_http.api_client import Api
 
 from . import entities
 
-
 _api = Api(microservice_name='announcements')
 public_v1_get_possible_appointments = _api.make_client(
     path='/public/v1/get-possible-appointments/',

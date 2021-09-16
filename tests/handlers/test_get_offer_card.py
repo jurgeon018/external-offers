@@ -35,9 +35,9 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
     client_accounts_mock.return_value = future(client_account)
 
     get_possible_appointments_mock = mocker.patch(
-        'external_offers.services.possible_appointments.v1_get_possible_appointments_with_degradation'
+        'external_offers.services.possible_appointments.get_possible_appointments_with_degradation'
     )
-    appointments = mocker.MagicMock(value=GetPossibleAppointmentsResponse(items=[]))
+    appointments = mocker.MagicMock(value=[])
     get_possible_appointments_mock.return_value = future(appointments)
 
     exist_drafts_mock = mocker.patch('external_offers.web.handlers.admin.exists_offers_draft_by_client')
