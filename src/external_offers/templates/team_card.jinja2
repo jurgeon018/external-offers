@@ -11,10 +11,10 @@
 <div class="container">
     <hr>
     <div class="block">
-        <button data-url="/admin/teams/" onclick="onClickRedirect(this)">
+        <button data-link_to_page="/admin/teams/" onclick="onClickRedirect(this)">
             Вернуться к списку обьектов
         </button>
-        <button style="color:red;" data-url="/admin/teams/" onclick="deleteTeam('{{team.team_id}}')">
+        <button style="color:red;" data-link_to_page="/admin/teams/" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
         <hr>
@@ -23,7 +23,7 @@
         ID лида команды: 
         {% if team.lead_id %}
             <a style="color: blue; cursor: pointer;" onclick="onClickRedirect(this)"
-                data-url="/admin/operator-card/{{team.lead_id}}/"
+                data-link_to_page="/admin/operator-card/{{team.lead_id}}/"
             >
                 {{team.lead_id}}
             </a>
@@ -85,7 +85,7 @@
         }
     }
     function onClickRedirect(element) {
-        redirect(element.dataset.url)
+        redirect(element.dataset.link_to_page)
     }
     // crud
     async function updateTeam(){

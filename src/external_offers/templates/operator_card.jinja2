@@ -6,10 +6,10 @@
 <div class="container">
     <hr>
     <div class="block">
-        <button data-url="/admin/teams/" onclick="onClickRedirect(this)">
+        <button data-link_to_page="/admin/teams/" onclick="onClickRedirect(this)">
             Вернуться назад
         </button>
-        <button style="color:red;" data-url="/admin/teams/" onclick="deleteOperator('{{operator.operator_id}}')">
+        <button style="color:red;" data-link_to_page="/admin/teams/" onclick="deleteOperator('{{operator.operator_id}}')">
             Удалить профиль
         </button>
     </div>
@@ -28,7 +28,7 @@
     Команда: 
     {% if operator.team_id%}
         <a style="color: blue; cursor: pointer;" onclick="onClickRedirect(this)" 
-            data-url="/admin/team-card/{{operator.team_id}}/"
+            data-link_to_page="/admin/team-card/{{operator.team_id}}/"
         >
             {{operator.team_id}}
         </a>
@@ -74,7 +74,7 @@
         }
     }
     function onClickRedirect(element) {
-        redirect(element.dataset.url)
+        redirect(element.dataset.link_to_page)
     }
     // crud
     async function updateOperator(){

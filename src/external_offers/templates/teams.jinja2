@@ -50,15 +50,15 @@
 <div class="container">
     <hr>
     <div class="block">
-        <button data-url="/admin/offers-list/" onclick="onClickRedirect(this)">
+        <button data-link_to_page="/admin/offers-list/" onclick="onClickRedirect(this)">
             Вернуться к заданиям
         </button>
         {# персональная инфо #}
-        <button data-url="/admin/operator-card/{{current_operator.operator_id}}/" onclick="onClickRedirect(this)">
+        <button data-link_to_page="/admin/operator-card/{{current_operator.operator_id}}/" onclick="onClickRedirect(this)">
             Перейти в свой профиль
         </button>
         {% if current_operator.team_id %}
-        <button data-url="/admin/team-card/{{current_operator.team_id}}/" onclick="onClickRedirect(this)">
+        <button data-link_to_page="/admin/team-card/{{current_operator.team_id}}/" onclick="onClickRedirect(this)">
             Перейти в свою команду
         </button>
         <br>
@@ -81,10 +81,10 @@
             </div>
             {% for team in teams %}
             <div class="row">
-                <div class="column column-identifier" data-url="/admin/team-card/{{team.team_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" data-link_to_page="/admin/team-card/{{team.team_id}}/" onclick="onClickRedirect(this)">
                     {{team.team_id}}
                 </div>
-                <div class="column column-identifier" data-url="/admin/operator-card/{{team.lead_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" data-link_to_page="/admin/operator-card/{{team.lead_id}}/" onclick="onClickRedirect(this)">
                     {% if team.lead_id %}{{team.lead_id}}{% else %}-{% endif %}
                 </div>
                 <div class="column">
@@ -125,11 +125,11 @@
             </div>
             {% for operator in operators %}
             <div class="row">
-                <div class="column column-identifier" data-url="/admin/operator-card/{{operator.operator_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" data-link_to_page="/admin/operator-card/{{operator.operator_id}}/" onclick="onClickRedirect(this)">
                     {{ operator.operator_id }}
                 </div>
                 {% if operator.team_id%}
-                <div class="column column-identifier" data-url="/admin/team-card/{{operator.team_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" data-link_to_page="/admin/team-card/{{operator.team_id}}/" onclick="onClickRedirect(this)">
                     {{ operator.team_id }}
                 </div>
                 {% else %}
@@ -190,7 +190,7 @@
         }
     }
     function onClickRedirect(element) {
-        let url = element.dataset.url;
+        let url = element.dataset.link_to_page;
         redirect(url);
     }
     // crud
