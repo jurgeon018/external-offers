@@ -11,20 +11,19 @@
 <div class="container">
     <hr>
     <div class="block">
-        <button data-link_to_page="/admin/teams/" onclick="onClickRedirect(this)">
+        <button onclick="onClickRedirectToTeams(this)">
             Вернуться к списку обьектов
         </button>
-        <button style="color:red;" data-link_to_page="/admin/teams/" onclick="deleteTeam('{{team.team_id}}')">
+        <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
         <hr>
         ID: {{team.team_id}}
         <br>
+        <br>
         ID лида команды: 
         {% if team.lead_id %}
-            <a style="color: blue; cursor: pointer;" onclick="onClickRedirect(this)"
-                data-link_to_page="/admin/operator-card/{{team.lead_id}}/"
-            >
+            <a style="color: blue; cursor: pointer;" onclick="onClickRedirectToOperatorCard('{{team.lead_id}}')">
                 {{team.lead_id}}
             </a>
         {% else %}
@@ -41,10 +40,12 @@
             {% endfor %}
         </select>
         <br>
+        <br>
         Название: {{team.name}}
         <input value="{% if team.name %}{{team.name}}{% endif %}"
             id="teamName" type='text' name='name' placeholder='введите название команды'
         />
+        <br>
         <br>
         Сегмент: {% if team.segment %}{{team.segment.value}}{% else %}-{%endif%}
         <select id="teamSegment">
@@ -55,6 +56,7 @@
             <option {% if team.segment and team.segment.value == 'd' %} selected {% endif %} value="d">d</option>
             {# <option {% if team.segment and team.segment.value == 'commercial' %} selected {% endif %} value="commercial">commercial</option> #}
         </select>
+        <br>
         <br>
         <button onclick="updateTeam()">
             Обновить информацию про команду
@@ -84,8 +86,11 @@
             location.reload()
         }
     }
-    function onClickRedirect(element) {
-        redirect(element.dataset.link_to_page)
+    function onClickRedirectToTeams(element) {
+        redirect('/admin/teams/')
+    }
+    function onClickRedirectToOperatorCard(operator_id) {
+        redirect(`/admin/operator-card/${operator_id}/`)
     }
     // crud
     async function updateTeam(){

@@ -7,7 +7,7 @@
     }
     .table-block-title {
     font-weight: bold;
-    padding: 0.5em 0;
+    padding: 0;
     }
     .row.row-header {
     border-top: 2px solid #000000;
@@ -50,15 +50,15 @@
 <div class="container">
     <hr>
     <div class="block">
-        <button data-link_to_page="/admin/offers-list/" onclick="onClickRedirect(this)">
+        <button onclick="onClickRedirectToOffersList(this)">
             Вернуться к заданиям
         </button>
         {# персональная инфо #}
-        <button data-link_to_page="/admin/operator-card/{{current_operator.operator_id}}/" onclick="onClickRedirect(this)">
+        <button onclick="onClickRedirectToOperatorCard('{{current_operator.operator_id}}')">
             Перейти в свой профиль
         </button>
         {% if current_operator.team_id %}
-        <button data-link_to_page="/admin/team-card/{{current_operator.team_id}}/" onclick="onClickRedirect(this)">
+        <button onclick="onClickRedirectToTeamCard('{{current_operator.team_id}}')">
             Перейти в свою команду
         </button>
         <br>
@@ -81,10 +81,10 @@
             </div>
             {% for team in teams %}
             <div class="row">
-                <div class="column column-identifier" data-link_to_page="/admin/team-card/{{team.team_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" onclick="onClickRedirectToTeamCard('{{team.team_id}}')">
                     {{team.team_id}}
                 </div>
-                <div class="column column-identifier" data-link_to_page="/admin/operator-card/{{team.lead_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" onclick="onClickRedirectToOperatorCard('{{team.lead_id}}')">
                     {% if team.lead_id %}{{team.lead_id}}{% else %}-{% endif %}
                 </div>
                 <div class="column">
@@ -125,11 +125,11 @@
             </div>
             {% for operator in operators %}
             <div class="row">
-                <div class="column column-identifier" data-link_to_page="/admin/operator-card/{{operator.operator_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" onclick="onClickRedirectToOperatorCard('{{operator.operator_id}}')">
                     {{ operator.operator_id }}
                 </div>
                 {% if operator.team_id%}
-                <div class="column column-identifier" data-link_to_page="/admin/team-card/{{operator.team_id}}/" onclick="onClickRedirect(this)">
+                <div class="column column-identifier" onclick="onClickRedirectToTeamCard('{{operator.team_id}}')">
                     {{ operator.team_id }}
                 </div>
                 {% else %}
@@ -189,9 +189,14 @@
             location.reload()
         }
     }
-    function onClickRedirect(element) {
-        let url = element.dataset.link_to_page;
-        redirect(url);
+    function onClickRedirectToOffersList(){
+        redirect(`/admin/offers-list/`)
+    }
+    function onClickRedirectToOperatorCard(operator_id){
+        redirect(`/admin/operator-card/${operator_id}/`)
+    }
+    function onClickRedirectToTeamCard(team_id){
+        redirect(`/admin/team-card/${team_id}/`)
     }
     // crud
     async function deleteTeam(id){
