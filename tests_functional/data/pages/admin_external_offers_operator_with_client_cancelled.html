@@ -144,7 +144,7 @@
    <body>
       <div class="update-offers-block">
         <div class="block">
-          <button data-url='/admin/teams/' onclick="onClickRedirect(this)">Команды</button>
+          <button onclick="redirectToTeamsPage(this)">Команды</button>
         </div>
         <hr>
         
@@ -239,20 +239,27 @@
          
             return form_data
          }
-         function redirect(url){
+         function redirectToTeamsPage(){
             if (DEBUG) {
-               window.location.href = url;
+               window.location.href = `/admin/teams/`;
             } else {
                // workaround to redirect when on service.cian.ru
                queryParams = new URLSearchParams(window.location.search)
-               queryParams.set("url", url);
+               queryParams.set("url", `/admin/teams/`);
                history.pushState(null, null, "?"+queryParams.toString());
                location.reload()
             }
          }
-         function onClickRedirect(element){
-            let url = element.dataset.url;
-            redirect(url);
+         function onClickOfferRowIdentifier(element) {
+            if (DEBUG) {
+               window.location.href = `/admin/offer-card/${element.innerHTML}/`;
+            } else {
+               // workaround to redirect when on service.cian.ru
+               queryParams = new URLSearchParams(window.location.search)
+               queryParams.set("url", `/admin/offer-card/${element.innerHTML}/`);
+               history.pushState(null, null, "?"+queryParams.toString());
+               location.reload()
+            }
          }
          async function onClickOfferRowDelete(offer_id, client_id) {
            let obj =  {
