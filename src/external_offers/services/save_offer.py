@@ -291,9 +291,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 offer_id=request.offer_id
             )
             if not offer_cian_id:
-
-                add_draft_result: AddDraftResult = await v2_announcements_draft(
-                    map_save_request_to_publication_model(
+                publication_model = map_save_request_to_publication_model(
                         request=request,
                         cian_user_id=cian_user_id,
                         geocode_response=geocode_response,
@@ -301,7 +299,10 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                         category=category,
                         is_by_home_owner=is_by_home_owner,
                     )
-                )
+                logging.error(publication_model)
+                add_draft_result: AddDraftResult = await v2_announcements_draft(
+                    publication_model
+
                 offer_cian_id = add_draft_result.realty_object_id
                 await set_offer_cian_id_by_offer_id(
                     offer_cian_id=offer_cian_id,
