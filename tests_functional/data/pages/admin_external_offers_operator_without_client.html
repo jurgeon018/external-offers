@@ -250,6 +250,17 @@
                location.reload()
             }
          }
+         function onClickOfferRowIdentifier(element) {
+            if (DEBUG) {
+               window.location.href = `/admin/offer-card/${element.innerHTML}/`;
+            } else {
+               // workaround to redirect when on service.cian.ru
+               queryParams = new URLSearchParams(window.location.search)
+               queryParams.set("url", `/admin/offer-card/${element.innerHTML}/`);
+               history.pushState(null, null, "?"+queryParams.toString());
+               location.reload()
+            }
+         }
          async function onClickOfferRowDelete(offer_id, client_id) {
            let obj =  {
                'offerId': offer_id,
