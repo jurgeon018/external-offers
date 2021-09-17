@@ -106,6 +106,7 @@
     <div class="block">
         <input id="teamName" type='text' name='name' placeholder='введите название команды'/>
         <br>
+        <br>
         <button onclick="createTeam()">Cоздать команду</button>
     </div>
     <hr>
@@ -137,7 +138,11 @@
                 </div>
                 {% endif %}
                 <div class="column">
+                    {% if operator.name %}
                     {{operator.name}}
+                    {% else%}
+                    -
+                    {% endif %}
                 </div>
                 <div class=column>
                     <button style="display:inline" onclick="deleteOperator('{{operator.operator_id}}')">
@@ -152,9 +157,11 @@
     <div class="block">
         <input id="operatorId" type='text' name='id' placeholder='введите ID оператора'/>
         <br>
+        <br>
         <input id="operatorName" type='text' name='name' placeholder='введите имя оператора'/>
         <br>
-        <button onclick="createOperator()">Cоздать оператора</button>
+        <br>
+        <button onclick="createOperator()">Создать оператора</button>
     </div>
     <hr>
     {# !Операторы #}

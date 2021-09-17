@@ -1,10 +1,5 @@
 <html>
 <head>
-<style>
-    .help_block {
-        font-size: 10px;
-    } 
-</style>
 <meta charset="utf-8">
 </head>
 <body>
@@ -21,7 +16,8 @@
     <br>
     {% if operator.is_teamlead %} Тимлид {% else %} Не тимлид {% endif %}
     <br>
-    ID: {{operator.operator_id}}
+    
+    ID: <a target="_blank" href="https://service.cian.ru/customers/view/{{operator.operator_id}}">{{operator.operator_id}}</a>
     <br>
     Имя: {% if operator.name %}{{operator.name}}{% else %}-{% endif %}
     <input
