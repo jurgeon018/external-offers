@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+
 from external_offers.enums.teams import TeamSettings
 from external_offers.enums.user_segment import UserSegment
 

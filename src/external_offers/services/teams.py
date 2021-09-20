@@ -2,7 +2,6 @@ from asyncpg.exceptions import PostgresError, UniqueViolationError
 
 from external_offers.entities.response import BasicResponse
 from external_offers.entities.teams import CreateTeamRequest, DeleteTeamRequest, UpdateTeamRequest
-from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql.teams import create_team, delete_team_by_id, update_team_by_id
 
 

@@ -27,9 +27,9 @@ from external_offers.entities.offers import EnrichedOffer, Offer, OfferStatus
 from external_offers.entities.operators import (
     CreateOperatorRequest,
     DeleteOperatorRequest,
+    EnrichedOperator,
     Operator,
     UpdateOperatorRequest,
-    EnrichedOperator,
 )
 from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferMessage
 from external_offers.entities.response import BasicResponse

@@ -12,9 +12,14 @@ from external_offers.repositories.postgresql import (
     get_offer_by_offer_id,
     get_parsed_offer_object_model_by_offer_id,
 )
-from external_offers.repositories.postgresql.operators import create_operator, get_enriched_operator_by_id, get_enriched_operators
+from external_offers.repositories.postgresql.operators import (
+    create_operator,
+    get_enriched_operator_by_id,
+    get_enriched_operators,
+)
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
+from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (
     get_offer_card_html,
     get_offers_list_html,
@@ -22,7 +27,6 @@ from external_offers.templates import (
     get_team_card_html,
     get_teams_page_html,
 )
-from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.web.handlers.base import PublicHandler
 
 

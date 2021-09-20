@@ -6,8 +6,8 @@ from sqlalchemy.sql import delete, select, update
 
 from external_offers import pg
 from external_offers.entities import EnrichedOperator, Operator
-from external_offers.mappers.teams import operators_mapper, enriched_operators_mapper
-from external_offers.repositories.postgresql.tables import operators, teams
+from external_offers.mappers.teams import enriched_operators_mapper, operators_mapper
+from external_offers.repositories.postgresql.tables import operators
 
 
 async def get_operators() -> List[Operator]:
