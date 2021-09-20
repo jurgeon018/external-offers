@@ -1,4 +1,30 @@
 definitions:
+  WebApi.Models.AnnouncementReferences.GetPossibleAppointmentItem:
+    description: Элемент "Возможное назначение" готового бизнеса.
+    properties:
+      id:
+        description: Id.
+        format: int32
+        type: integer
+      name:
+        description: Название.
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  WebApi.Models.AnnouncementReferences.GetPossibleAppointmentsResponse:
+    description: Ответ на запрос получения справочника "Возможное назначение" готового
+      бизнеса.
+    properties:
+      items:
+        description: Список элементов с возможным назначением готового бизнеса.
+        items:
+          $ref: '#/definitions/WebApi.Models.AnnouncementReferences.GetPossibleAppointmentItem'
+        type: array
+    required:
+    - items
+    type: object
   WebApi.Models.Announcements.GetAnnouncementCountResponse:
     description: Ответ на запрос на получение количества объявлений
     properties:
@@ -14,6 +40,21 @@ info:
   title: announcements
   version: v1
 paths:
+  /public/v1/get-possible-appointments/:
+    get:
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Models.AnnouncementReferences.GetPossibleAppointmentsResponse'
+      summary: Возвращает список справочника для возможного назначения готового бизнеса.
+      tags:
+      - AnnouncementReferences
   /v2/get-user-active-announcements-count/:
     get:
       parameters:

@@ -6,6 +6,7 @@ from jinja2 import Environment, PackageLoader
 
 from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer, Operator, Team
 from external_offers.entities.parsed_offers import ParsedObjectModel
+from external_offers.repositories.monolith_cian_announcementapi.entities import CommercialPossibleAppointmentModel
 from external_offers.templates.filters import custom_filters
 
 
@@ -42,6 +43,7 @@ def get_offer_card_html(
     client_accounts: List[ClientAccountInfo],
     exist_drafts: bool,
     offer_is_draft: bool = False,
+    appointments: List[CommercialPossibleAppointmentModel],
 ) -> str:
     template = templates.get_template('offer_card.jinja2')
     # template = templates.get_template('admin_debug.jinja2')
@@ -51,6 +53,7 @@ def get_offer_card_html(
         info_message=info_message,
         debug=runtime_settings.DEBUG,
         offer_id=offer_id,
+        appointments=appointments,
         client=client,
         client_accounts=client_accounts,
         exist_drafts=exist_drafts,

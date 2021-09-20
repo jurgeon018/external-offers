@@ -22,6 +22,7 @@ from external_offers.templates import (
     get_team_card_html,
     get_teams_page_html,
 )
+from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.web.handlers.base import PublicHandler
 
 
@@ -85,6 +86,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             phone=client.client_phones[0]
         )
 
+        appointments = await get_possible_appointments()
         exist_drafts = await exists_offers_draft_by_client(
             client_id=client.client_id
         )
@@ -98,6 +100,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             client_accounts=client_accounts_result.value,
             exist_drafts=exist_drafts,
             offer_is_draft=offer_is_draft,
+            appointments=appointments,
         )
 
         self.write(offer_html)

@@ -2973,6 +2973,19 @@ definitions:
         format: int32
         type: integer
     type: object
+  Web.AnnouncementApi.App.Announcements.Models.AnnouncementReferences.CommercialPossibleAppointmentModel:
+    properties:
+      engName:
+        description: Английское название.
+        type: string
+      id:
+        description: Id.
+        format: int32
+        type: integer
+      rusName:
+        description: Русское название.
+        type: string
+    type: object
   Web.AnnouncementApi.App.Announcements.Models.DealRent.DealRentData:
     description: Данные по сделке в аренде, передаваемые при сохранении объявления
     properties:
@@ -3180,6 +3193,22 @@ info:
   title: monolith-cian-announcementapi
   version: v1
 paths:
+  /announcement-references/commercial/get-possible-appointments/:
+    get:
+      consumes: []
+      operationId: AnnouncementReferences_GetCommercialPossibleAppointments
+      produces:
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Web.AnnouncementApi.App.Announcements.Models.AnnouncementReferences.CommercialPossibleAppointmentModel'
+            type: array
+      tags:
+      - AnnouncementReferences
   /v1/geo/geocode/:
     get:
       consumes: []
