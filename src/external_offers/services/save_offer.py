@@ -302,7 +302,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                 logging.error(publication_model)
                 add_draft_result: AddDraftResult = await v2_announcements_draft(
                     publication_model
-
+                )
                 offer_cian_id = add_draft_result.realty_object_id
                 await set_offer_cian_id_by_offer_id(
                     offer_cian_id=offer_cian_id,
