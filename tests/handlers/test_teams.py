@@ -12,12 +12,12 @@ async def test_teams_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.create_operator',
         return_value=future(None),
     )
-    get_operator_by_id_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_operator_by_id',
+    get_enriched_operator_by_id_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         return_value=future(current_operator)
     )
-    get_operators_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_operators',
+    get_enriched_operators_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_operators',
         return_value=future(operators)
     )
     get_teams_mock = mocker.patch(
@@ -39,8 +39,8 @@ async def test_teams_page_handler(mocker, http_client, base_url):
 
     # assert
     create_operator_mock.assert_not_called()
-    get_operator_by_id_mock.assert_called_once_with(operator_id=int(user_id))
-    get_operators_mock.assert_called_once_with()
+    get_enriched_operator_by_id_mock.assert_called_once_with(operator_id=int(user_id))
+    get_enriched_operators_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
     get_teams_page_html_mock.assert_has_calls(
         [
@@ -61,15 +61,15 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     operator = mocker.MagicMock()
     operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
-    get_operator_by_id_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_operator_by_id',
+    get_enriched_operator_by_id_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         side_effect=[
             future(current_operator),
             future(operator),
         ]
     )
-    get_operators_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_operators',
+    get_enriched_operators_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_operators',
         return_value=future(operators)
     )
     get_teams_mock = mocker.patch(
@@ -90,7 +90,7 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     )
 
     # assert
-    get_operator_by_id_mock.assert_has_calls([
+    get_enriched_operator_by_id_mock.assert_has_calls([
         mocker.call(
             operator_id=int(user_id)
         ),
@@ -98,7 +98,7 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
             operator_id=str(operator_id)
         ),
     ])
-    get_operators_mock.assert_called_once_with()
+    get_enriched_operators_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
     get_operator_card_html_mock.assert_has_calls([
         mocker.call(
@@ -113,21 +113,21 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
 @pytest.mark.gen_test
 async def test_team_card_page_handler(mocker, http_client, base_url):
     user_id = '1'
-    team_id = '2'
+    team_id = 2
     current_operator = mocker.MagicMock()
     team = mocker.MagicMock()
     operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
-    get_operator_by_id_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_operator_by_id',
+    get_enriched_operator_by_id_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         return_value=future(current_operator),
     )
     get_team_by_id_mock = mocker.patch(
         'external_offers.web.handlers.admin.get_team_by_id',
         return_value=future(team),
     )
-    get_operators_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_operators',
+    get_enriched_operators_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_operators',
         return_value=future(operators)
     )
     get_teams_mock = mocker.patch(
@@ -148,9 +148,9 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     )
 
     # assert
-    get_operator_by_id_mock.assert_called_once_with(operator_id=int(user_id))
+    get_enriched_operator_by_id_mock.assert_called_once_with(operator_id=int(user_id))
     get_team_by_id_mock.assert_called_once_with(team_id=team_id)
-    get_operators_mock.assert_called_once_with()
+    get_enriched_operators_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
     get_team_card_html_mock.assert_has_calls(
         [

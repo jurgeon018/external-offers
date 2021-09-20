@@ -81,8 +81,8 @@ event_log = sa.Table(
 teams = sa.Table(
     'teams',
     metadata,
-    sa.Column('team_id', sa.VARCHAR, unique=True, nullable=False, primary_key=True),
-    sa.Column('name', sa.VARCHAR, unique=True, nullable=True),
+    sa.Column('team_id', sa.INT, unique=True, nullable=False, autoincrement=True, primary_key=True),
+    sa.Column('team_name', sa.VARCHAR, unique=True, nullable=True),
     sa.Column('lead_id', sa.VARCHAR, nullable=False),
     sa.Column('segment', sa.VARCHAR, nullable=True),
     sa.Column('settings', JSONB(), nullable=True),
@@ -93,6 +93,6 @@ operators = sa.Table(
     metadata,
     sa.Column('operator_id', sa.VARCHAR, unique=True, nullable=False, primary_key=True),
     sa.Column('is_teamlead', sa.BOOLEAN, nullable=False),
-    sa.Column('name', sa.VARCHAR, nullable=True),
-    sa.Column('team_id', sa.VARCHAR, nullable=True),
+    sa.Column('full_name', sa.VARCHAR, nullable=True),
+    sa.Column('team_id', sa.INT, nullable=True),
 )

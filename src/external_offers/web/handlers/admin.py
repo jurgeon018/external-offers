@@ -12,7 +12,7 @@ from external_offers.repositories.postgresql import (
     get_offer_by_offer_id,
     get_parsed_offer_object_model_by_offer_id,
 )
-from external_offers.repositories.postgresql.operators import create_operator, get_operator_by_id, get_operators
+from external_offers.repositories.postgresql.operators import create_operator, get_enriched_operator_by_id, get_enriched_operators
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
 from external_offers.templates import (
@@ -103,20 +103,25 @@ class AdminOffersCardPageHandler(PublicHandler):
         self.write(offer_html)
 
 
+async def get_or_create_current_operator(realty_user_id: int):
+    current_operator = await get_enriched_operator_by_id(operator_id=realty_user_id)
+    if not current_operator:
+        await create_operator(
+            operator_id=str(realty_user_id),
+            full_name=None,
+            team_id=None,
+        )
+        current_operator = await get_enriched_operator_by_id(operator_id=realty_user_id)
+    return current_operator
+
+
 class AdminTeamsPageHandler(PublicHandler):
     # pylint: disable=abstract-method
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_operator_by_id(operator_id=self.realty_user_id)
-        if not current_operator:
-            await create_operator(
-                operator_id=str(self.realty_user_id),
-                name=None,
-                team_id=None,
-            )
-            current_operator = await get_operator_by_id(operator_id=self.realty_user_id)
-        operators = await get_operators()
+        current_operator = await get_or_create_current_operator(self.realty_user_id)
+        operators = await get_enriched_operators()
         teams = await get_teams()
         self.write(get_teams_page_html(
             current_operator=current_operator,
@@ -130,9 +135,9 @@ class AdminOperatorCardPageHandler(PublicHandler):
 
     async def get(self, operator_id: str) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_operator_by_id(self.realty_user_id)
-        operator = await get_operator_by_id(operator_id)
-        operators = await get_operators()
+        current_operator = await get_or_create_current_operator(self.realty_user_id)
+        operator = await get_enriched_operator_by_id(operator_id)
+        operators = await get_enriched_operators()
         teams = await get_teams()
         self.write(get_operator_card_html(
             current_operator=current_operator,
@@ -147,9 +152,9 @@ class AdminTeamCardPageHandler(PublicHandler):
 
     async def get(self, team_id: str) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_operator_by_id(self.realty_user_id)
-        team = await get_team_by_id(team_id)
-        operators = await get_operators()
+        current_operator = await get_or_create_current_operator(self.realty_user_id)
+        team = await get_team_by_id(int(team_id))
+        operators = await get_enriched_operators()
         teams = await get_teams()
         self.write(get_team_card_html(
             current_operator=current_operator,

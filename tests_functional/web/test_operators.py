@@ -7,9 +7,9 @@ async def test_operators(pg, http):
     # arrange
     operator_id = '123'
     name = 'operator'
-    team_id = '5'
+    team_id = 5
     new_name = 'new operator'
-    new_team_id = '6'
+    new_team_id = 6
     # act
     # create
     create_response = await http.request(
@@ -17,7 +17,7 @@ async def test_operators(pg, http):
         '/api/admin/v1/create-operator-public/',
         json={
             'operatorId': operator_id,
-            'name': name,
+            'fullName': name,
             'teamId': team_id,
         },
         headers={
@@ -33,7 +33,7 @@ async def test_operators(pg, http):
         '/api/admin/v1/update-operator-public/',
         json={
             'operatorId': operator_id,
-            'name': new_name,
+            'fullName': new_name,
             'teamId': new_team_id,
         },
         headers={
@@ -63,14 +63,14 @@ async def test_operators(pg, http):
     assert create_response['success'] is True
     assert len(operators_after_creation) == 1
     assert operators_after_creation[0]['operator_id'] == operator_id
-    assert operators_after_creation[0]['name'] == name
+    assert operators_after_creation[0]['full_name'] == name
     assert operators_after_creation[0]['team_id'] == team_id
     # update
     assert update_response['message'] == 'Информация про оператора была успешно обновлена.'
     assert update_response['success'] is True
     assert len(operators_after_update) == 1
     assert operators_after_update[0]['operator_id'] == operator_id
-    assert operators_after_update[0]['name'] == new_name
+    assert operators_after_update[0]['full_name'] == new_name
     assert operators_after_update[0]['team_id'] == new_team_id
     # delete
     assert delete_response['message'] == 'Оператор был успешно удален.'
@@ -90,7 +90,7 @@ async def test_render_operator_card(http, pg):
         '/api/admin/v1/create-operator-public/',
         json={
             'operatorId': operator_id,
-            'name': name,
+            'fullName': name,
             'teamId': team_id,
         },
         headers={

@@ -25,7 +25,7 @@ async def get_team_by_id(team_id: int) -> Optional[Team]:
         select(
             [teams]
         ).where(
-            teams.c.team_id == str(team_id)
+            teams.c.team_id == team_id
         ).limit(1)
     )
     row = await pg.get().fetchrow(query, *params)
@@ -34,8 +34,7 @@ async def get_team_by_id(team_id: int) -> Optional[Team]:
 
 async def create_team(
     *,
-    team_id: str,
-    name: str,
+    team_name: str,
     lead_id: str,
     segment: str,
 ) -> None:
@@ -43,8 +42,7 @@ async def create_team(
         insert(
             teams
         ).values(
-            team_id=team_id,
-            name=name,
+            team_name=team_name,
             lead_id=lead_id,
             segment=segment,
         )
@@ -54,8 +52,8 @@ async def create_team(
 
 async def update_team_by_id(
     *,
-    team_id: str,
-    name: str,
+    team_id: int,
+    team_name: str,
     lead_id: str,
     segment: str,
 ) -> None:
@@ -65,7 +63,7 @@ async def update_team_by_id(
         ).where(
             teams.c.team_id == team_id
         ).values(
-            name=name,
+            team_name=team_name,
             lead_id=lead_id,
             segment=segment,
         )
@@ -73,7 +71,7 @@ async def update_team_by_id(
     await pg.get().execute(query, *params)
 
 
-async def delete_team_by_id(team_id: str) -> None:
+async def delete_team_by_id(team_id: int) -> None:
     query, params = asyncpgsa.compile_query(
         delete(
             teams

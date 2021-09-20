@@ -9,10 +9,8 @@ from external_offers.repositories.postgresql.teams import create_team, delete_te
 async def create_team_public(request: CreateTeamRequest, user_id: int) -> BasicResponse:
     success = False
     try:
-        team_id = generate_guid()
         await create_team(
-            team_id=team_id,
-            name=request.name,
+            team_name=request.team_name,
             lead_id=request.lead_id,
             segment=getattr(request.segment, 'value', None),
         )
@@ -33,7 +31,7 @@ async def update_team_public(request: UpdateTeamRequest, user_id: int) -> BasicR
     try:
         await update_team_by_id(
             team_id=request.team_id,
-            name=request.name,
+            team_name=request.team_name,
             lead_id=request.lead_id,
             segment=getattr(request.segment, 'value', None),
         )

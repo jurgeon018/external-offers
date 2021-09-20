@@ -14,7 +14,7 @@ async def create_operator_public(request: CreateOperatorRequest, user_id: int) -
     try:
         await create_operator(
             operator_id=request.operator_id,
-            name=request.name,
+            full_name=request.full_name,
             team_id=request.team_id,
             is_teamlead=False,
         )
@@ -35,7 +35,7 @@ async def update_operator_public(request: UpdateOperatorRequest, user_id: int) -
     try:
         await update_operator_by_id(
             operator_id=request.operator_id,
-            name=request.name,
+            full_name=request.full_name,
             team_id=request.team_id,
         )
         message = 'Информация про оператора была успешно обновлена.'

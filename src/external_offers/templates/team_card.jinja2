@@ -35,14 +35,14 @@
             </option>
             {% for operator in operators %}
                 <option value="{{operator.operator_id}}" {% if team.lead_id == operator.operator_id %}selected{%endif%}>
-                    {{operator.name}}({{operator.operator_id}})
+                    {{operator.full_name}}({{operator.operator_id}})
                 </option>
             {% endfor %}
         </select>
         <br>
         <br>
-        Название: {{team.name}}
-        <input value="{% if team.name %}{{team.name}}{% endif %}"
+        Название: {{team.team_name}}
+        <input value="{% if team.team_name %}{{team.team_name}}{% endif %}"
             id="teamName" type='text' name='name' placeholder='введите название команды'
         />
         <br>
@@ -112,7 +112,7 @@
         let obj = {
             'teamId': teamId,
             'leadId': leadId,
-            "name": name,
+            "teamName": name,
             "segment": segment,
         }
         const response = await fetch("/api/admin/v1/update-team-public/", {

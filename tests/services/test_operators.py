@@ -21,7 +21,7 @@ async def test_create_operator__success_is_true(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'operatorId': '123',
-            'name': 'name',
+            'fullName': 'name',
             'teamId': '1',
         }),
         headers={
@@ -48,7 +48,7 @@ async def test_create_operator__unique_violation_error(http_client, base_url, mo
         method='POST',
         body=json.dumps({
             'operatorId': '123',
-            'name': 'name',
+            'fullName': 'name',
             'teamId': '1',
         }),
         headers={
@@ -75,7 +75,7 @@ async def test_create_operator__postgres_error(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'operatorId': '123',
-            'name': 'name',
+            'fullName': 'name',
             'teamId': '1',
         }),
         headers={
@@ -104,7 +104,7 @@ async def test_update_operator__success_is_true(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'operatorId': '1',
-            'name': 'name',
+            'fullName': 'name',
             'teamId': '1',
         }),
         headers={
@@ -131,7 +131,7 @@ async def test_update_operator__postgres_error(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'operatorId': '1',
-            'name': 'name',
+            'fullName': 'name',
             'teamId': '1',
         }),
         headers={

@@ -8,17 +8,17 @@ CREATE TYPE segment_type AS enum (
 
 CREATE TABLE teams
 (
-    team_id  VARCHAR UNIQUE NOT NULL PRIMARY KEY,
-    name     VARCHAR UNIQUE,
-    lead_id  VARCHAR        NOT NULL,
-    segment  segment_type,
-    settings JSONB
+    team_id   SERIAL  NOT NULL PRIMARY KEY,
+    team_name VARCHAR UNIQUE,
+    lead_id   VARCHAR        NOT NULL,
+    segment   segment_type,
+    settings  JSONB
 );
 
 CREATE TABLE operators
 (
     operator_id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
     is_teamlead BOOLEAN        NOT NULL,
-    name        VARCHAR,
-    team_id     VARCHAR
+    full_name   VARCHAR,
+    team_id     INT
 );

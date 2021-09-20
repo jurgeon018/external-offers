@@ -29,6 +29,7 @@ from external_offers.entities.operators import (
     DeleteOperatorRequest,
     Operator,
     UpdateOperatorRequest,
+    EnrichedOperator,
 )
 from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferMessage
 from external_offers.entities.response import BasicResponse

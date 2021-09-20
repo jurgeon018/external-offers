@@ -7,9 +7,9 @@ from external_offers.enums.user_segment import UserSegment
 
 @dataclass
 class Team:
-    team_id: str
+    team_id: int
     """ID команды"""
-    name: str
+    team_name: str
     """Название команды"""
     lead_id: str
     """ID лида команды"""
@@ -21,7 +21,7 @@ class Team:
 
 @dataclass
 class CreateTeamRequest:
-    name: str
+    team_name: str
     """Название команды"""
     lead_id: str
     """ ID лида команды """
@@ -33,11 +33,11 @@ class CreateTeamRequest:
 
 @dataclass
 class UpdateTeamRequest:
-    team_id: str
+    team_id: int
     """ID команды"""
     lead_id: str
     """ID лида команды """
-    name: str
+    team_name: str
     """Название команды"""
     segment: Optional[UserSegment] = None
     """Сегмент пользователей, которых будет обрабатывать команда"""
@@ -47,5 +47,5 @@ class UpdateTeamRequest:
 
 @dataclass
 class DeleteTeamRequest:
-    team_id: str
+    team_id: int
     """ID команды которую нужно удалить"""

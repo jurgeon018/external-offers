@@ -17,7 +17,7 @@ async def test_teams(pg, http):
         'POST',
         '/api/admin/v1/create-team-public/',
         json={
-            'name': name,
+            'teamName': name,
             'leadId': lead_id,
             'segment': segment,
         },
@@ -35,7 +35,7 @@ async def test_teams(pg, http):
         '/api/admin/v1/update-team-public/',
         json={
             'teamId': team_id,
-            'name': new_name,
+            'teamName': new_name,
             'leadId': new_lead_id,
             'segment': new_segment,
         },
@@ -67,7 +67,7 @@ async def test_teams(pg, http):
     assert len(teams_after_creation) == 1
     assert teams_after_creation[0]['team_id'] == team_id
     assert teams_after_creation[0]['lead_id'] == lead_id
-    assert teams_after_creation[0]['name'] == name
+    assert teams_after_creation[0]['team_name'] == name
     assert teams_after_creation[0]['segment'] == segment
     # update
     assert update_response['success'] is True
@@ -75,7 +75,7 @@ async def test_teams(pg, http):
     assert len(teams_after_update) == 1
     assert teams_after_update[0]['team_id'] == team_id
     assert teams_after_update[0]['lead_id'] == new_lead_id
-    assert teams_after_update[0]['name'] == new_name
+    assert teams_after_update[0]['team_name'] == new_name
     assert teams_after_update[0]['segment'] == new_segment
     # delete
     assert delete_response['success'] is True
@@ -112,7 +112,7 @@ async def test_render_team_card(http, pg):
         'POST',
         '/api/admin/v1/create-team-public/',
         json={
-            'name': name,
+            'teamName': name,
             'leadId': lead_id,
             'segment': segment,
         },
