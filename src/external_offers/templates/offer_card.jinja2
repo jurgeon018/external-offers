@@ -754,10 +754,6 @@
             return obj === '' ? (DEBUG ? null : "null") : obj
         }
 
-        function getArrayValueOrStrNull(obj) {
-            return obj ? [obj] : (DEBUG ? null : "null")
-        }
-
         function onClickAppointmentBuildingTypeAddOptions() {
             $.each(buildingTypes, function (i, item) {
                 getAppointmentBuildingType.append($('<option>', {
@@ -960,7 +956,7 @@
             if(landStatus) obj.landStatus = landStatus;
             if (getBuildingType) obj.buildingType = getValueOrStrNull(getBuildingType.val());
             if (getAppointmentBuildingType) obj.appointmentBuildingType = getValueOrStrNull(getAppointmentBuildingType.val());
-            if (getSpecialtyType) obj.specialtyType = getArrayValueOrStrNull(getSpecialtyType.val());
+            if (getSpecialtyType) obj.specialtyType = getSpecialtyType.val();
             if (getCommercialLandType) obj.commercialLandType = getValueOrStrNull(getCommercialLandType.val());
 
 

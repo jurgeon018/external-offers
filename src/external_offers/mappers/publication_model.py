@@ -142,7 +142,7 @@ def map_save_request_to_publication_model(
             ),
             placement_type=request.building_type,
             specialty=CommercialSpecialty(
-                types=request.specialty_type,
+                types=[request.specialty_type] if request.specialty_type else None,
             ),
         ),
         platform=Platform.web_site  # если этот параметр не слать, шарп 500ит

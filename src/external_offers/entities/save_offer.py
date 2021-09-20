@@ -61,7 +61,7 @@ class SaveOfferRequest:
     """Тип помещения для коммерческой"""
     appointment_building_type: Optional[Type] = None
     """Тип возможного назначения(тип здания)"""
-    specialty_type: Optional[List[str]] = None
+    specialty_type: Optional[str] = None
     """Возможное назначение для ГБ и ПСН"""
     commercial_land_type: Optional[Status] = None
     """Тип землепользования для коммерческой"""
