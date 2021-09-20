@@ -18,3 +18,19 @@ class SaveOfferCategory(StrEnum):
     """Таунхаус"""
     land = 'land'
     """Участок"""
+    office = 'office'
+    """Офис"""
+    free_appointment_object = 'freeAppointmentObject'
+    """Помещение свободного назначения"""
+    shopping_area = 'shoppingArea'
+    """Торговая площадь"""
+    warehouse = 'warehouse'
+    """Склад"""
+    industry = 'industry'
+    """Производство"""
+    building = 'building'
+    """здание"""
+    business = 'business'
+    """Готовый бизнес"""
+    commercial_land = 'commercialLand'
+    """Коммерческая земля"""

@@ -27,6 +27,7 @@ from .parking import Parking
 from .building import Building
 from .business_shopping_center import BusinessShoppingCenter
 from .calculated_undergrounds import CalculatedUndergrounds
+from .commercial_possible_appointment_model import CommercialPossibleAppointmentModel
 from .commercial_specialty import CommercialSpecialty
 from .communication import Communication
 from .coordinates import Coordinates
