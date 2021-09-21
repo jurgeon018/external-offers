@@ -174,12 +174,19 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
                 success=False,
                 message=error_message,
             )
-    obj = DEFAULT_TEST_OFFER if request.use_default else request
+
+    if request.use_default:
+        obj = DEFAULT_TEST_OFFER
+        parsed_id = generate_guid()
+    else:
+        obj = request
+        parsed_id = get_attr(obj, 'parsed_id') or generate_guid()
+
     # # # parsed_offer
     parsed_offer_message = ParsedOfferMessage(
         source_user_id=source_user_id,
         source_object_id=source_object_id,
-        id=get_attr(obj, 'parsed_id'),
+        id=parsed_id,
         is_calltracking=get_attr(obj, 'is_calltracking'),
         user_segment=UserSegment.from_str(get_attr(obj, 'user_segment')),
         timestamp=datetime.now(tz=pytz.UTC),
@@ -215,7 +222,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
             success=False,
             message=error_message,
         )
-    parsed_offer = await get_parsed_offer_for_creation_by_id(id=get_attr(obj, 'parsed_id'))
+    parsed_offer = await get_parsed_offer_for_creation_by_id(id=parsed_id)
     # # # offer
     offer_id = generate_guid()
     if client.status == ClientStatus.waiting:
@@ -273,12 +280,15 @@ async def delete_test_objects_public(request: DeleteTestObjectsRequest, user_id:
     )
 
 
-async def update_test_objects_publication_status_public(request: UpdateTestObjectsPublicationStatusRequest, user_id: int) -> UpdateTestObjectsPublicationStatusResponse:
+async def update_test_objects_publication_status_public(
+        request: UpdateTestObjectsPublicationStatusRequest,
+        user_id: int
+) -> UpdateTestObjectsPublicationStatusResponse:
     row_version = request.row_version
     offer_cian_id = request.offer_cian_id
     publication_status = request.publication_status
     success = False
-    message = ""
+    message = ''
     try:
         offer_is_test = await get_offer_is_test_by_offer_cian_id(offer_cian_id)
         if offer_is_test is False:
@@ -288,9 +298,9 @@ async def update_test_objects_publication_status_public(request: UpdateTestObjec
         else:
             old_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
             if old_row_version is None:
-                message = f"Не существует обьявления с offer_cian_id {offer_cian_id}"
+                message = f'Не существует обьявления с offer_cian_id {offer_cian_id}'
             elif old_row_version > row_version:
-                message = f"new_version должен быть > {old_row_version}"
+                message = f'new_version должен быть > {old_row_version}'
             else:
                 await update_publication_status(
                     publication_status=publication_status,

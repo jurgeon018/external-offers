@@ -56,6 +56,7 @@ class SaveOfferRequest:
     land_status: Optional[Status] = None
     """Тип землепользования для загородки"""
 
+
 @dataclass
 class SaveOfferResponse:
     status: SaveOfferStatus

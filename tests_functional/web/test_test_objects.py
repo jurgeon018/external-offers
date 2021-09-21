@@ -65,14 +65,13 @@ async def test_create_offer_from_default_settings(
     assert parsed_offers_count == 1
     assert offers_for_call['client_id'] == client_id
 
-    assert offers_for_call['parsed_id'] == DEFAULT_TEST_OFFER['parsed_id']
+    assert offers_for_call['parsed_id'] == parsed_offer['id']
     assert offers_for_call['category'] == DEFAULT_TEST_OFFER['category']
     assert offers_for_call['offer_cian_id'] == DEFAULT_TEST_OFFER['offer_cian_id']
     assert offers_for_call['priority'] == DEFAULT_TEST_OFFER['offer_priority']
 
     assert parsed_offer['source_object_id'] == source_object_id
     assert parsed_offer['source_user_id'] == source_user_id
-    assert parsed_offer['id'] == DEFAULT_TEST_OFFER['parsed_id']
     assert parsed_offer['is_calltracking'] == DEFAULT_TEST_OFFER['is_calltracking']
     assert parsed_offer['user_segment'] == DEFAULT_TEST_OFFER['user_segment']
 
@@ -154,14 +153,13 @@ async def test_create_offer_from_request_parameters(
     assert parsed_offers_count == 1
     assert offers_for_call['client_id'] == client_id
 
-    assert offers_for_call['parsed_id'] == TEST_OFFER_REQUEST['parsedId']
+    assert offers_for_call['parsed_id'] == parsed_offer['id']
     assert offers_for_call['category'] == TEST_OFFER_REQUEST['category']
     assert offers_for_call['offer_cian_id'] == TEST_OFFER_REQUEST['offerCianId']
     assert offers_for_call['priority'] == TEST_OFFER_REQUEST['offerPriority']
 
     assert parsed_offer['source_object_id'] == source_object_id
     assert parsed_offer['source_user_id'] == source_user_id
-    assert parsed_offer['id'] == TEST_OFFER_REQUEST['parsedId']
     assert parsed_offer['is_calltracking'] == TEST_OFFER_REQUEST['isCalltracking']
     assert parsed_offer['user_segment'] == TEST_OFFER_REQUEST['userSegment']
 
@@ -471,7 +469,7 @@ async def test_update_test_object_publication_status__invalid_row_version__succe
     resp = json.loads(update_response.body.decode('utf-8'))
     # assert
     assert resp['success'] is False
-    assert resp['message'] == f'new_version должен быть > 0'
+    assert resp['message'] == 'new_version должен быть > 0'
 
 
 async def test_update_test_object_publication_status__params_are_valid__success_is_true(
