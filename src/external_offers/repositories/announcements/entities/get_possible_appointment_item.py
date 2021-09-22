@@ -12,8 +12,10 @@ from dataclasses import dataclass
 
 
 @dataclass
-class GetAnnouncementCountResponse:
-    """Ответ на запрос на получение количества объявлений"""
+class GetPossibleAppointmentItem:
+    """Элемент "Возможное назначение" готового бизнеса."""
 
-    count: int
-    """Количество объявлений"""
+    id: int
+    """Id."""
+    name: str
+    """Название."""

@@ -598,3 +598,388 @@ def test_parsed_offer__area_unit_type(unit, expected):
     # act
     # assert
     assert offer.land_area_unit == expected
+
+
+@pytest.mark.parametrize('category', [
+    Category.office_sale,
+    Category.free_appointment_object_sale,
+    Category.shopping_area_sale,
+    Category.warehouse_sale,
+    Category.industry_sale,
+    Category.building_sale,
+    Category.business_sale,
+    Category.commercial_land_sale,
+    Category.office_rent,
+    Category.free_appointment_object_rent,
+    Category.shopping_area_rent,
+    Category.warehouse_rent,
+    Category.industry_rent,
+    Category.building_rent,
+    Category.business_rent,
+    Category.commercial_land_rent,
+])
+def test_parsed_offer__is_commercial_type(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_commercial_type is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.office_sale,
+    Category.free_appointment_object_sale,
+    Category.shopping_area_sale,
+    Category.warehouse_sale,
+    Category.industry_sale,
+    Category.building_sale,
+    Category.business_sale,
+    Category.commercial_land_sale,
+])
+def test_parsed_offer__is_commercial_sale(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_commercial_sale is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.office_rent,
+    Category.free_appointment_object_rent,
+    Category.shopping_area_rent,
+    Category.warehouse_rent,
+    Category.industry_rent,
+    Category.building_rent,
+    Category.business_rent,
+    Category.commercial_land_rent,
+])
+def test_parsed_offer__is_commercial_rent(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_commercial_rent is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.office_rent,
+    Category.office_sale,
+])
+def test_parsed_offer__is_office(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_office is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.free_appointment_object_rent,
+    Category.free_appointment_object_sale,
+])
+def test_parsed_offer__is_free_appointment_object(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_free_appointment_object is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.shopping_area_rent,
+    Category.shopping_area_sale,
+])
+def test_parsed_offer__is_shopping_area(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_shopping_area is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.warehouse_rent,
+    Category.warehouse_sale,
+])
+def test_parsed_offer__is_warehouse(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_warehouse is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.industry_rent,
+    Category.industry_sale,
+])
+def test_parsed_offer__is_industry(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_industry is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.building_rent,
+    Category.building_sale,
+])
+def test_parsed_offer__is_building(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_building is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.business_rent,
+    Category.business_sale,
+])
+def test_parsed_offer__is_business(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_business is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.business_sale,
+])
+def test_parsed_offer__is_business_sale(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_business_sale is True
+
+
+@pytest.mark.parametrize('category', [
+    Category.commercial_land_rent,
+    Category.commercial_land_sale,
+])
+def test_parsed_offer__is_commercial_land(category):
+    # arrange
+    offer = ParsedObjectModel(
+        phones=['89307830154'],
+        category=category,
+        region=4607,
+        title='2-к квартира, 55 м², 4/9 эт.',
+        description='blah blah blah blah blah blah blah blah blah blah blah blah',
+        address='Рязанская область, Рязань, Касимовское ш., 56к1',
+        price=100_000,
+        pricetype=1,
+        town='Рязань',
+        contact='Пушкин Птурович',
+        total_area=120,
+        floor_number=1,
+        floors_count=2,
+        rooms_count=4,
+        is_studio=False,
+        url='https://www.cian.ru/rent/commercial/225540774/'
+    )
+
+    # act
+    # assert
+    assert offer.is_commercial_land is True

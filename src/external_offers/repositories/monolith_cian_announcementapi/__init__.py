@@ -8,4 +8,4 @@ To re-generate, run `codegen generate-client monolith-cian-announcementapi`
 cian-codegen version: 1.17.0
 
 """
-from ._repo import v1_geo_geocode, v2_announcements_draft
+from ._repo import announcement_references_commercial_get_possible_appointments, v1_geo_geocode, v2_announcements_draft
