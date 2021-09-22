@@ -1,10 +1,12 @@
 import json
+import logging
 from datetime import datetime
 from typing import Optional, Union
 
 import pytz
 from asyncpg.exceptions._base import PostgresError
 from cian_core.runtime_settings import runtime_settings
+from cian_http.exceptions import ApiClientException
 
 from external_offers.entities.clients import Client, UserSegment
 from external_offers.entities.offers import Offer
@@ -42,7 +44,10 @@ from external_offers.repositories.postgresql.parsed_offers import (
     save_test_parsed_offer,
 )
 from external_offers.services.announcement import update_publication_status
-from external_offers.services.users import check_cian_user_id
+from external_offers.services.users import add_qa_role_to_user, check_cian_user_id
+
+
+logger = logging.getLogger(__name__)
 
 
 async def get_default_test_offer():
@@ -130,6 +135,21 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
             success=False,
             message=f'Не удалось создать клиента из-за ошибки: {e}'
         )
+
+    if cian_user_id:
+        try:
+            await add_qa_role_to_user(cian_user_id=cian_user_id)
+
+        except ApiClientException as exc:
+            logger.warning(
+                'Ошибка при добавлении qa ролей для клиента %s, %s', cian_user_id, exc.message
+            )
+            return CreateTestClientResponse(
+                success=True,
+                message='Ошибка при создании QA роли.',
+                client_id=client_id,
+            )
+
     return CreateTestClientResponse(
         success=True,
         message='Тестовый клиент был успешно создан.',
