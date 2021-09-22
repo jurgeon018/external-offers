@@ -42,6 +42,7 @@ from external_offers.repositories.postgresql.parsed_offers import (
     save_test_parsed_offer,
 )
 from external_offers.services.announcement import update_publication_status
+from external_offers.services.users import check_cian_user_id
 
 
 async def get_default_test_offer():
@@ -92,13 +93,21 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
                 message=error_message,
             )
     obj = DEFAULT_TEST_CLIENT if request.use_default else request
+
+    cian_user_id = get_attr(obj, 'cian_user_id')
+    if cian_user_id and await check_cian_user_id(cian_user_id=cian_user_id):
+        return CreateTestClientResponse(
+            success=False,
+            message=f'Клиент с таким cian_user_id: {cian_user_id} уже существует',
+        )
+
     client_id = generate_guid()
     client = Client(
         # dynamic params from request
         avito_user_id=source_user_id,
         client_phones=[get_attr(obj, 'client_phone')],
         client_name=get_attr(obj, 'client_name'),
-        cian_user_id=get_attr(obj, 'cian_user_id'),
+        cian_user_id=cian_user_id,
         client_email=get_attr(obj, 'client_email'),
         segment=UserSegment.from_str(get_attr(obj, 'segment')),
         main_account_chosen=get_attr(obj, 'main_account_chosen'),
@@ -115,6 +124,7 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
         await save_client(
             client=client
         )
+
     except PostgresError as e:
         return CreateTestClientResponse(
             success=False,
