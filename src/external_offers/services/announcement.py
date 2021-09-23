@@ -30,7 +30,6 @@ async def process_announcement(
     if not row_version:
         return
     offer_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
-    print('offer_row_version:', offer_row_version)
     if offer_row_version is None:
         return
     if offer_row_version is not None and offer_row_version > row_version:

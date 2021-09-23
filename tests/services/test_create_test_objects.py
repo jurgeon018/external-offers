@@ -10,7 +10,6 @@ from external_offers.services.test_objects import Client, CreateTestClientReques
 
 
 # get_attr
-
 def test_get_attr__invalid_object_instance_passed__raises_exception():
     with pytest.raises(Exception) as err:
         get_attr(None, 'attribute')
@@ -45,8 +44,6 @@ def test_get_attr__offer_request_passed__returns_value():
 
 
 # create_test_client
-
-
 @pytest.mark.gen_test
 async def test_create_test_client_public__client_exists__returns_client_id(
     http_client, base_url, mocker
@@ -63,6 +60,10 @@ async def test_create_test_client_public__client_exists__returns_client_id(
     get_client_by_avito_user_id_mock = mocker.patch(
         'external_offers.services.test_objects.get_client_by_avito_user_id',
         return_value=future(client),
+    )
+    check_cian_user_id_mock = mocker.patch(
+        'external_offers.services.test_objects.check_cian_user_id',
+        return_value=future(False),
     )
     # act
     result = await http_client.fetch(
@@ -82,6 +83,7 @@ async def test_create_test_client_public__client_exists__returns_client_id(
     assert data['message'] == f'Клиент с source_user_id {source_user_id} уже существует.'
     assert data['clientId'] == client_id
     get_client_by_avito_user_id_mock.assert_called_once_with(avito_user_id=source_user_id)
+    check_cian_user_id_mock.assert_not_called()
 
 
 @pytest.mark.gen_test
@@ -158,6 +160,7 @@ async def test_create_test_client_public__no_errors__returns_success_message(
     # arrange
     source_user_id = '3421'
     client_id = '1234'
+    cian_user_id = 123
     mocker.patch(
         'external_offers.services.test_objects.get_client_by_avito_user_id',
         return_value=future(None),
@@ -166,7 +169,10 @@ async def test_create_test_client_public__no_errors__returns_success_message(
         'external_offers.services.test_objects.generate_guid',
         return_value=client_id,
     )
-
+    mocker.patch(
+        'external_offers.services.test_objects.check_cian_user_id',
+        return_value=future(False),
+    )
     # act
     result = await http_client.fetch(
         base_url+'/api/admin/v1/create-test-client/',
@@ -174,6 +180,7 @@ async def test_create_test_client_public__no_errors__returns_success_message(
         body=json.dumps({
             'useDefault': True,
             'sourceUserId': source_user_id,
+            'cianUserId': cian_user_id
         }),
         headers={
             'X-Real-UserId': '1',
@@ -186,9 +193,47 @@ async def test_create_test_client_public__no_errors__returns_success_message(
     assert data['clientId'] == client_id
 
 
+@pytest.mark.gen_test
+async def test_create_test_client_public__cian_user_id_exists__returns_error_message(
+    http_client, base_url, mocker
+):
+    # arrange
+    source_user_id = '3421'
+    client_id = '1234'
+    cian_user_id = 123
+
+    mocker.patch(
+        'external_offers.services.test_objects.get_client_by_avito_user_id',
+        return_value=future(None),
+    )
+    mocker.patch(
+        'external_offers.services.test_objects.generate_guid',
+        return_value=client_id,
+    )
+    mocker.patch(
+        'external_offers.services.test_objects.check_cian_user_id',
+        return_value=future(True),
+    )
+    # act
+    result = await http_client.fetch(
+        base_url+'/api/admin/v1/create-test-client/',
+        method='POST',
+        body=json.dumps({
+            'useDefault': False,
+            'sourceUserId': source_user_id,
+            'cianUserId': cian_user_id
+        }),
+        headers={
+            'X-Real-UserId': '1',
+        },
+    )
+    # assert
+    data = json.loads(result.body)
+    assert data['success'] is False
+    assert data['message'] == f'Клиент с таким cian_user_id: {cian_user_id} уже существует'
+
+
 # create_test_offer
-
-
 @pytest.mark.gen_test
 async def test_create_test_offer_public__no_client_with_source_user_id__returns_error_message(
     http_client, base_url, mocker

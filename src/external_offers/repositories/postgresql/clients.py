@@ -85,6 +85,7 @@ async def assign_suitable_client_to_operator(
                 and_(
                     # Достает клиентов в ожидании
                     clients.c.unactivated.is_(False),
+                    offers_for_call.c.publication_status.is_(None),
                     clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
                     clients.c.status == ClientStatus.waiting.value,
@@ -94,6 +95,7 @@ async def assign_suitable_client_to_operator(
                 and_(
                     # Достает перезвоны и недозвоны
                     clients.c.unactivated.is_(False),
+                    offers_for_call.c.publication_status.is_(None),
                     clients.c.operator_user_id == operator_id,
                     offers_for_call.c.status.in_([
                         OfferStatus.call_later.value,

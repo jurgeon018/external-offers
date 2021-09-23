@@ -8,10 +8,10 @@ To re-generate, run `codegen generate-client users`
 cian-codegen version: 1.17.0
 
 """
-from ._repo import (
-    v1_add_role_to_user,
-    v1_get_realty_id,
-    v1_get_user_roles,
-    v1_register_user_by_phone,
-    v2_get_users_by_phone,
-)
+from dataclasses import dataclass
+from typing import Optional
+
+
+@dataclass
+class V1GetRealtyId:
+    cian_user_id: Optional[int] = None
