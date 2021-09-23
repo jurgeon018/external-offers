@@ -1,6 +1,7 @@
 import json
 
 from cian_functional_test_utils.data_fixtures import load_json_data
+from cian_functional_test_utils.pytest_plugin import MockResponse, mock_request
 
 
 async def test_create_offer_from_default_settings(
@@ -65,14 +66,13 @@ async def test_create_offer_from_default_settings(
     assert parsed_offers_count == 1
     assert offers_for_call['client_id'] == client_id
 
-    assert offers_for_call['parsed_id'] == DEFAULT_TEST_OFFER['parsed_id']
+    assert offers_for_call['parsed_id'] == parsed_offer['id']
     assert offers_for_call['category'] == DEFAULT_TEST_OFFER['category']
     assert offers_for_call['offer_cian_id'] == DEFAULT_TEST_OFFER['offer_cian_id']
     assert offers_for_call['priority'] == DEFAULT_TEST_OFFER['offer_priority']
 
     assert parsed_offer['source_object_id'] == source_object_id
     assert parsed_offer['source_user_id'] == source_user_id
-    assert parsed_offer['id'] == DEFAULT_TEST_OFFER['parsed_id']
     assert parsed_offer['is_calltracking'] == DEFAULT_TEST_OFFER['is_calltracking']
     assert parsed_offer['user_segment'] == DEFAULT_TEST_OFFER['user_segment']
 
@@ -154,14 +154,13 @@ async def test_create_offer_from_request_parameters(
     assert parsed_offers_count == 1
     assert offers_for_call['client_id'] == client_id
 
-    assert offers_for_call['parsed_id'] == TEST_OFFER_REQUEST['parsedId']
+    assert offers_for_call['parsed_id'] == parsed_offer['id']
     assert offers_for_call['category'] == TEST_OFFER_REQUEST['category']
     assert offers_for_call['offer_cian_id'] == TEST_OFFER_REQUEST['offerCianId']
     assert offers_for_call['priority'] == TEST_OFFER_REQUEST['offerPriority']
 
     assert parsed_offer['source_object_id'] == source_object_id
     assert parsed_offer['source_user_id'] == source_user_id
-    assert parsed_offer['id'] == TEST_OFFER_REQUEST['parsedId']
     assert parsed_offer['is_calltracking'] == TEST_OFFER_REQUEST['isCalltracking']
     assert parsed_offer['user_segment'] == TEST_OFFER_REQUEST['userSegment']
 
@@ -193,19 +192,48 @@ async def test_create_client_from_default_settings(
     http,
     pg,
     runtime_settings,
+    users_mock,
 ):
     # arrange
     operator_id = '11111111'
     use_default = True
     source_user_id = '123123123'
+    cian_user_id = 123
+
     test_objects = load_json_data(__file__, 'test_objects.json')
     DEFAULT_TEST_CLIENT = test_objects['DEFAULT_TEST_CLIENT']
+    DEFAULT_TEST_CLIENT['cian_user_id'] = cian_user_id
     await runtime_settings.set({
         'DEFAULT_TEST_CLIENT': json.dumps(DEFAULT_TEST_CLIENT),
     })
     TEST_CLIENT_REQUEST = {}
     TEST_CLIENT_REQUEST['useDefault'] = use_default
     TEST_CLIENT_REQUEST['sourceUserId'] = source_user_id
+
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-realty-id/',
+        response=MockResponse(
+            status=400,
+            body={
+                'message': 'Пользователь с cianUserId не найден',
+                'errors': [
+                    {
+                        'message': 'Пользователь с cianUserId не найден',
+                        'key': None,
+                        'code': None,
+                    }
+                ]
+            },
+        )
+    )
+    users_mock_stub = await users_mock.add_stub(
+        method='POST',
+        path='/v1/add-role-to-user/',
+        response=MockResponse(
+            status=200,
+        )
+    )
 
     # act
     response = await http.request(
@@ -222,6 +250,7 @@ async def test_create_client_from_default_settings(
 
     # assert
     resp = json.loads(response.body.decode('utf-8'))
+
     assert resp['success'] is True
     assert resp['message'] == 'Тестовый клиент был успешно создан.'
     assert clients_count == 1
@@ -238,6 +267,14 @@ async def test_create_client_from_default_settings(
     assert client['last_call_id'] is None
     assert client['calls_count'] == 0
     assert client['next_call'] is None
+
+    users_mock_requests = await users_mock_stub.get_requests()
+    assert sorted(
+        [request.data for request in users_mock_requests], key=lambda i: i['roleName']
+    ) == [
+        {'roleName': 'Cian.QA', 'userId': 123},
+        {'roleName': 'QA.HideUploadAnnouncements', 'userId': 123}
+    ]
 
 
 async def test_create_client_from_request_parameters(
@@ -284,6 +321,108 @@ async def test_create_client_from_request_parameters(
     assert client['last_call_id'] is None
     assert client['calls_count'] == 0
     assert client['next_call'] is None
+
+
+async def test_create_client_from_request_parameters__error_add_qa_roles__returns_error_message(
+    http,
+    pg,
+    users_mock,
+):
+    # arrange
+    cian_user_id = 123
+    TEST_CLIENT_REQUEST = load_json_data(__file__, 'test_objects.json')['TEST_CLIENT_REQUEST']
+    TEST_CLIENT_REQUEST['useDefault'] = False
+    TEST_CLIENT_REQUEST['sourceUserId'] = '123123123'
+    TEST_CLIENT_REQUEST['cianUserId'] = cian_user_id
+
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-realty-id/',
+        response=MockResponse(
+            status=400,
+            body={
+                'message': 'Пользователь с cianUserId не найден',
+                'errors': [
+                    {
+                        'message': 'Пользователь с cianUserId не найден',
+                        'key': None,
+                        'code': None,
+                    }
+                ]
+            },
+        )
+    )
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/add-role-to-user/',
+        response=MockResponse(
+            status=400,
+            body={
+                'message': 'Пользователь с cianUserId не найден',
+                'errors': [
+                    {
+                        'message': 'Пользователь с cianUserId не найден',
+                        'key': None,
+                        'code': None,
+                    }
+                ]
+            },
+        )
+    )
+
+    # act
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/create-test-client/',
+        json=TEST_CLIENT_REQUEST,
+        headers={
+            'X-Real-UserId': '11111111'
+        },
+        expected_status=200
+    )
+
+    # assert
+    resp = json.loads(response.body.decode('utf-8'))
+    assert resp['success'] is True
+    assert resp['message'] == 'Ошибка при создании QA роли.'
+
+
+async def test_create_client_from_request_parameters__cian_user_id_exists__returns_error_message(
+    http,
+    pg,
+    users_mock,
+):
+    # arrange
+    cian_user_id = 123
+    TEST_CLIENT_REQUEST = load_json_data(__file__, 'test_objects.json')['TEST_CLIENT_REQUEST']
+    TEST_CLIENT_REQUEST['useDefault'] = False
+    TEST_CLIENT_REQUEST['sourceUserId'] = '123123123'
+    TEST_CLIENT_REQUEST['cianUserId'] = cian_user_id
+
+    await users_mock.add_stub(
+        mock_request.query['cianUserId'] == cian_user_id,
+        method='GET',
+        path='/v1/get-realty-id/',
+        response=MockResponse(
+            body=1234567
+        )
+    )
+
+    # act
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/create-test-client/',
+        json=TEST_CLIENT_REQUEST,
+        headers={
+            'X-Real-UserId': '11111111'
+        },
+        expected_status=200
+    )
+
+    # assert
+    resp = json.loads(response.body.decode('utf-8'))
+    assert resp['success'] is False
+    assert resp['message'] == f'Клиент с таким cian_user_id: {cian_user_id} уже существует'
 
 
 async def test_delete_test_objects(
@@ -471,7 +610,7 @@ async def test_update_test_object_publication_status__invalid_row_version__succe
     resp = json.loads(update_response.body.decode('utf-8'))
     # assert
     assert resp['success'] is False
-    assert resp['message'] == f'new_version должен быть > 0'
+    assert resp['message'] == 'new_version должен быть > 0'
 
 
 async def test_update_test_object_publication_status__params_are_valid__success_is_true(

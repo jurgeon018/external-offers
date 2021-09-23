@@ -1,10 +1,12 @@
 import json
+import logging
 from datetime import datetime
 from typing import Optional, Union
 
 import pytz
 from asyncpg.exceptions._base import PostgresError
 from cian_core.runtime_settings import runtime_settings
+from cian_http.exceptions import ApiClientException
 
 from external_offers.entities.clients import Client, UserSegment
 from external_offers.entities.offers import Offer
@@ -42,6 +44,10 @@ from external_offers.repositories.postgresql.parsed_offers import (
     save_test_parsed_offer,
 )
 from external_offers.services.announcement import update_publication_status
+from external_offers.services.users import add_qa_role_to_user, check_cian_user_id
+
+
+logger = logging.getLogger(__name__)
 
 
 async def get_default_test_offer():
@@ -92,13 +98,21 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
                 message=error_message,
             )
     obj = DEFAULT_TEST_CLIENT if request.use_default else request
+
+    cian_user_id = get_attr(obj, 'cian_user_id')
+    if cian_user_id and await check_cian_user_id(cian_user_id=cian_user_id):
+        return CreateTestClientResponse(
+            success=False,
+            message=f'Клиент с таким cian_user_id: {cian_user_id} уже существует',
+        )
+
     client_id = generate_guid()
     client = Client(
         # dynamic params from request
         avito_user_id=source_user_id,
         client_phones=[get_attr(obj, 'client_phone')],
         client_name=get_attr(obj, 'client_name'),
-        cian_user_id=get_attr(obj, 'cian_user_id'),
+        cian_user_id=cian_user_id,
         client_email=get_attr(obj, 'client_email'),
         segment=UserSegment.from_str(get_attr(obj, 'segment')),
         main_account_chosen=get_attr(obj, 'main_account_chosen'),
@@ -115,11 +129,27 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
         await save_client(
             client=client
         )
+
     except PostgresError as e:
         return CreateTestClientResponse(
             success=False,
             message=f'Не удалось создать клиента из-за ошибки: {e}'
         )
+
+    if cian_user_id:
+        try:
+            await add_qa_role_to_user(cian_user_id=cian_user_id)
+
+        except ApiClientException as exc:
+            logger.warning(
+                'Ошибка при добавлении qa ролей для клиента %s, %s', cian_user_id, exc.message
+            )
+            return CreateTestClientResponse(
+                success=True,
+                message='Ошибка при создании QA роли.',
+                client_id=client_id,
+            )
+
     return CreateTestClientResponse(
         success=True,
         message='Тестовый клиент был успешно создан.',
@@ -174,12 +204,19 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
                 success=False,
                 message=error_message,
             )
-    obj = DEFAULT_TEST_OFFER if request.use_default else request
+
+    if request.use_default:
+        obj = DEFAULT_TEST_OFFER
+        parsed_id = generate_guid()
+    else:
+        obj = request
+        parsed_id = get_attr(obj, 'parsed_id') or generate_guid()
+
     # # # parsed_offer
     parsed_offer_message = ParsedOfferMessage(
         source_user_id=source_user_id,
         source_object_id=source_object_id,
-        id=get_attr(obj, 'parsed_id'),
+        id=parsed_id,
         is_calltracking=get_attr(obj, 'is_calltracking'),
         user_segment=UserSegment.from_str(get_attr(obj, 'user_segment')),
         timestamp=datetime.now(tz=pytz.UTC),
@@ -215,7 +252,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
             success=False,
             message=error_message,
         )
-    parsed_offer = await get_parsed_offer_for_creation_by_id(id=get_attr(obj, 'parsed_id'))
+    parsed_offer = await get_parsed_offer_for_creation_by_id(id=parsed_id)
     # # # offer
     offer_id = generate_guid()
     if client.status == ClientStatus.waiting:
@@ -273,12 +310,15 @@ async def delete_test_objects_public(request: DeleteTestObjectsRequest, user_id:
     )
 
 
-async def update_test_objects_publication_status_public(request: UpdateTestObjectsPublicationStatusRequest, user_id: int) -> UpdateTestObjectsPublicationStatusResponse:
+async def update_test_objects_publication_status_public(
+        request: UpdateTestObjectsPublicationStatusRequest,
+        user_id: int
+) -> UpdateTestObjectsPublicationStatusResponse:
     row_version = request.row_version
     offer_cian_id = request.offer_cian_id
     publication_status = request.publication_status
     success = False
-    message = ""
+    message = ''
     try:
         offer_is_test = await get_offer_is_test_by_offer_cian_id(offer_cian_id)
         if offer_is_test is False:
@@ -288,9 +328,9 @@ async def update_test_objects_publication_status_public(request: UpdateTestObjec
         else:
             old_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
             if old_row_version is None:
-                message = f"Не существует обьявления с offer_cian_id {offer_cian_id}"
+                message = f'Не существует обьявления с offer_cian_id {offer_cian_id}'
             elif old_row_version > row_version:
-                message = f"new_version должен быть > {old_row_version}"
+                message = f'new_version должен быть > {old_row_version}'
             else:
                 await update_publication_status(
                     publication_status=publication_status,

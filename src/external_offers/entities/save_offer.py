@@ -66,6 +66,7 @@ class SaveOfferRequest:
     commercial_land_type: Optional[Status] = None
     """Тип землепользования для коммерческой"""
 
+
 @dataclass
 class SaveOfferResponse:
     status: SaveOfferStatus
