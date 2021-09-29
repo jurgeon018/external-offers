@@ -54,6 +54,7 @@ from .kp import Kp
 from .land import Land
 from .location_path import LocationPath
 from .monthly_income import MonthlyIncome
+from .monthly_income import Currency
 from .multiposting import Multiposting
 from .rent_by_parts import RentByParts
 from .railway_info import RailwayInfo

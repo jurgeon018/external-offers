@@ -240,6 +240,27 @@
             {% endif %}
 
 
+
+                <div class="offerReadyBusinessTypeTitle" style="display: {% if parsed_object_model.is_business and is_ready_business_enabled %} block {% else %} none {% endif %}">
+                    <span class="">Тип готового бизнеса</span>
+                </div>
+                <div class="offerReadyBusinessTypeSelect" style="display: {% if parsed_object_model.is_business and is_ready_business_enabled %} block {% else %} none {% endif %}">
+                    <select class="select-control" id="getReadyBusinessType">
+                        <option value="" selected disabled>Не выбрано</option>
+                        <option value="rentalBusiness">арендный бизнес</option>
+                        <option value="other">другое</option>
+                    </select>
+                </div>
+
+                <div class="offerMonthlyIncomeTitle" style="display: {% if parsed_object_model.is_business and is_ready_business_enabled %} block {% else %} none {% endif %}">
+                    <span class="">Месячная прибыль</span>
+                </div>
+                <div class="offerMonthlyIncomeInput" style="display: {% if parsed_object_model.is_business and is_ready_business_enabled %} block {% else %} none {% endif %}">
+                    <input type="number" required
+                           placeholder="Месячная прибыль"
+                           class="input-control" id="getMonthlyIncome">
+                </div>
+
             {% if parsed_object_model.is_building %}
                 <div class="offerAppointmentBuildingTypeTitle">
                     <span class="">Возможное назначение(Тип здания)</span>
@@ -542,7 +563,7 @@
         {% for client_account in client_accounts %}
         clientAccountsDict[{{ client_account.cian_user_id }}] = {% if client_account.is_agent %} true {% else %} false {% endif %}
         {% endfor %}
-
+        let is_ready_business_enabled = {{ is_ready_business_enabled }}
         const saveOfferBtn = $('#saveOfferBtn');
         const updateClientPhoneBtn = $('#updateClientPhoneNumberBtn');
         const getDealType = $('#getDealType');
@@ -581,9 +602,9 @@
         const getAppointmentBuildingType = $('#getAppointmentBuildingType');
         const getBuildingType = $('#getBuildingType');
         const getMonthlyIncome = $('#getMonthlyIncome');
+        const getReadyBusinessType = $('#getReadyBusinessType');
         const getSpecialtyType = $('#getSpecialtyType');
         const getCommercialLandType = $('#getCommercialLandType');
-        const getLeaseType = $('#getLeaseType');
         const buildingTypes = [
             {   text: 'Административное здание',
                 value: 'administrativeBuilding'
@@ -899,9 +920,24 @@
                 return
             }
             if (
-                (category === "freeAppointmentObject" || category === "business") && getSpecialtyType.val() === null
+                category === "freeAppointmentObject"
+                && getSpecialtyType.val() === null
+
             ) {
-                alert('Назначение обязательный параметр!');
+                alert('Назначение обязательные параметры!');
+                return
+            }
+
+            if (
+                is_ready_business_enabled == true &&
+                category === "business" &&
+                (
+                    getSpecialtyType.val() === null ||
+                    getMonthlyIncome.val() === null ||
+                    getReadyBusinessType.val() === null
+                )
+            ) {
+                alert('Пожалуйста, проверьте заполнены ли следующие обязательные параметры: Тип готового бизнеса, Месячная прибыль и Назначение!');
                 return
             }
 
@@ -957,8 +993,9 @@
             if (getBuildingType) obj.buildingType = getValueOrStrNull(getBuildingType.val());
             if (getAppointmentBuildingType) obj.appointmentBuildingType = getValueOrStrNull(getAppointmentBuildingType.val());
             if (getSpecialtyType) obj.specialtyType = getSpecialtyType.val();
+            if (getMonthlyIncome) obj.monthlyIncome = parseFloat(getValueOrStrNull(getMonthlyIncome.val()));
+            if (getReadyBusinessType) obj.readyBusinessType = getValueOrStrNull(getReadyBusinessType.val());
             if (getCommercialLandType) obj.commercialLandType = getValueOrStrNull(getCommercialLandType.val());
-
 
             {% if parsed_object_model.is_rent %}
                 let deposit = getNumberOrStrNull(getDeposit.val())
@@ -1016,7 +1053,7 @@
             if(termType) obj.termType = termType;
             $.post("/api/admin/v1/update-offer-category/",
                 {# DEBUG ? JSON.stringify(obj) : obj #}
-                obj
+                JSON.stringify(obj)
             ).then((response) => {
                 if(response.success == true){
                     alert(`${response.message}`);
