@@ -2,10 +2,9 @@ from datetime import datetime
 
 import pytest
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from cian_test_utils import future
 from simple_settings.utils import settings_stub
-
-from cian_core.runtime_settings import runtime_settings
 
 from external_offers.entities.offers import Offer
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
