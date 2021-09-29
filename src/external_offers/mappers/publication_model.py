@@ -6,8 +6,8 @@ from external_offers.helpers.uuid import generate_uppercase_guid
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     BargainTerms,
     Building,
-    Currency as IncomeCurrency,
     CommercialSpecialty,
+    Currency as IncomeCurrency,
     GeoCodeAnnouncementResponse,
     Land,
     MonthlyIncome,

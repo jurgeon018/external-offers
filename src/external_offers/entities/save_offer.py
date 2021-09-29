@@ -7,8 +7,8 @@ from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.repositories.monolith_cian_announcementapi.entities.building import Type
 from external_offers.repositories.monolith_cian_announcementapi.entities.land import AreaUnitType, Status
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
-    ReadyBusinessType,
     PlacementType,
+    ReadyBusinessType,
 )
 
 
