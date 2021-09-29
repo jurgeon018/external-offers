@@ -1053,7 +1053,7 @@
             if(termType) obj.termType = termType;
             $.post("/api/admin/v1/update-offer-category/",
                 {# DEBUG ? JSON.stringify(obj) : obj #}
-                JSON.stringify(obj)
+                obj
             ).then((response) => {
                 if(response.success == true){
                     alert(`${response.message}`);
