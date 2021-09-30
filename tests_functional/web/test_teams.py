@@ -7,10 +7,8 @@ async def test_teams(pg, http):
     # arrange
     name = 'Команда1'
     lead_id = '1'
-    segment = 'c'
     new_lead_id = '2'
     new_name = 'Команда2'
-    new_segment = 'd'
     # act
     # create
     create_response = await http.request(
@@ -19,7 +17,6 @@ async def test_teams(pg, http):
         json={
             'teamName': name,
             'leadId': lead_id,
-            'segment': segment,
         },
         headers={
             'X-Real-UserId': 1
@@ -37,7 +34,6 @@ async def test_teams(pg, http):
             'teamId': team_id,
             'teamName': new_name,
             'leadId': new_lead_id,
-            'segment': new_segment,
         },
         headers={
             'X-Real-UserId': 1
@@ -68,7 +64,6 @@ async def test_teams(pg, http):
     assert teams_after_creation[0]['team_id'] == team_id
     assert teams_after_creation[0]['lead_id'] == lead_id
     assert teams_after_creation[0]['team_name'] == name
-    assert teams_after_creation[0]['segment'] == segment
     # update
     assert update_response['success'] is True
     assert update_response['message'] == 'Информация про команду была успешно обновлена.'
@@ -76,7 +71,6 @@ async def test_teams(pg, http):
     assert teams_after_update[0]['team_id'] == team_id
     assert teams_after_update[0]['lead_id'] == new_lead_id
     assert teams_after_update[0]['team_name'] == new_name
-    assert teams_after_update[0]['segment'] == new_segment
     # delete
     assert delete_response['success'] is True
     assert delete_response['message'] == 'Команда была успешно удалена.'

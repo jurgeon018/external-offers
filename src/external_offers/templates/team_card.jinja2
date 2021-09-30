@@ -59,7 +59,7 @@
             
             <span title="мультивыбор">Регионы:</span>
             <select name="regions" multiple="multiple" size="10">
-            {% for region_code, region_name in regions %}
+            {% for region_code, region_name in regions.items() %}
                 <option value="{{region_code}}" {% if region_code and region_code in team_settings.get('regions', []) %} selected {% endif %}>
                     {{region_name}}({{region_code}})
                 </option>
@@ -167,7 +167,7 @@
             <span>Приоритет регионов</span>
             <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки регионов</button>
             <div id="mainRegionsPriority">
-            {% for region_code, region_name in regions %}
+            {% for region_code, region_name in regions.items() %}
             <br>
             <span>
                 {{region_name}}({{region_code}})
@@ -246,7 +246,7 @@
             
             <span>регионы применения:</span><br>
             <select name="promocodeRegions" multiple="multiple" size="10">
-                {% for region_code, region_name in regions %}
+                {% for region_code, region_name in regions.items() %}
                 <option value="{{region_code}}" {% if region_code and region_code in team_settings.get('promocode_regions', []) %}selected{% endif %}>
                     {{region_name}}({{region_code}})
                 </option>

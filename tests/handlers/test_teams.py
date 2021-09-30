@@ -118,6 +118,11 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     team = mocker.MagicMock()
     operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
+    team_settings = mocker.MagicMock(value=[])
+    categories = mocker.MagicMock(value=[])
+    regions = mocker.MagicMock(value=[])
+    segments = mocker.MagicMock(value=[])
+    subsegments = mocker.MagicMock(value=[])
     get_enriched_operator_by_id_mock = mocker.patch(
         'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         return_value=future(current_operator),
@@ -138,6 +143,26 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.get_team_card_html',
         return_value=''
     )
+    get_team_settings_mock = mocker.patch(
+        'external_offers.web.handlers.admin._get_team_settings',
+        return_value=team_settings,
+    )
+    get_categories_mock = mocker.patch(
+        'external_offers.web.handlers.admin._get_categories',
+        return_value=categories,
+    )
+    get_regions_mock = mocker.patch(
+        'external_offers.web.handlers.admin._get_regions',
+        return_value=regions,
+    )
+    get_segments_mock = mocker.patch(
+        'external_offers.web.handlers.admin._get_segments',
+        return_value=segments,
+    )
+    get_subsegments_mock = mocker.patch(
+        'external_offers.web.handlers.admin._get_subsegments',
+        return_value=subsegments,
+    )
     # act
     await http_client.fetch(
         base_url+f'/admin/team-card/{team_id}/',
@@ -146,7 +171,6 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
             'X-Real-UserId': user_id,
         },
     )
-
     # assert
     get_enriched_operator_by_id_mock.assert_called_once_with(operator_id=int(user_id))
     get_team_by_id_mock.assert_called_once_with(team_id=team_id)
@@ -156,9 +180,14 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
         [
             mocker.call(
                 current_operator=current_operator,
+                team_settings=team_settings,
                 team=team,
                 operators=operators,
                 teams=teams,
+                categories=categories,
+                regions=regions,
+                segments=segments,
+                subsegments=subsegments,
             )
         ]
     )

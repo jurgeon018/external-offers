@@ -1,10 +1,12 @@
+from dataclasses import asdict
+
 from asyncpg.exceptions import PostgresError, UniqueViolationError
+from cian_core.runtime_settings import runtime_settings
 
 from external_offers.entities.response import BasicResponse
-from external_offers.entities.teams import CreateTeamRequest, DeleteTeamRequest, UpdateTeamRequest, TeamSettings
+from external_offers.entities.teams import CreateTeamRequest, DeleteTeamRequest, TeamSettings, UpdateTeamRequest
 from external_offers.repositories.postgresql.teams import create_team, delete_team_by_id, update_team_by_id
-from cian_core.runtime_settings import runtime_settings
-from dataclasses import asdict
+
 
 async def create_team_public(request: CreateTeamRequest, user_id: int) -> BasicResponse:
     success = False
