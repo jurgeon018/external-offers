@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from cian_test_utils import future
 from simple_settings.utils import settings_stub
 
@@ -10,8 +11,19 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 
 
 @pytest.mark.gen_test
-async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card_html(http_client, base_url, mocker):
+async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card_html(
+        http_client,
+        base_url,
+        mocker,
+):
     # arrange
+    mocker.patch(
+        'external_offers.web.handlers.admin.runtime_settings',
+        new={
+            'EXTERNAL_OFFERS_READY_BUSINESS_ENABLED': False,
+        }
+    )
+    is_ready_business_enabled = runtime_settings.get('EXTERNAL_OFFERS_READY_BUSINESS_ENABLED', False)
     save_offer_msg = 'test'
     offer_id = '1'
     exists_offers_mock = mocker.patch('external_offers.web.handlers.admin.exists_offer'
@@ -78,6 +90,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                 client_accounts=[],
                 exist_drafts=False,
                 offer_is_draft=True,
+                is_ready_business_enabled=1 if is_ready_business_enabled is True else 0,
             )
         ]
     )

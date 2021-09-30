@@ -6,7 +6,10 @@ from external_offers.enums.object_model import DealType, OfferType
 from external_offers.enums.save_offer_status import SaveOfferStatus
 from external_offers.repositories.monolith_cian_announcementapi.entities.building import Type
 from external_offers.repositories.monolith_cian_announcementapi.entities.land import AreaUnitType, Status
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import PlacementType
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
+    PlacementType,
+    ReadyBusinessType,
+)
 
 
 @dataclass
@@ -65,6 +68,10 @@ class SaveOfferRequest:
     """Возможное назначение для ГБ и ПСН"""
     commercial_land_type: Optional[Status] = None
     """Тип землепользования для коммерческой"""
+    ready_business_type: Optional[ReadyBusinessType] = None
+    """Тип готового бизнеса"""
+    monthly_income: Optional[float] = None
+    """Месячная прибыль"""
 
 
 @dataclass
