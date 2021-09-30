@@ -36,7 +36,7 @@ async def create_team(
     *,
     team_name: str,
     lead_id: str,
-    segment: str,
+    settings: dict,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         insert(
@@ -44,7 +44,7 @@ async def create_team(
         ).values(
             team_name=team_name,
             lead_id=lead_id,
-            segment=segment,
+            settings=settings,
         )
     )
     await pg.get().execute(query, *params)
@@ -55,7 +55,7 @@ async def update_team_by_id(
     team_id: int,
     team_name: str,
     lead_id: str,
-    segment: str,
+    settings: Optional[dict] = {},
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
@@ -65,7 +65,7 @@ async def update_team_by_id(
         ).values(
             team_name=team_name,
             lead_id=lead_id,
-            segment=segment,
+            settings=settings
         )
     )
     await pg.get().execute(query, *params)

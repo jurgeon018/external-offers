@@ -5,6 +5,7 @@ class UserSegment(StrEnum):
     """ Виды сегментов.
 
         Документация - https://conf.cian.tech/pages/viewpage.action?pageId=1270667362
+        Виды субсегментов - https://conf.cian.tech/pages/viewpage.action?pageId=1270667362
     """
 
     a = 'a'
@@ -15,6 +16,8 @@ class UserSegment(StrEnum):
     """SMB"""
     d = 'd'
     """Собственник"""
+    commercial = 'commercial'
+    """Коммерческий"""
 
     @classmethod
     def from_str(cls, value: str):
@@ -22,5 +25,6 @@ class UserSegment(StrEnum):
             'a': cls.a,
             'b': cls.b,
             'c': cls.c,
-            'd': cls.d
+            'd': cls.d,
+            'commercial': cls.commercial,
         }[value]

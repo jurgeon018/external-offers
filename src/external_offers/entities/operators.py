@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+import json
 from typing import Optional
 
-from external_offers.enums.teams import TeamSettings
 from external_offers.enums.user_segment import UserSegment
 
 
@@ -25,6 +25,8 @@ class EnrichedOperator:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
+    settings: dict
+    """Настройки команды"""
     full_name: Optional[str] = None
     """Имя оператора """
     team_id: Optional[int] = None
@@ -33,8 +35,12 @@ class EnrichedOperator:
     """ Имеет ли право быть лидом команд """
     segment: Optional[UserSegment] = None
     """Сегмент пользователей, которых будет обрабатывать команда"""
-    settings: Optional[TeamSettings] = None
-    """Настройки команды"""
+
+    def get_settings(self):
+        settings = {}    
+        if self.settings:
+            settings = json.loads(self.settings)
+        return settings
 
 
 @dataclass
