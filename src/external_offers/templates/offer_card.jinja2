@@ -771,6 +771,10 @@
             return isNaN(parseInt(obj)) ? (DEBUG ? null : "null") : parseInt(obj)
         }
 
+        function getFloatOrStrNull(obj) {
+            return isNaN(parseFloat(obj)) ? (DEBUG ? null : "null") : parseFloat(obj)
+        }
+
         function getValueOrStrNull(obj) {
             return obj === '' ? (DEBUG ? null : "null") : obj
         }
@@ -993,11 +997,12 @@
             if (getBuildingType) obj.buildingType = getValueOrStrNull(getBuildingType.val());
             if (getAppointmentBuildingType) obj.appointmentBuildingType = getValueOrStrNull(getAppointmentBuildingType.val());
             if (getSpecialtyType) obj.specialtyType = getSpecialtyType.val();
-            if (getMonthlyIncome) obj.monthlyIncome = parseFloat(getValueOrStrNull(getMonthlyIncome.val()));
-            if (obj.monthlyIncome == "NaN" || obj.monthlyIncome == NaN) obj.monthlyIncome = null;
-            var readyBusinessType = getValueOrStrNull(getReadyBusinessType.val());
-            if(getReadyBusinessType && readyBusinessType != ""){
-                obj.readyBusinessType = readyBusinessType
+            if (getMonthlyIncome) obj.monthlyIncome = getFloatOrStrNull(getMonthlyIncome.val());
+            if(getReadyBusinessType){
+                var readyBusinessType = getValueOrStrNull(getReadyBusinessType.val());
+                if(readyBusinessType){
+                    obj.readyBusinessType = readyBusinessType
+                }
             }
             if (getCommercialLandType) obj.commercialLandType = getValueOrStrNull(getCommercialLandType.val());
             {% if parsed_object_model.is_rent %}
