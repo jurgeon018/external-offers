@@ -45,6 +45,11 @@ def parsed_offers_fixture_for_clients_test(database_fixture_folder):
 
 
 @pytest.fixture
+def parsed_offers_fixture_for_unactivated_clients(database_fixture_folder):
+    return database_fixture_folder / 'parsed_offers_fixture_for_unactivated_clients.sql'
+
+
+@pytest.fixture
 def parsed_offers_fixture_for_offers_for_call_test(database_fixture_folder):
     return database_fixture_folder / 'parsed_offers_for_offers_for_call_test.sql'
 

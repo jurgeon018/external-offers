@@ -537,10 +537,6 @@ async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: list[str])
                 and_(
                     offers_for_call.c.status == OfferStatus.waiting.value,
                     offers_for_call.c.client_id.in_(client_ids),
-                ),
-                and_(
-                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
-                    offers_for_call.c.client_id.in_(client_ids),
                 )
             )
         )
