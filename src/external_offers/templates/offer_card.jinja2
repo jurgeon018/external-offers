@@ -994,7 +994,7 @@
             if (getAppointmentBuildingType) obj.appointmentBuildingType = getValueOrStrNull(getAppointmentBuildingType.val());
             if (getSpecialtyType) obj.specialtyType = getSpecialtyType.val();
             if (getMonthlyIncome) obj.monthlyIncome = parseFloat(getValueOrStrNull(getMonthlyIncome.val()));
-            if (obj.monthlyIncome == "NaN") obj.monthlyIncome = null;
+            if (obj.monthlyIncome == "NaN" || obj.monthlyIncome == NaN) obj.monthlyIncome = null;
             var readyBusinessType = getValueOrStrNull(getReadyBusinessType.val());
             if(getReadyBusinessType && readyBusinessType != ""){
                 obj.readyBusinessType = readyBusinessType
