@@ -166,7 +166,7 @@ async def test_unactivated_objects_deletion(
     # (гипотеза: тут удаляется черновик, который не должен удаляться)
     await runner.run_python_command('create-offers-for-call')
 
-    # 6. убедиться что обьявление удалилось
+    # 6. убедиться что обьявление не удалилось
     offer_for_call_after = await pg.fetchrow(f"""
         SELECT * FROM offers_for_call WHERE offer_cian_id={offer_cian_id};
     """)
