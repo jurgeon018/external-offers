@@ -173,5 +173,5 @@ async def test_unactivated_objects_deletion(
     client_after = await pg.fetchrow(f"""
         SELECT * FROM clients WHERE client_id='{client_id}';
     """)
-    assert offer_for_call_after is None
-    assert client_after is None
+    assert offer_for_call_after is not None
+    assert client_after is not None
