@@ -677,6 +677,7 @@ async def get_unactivated_clients_counts_by_clients():
             [
                 offers_for_call.c.id,
                 offers_for_call.c.client_id,
+                offers_for_call.c.priority,
                 over(func.count(), partition_by=offers_for_call.c.client_id).label('draft_offers_count')
             ]
         ).select_from(

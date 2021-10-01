@@ -21,14 +21,14 @@ async def test_prioritize_unactivated_clients(
     """)
     await pg.execute("""
         INSERT INTO offers_for_call (
-            id, parsed_id, client_id, publication_status, status, category,   created_at, synced_at
+            id, parsed_id, client_id, publication_status, status, category,   created_at, synced_at, priority
         ) VALUES
-        (1, 1, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (2, 2, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (3, 3, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (4, 4, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (5, 5, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (6, 6, 4, 'Draft', 'draft', 'flatRent', 'now()', 'now()');
+        (1, 1, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', '23248719'),
+        (2, 2, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()', '23248711'),
+        (3, 3, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()', '23248712'),
+        (4, 4, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()', '23248713'),
+        (5, 5, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()', '23248714'),
+        (6, 6, 4, 'Draft', 'draft', 'flatRent', 'now()', 'now()', '23248715');
     """)
     await pg.execute("""
         INSERT INTO parsed_offers (
@@ -111,18 +111,17 @@ async def test_prioritize_unactivated_clients(
     offer5 = await pg.fetchrow("""SELECT * FROM offers_for_call WHERE id = '5'""")
     offer6 = await pg.fetchrow("""SELECT * FROM offers_for_call WHERE id = '6'""")
 
-    # клиент удален изза пустого сегмента
-    assert client1 is None
+    # Добивочный клиент не удален, при том что у него пустого сегмента
+    assert client1 is not None
     assert client2 is not None
     assert client3 is not None
-    # клиент удален изза пустого региона
-    assert client4 is None
+    # Добивочный клиент не удален, при том что у него пустого региона
+    assert client4 is not None
 
-    # задание удалено изза того что у клиента пустой сегмент
-    assert offer1 is None
+    # задание добивочного клиента не удалено даже при том что у него пустой сегмент
+    assert offer1['priority'] == 1324871921
     assert offer2['priority'] == 131136121
     assert offer3['priority'] == 131136121
     assert offer4['priority'] == 132129521
     assert offer5['priority'] == 132129521
-    # задание удалено изза того что у клиента пустой регион
-    assert offer6 is None
+    assert offer6['priority'] == 1324871521

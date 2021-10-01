@@ -44,7 +44,7 @@ async def test_unactivated_objects_deletion(
 
     # offer = load_json_data(__file__, 'announcement_draft.json')
     operator_id = 1
-    client_id = '52dbfb28-73a7-41c8-85b3-230c990ca57d'
+    client_id = '86622a21-f502-4757-b5ae-fb40a2b312e0'
     offer_cian_id = offer['model']['id']
     save_offer_request_body_with_create_new_account['offerId'] = '6fd5ca86-0c66-4092-9c9e-967c66509931'
     save_offer_request_body_with_create_new_account['clientId'] = client_id
@@ -171,7 +171,7 @@ async def test_unactivated_objects_deletion(
         SELECT * FROM offers_for_call WHERE offer_cian_id={offer_cian_id};
     """)
     client_after = await pg.fetchrow(f"""
-        SELECT * FROM clients WHERE client_id='{client_id}';
+        SELECT * FROM clients WHERE avito_user_id='c42bb598767308327e1dffbe7241486c';
     """)
     assert offer_for_call_after is not None
     assert client_after is not None
