@@ -14,6 +14,19 @@ from . import entities
 
 
 _api = Api(microservice_name='users')
+v1_add_role_to_user = _api.make_client(
+    path='/v1/add-role-to-user/',
+    method='POST',
+    handle_http_exceptions=True,
+    request_schema=entities.AddRoleToUserRequest,
+)
+v1_get_realty_id = _api.make_client(
+    path='/v1/get-realty-id/',
+    method='GET',
+    handle_http_exceptions=True,
+    request_schema=entities.V1GetRealtyId,
+    response_schema=int,
+)
 v1_get_user_roles = _api.make_client(
     path='/v1/get-user-roles/',
     method='GET',

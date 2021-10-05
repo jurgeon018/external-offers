@@ -96,6 +96,9 @@ class AdminOffersCardPageHandler(PublicHandler):
         )
         offer = await get_offer_by_offer_id(offer_id=offer_id)
         offer_is_draft = offer.publication_status == PublicationStatus.draft
+        # Настройка для корректной работы обновленного ГБ коммерческой недвижимости
+        # https://conf.cian.tech/pages/viewpage.action?pageId=1305332955
+        is_ready_business_enabled = runtime_settings.get('EXTERNAL_OFFERS_READY_BUSINESS_ENABLED', False)
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
@@ -105,6 +108,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             exist_drafts=exist_drafts,
             offer_is_draft=offer_is_draft,
             appointments=appointments,
+            is_ready_business_enabled=is_ready_business_enabled,
         )
 
         self.write(offer_html)

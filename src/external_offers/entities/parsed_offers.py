@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from external_offers.enums.external_offer_type import ExternalOfferType
 from external_offers.enums.object_model import Category

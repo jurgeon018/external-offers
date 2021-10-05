@@ -843,7 +843,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-tools"
-version = "0.11.1"
+version = "0.12.0"
 description = ""
 category = "dev"
 optional = false
@@ -873,7 +873,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-web"
-version = "2.6.0"
+version = "2.6.1"
 description = ""
 category = "main"
 optional = false
@@ -2849,12 +2849,12 @@ cian-test-utils = [
     {file = "cian_test_utils-1.9.0-py3-none-any.whl", hash = "md5:a4225595bc8693a6c79a869c5dfe7f42"},
 ]
 cian-tools = [
-    {file = "cian-tools-0.11.1.tar.gz", hash = "md5:3d55cda0752ffe0ff06cf0fdab9da8ce"},
-    {file = "cian_tools-0.11.1-py3-none-any.whl", hash = "md5:dbadb5b16e90ad8887af87e31d86aefd"},
+    {file = "cian-tools-0.12.0.tar.gz", hash = "md5:ccd081790bb7a7e01455f8e8773471e9"},
+    {file = "cian_tools-0.12.0-py3-none-any.whl", hash = "md5:2a1bcfbee062e07cec47db5062ec2509"},
 ]
 cian-web = [
-    {file = "cian-web-2.6.0.tar.gz", hash = "md5:efb3799330672f6186c81035ec554149"},
-    {file = "cian_web-2.6.0-py3-none-any.whl", hash = "md5:359ec9e1f61d62f561b3443ec53194d7"},
+    {file = "cian-web-2.6.1.tar.gz", hash = "md5:44411e545c17b8df964762fbb4593f1a"},
+    {file = "cian_web-2.6.1-py3-none-any.whl", hash = "md5:811e159fd6140e96f782c8434f4f964b"},
 ]
 click = [
     {file = "click-8.0.1-py3-none-any.whl", hash = "sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6"},

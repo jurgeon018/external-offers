@@ -7,8 +7,10 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     BargainTerms,
     Building,
     CommercialSpecialty,
+    Currency as IncomeCurrency,
     GeoCodeAnnouncementResponse,
     Land,
+    MonthlyIncome,
     ObjectModel,
     Phone,
     PublicationModel,
@@ -144,6 +146,11 @@ def map_save_request_to_publication_model(
             specialty=CommercialSpecialty(
                 types=[request.specialty_type] if request.specialty_type else None,
             ),
+            monthly_income=MonthlyIncome(
+                currency=IncomeCurrency('rur'),
+                income=request.monthly_income,
+            ),
+            ready_business_type=request.ready_business_type
         ),
         platform=Platform.web_site  # если этот параметр не слать, шарп 500ит
     )
