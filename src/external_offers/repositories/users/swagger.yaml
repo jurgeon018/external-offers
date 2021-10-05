@@ -151,6 +151,15 @@ definitions:
   WebApi.Models.UserRegistration.ByPhoneRegistration.RegisterUserByPhoneRequest:
     description: Запрос регистрации пользователя по номеру телефона
     properties:
+      firstName:
+        description: Имя пользователя
+        type: string
+      isProfessional:
+        description: Профессионал ли регистрируемый пользователь
+        type: boolean
+      lastName:
+        description: Фамилия пользователя
+        type: string
       phone:
         description: Номер телефона
         type: string
@@ -203,7 +212,7 @@ definitions:
           $ref: '#/definitions/WebApi.Models.UserModelV2'
         type: array
     type: object
-host: master.users.dev3.cian.ru
+host: beta4.users.stage.cian.ru
 info:
   title: users
   version: v1
