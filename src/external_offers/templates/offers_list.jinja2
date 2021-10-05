@@ -107,6 +107,27 @@
          padding: 0.5em 0em;
          display: flex;
          }
+         .additional-fields-block {
+             display: flex;
+             margin-top: 20px;
+             flex-direction: column;
+             justify-content: center;
+         }
+         .additional-fields-block div {
+             margin: 5px 0 2px 0;
+             display: block;
+         }
+         .reason-of-decline-client-block {
+             display: block;
+         }
+         .additional-emails-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
+         .additional-numbers-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
          #call-later-datetime {
          margin: 0em 1em 0em 0em
          }
@@ -220,6 +241,47 @@
                 </button>
                <div class="comment-client-messages" id="commentClientMessages"></div>
             </div>
+             <div class="additional-fields-block">
+                 <div class="reason-of-decline-client-block">
+                     <h3>Причина отказа:</h3>
+                     <select class="select-control" id="getReasonOfDecline">
+                         <option value="" disabled selected>Не выбрано</option>
+                         <option value="not_effective">Циан не эффективен</option>
+                         <option value="expensive">Дорого</option>
+                         <option value="dont_like_support">Не нравится поддержка Циан</option>
+                         <option value="difficult_service" >Сложный сервис</option>
+                         <option value="not_a_publisher">Не я занимаюсь размещением</option>
+                         <option value="dont_engage_in_real_estate">Не занимается недвижимостью</option>
+                         <option value="only_residential_property">Только жилая</option>
+                         <option value="no_offers_and_wont">Нет объектов и не будет</option>
+                         <option value="no_offers_but_will_be">Нет объектов, но будут</option>
+                         <option value="decline_conversation">Сброс в отказ от разговора</option>
+                         <option value="not_interested">Не интересно</option>
+                         <option value="dont_trust">Не доверяю</option>
+                         <option value="have_no_time">Нет времени</option>
+                         <option value="frequent_calls">Частые звонки</option>
+                         <option value="other">Иное</option>
+                     </select>
+                     <button class="reason-of-decline-button" id="reasonOfDeclineClientButton">
+                         Сохранить
+                     </button>
+                     <div class="messages" id="reasonOfDeclineClientMessages"></div>
+                 </div>
+                 <div class="additional-numbers-client-block">
+                     <div>Доп. номера:</div>
+                     <input type="text" id="getAdditionalNumber" placeholder="Доп. номера" size=20 maxlength=15>
+                     <button class="additional-numbers-client-button" id="additionalNumbersClientButton">
+                         Сохранить
+                     </button>
+                 </div>
+                 <div class="additional-emails-client-block">
+                     <div>Доп. почты:</div>
+                     <input type="text" id="getAdditionalEmails" placeholder="Доп. почты" size=20 maxlength=15>
+                     <button class="additional-emails-client-button" id="additionalEmailsClientButton">
+                         Сохранить
+                     </button>
+                 </div>
+             </div>
 
          </div>
       </div>
@@ -506,6 +568,20 @@
            });
            resp = await response.json()
            document.getElementById("commentClientMessages").innerHTML = resp.message
+         };
+
+         document.getElementById("reasonOfDeclineClientButton").onclick = async function () {
+             reason_of_decline = document.getElementById('getReasonOfDecline').value
+             let obj =  {
+                 'clientId': '{{ client.client_id }}',
+                 'reason_of_decline': reason_of_decline,
+             }
+             const response = await fetch("/api/admin/v1/update-client-reason-of-decline/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             document.getElementById("reasonOfDeclineClientMessages").innerHTML = resp.message
          };
 
          document.getElementById("callInterruptedClientButton").onclick = async function () {

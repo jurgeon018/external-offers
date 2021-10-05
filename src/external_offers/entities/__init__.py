@@ -22,6 +22,10 @@ from external_offers.entities.clients import (
     ClientStatus,
     ClientWaitingOffersCount,
 )
+from external_offers.entities.client import (
+    UpdateClientReasonOfDeclineRequest,
+    UpdateClientReasonOfDeclineResponse,
+)
 from external_offers.entities.event_log import EnrichedEventLogEntry, EventLogEntry
 from external_offers.entities.offers import EnrichedOffer, Offer, OfferStatus
 from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferMessage
