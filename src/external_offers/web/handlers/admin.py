@@ -16,6 +16,8 @@ from external_offers.services.accounts.client_accounts import get_client_account
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import get_offer_card_html, get_offers_list_html
 from external_offers.web.handlers.base import PublicHandler
+from external_offers.services.operator_roles import get_operator_roles
+from external_offers.enums.operator_role import OperatorRole
 
 
 class AdminOffersListPageHandler(PublicHandler):
@@ -40,12 +42,15 @@ class AdminOffersListPageHandler(PublicHandler):
             minute=settings.NEXT_CALL_MINUTES,
             second=settings.NEXT_CALL_SECONDS
         )
+        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
+        is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(
             offers=offers,
             client=client,
             default_next_call_datetime=next_call_datetime,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
+            is_commercial_moderator=is_commercial_moderator,
         ))
 
 

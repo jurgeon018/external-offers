@@ -13,7 +13,11 @@ from external_offers.services.test_objects import (
     update_test_objects_publication_status_public,
 )
 from external_offers.services.update_client_comment import update_client_comment_public
-from external_offers.services.update_client_reason_of_decline import update_client_reason_of_decline_public
+from external_offers.services.clients import (
+    update_client_reason_of_decline_public,
+    update_client_additional_numbers_public,
+    update_client_additional_emails_public,
+)
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_clients_operator import update_clients_operator_public
 from external_offers.services.update_offer_category import update_offer_category_public
@@ -153,6 +157,20 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.UpdateClientReasonOfDeclineRequest,
         response_schema=entities.UpdateClientReasonOfDeclineResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-client-additional-numbers/$', get_handler(
+        service=update_client_additional_numbers_public,
+        method='POST',
+        request_schema=entities.UpdateClientAdditionalNumbersRequest,
+        response_schema=entities.UpdateClientAdditionalNumbersResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-client-additional-emails/$', get_handler(
+        service=update_client_additional_emails_public,
+        method='POST',
+        request_schema=entities.UpdateClientAdditionalEmailsRequest,
+        response_schema=entities.UpdateClientAdditionalEmailsResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-clients-operator/$', get_handler(

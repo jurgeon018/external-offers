@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from external_offers.enums import ClientStatus, UserSegment
+from external_offers.entities.client.update_client_reason_of_decline import ReasonOfDeclineEnum
 
 
 @dataclass
@@ -35,6 +36,12 @@ class Client:
     """Флаг добивочного клиента с неактивированым черновиком(нужен для разделения обычных и добивочных клиентов)"""
     comment: Optional[str] = None
     """Коментарий к карточке от оператора"""
+    reason_of_decline: Optional[ReasonOfDeclineEnum] = None
+    """Причина отказа"""
+    additional_numbers: Optional[str] = None
+    """Дополнительные тел. номера"""
+    additional_emails: Optional[str] = None
+    """Дополнительные почты"""
     next_call: Optional[datetime] = None
     """Дата следующего звонка клиенту"""
     is_test: bool = False

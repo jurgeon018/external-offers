@@ -1,5 +1,9 @@
 <html>
    <head>
+       <script
+               src="https://code.jquery.com/jquery-3.6.0.min.js"
+               integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+               crossorigin="anonymous"></script>
       <style>
          .client-info-block {
          margin: 1em;
@@ -242,10 +246,12 @@
                <div class="comment-client-messages" id="commentClientMessages"></div>
             </div>
              <div class="additional-fields-block">
+                 {% if is_commercial_moderator %}
+                 <h3>Дополнительные поля:</h3>
                  <div class="reason-of-decline-client-block">
-                     <h3>Причина отказа:</h3>
+                     <div>Причина отказа:</div>
                      <select class="select-control" id="getReasonOfDecline">
-                         <option value="" disabled selected>Не выбрано</option>
+                         <option value="" selected>Не выбрано</option>
                          <option value="not_effective">Циан не эффективен</option>
                          <option value="expensive">Дорого</option>
                          <option value="dont_like_support">Не нравится поддержка Циан</option>
@@ -253,7 +259,7 @@
                          <option value="not_a_publisher">Не я занимаюсь размещением</option>
                          <option value="dont_engage_in_real_estate">Не занимается недвижимостью</option>
                          <option value="only_residential_property">Только жилая</option>
-                         <option value="no_offers_and_wont">Нет объектов и не будет</option>
+                         <option value="no_offers_and_wont_be">Нет объектов и не будет</option>
                          <option value="no_offers_but_will_be">Нет объектов, но будут</option>
                          <option value="decline_conversation">Сброс в отказ от разговора</option>
                          <option value="not_interested">Не интересно</option>
@@ -269,18 +275,23 @@
                  </div>
                  <div class="additional-numbers-client-block">
                      <div>Доп. номера:</div>
-                     <input type="text" id="getAdditionalNumber" placeholder="Доп. номера" size=20 maxlength=15>
+                     <input type="text" id="getAdditionalNumbers" placeholder="Доп. номера"
+                            value="{{ client.additional_numbers }}" size=30>
                      <button class="additional-numbers-client-button" id="additionalNumbersClientButton">
                          Сохранить
                      </button>
+                     <div class="messages" id="additionalNumbersClientMessages"></div>
                  </div>
                  <div class="additional-emails-client-block">
                      <div>Доп. почты:</div>
-                     <input type="text" id="getAdditionalEmails" placeholder="Доп. почты" size=20 maxlength=15>
+                     <input type="text" id="getAdditionalEmails" placeholder="Доп. почты"
+                            value="{{ client.additional_emails }}" size=30>
                      <button class="additional-emails-client-button" id="additionalEmailsClientButton">
                          Сохранить
                      </button>
+                     <div class="messages" id="additionalEmailsClientMessages"></div>
                  </div>
+                 {% endif %}
              </div>
 
          </div>
@@ -328,6 +339,15 @@
          
             return form_data
          }
+
+         $( document ).ready(function() {
+             let reasonOfDecline = "{{ client.reason_of_decline.value if client else '' }}"
+             $("#getReasonOfDecline option").each(function () {
+                 if ($(this).val() == reasonOfDecline) {
+                     $(this).prop("selected", true);
+                 }
+             });
+         })
          
          function onClickOfferRowIdentifier(element) {
             if (DEBUG) {
@@ -574,7 +594,7 @@
              reason_of_decline = document.getElementById('getReasonOfDecline').value
              let obj =  {
                  'clientId': '{{ client.client_id }}',
-                 'reason_of_decline': reason_of_decline,
+                 'reasonOfDecline': reason_of_decline ? reason_of_decline: null,
              }
              const response = await fetch("/api/admin/v1/update-client-reason-of-decline/", {
                  method: 'POST',
@@ -582,6 +602,34 @@
              });
              resp = await response.json()
              document.getElementById("reasonOfDeclineClientMessages").innerHTML = resp.message
+         };
+
+         document.getElementById("additionalNumbersClientButton").onclick = async function () {
+             additional_numbers = document.getElementById('getAdditionalNumbers').value
+             let obj =  {
+                 'clientId': '{{ client.client_id }}',
+                 'additionalNumbers': additional_numbers,
+             }
+             const response = await fetch("/api/admin/v1/update-client-additional-numbers/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             document.getElementById("additionalNumbersClientMessages").innerHTML = resp.message
+         };
+
+         document.getElementById("additionalEmailsClientButton").onclick = async function () {
+             additional_emails = document.getElementById('getAdditionalEmails').value
+             let obj =  {
+                 'clientId': '{{ client.client_id }}',
+                 'additionalEmails': additional_emails,
+             }
+             const response = await fetch("/api/admin/v1/update-client-additional-emails/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
 
          document.getElementById("callInterruptedClientButton").onclick = async function () {

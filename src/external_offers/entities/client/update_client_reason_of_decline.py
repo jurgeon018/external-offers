@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from cian_enum import (
     NoFormat,
@@ -7,7 +8,7 @@ from cian_enum import (
 
 
 @dataclass
-class ReasonOfDecline(StrEnum):
+class ReasonOfDeclineEnum(StrEnum):
     __value_format__ = NoFormat
 
     not_effective = 'not_effective'
@@ -24,7 +25,7 @@ class ReasonOfDecline(StrEnum):
     """Не занимается недвижимостью"""
     only_residential_property = 'only_residential_property'
     """Только жилая"""
-    no_offers_and_wont = 'no_offers_and_wont'
+    no_offers_and_wont_be = 'no_offers_and_wont_be'
     """Нет объектов и не будет"""
     no_offers_but_will_be = 'no_offers_but_will_be'
     """Нет объектов, но будут"""
@@ -41,11 +42,12 @@ class ReasonOfDecline(StrEnum):
     other = 'other'
     """Иное"""
 
+
 @dataclass
 class UpdateClientReasonOfDeclineRequest:
     client_id: str
     """Идентификатор клиента"""
-    reason_of_decline: ReasonOfDecline
+    reasonOfDecline: Optional[ReasonOfDeclineEnum] = None
     """Причина отказа"""
 
 
