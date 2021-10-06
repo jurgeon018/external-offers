@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 
-from external_offers.enums import ClientStatus, UserSegment
 from external_offers.entities.client.update_client_reason_of_decline import ReasonOfDeclineEnum
+from external_offers.enums import ClientStatus, UserSegment
 
 
 @dataclass

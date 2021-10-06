@@ -4,6 +4,11 @@ from tornado.web import url
 
 from external_offers import entities
 from external_offers.services import admin
+from external_offers.services.clients import (
+    update_client_additional_emails_public,
+    update_client_additional_numbers_public,
+    update_client_reason_of_decline_public,
+)
 from external_offers.services.return_client_by_phone import return_client_by_phone
 from external_offers.services.save_offer import save_offer_public
 from external_offers.services.test_objects import (
@@ -13,11 +18,6 @@ from external_offers.services.test_objects import (
     update_test_objects_publication_status_public,
 )
 from external_offers.services.update_client_comment import update_client_comment_public
-from external_offers.services.clients import (
-    update_client_reason_of_decline_public,
-    update_client_additional_numbers_public,
-    update_client_additional_emails_public,
-)
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_clients_operator import update_clients_operator_public
 from external_offers.services.update_offer_category import update_offer_category_public

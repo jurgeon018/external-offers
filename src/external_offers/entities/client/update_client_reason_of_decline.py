@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from cian_enum import (
-    NoFormat,
-    StrEnum,
-)
+from cian_enum import NoFormat, StrEnum
 
 
 @dataclass

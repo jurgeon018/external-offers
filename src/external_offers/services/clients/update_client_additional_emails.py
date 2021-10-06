@@ -1,11 +1,5 @@
-from external_offers.entities import (
-    UpdateClientAdditionalEmailsRequest,
-    UpdateClientAdditionalEmailsResponse,
-)
-from external_offers.repositories.postgresql.clients import (
-    get_client_by_client_id,
-    set_additional_emails_by_client_id,
-)
+from external_offers.entities import UpdateClientAdditionalEmailsRequest, UpdateClientAdditionalEmailsResponse
+from external_offers.repositories.postgresql.clients import get_client_by_client_id, set_additional_emails_by_client_id
 
 
 async def update_client_additional_emails_public(

@@ -1,8 +1,5 @@
-from external_offers.entities import UpdateClientReasonOfDeclineResponse, UpdateClientReasonOfDeclineRequest
-from external_offers.repositories.postgresql.clients import (
-    get_client_by_client_id,
-    set_reason_of_decline_by_client_id,
-)
+from external_offers.entities import UpdateClientReasonOfDeclineRequest, UpdateClientReasonOfDeclineResponse
+from external_offers.repositories.postgresql.clients import get_client_by_client_id, set_reason_of_decline_by_client_id
 
 
 async def update_client_reason_of_decline_public(

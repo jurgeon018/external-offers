@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 
+from external_offers.enums.operator_role import OperatorRole
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,
@@ -13,11 +14,10 @@ from external_offers.repositories.postgresql import (
     get_parsed_offer_object_model_by_offer_id,
 )
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
+from external_offers.services.operator_roles import get_operator_roles
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import get_offer_card_html, get_offers_list_html
 from external_offers.web.handlers.base import PublicHandler
-from external_offers.services.operator_roles import get_operator_roles
-from external_offers.enums.operator_role import OperatorRole
 
 
 class AdminOffersListPageHandler(PublicHandler):
