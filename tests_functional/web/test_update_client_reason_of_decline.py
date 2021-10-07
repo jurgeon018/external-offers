@@ -2,8 +2,6 @@ import json
 
 import pytest
 
-from external_offers.entities.client.update_client_reason_of_decline import ReasonOfDeclineEnum
-
 
 @pytest.mark.gen_test
 async def test_update_client_reason_of_decline(
@@ -13,7 +11,7 @@ async def test_update_client_reason_of_decline(
     # arrange
     test_operator = 60024640
     client_id = '1'
-    reason_of_decline = ReasonOfDeclineEnum.decline_conversation.value
+    reason_of_decline = 'decline_conversation'
     await pg.execute(
         """
         INSERT INTO public.clients (
