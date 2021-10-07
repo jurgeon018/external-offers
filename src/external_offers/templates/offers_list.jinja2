@@ -326,13 +326,13 @@
       </div>
       <script>
          let DEBUG = 'True' === '{{ debug }}'
-         
+
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
                form_data.append(key, obj[key]);
             }
-         
+
             return form_data
          }
 
@@ -344,7 +344,7 @@
                  }
              });
          })
-         
+
          function onClickOfferRowIdentifier(element) {
             if (DEBUG) {
                window.location.href = `/admin/offer-card/${element.innerHTML}/`;
@@ -368,7 +368,7 @@
            });
            resp = await response.json();
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
               alert('Не удалось удалить задание')
            }
@@ -385,7 +385,7 @@
            });
            resp = await response.json();
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
               alert('Не удалось отметить задание как уже опубликованное')
            }
@@ -438,7 +438,7 @@
               const response = await fetch("/api/admin/v1/create-test-offer/", {
                 method: 'POST',
                 body: DEBUG? JSON.stringify(obj) : formDataFromObject(obj)
-              }) 
+              })
               resp = await response.json();
               if(resp.success == true){
                 alert(`${resp.message} offerId: ${resp.offerId}`)
@@ -449,7 +449,7 @@
               }
             }
           }
-        
+
          document.getElementById("updateOffersBtn").onclick = async function () {
            let isTest = false;
            let test_select = document.getElementById('test_select');
@@ -470,7 +470,7 @@
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>');
              updateOffersMessages = document.getElementById("updateOffersMessages1");
@@ -514,13 +514,13 @@
            });
            resp = await response.json();
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("declineClientMessages1").innerHTML = errors;
            }
          };
-         
+
          document.getElementById("callMissedClientButton1").onclick = async function () {
            let obj =  {
                'clientId': '{{ client.client_id }}'
@@ -531,7 +531,7 @@
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("callMissedClientMessages1").innerHTML = errors
@@ -548,7 +548,7 @@
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("promoGivenClientMessages").innerHTML = errors
@@ -565,13 +565,13 @@
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("phoneUnavailableClientMessages").innerHTML = errors
            }
          };
-         
+
          document.getElementById("commentClientButton").onclick = async function () {
            comment = document.getElementById('comment').value
            let obj =  {
@@ -638,7 +638,7 @@
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("callInterruptedClientMessages").innerHTML = errors
@@ -663,7 +663,7 @@
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>')
              document.getElementById("callLaterClientMessages1").innerHTML = errors
