@@ -3,21 +3,7 @@ from typing import List, Optional, Union
 
 from cian_core.runtime_settings import runtime_settings
 from cian_http.exceptions import ApiClientException
-
 from simple_settings import settings
-from external_offers.repositories.users._repo import (
-    v1_get_userids_by_rolename,
-    v1_get_users,
-    v1_user_has_role,
-)
-from external_offers.repositories.users.entities import (
-    V1GetUseridsByRolename,
-    GetUserIdsByRoleNameResponse,
-    UserIdsRequest,
-    GetUsersResponse,
-    UserModel,
-    V1UserHasRole,
-)
 
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql import (
@@ -34,6 +20,15 @@ from external_offers.repositories.postgresql.operators import (
     get_enriched_operators,
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
+from external_offers.repositories.users._repo import v1_get_userids_by_rolename, v1_get_users, v1_user_has_role
+from external_offers.repositories.users.entities import (
+    GetUserIdsByRoleNameResponse,
+    GetUsersResponse,
+    UserIdsRequest,
+    UserModel,
+    V1GetUseridsByRolename,
+    V1UserHasRole,
+)
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (

@@ -1,10 +1,6 @@
 from asyncpg.exceptions import PostgresError, UniqueViolationError
 
-from external_offers.entities.operators import (
-    CreateOperatorRequest,
-    DeleteOperatorRequest,
-    UpdateOperatorRequest,
-)
+from external_offers.entities.operators import CreateOperatorRequest, DeleteOperatorRequest, UpdateOperatorRequest
 from external_offers.entities.response import BasicResponse
 from external_offers.repositories.postgresql.operators import (
     create_operator,

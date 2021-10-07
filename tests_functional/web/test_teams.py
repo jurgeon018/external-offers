@@ -1,7 +1,7 @@
 import json
 
-from cian_functional_test_utils.pytest_plugin import MockResponse
 import pytest
+from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
 async def test_teams(pg, http):
