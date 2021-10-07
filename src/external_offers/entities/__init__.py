@@ -15,6 +15,14 @@ from external_offers.entities.choose_profile import (
     HomeownerClientChooseMainProfileResult,
     SmbClientChooseMainProfileResult,
 )
+from external_offers.entities.client import (
+    UpdateClientAdditionalEmailsRequest,
+    UpdateClientAdditionalEmailsResponse,
+    UpdateClientAdditionalNumbersRequest,
+    UpdateClientAdditionalNumbersResponse,
+    UpdateClientReasonOfDeclineRequest,
+    UpdateClientReasonOfDeclineResponse,
+)
 from external_offers.entities.clients import (
     Client,
     ClientAccountInfo,

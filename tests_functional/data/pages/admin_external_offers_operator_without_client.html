@@ -1,5 +1,9 @@
 <html>
    <head>
+       <script
+               src="https://code.jquery.com/jquery-3.6.0.min.js"
+               integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+               crossorigin="anonymous"></script>
       <style>
          .client-info-block {
          margin: 1em;
@@ -107,6 +111,27 @@
          padding: 0.5em 0em;
          display: flex;
          }
+         .additional-fields-block {
+             display: flex;
+             margin-top: 20px;
+             flex-direction: column;
+             justify-content: center;
+         }
+         .additional-fields-block div {
+             margin: 5px 0 2px 0;
+             display: block;
+         }
+         .reason-of-decline-client-block {
+             display: block;
+         }
+         .additional-emails-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
+         .additional-numbers-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
          #call-later-datetime {
          margin: 0em 1em 0em 0em
          }
@@ -201,6 +226,9 @@
                 </button>
                <div class="comment-client-messages" id="commentClientMessages"></div>
             </div>
+             <div class="additional-fields-block">
+                 
+             </div>
 
          </div>
       </div>
@@ -224,16 +252,15 @@
       </div>
       <script>
          let DEBUG = 'True' === 'True'
-         
+
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
                form_data.append(key, obj[key]);
             }
-         
+
             return form_data
          }
-         
          function onClickOfferRowIdentifier(element) {
             if (DEBUG) {
                window.location.href = `/admin/offer-card/${element.innerHTML}/`;
@@ -257,7 +284,7 @@
            });
            resp = await response.json();
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
               alert('Не удалось удалить задание')
            }
@@ -274,7 +301,7 @@
            });
            resp = await response.json();
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
               alert('Не удалось отметить задание как уже опубликованное')
            }
@@ -327,7 +354,7 @@
               const response = await fetch("/api/admin/v1/create-test-offer/", {
                 method: 'POST',
                 body: DEBUG? JSON.stringify(obj) : formDataFromObject(obj)
-              }) 
+              })
               resp = await response.json();
               if(resp.success == true){
                 alert(`${resp.message} offerId: ${resp.offerId}`)
@@ -338,7 +365,7 @@
               }
             }
           }
-        
+
          document.getElementById("updateOffersBtn").onclick = async function () {
            let isTest = false;
            let test_select = document.getElementById('test_select');
@@ -359,7 +386,7 @@
            });
            resp = await response.json()
            if (resp.success === true) {
-             location.reload(); 
+             location.reload();
            } else {
              errors = resp.errors.map((element) => element.message).join('<br>');
              updateOffersMessages = document.getElementById("updateOffersMessages1");
