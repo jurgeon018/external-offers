@@ -257,16 +257,6 @@
 
             return form_data
          }
-
-         $( document ).ready(function() {
-             let reasonOfDecline = ""
-             $("#getReasonOfDecline option").each(function () {
-                 if ($(this).val() == reasonOfDecline) {
-                     $(this).prop("selected", true);
-                 }
-             });
-         })
-
          function onClickOfferRowIdentifier(element) {
             if (DEBUG) {
                window.location.href = `/admin/offer-card/${element.innerHTML}/`;

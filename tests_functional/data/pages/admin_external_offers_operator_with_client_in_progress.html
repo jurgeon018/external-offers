@@ -257,16 +257,6 @@
 
             return form_data
          }
-
-         $( document ).ready(function() {
-             let reasonOfDecline = ""
-             $("#getReasonOfDecline option").each(function () {
-                 if ($(this).val() == reasonOfDecline) {
-                     $(this).prop("selected", true);
-                 }
-             });
-         })
-
          function onClickOfferRowIdentifier(element) {
             if (DEBUG) {
                window.location.href = `/admin/offer-card/${element.innerHTML}/`;
@@ -508,48 +498,7 @@
            document.getElementById("commentClientMessages").innerHTML = resp.message
          };
 
-         document.getElementById("reasonOfDeclineClientButton").onclick = async function () {
-             reason_of_decline = document.getElementById('getReasonOfDecline').value
-             let obj =  {
-                 'clientId': '1',
-                 'reasonOfDecline': reason_of_decline ? reason_of_decline: null,
-             }
-             const response = await fetch("/api/admin/v1/update-client-reason-of-decline/", {
-                 method: 'POST',
-                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
-             });
-             resp = await response.json()
-             document.getElementById("reasonOfDeclineClientMessages").innerHTML = resp.message
-         };
-
-         document.getElementById("additionalNumbersClientButton").onclick = async function () {
-             additional_numbers = document.getElementById('getAdditionalNumbers').value
-             let obj =  {
-                 'clientId': '1',
-                 'additionalNumbers': additional_numbers,
-             }
-             const response = await fetch("/api/admin/v1/update-client-additional-numbers/", {
-                 method: 'POST',
-                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
-             });
-             resp = await response.json()
-             document.getElementById("additionalNumbersClientMessages").innerHTML = resp.message
-         };
-
-         document.getElementById("additionalEmailsClientButton").onclick = async function () {
-             additional_emails = document.getElementById('getAdditionalEmails').value
-             let obj =  {
-                 'clientId': '1',
-                 'additionalEmails': additional_emails,
-             }
-             const response = await fetch("/api/admin/v1/update-client-additional-emails/", {
-                 method: 'POST',
-                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
-             });
-             resp = await response.json()
-             document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
-         };
-
+         
          document.getElementById("callInterruptedClientButton").onclick = async function () {
            let obj =  {
                'clientId': '1'
