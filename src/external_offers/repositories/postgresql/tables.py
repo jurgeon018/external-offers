@@ -95,4 +95,5 @@ operators = sa.Table(
     sa.Column('is_teamlead', sa.BOOLEAN, nullable=False),
     sa.Column('full_name', sa.VARCHAR, nullable=True),
     sa.Column('team_id', sa.INT, nullable=True),
+    sa.Column('email', sa.VARCHAR, nullable=True),
 )

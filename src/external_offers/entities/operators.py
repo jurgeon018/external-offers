@@ -15,6 +15,8 @@ class Operator:
     """ ID команды оператора """
     is_teamlead: bool = False
     """ Имеет ли право быть лидом команд """
+    email: Optional[str] = None
+    """Email оператора"""
 
 
 @dataclass
@@ -27,6 +29,8 @@ class EnrichedOperator:
     """ID лида команды"""
     full_name: Optional[str] = None
     """Имя оператора """
+    email: Optional[str] = None
+    """Email оператора"""
     team_id: Optional[int] = None
     """ ID команды оператора """
     is_teamlead: bool = False
@@ -42,9 +46,11 @@ class CreateOperatorRequest:
     operator_id: str
     """ID оператора"""
     full_name: str
-    """ Имя оператора"""
+    """Имя оператора"""
     team_id: Optional[int] = None
     """ID команды"""
+    email: Optional[str] = None
+    """Емейл оператора"""
 
 
 @dataclass
@@ -55,6 +61,8 @@ class UpdateOperatorRequest:
     """Имя оператора"""
     team_id: Optional[int] = None
     """ID команды"""
+    email: Optional[str] = None
+    """Email оператора"""
 
 
 @dataclass

@@ -44,6 +44,7 @@
     }
 
 </style>
+<title>Команды и операторы</title>
 <meta charset="utf-8">
 </head>
 <body>
@@ -121,6 +122,7 @@
             <div class="row row-header">
                 <div class="column columnheader">ID</div>
                 <div class="column columnheader">Имя</div>
+                <div class="column columnheader">Emai</div>
                 <div class="column columnheader">Команда</div>
             </div>
             {% for operator in operators %}
@@ -128,10 +130,13 @@
                 <div class="column column-link" onclick="onClickRedirectToOperatorCard('{{operator.operator_id}}')">
                     {{ operator.operator_id }}
                 </div>
-                <div class="column">
+                <div class="column" id="operator_{{operator.operator_id}}_name">
                     {% if operator.full_name %}{{operator.full_name}}{% else%}-{% endif %}
                 </div>
-                {% if operator.team_id %}
+                <div class="column" id="operator_{{operator.operator_id}}_email">
+                    {% if operator.email %}{{operator.email}}{% else%}-{% endif %}
+                </div>          
+                {# {% if operator.team_id %}
                 <div class="column column-link" onclick="onClickRedirectToTeamCard('{{operator.team_id}}')">
                     {{ operator.team_name }}({{ operator.team_id }})
                 </div>
@@ -139,7 +144,27 @@
                 <div class="column">
                 -
                 </div>
-                {% endif %}
+                {% endif %} #}
+                <div class="column">
+                    <select id="operatorTeam">
+                        <option 
+                            onclick="updateOperator(this)" data-operator_id="{{operator.operator_id}}"
+                            value {% if not operator.team_id %} selected {% endif %}
+                        >
+                            -
+                        </option>
+                        {% for team in teams %}
+                        <option 
+                            value="{{team.team_id}}"
+                            onclick="updateOperator(this)" data-operator_id="{{operator.operator_id}}"
+                            {% if operator.team_id == team.team_id %} selected {% endif %}
+                        >
+                            {{team.team_name}} ({{team.team_id}})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
                 <div class=column>
                     <button style="display:inline" onclick="deleteOperator('{{operator.operator_id}}')">
                         Удалить
@@ -157,6 +182,9 @@
         <input id="operatorName" type='text' name='name' placeholder='введите имя оператора'/>
         <br>
         <br>
+        <input id="operatorEmail" type='text' name='email' placeholder='введите email оператора'/>
+        <br>
+        <br>        
         <button onclick="createOperator()">Создать оператора</button>
     </div>
     <hr>
@@ -231,8 +259,37 @@
             alert('Не удалось удалить оператора.')
         }
     }
+    async function updateOperator(elem){
+        let teamId = elem.value      
+        let operatorId = elem.dataset.operator_id
+        let email = document.getElementById(`operator_${operatorId}_email`)
+        let name = document.getElementById(`operator_${operatorId}_name`)
+        name = name.innerText;
+        if(teamId == ""){
+            teamId = null;
+        }
+        obj = {
+            'operatorId': operatorId,
+            "fullName": name,
+            'teamId': teamId,
+            'email': email,
+        }
+        const response = await fetch("/api/admin/v1/update-operator-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+        } else if (resp.success === false) {
+            alert(resp.message)
+        }else {
+            alert('Не удалось обновить команду оператора.')
+        }
+    }
     async function createOperator(){
         let name = document.getElementById('operatorName').value
+        let email = document.getElementById('operatorEmail').value
         let operatorId = document.getElementById('operatorId').value
         if(!name){
             alert('Введите имя оператора!')
@@ -245,6 +302,7 @@
         let obj = {
             "fullName": name,
             "operatorId": operatorId,
+            "email": email,
         }
         const response = await fetch("/api/admin/v1/create-operator-public/", {
             method: 'POST',

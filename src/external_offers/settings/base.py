@@ -272,3 +272,7 @@ DEFAULT_TEST_CLIENT = """{
     "client_email": "111@21.11",
     "main_account_chosen": false
 }"""
+ADMIN_OPERATOR_ROLE: str = "Cian.PrepositionAdmin"
+# TODO: https://jira.cian.tech/browse/CD-116932 
+# вставить правильное название роли тимлида админки
+ADMIN_TEAMLEAD_ROLE: str = "Cian.AdminTeamleadRole"

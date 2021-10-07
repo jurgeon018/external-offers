@@ -1,5 +1,6 @@
 import json
 
+from cian_functional_test_utils.pytest_plugin import MockResponse
 import pytest
 
 
@@ -86,7 +87,32 @@ async def test_teams(pg, http):
 # # render teams.jinja2
 
 
-async def test_render_teams(pg, http):
+async def test_render_teams(
+    pg, http, users_mock,
+):
+    # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-userids-by-rolename/',
+        response=MockResponse(
+            body={'userIds': []}
+        ),
+    )
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-users/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/user-has-role/',
+        response=MockResponse(
+            body=True
+        ),
+    )
+
     # act
     resp = await http.request(
         'GET',

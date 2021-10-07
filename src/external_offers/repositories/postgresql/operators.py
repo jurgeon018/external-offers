@@ -53,19 +53,21 @@ async def get_enriched_operator_by_id(operator_id: Union[str, int]) -> Optional[
 
 async def create_operator(
     *,
-    operator_id: int,
-    full_name: str,
-    team_id: str,
+    operator_id: Union[int, str],
+    full_name: Optional[str] = None,
+    team_id: Optional[int] = None,
     is_teamlead: bool = False,
+    email: Optional[str] = None,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         insert(
             operators
         ).values(
-            operator_id=operator_id,
+            operator_id=str(operator_id),
             full_name=full_name,
             team_id=team_id,
             is_teamlead=is_teamlead,
+            email=email,
         )
     )
     await pg.get().execute(query, *params)
@@ -75,7 +77,8 @@ async def update_operator_by_id(
     *,
     operator_id: str,
     full_name: str,
-    team_id: str
+    team_id: str,
+    email: Optional[str] = None,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
@@ -85,6 +88,7 @@ async def update_operator_by_id(
         ).values(
             full_name=full_name,
             team_id=team_id,
+            email=email,
         )
     )
     await pg.get().execute(query, *params)

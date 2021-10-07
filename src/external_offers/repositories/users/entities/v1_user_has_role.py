@@ -13,5 +13,7 @@ from typing import Optional
 
 
 @dataclass
-class V1GetRealtyId:
-    cian_user_id: Optional[int] = None
+class V1UserHasRole:
+    role_name: Optional[str] = None
+    use_cache: Optional[bool] = None
+    user_id: Optional[int] = None

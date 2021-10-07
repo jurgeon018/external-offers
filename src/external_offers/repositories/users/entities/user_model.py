@@ -52,7 +52,7 @@ class StateChangeReason(StrEnum):
 
 
 @dataclass
-class UserModelV2:
+class UserModel:
     """Пользователь"""
     birthday: Optional[_datetime] = None
     """Дата рождения"""
@@ -64,16 +64,18 @@ class UserModelV2:
     """Дата создания пользователя"""
     email: Optional[str] = None
     """Email"""
+    external_user_id: Optional[str] = None
+    """Id партнера"""
     external_user_source_type: Optional[ExternalUserSourceType] = None
     """Тип источника"""
     first_name: Optional[str] = None
     """Имя"""
+    has_avatar: Optional[bool] = None
+    """Есть ли аватар у пользователя"""
     id: Optional[int] = None
     """Id"""
     ip: Optional[int] = None
     """Ip пользователя"""
-    is_agent: Optional[bool] = None
-    """Является ли агентом"""
     last_name: Optional[str] = None
     """Фамилия"""
     main_announcements_region_id: Optional[int] = None
