@@ -335,16 +335,6 @@
 
             return form_data
          }
-
-         $( document ).ready(function() {
-             let reasonOfDecline = "{{ client.reason_of_decline.value if client else '' }}"
-             $("#getReasonOfDecline option").each(function () {
-                 if ($(this).val() == reasonOfDecline) {
-                     $(this).prop("selected", true);
-                 }
-             });
-         })
-
          function onClickOfferRowIdentifier(element) {
             if (DEBUG) {
                window.location.href = `/admin/offer-card/${element.innerHTML}/`;
@@ -586,6 +576,16 @@
            document.getElementById("commentClientMessages").innerHTML = resp.message
          };
 
+         {% if is_commercial_moderator %}
+         $( document ).ready(function() {
+             let reasonOfDecline = "{{ client.reason_of_decline.value if client else '' }}"
+             $("#getReasonOfDecline option").each(function () {
+                 if ($(this).val() == reasonOfDecline) {
+                     $(this).prop("selected", true);
+                 }
+             });
+         })
+
          document.getElementById("reasonOfDeclineClientButton").onclick = async function () {
              reason_of_decline = document.getElementById('getReasonOfDecline').value
              let obj =  {
@@ -627,7 +627,7 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
-
+         {% endif %}
          document.getElementById("callInterruptedClientButton").onclick = async function () {
            let obj =  {
                'clientId': '{{ client.client_id }}'
