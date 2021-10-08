@@ -162,7 +162,12 @@ async def create_operators_from_cian() -> None:
     for user in users:
         operator_id = user.id  # or user.cian_user_id
         if operator_id:
-            full_name = user.user_name  # or user.first_name + user.last_name
+            if user.user_name:
+                full_name = user.user_name
+            elif user.first_name and user.last_name:
+                full_name = user.first_name + user.last_name
+            else:
+                full_name = None
             email = user.email
             is_teamlead: bool = await user_has_role(
                 user_id=operator_id,
