@@ -4,6 +4,11 @@ from tornado.web import url
 
 from external_offers import entities
 from external_offers.services import admin, operators, teams
+from external_offers.services.clients import (
+    update_client_additional_emails_public,
+    update_client_additional_numbers_public,
+    update_client_reason_of_decline_public,
+)
 from external_offers.services.return_client_by_phone import return_client_by_phone
 from external_offers.services.save_offer import save_offer_public
 from external_offers.services.test_objects import (
@@ -148,6 +153,27 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.UpdateClientCommentRequest,
         response_schema=entities.UpdateClientCommentResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-client-reason-of-decline/$', get_handler(
+        service=update_client_reason_of_decline_public,
+        method='POST',
+        request_schema=entities.UpdateClientReasonOfDeclineRequest,
+        response_schema=entities.UpdateClientReasonOfDeclineResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-client-additional-numbers/$', get_handler(
+        service=update_client_additional_numbers_public,
+        method='POST',
+        request_schema=entities.UpdateClientAdditionalNumbersRequest,
+        response_schema=entities.UpdateClientAdditionalNumbersResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-client-additional-emails/$', get_handler(
+        service=update_client_additional_emails_public,
+        method='POST',
+        request_schema=entities.UpdateClientAdditionalEmailsRequest,
+        response_schema=entities.UpdateClientAdditionalEmailsResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-clients-operator/$', get_handler(
