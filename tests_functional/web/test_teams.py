@@ -112,6 +112,24 @@ async def test_render_teams(
             body=True
         ),
     )
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-userids-by-rolename/',
+        response=MockResponse(
+            body={
+                'userIds': []
+            }
+        )
+    )
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-users/',
+        response=MockResponse(
+            body={
+                'users': []
+            }
+        )
+    )
 
     # act
     resp = await http.request(
