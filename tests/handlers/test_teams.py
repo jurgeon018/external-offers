@@ -20,7 +20,7 @@ async def test_teams_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.get_or_create_operator',
         return_value=future(None),
     )
-    get_enriched_operator_by_id_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         return_value=future(current_operator)
     )
@@ -36,7 +36,7 @@ async def test_teams_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.get_teams',
         return_value=future(teams)
     )
-    get_teams_page_html_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin.get_teams_page_html',
         return_value=''
     )
@@ -62,7 +62,7 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     operator = mocker.MagicMock()
     operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
-    get_enriched_operator_by_id_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         side_effect=[
             future(current_operator),
@@ -81,7 +81,7 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.get_teams',
         return_value=future(teams)
     )
-    get_operator_card_html_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin.get_operator_card_html',
         return_value=''
     )
@@ -107,7 +107,7 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     team = mocker.MagicMock()
     operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
-    get_enriched_operator_by_id_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         return_value=future(current_operator),
     )

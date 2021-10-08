@@ -21,7 +21,11 @@ from external_offers.repositories.postgresql.operators import (
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
-from external_offers.services.operator_roles import create_operators_from_cian, get_or_create_operator, get_operator_roles
+from external_offers.services.operator_roles import (
+    create_operators_from_cian,
+    get_operator_roles,
+    get_or_create_operator,
+)
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (
     get_offer_card_html,
