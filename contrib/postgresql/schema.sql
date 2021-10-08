@@ -134,5 +134,7 @@ CREATE TABLE operators
     is_teamlead BOOLEAN        NOT NULL,
     full_name   VARCHAR,
     team_id     INT,
-    email       VARCHAR
+    email       VARCHAR,
+    created_at    timestamp with time zone not null,
+    updated_at    timestamp with time zone not null
 );

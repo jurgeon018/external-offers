@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 from external_offers.enums.teams import TeamSettings
@@ -9,6 +10,10 @@ from external_offers.enums.user_segment import UserSegment
 class Operator:
     operator_id: str
     """ ID оператора """
+    created_at: datetime
+    """Дата создания оператора"""
+    updated_at: datetime
+    """Дата обновления оператора"""
     full_name: Optional[str] = None
     """Имя оператора """
     team_id: Optional[int] = None
@@ -27,6 +32,10 @@ class EnrichedOperator:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
+    created_at: datetime
+    """Дата создания оператора"""
+    updated_at: datetime
+    """Дата обновления оператора"""
     full_name: Optional[str] = None
     """Имя оператора """
     email: Optional[str] = None

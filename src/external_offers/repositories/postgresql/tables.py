@@ -96,4 +96,6 @@ operators = sa.Table(
     sa.Column('full_name', sa.VARCHAR, nullable=True),
     sa.Column('team_id', sa.INT, nullable=True),
     sa.Column('email', sa.VARCHAR, nullable=True),
+    sa.Column('created_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )

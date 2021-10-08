@@ -122,8 +122,9 @@
             <div class="row row-header">
                 <div class="column columnheader">ID</div>
                 <div class="column columnheader">Имя</div>
-                <div class="column columnheader">Emai</div>
+                <div class="column columnheader">Email</div>
                 <div class="column columnheader">Команда</div>
+                <div class="column columnheader">Роль</div>
             </div>
             {% for operator in operators %}
             <div class="row">
@@ -164,7 +165,13 @@
                         {% endfor %}
                     </select>
                 </div>
-
+                <div class="column">
+                {% if operator.is_teamlead %}
+                Тимлид
+                {% else %}
+                Оператор
+                {% endif %}
+                </div>
                 <div class=column>
                     <button style="display:inline" onclick="deleteOperator('{{operator.operator_id}}')">
                         Удалить
@@ -263,6 +270,7 @@
         let teamId = elem.value      
         let operatorId = elem.dataset.operator_id
         let email = document.getElementById(`operator_${operatorId}_email`)
+        email = email.innerText;
         let name = document.getElementById(`operator_${operatorId}_name`)
         name = name.innerText;
         if(teamId == ""){

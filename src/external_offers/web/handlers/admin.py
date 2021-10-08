@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
-from typing import List, Optional, Union
 
+import pytz
 from cian_core.runtime_settings import runtime_settings
-from cian_http.exceptions import ApiClientException
 from simple_settings import settings
 
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
@@ -15,21 +14,13 @@ from external_offers.repositories.postgresql import (
     get_parsed_offer_object_model_by_offer_id,
 )
 from external_offers.repositories.postgresql.operators import (
-    create_operator,
     get_enriched_operator_by_id,
     get_enriched_operators,
+    get_latest_operator_updating,
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
-from external_offers.repositories.users._repo import v1_get_userids_by_rolename, v1_get_users, v1_user_has_role
-from external_offers.repositories.users.entities import (
-    GetUserIdsByRoleNameResponse,
-    GetUsersResponse,
-    UserIdsRequest,
-    UserModel,
-    V1GetUseridsByRolename,
-    V1UserHasRole,
-)
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
+from external_offers.services.operator_roles import create_operators_from_cian, get_or_create_operator
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (
     get_offer_card_html,
@@ -125,85 +116,16 @@ class AdminOffersCardPageHandler(PublicHandler):
         self.write(offer_html)
 
 
-async def get_or_create_operator(
-    *,
-    operator_id: Union[int, str],
-    full_name: Optional[str] = None,
-    team_id: Optional[int] = None,
-    is_teamlead: bool = False,
-    email: Optional[str] = None,
-):
-    current_operator = await get_enriched_operator_by_id(operator_id=operator_id)
-    if not current_operator:
-        await create_operator(
-            operator_id=operator_id,
-            full_name=full_name,
-            team_id=team_id,
-            is_teamlead=is_teamlead,
-            email=email,
-        )
-        current_operator = await get_enriched_operator_by_id(operator_id=operator_id)
-    return current_operator
-
-
-async def user_has_role(
-    *,
-    user_id: int,
-    role_name: str,
-) -> bool:
-    has_role = False
-    try:
-        has_role: bool = await v1_user_has_role(
-            V1UserHasRole(
-                user_id=int(user_id),
-                role_name=role_name,
-                use_cache=None,
-            )
-        )
-    except ApiClientException:
-        has_role = False
-    return has_role
-
-
-async def create_operators_from_cian() -> None:
-    user_ids_response: GetUserIdsByRoleNameResponse = await v1_get_userids_by_rolename(
-        V1GetUseridsByRolename(
-            role_name=runtime_settings.ADMIN_OPERATOR_ROLE
-        )
-    )
-    user_ids: List[int] = user_ids_response.user_ids
-    if not user_ids:
-        return
-    users_response: GetUsersResponse = await v1_get_users(
-        UserIdsRequest(
-            user_ids=user_ids
-        )
-    )
-    users: List[UserModel] = users_response.users
-    for user in users:
-        operator_id = user.id # or user.cian_user_id
-        if operator_id:
-            full_name = user.user_name # or user.first_name + user.last_name
-            email = user.email
-            is_teamlead: bool = await user_has_role(
-                user_id=operator_id,
-                role_name=runtime_settings.ADMIN_TEAMLEAD_ROLE,
-            )
-            await get_or_create_operator(
-                operator_id=operator_id,
-                full_name=full_name,
-                team_id=None,
-                is_teamlead=is_teamlead,
-                email=email,
-            )
-
-
 class AdminTeamsPageHandler(PublicHandler):
     # pylint: disable=abstract-method
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        await create_operators_from_cian()
+        last_updating = await get_latest_operator_updating()
+        if not last_updating:
+            await create_operators_from_cian()
+        elif last_updating < datetime.now(tz=pytz.UTC) - timedelta(days=1):
+            await create_operators_from_cian()
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id
         )
