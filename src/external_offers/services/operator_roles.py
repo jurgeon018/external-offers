@@ -144,7 +144,7 @@ async def get_users_by_role(role_name: str) -> List[UserModel]:
     )
     user_ids: List[int] = user_ids_response.user_ids
     if not user_ids:
-        return
+        return []
     users_response: GetUsersResponse = await v1_get_users(
         UserIdsRequest(
             user_ids=user_ids

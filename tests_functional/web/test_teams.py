@@ -117,12 +117,12 @@ async def test_render_teams(
         path='/v1/get-userids-by-rolename/',
         response=MockResponse(
             body={
-                'userIds': []
+                'roleName': []
             }
         )
     )
     await users_mock.add_stub(
-        method='GET',
+        method='POST',
         path='/v1/get-users/',
         response=MockResponse(
             body={
