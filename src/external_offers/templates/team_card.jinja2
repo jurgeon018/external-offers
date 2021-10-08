@@ -1,6 +1,7 @@
 <html>
 <head>
 <meta charset="utf-8">
+<title>Команда {{team.team_name}}({{team.team_id}})</title>
 </head>
 <body>
 <div class="container">
@@ -47,7 +48,7 @@
         <h2>Настройки обьявлений</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки обьявлений</button>
         <div style="display: none;">
-
+            <br>
             <span title="мультивыбор">Категории:</span>
             <select name="categories" multiple="multiple" size="10">
             {% for category in categories %}
@@ -56,7 +57,7 @@
                 </option>
             {% endfor %}
             </select>
-            
+            <br><br>
             <span title="мультивыбор">Регионы:</span>
             <select name="regions" multiple="multiple" size="10">
             {% for region_code, region_name in regions.items() %}
@@ -65,11 +66,13 @@
                 </option>
             {% endfor %}
             </select>
+            <br><br>
 
             {# <span>минимальная дата создания в очереди:</span> #}
             {# <input name="..." type="number" {% if team_settings.get('calltracking') == True %} checked {% endif %}/> #}
+            {# <br><br> #}
             
-            <span>флаг коллтрекинга:</span>
+            <span>Флаг коллтрекинга:</span>
             <input name="calltracking" type="checkbox" {% if team_settings.get('calltracking') == True %} checked {% endif %}/>
         </div>
 
@@ -77,7 +80,7 @@
         <h2>Настройки пользователей</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки клиентов</button>
         <div style="display: none;">
-
+            <br>
             <span title="мультивыбор">Сегмент:</span>
             <select name="segments" multiple="multiple" size="10">
             {% for segment in segments %}
@@ -86,7 +89,7 @@
                 </option>
             {% endfor %}
             </select>
-
+            <br><br>
             <span title="мультивыбор">Субсегмент:</span>
             <select name="subsegments" multiple="multiple" size="10">
             {% for subsegment in subsegments %}
@@ -136,8 +139,7 @@
         <h2>Настройки cортировок</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки сортировок</button>
         <div style="display: none;">
-            <br><br>
-
+            <br>
             <span>Порядок признака 'Статус клиента(добивочный или новый)'</span><br>
             <input name="activationStatusPosition" value="{{team_settings.get('activation_status_position', '')}}" placeholder="" required/><br>
             
@@ -243,7 +245,7 @@
         <h2>Настройки промокодов</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки промокодов</button>
         <div style="display: none;">
-            
+            <br>
             <span>регионы применения:</span><br>
             <select name="promocodeRegions" multiple="multiple" size="10">
                 {% for region_code, region_name in regions.items() %}

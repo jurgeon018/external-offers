@@ -23,6 +23,7 @@ def get_offers_list_html(
     client: Optional[Client],
     default_next_call_datetime: datetime,
     operator_is_tester: bool,
+    is_commercial_moderator: bool,
 ) -> str:
     template = templates.get_template('offers_list.jinja2')
     return template.render(
@@ -31,6 +32,7 @@ def get_offers_list_html(
         next_call_datetime=default_next_call_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
         debug=runtime_settings.DEBUG,
         operator_is_tester=operator_is_tester,
+        is_commercial_moderator=is_commercial_moderator,
     )
 
 
@@ -44,10 +46,10 @@ def get_offer_card_html(
     exist_drafts: bool,
     offer_is_draft: bool = False,
     appointments: List[CommercialPossibleAppointmentModel],
+    is_ready_business_enabled: bool = False,
 ) -> str:
     template = templates.get_template('offer_card.jinja2')
     # template = templates.get_template('admin_debug.jinja2')
-
     return template.render(
         parsed_object_model=parsed_object_model,
         info_message=info_message,
@@ -58,6 +60,7 @@ def get_offer_card_html(
         client_accounts=client_accounts,
         exist_drafts=exist_drafts,
         offer_is_draft=offer_is_draft,
+        is_ready_business_enabled=1 if is_ready_business_enabled is True else 0,
     )
 
 

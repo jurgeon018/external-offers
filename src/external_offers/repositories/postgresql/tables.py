@@ -40,6 +40,9 @@ clients = sa.Table(
     sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
     sa.Column('comment', sa.VARCHAR, nullable=True),
+    sa.Column('reason_of_decline', sa.VARCHAR, nullable=True),
+    sa.Column('additional_numbers', sa.VARCHAR, nullable=True),
+    sa.Column('additional_emails', sa.VARCHAR, nullable=True),
     sa.Column('unactivated', sa.BOOLEAN, nullable=False, default=False),
 )
 
@@ -94,4 +97,7 @@ operators = sa.Table(
     sa.Column('is_teamlead', sa.BOOLEAN, nullable=False),
     sa.Column('full_name', sa.VARCHAR, nullable=True),
     sa.Column('team_id', sa.INT, nullable=True),
+    sa.Column('email', sa.VARCHAR, nullable=True),
+    sa.Column('created_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )

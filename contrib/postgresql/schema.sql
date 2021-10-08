@@ -60,25 +60,27 @@ CREATE TABLE offers_for_call
 
 CREATE TABLE clients
 (
-    client_id            varchar     not null primary key,
-    avito_user_id        varchar     not null,
-    cian_user_id         bigint,
-    client_name          varchar,
-    client_phones        varchar[]   not null,
-    client_email         varchar(50),
-    operator_user_id     bigint,
-    status               client_status_type,
-    segment              varchar(1),
-    next_call            timestamp with time zone,
-    calls_count          smallint,
-    last_call_id         varchar,
-    comment              varchar,
+    client_id        varchar     not null primary key,
+    avito_user_id    varchar     not null,
+    cian_user_id     bigint,
+    client_name      varchar,
+    client_phones    varchar[]   not null,
+    client_email     varchar(50),
+    operator_user_id bigint,
+    status           client_status_type,
+    segment          varchar(1),
+    next_call        timestamp with time zone,
+    calls_count      smallint,
+    last_call_id     varchar,
+    comment          varchar,
+    reason_of_decline varchar default null,
+    additional_numbers varchar default null,
+    additional_emails varchar default null,
     main_account_chosen  boolean  not null  default false,
     synced_with_grafana  boolean  not null  default false,
     unactivated          boolean  not null  default false,
     is_test              boolean  not null  default false
 );
-
 CREATE TABLE event_log
 (
     id               serial primary key,
@@ -133,5 +135,8 @@ CREATE TABLE operators
     operator_id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
     is_teamlead BOOLEAN        NOT NULL,
     full_name   VARCHAR,
-    team_id     INT
+    team_id     INT,
+    email       VARCHAR,
+    created_at    timestamp with time zone not null,
+    updated_at    timestamp with time zone not null
 );

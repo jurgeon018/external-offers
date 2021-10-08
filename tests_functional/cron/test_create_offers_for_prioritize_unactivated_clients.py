@@ -10,6 +10,14 @@ async def test_prioritize_unactivated_clients(
     runner,
 ):
     # arrange
+    # приоретизация обьявления 1 должна вернуть _CLEAR_CLIENT_PRIORITY, т.к у него нет сегмента
+    priority_1 = 223456789
+    priority_2 = "NULL"
+    priority_3 = "NULL"
+    priority_4 = "NULL"
+    priority_5 = "NULL"
+    # приоретизация обьявления 6 должна вернуть _CLEAR_CLIENT_PRIORITY, т.к у него нет региона
+    priority_6 = 987654333
     await pg.execute("""
         INSERT INTO clients (
             segment, unactivated, client_id, avito_user_id, client_phones, status
@@ -19,16 +27,16 @@ async def test_prioritize_unactivated_clients(
         ('d',  't', 3, 3, '{+7232123}', 'accepted'),
         ('d',  't', 4, 4, '{+7232123}', 'accepted');
     """)
-    await pg.execute("""
+    await pg.execute(f"""
         INSERT INTO offers_for_call (
-            id, parsed_id, client_id, publication_status, status, category,   created_at, synced_at
+            id, parsed_id, client_id, publication_status, status, category,   created_at, synced_at, priority
         ) VALUES
-        (1, 1, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (2, 2, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (3, 3, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (4, 4, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (5, 5, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (6, 6, 4, 'Draft', 'draft', 'flatRent', 'now()', 'now()');
+        (1, 1, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', {priority_1}),
+        (2, 2, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()', {priority_2}),
+        (3, 3, 2, 'Draft', 'draft', 'flatRent', 'now()', 'now()', {priority_3}),
+        (4, 4, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()', {priority_4}),
+        (5, 5, 3, 'Draft', 'draft', 'flatRent', 'now()', 'now()', {priority_5}),
+        (6, 6, 4, 'Draft', 'draft', 'flatRent', 'now()', 'now()', {priority_6});
     """)
     await pg.execute("""
         INSERT INTO parsed_offers (
@@ -111,18 +119,20 @@ async def test_prioritize_unactivated_clients(
     offer5 = await pg.fetchrow("""SELECT * FROM offers_for_call WHERE id = '5'""")
     offer6 = await pg.fetchrow("""SELECT * FROM offers_for_call WHERE id = '6'""")
 
-    # клиент удален изза пустого сегмента
-    assert client1 is None
+    # Добивочный клиент не удален, при том что у него пустой сегмент
+    assert client1 is not None
     assert client2 is not None
     assert client3 is not None
-    # клиент удален изза пустого региона
-    assert client4 is None
+    # Добивочный клиент не удален, при том что у него пустой региона
+    assert client4 is not None
 
-    # задание удалено изза того что у клиента пустой сегмент
-    assert offer1 is None
+    # задание добивочного клиента не удалено даже при том что у него пустой сегмент
+    # изменилась только первая и посление 2 цифры приоритета
+    assert offer1['priority'] == 123456721
     assert offer2['priority'] == 131136121
     assert offer3['priority'] == 131136121
     assert offer4['priority'] == 132129521
     assert offer5['priority'] == 132129521
-    # задание удалено изза того что у клиента пустой регион
-    assert offer6 is None
+    # задание добивочного клиента не удалено даже при том что у него пустой регион
+    # изменилась только первая и посление 2 цифры приоритета
+    assert offer6['priority'] == 187654321

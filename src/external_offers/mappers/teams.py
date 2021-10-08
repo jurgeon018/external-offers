@@ -14,11 +14,17 @@ teams_mapper = EntityMapper(
 operators_mapper = EntityMapper(
     Operator,
     without_camelcase=True,
+    mappers={
+        'created_at': ValueMapper(),
+        'updated_at': ValueMapper(),
+    }
 )
 enriched_operators_mapper = EntityMapper(
     EnrichedOperator,
     without_camelcase=True,
     mappers={
         'settings': ValueMapper(),
+        'created_at': ValueMapper(),
+        'updated_at': ValueMapper(),
     }
 )

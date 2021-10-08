@@ -1,8 +1,10 @@
+from datetime import datetime
 from typing import List, Optional, Union
 
 import asyncpgsa
+import pytz
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import delete, select, update
+from sqlalchemy.sql import delete, func, select, update
 
 from external_offers import pg
 from external_offers.entities import EnrichedOperator, Operator
@@ -53,19 +55,24 @@ async def get_enriched_operator_by_id(operator_id: Union[str, int]) -> Optional[
 
 async def create_operator(
     *,
-    operator_id: int,
-    full_name: str,
-    team_id: str,
+    operator_id: Union[int, str],
+    full_name: Optional[str] = None,
+    team_id: Optional[int] = None,
     is_teamlead: bool = False,
+    email: Optional[str] = None,
 ) -> None:
+    now = datetime.now(tz=pytz.utc)
     query, params = asyncpgsa.compile_query(
         insert(
             operators
         ).values(
-            operator_id=operator_id,
+            operator_id=str(operator_id),
             full_name=full_name,
             team_id=team_id,
             is_teamlead=is_teamlead,
+            email=email,
+            created_at=now,
+            updated_at=now,
         )
     )
     await pg.get().execute(query, *params)
@@ -73,18 +80,24 @@ async def create_operator(
 
 async def update_operator_by_id(
     *,
-    operator_id: str,
+    operator_id: Union[str, int],
     full_name: str,
-    team_id: str
+    team_id: str,
+    is_teamlead: bool = False,
+    email: Optional[str] = None,
 ) -> None:
+    now = datetime.now(tz=pytz.utc)
     query, params = asyncpgsa.compile_query(
         update(
             operators
         ).where(
-            operators.c.operator_id == operator_id
+            operators.c.operator_id == str(operator_id)
         ).values(
             full_name=full_name,
             team_id=team_id,
+            email=email,
+            is_teamlead=is_teamlead,
+            updated_at=now
         )
     )
     await pg.get().execute(query, *params)
@@ -99,3 +112,12 @@ async def delete_operator_by_id(operator_id: str):
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def get_latest_operator_updating() -> Optional[datetime]:
+    query, params = asyncpgsa.compile_query(
+        select([
+            func.max(operators.c.updated_at)
+        ]).limit(1)
+    )
+    return await pg.get().fetchval(query, *params)

@@ -1,6 +1,9 @@
 <html>
 <head>
 <meta charset="utf-8">
+<title>
+Оператор {{operator.full_name}} ({{operator.operator_id}})
+</title>
 </head>
 <body>
 <div class="container">
@@ -26,6 +29,13 @@
     <input
         value="{% if operator.full_name %}{{operator.full_name}}{% endif %}"
         id="operatorName" type='text' name='name' placeholder='введите свое имя'
+    />
+    <br>
+    <br>
+    Email: {% if operator.email %}{{operator.email}}{% else %}-{% endif %}
+    <input
+        value="{% if operator.email %}{{operator.email}}{% endif %}"
+        id="operatorEmail" type='text' name='email' placeholder='введите свой email'
     />
     <br>
     <br>
@@ -85,10 +95,11 @@
     function onClickRedirectToTeamCard(team_id){
         redirect(`/admin/team-card/${team_id}/`)
     }
-    
+
     // crud
     async function updateOperator(){
         let name = document.getElementById('operatorName').value
+        let email = document.getElementById('operatorEmail').value
         let teamId = document.getElementById('operatorTeam').value
         if(!name){
             alert('Введите свое имя!')
@@ -101,6 +112,7 @@
             "operatorId": '{{operator.operator_id}}',
             "fullName": name,
             "teamId": teamId,
+            'email': email,
         }
         const response = await fetch("/api/admin/v1/update-operator-public/", {
             method: 'POST',

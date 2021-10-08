@@ -20,5 +20,8 @@ CREATE TABLE operators
     operator_id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
     is_teamlead BOOLEAN        NOT NULL,
     full_name   VARCHAR,
-    team_id     INT
+    team_id     INT,
+    email       VARCHAR,
+    created_at    timestamp with time zone not null,
+    updated_at    timestamp with time zone not null
 );

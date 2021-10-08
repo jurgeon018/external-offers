@@ -508,6 +508,57 @@ async def set_comment_by_client_id(
     await pg.get().execute(query, *params)
 
 
+async def set_reason_of_decline_by_client_id(
+        *,
+        client_id: str,
+        reason_of_decline: Optional[str] = None,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            reason_of_decline=reason_of_decline
+        ).where(
+            clients.c.client_id == client_id,
+            )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def set_additional_numbers_by_client_id(
+        *,
+        client_id: str,
+        additional_numbers: str,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            additional_numbers=additional_numbers
+        ).where(
+            clients.c.client_id == client_id,
+            )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def set_additional_emails_by_client_id(
+        *,
+        client_id: str,
+        additional_emails: str,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            additional_emails=additional_emails
+        ).where(
+            clients.c.client_id == client_id,
+            )
+    )
+    await pg.get().execute(query, *params)
+
+
 async def set_client_accepted_and_no_operator_if_no_offers_in_progress(
     *,
     client_id: str
@@ -553,10 +604,6 @@ async def delete_waiting_clients_by_client_ids(
             or_(
                 and_(
                     clients.c.status == ClientStatus.waiting.value,
-                    clients.c.client_id.in_(client_ids)
-                ),
-                and_(
-                    clients.c.unactivated.is_(True),
                     clients.c.client_id.in_(client_ids)
                 )
             )

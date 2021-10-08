@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 from external_offers.enums.user_segment import UserSegment
@@ -9,12 +10,18 @@ from external_offers.enums.user_segment import UserSegment
 class Operator:
     operator_id: str
     """ ID оператора """
+    created_at: datetime
+    """Дата создания оператора"""
+    updated_at: datetime
+    """Дата обновления оператора"""
     full_name: Optional[str] = None
     """Имя оператора """
     team_id: Optional[int] = None
     """ ID команды оператора """
     is_teamlead: bool = False
     """ Имеет ли право быть лидом команд """
+    email: Optional[str] = None
+    """Email оператора"""
 
 
 @dataclass
@@ -27,8 +34,14 @@ class EnrichedOperator:
     """ID лида команды"""
     settings: dict
     """Настройки команды"""
+    created_at: datetime
+    """Дата создания оператора"""
+    updated_at: datetime
+    """Дата обновления оператора"""
     full_name: Optional[str] = None
     """Имя оператора """
+    email: Optional[str] = None
+    """Email оператора"""
     team_id: Optional[int] = None
     """ ID команды оператора """
     is_teamlead: bool = False
@@ -48,9 +61,11 @@ class CreateOperatorRequest:
     operator_id: str
     """ID оператора"""
     full_name: str
-    """ Имя оператора"""
+    """Имя оператора"""
     team_id: Optional[int] = None
     """ID команды"""
+    email: Optional[str] = None
+    """Емейл оператора"""
 
 
 @dataclass
@@ -61,6 +76,8 @@ class UpdateOperatorRequest:
     """Имя оператора"""
     team_id: Optional[int] = None
     """ID команды"""
+    email: Optional[str] = None
+    """Email оператора"""
 
 
 @dataclass

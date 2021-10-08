@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 
@@ -9,6 +10,8 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
     Category,
     Status as PublicationStatus,
 )
+from external_offers.enums.operator_role import OperatorRole
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_operator_and_offer_id,
@@ -18,12 +21,17 @@ from external_offers.repositories.postgresql import (
     get_parsed_offer_object_model_by_offer_id,
 )
 from external_offers.repositories.postgresql.operators import (
-    create_operator,
     get_enriched_operator_by_id,
     get_enriched_operators,
+    get_latest_operator_updating,
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
+from external_offers.services.operator_roles import (
+    create_operators_from_cian,
+    get_operator_roles,
+    get_or_create_operator,
+)
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (
     get_offer_card_html,
@@ -57,12 +65,15 @@ class AdminOffersListPageHandler(PublicHandler):
             minute=settings.NEXT_CALL_MINUTES,
             second=settings.NEXT_CALL_SECONDS
         )
+        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
+        is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(
             offers=offers,
             client=client,
             default_next_call_datetime=next_call_datetime,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
+            is_commercial_moderator=is_commercial_moderator,
         ))
 
 
@@ -101,6 +112,9 @@ class AdminOffersCardPageHandler(PublicHandler):
         )
         offer = await get_offer_by_offer_id(offer_id=offer_id)
         offer_is_draft = offer.publication_status == PublicationStatus.draft
+        # Настройка для корректной работы обновленного ГБ коммерческой недвижимости
+        # https://conf.cian.tech/pages/viewpage.action?pageId=1305332955
+        is_ready_business_enabled = runtime_settings.get('EXTERNAL_OFFERS_READY_BUSINESS_ENABLED', False)
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
             info_message=settings.SAVE_OFFER_MSG,
@@ -110,21 +124,10 @@ class AdminOffersCardPageHandler(PublicHandler):
             exist_drafts=exist_drafts,
             offer_is_draft=offer_is_draft,
             appointments=appointments,
+            is_ready_business_enabled=is_ready_business_enabled,
         )
 
         self.write(offer_html)
-
-
-async def get_or_create_current_operator(realty_user_id: int):
-    current_operator = await get_enriched_operator_by_id(operator_id=realty_user_id)
-    if not current_operator:
-        await create_operator(
-            operator_id=str(realty_user_id),
-            full_name=None,
-            team_id=None,
-        )
-        current_operator = await get_enriched_operator_by_id(operator_id=realty_user_id)
-    return current_operator
 
 
 class AdminTeamsPageHandler(PublicHandler):
@@ -132,7 +135,14 @@ class AdminTeamsPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_or_create_current_operator(self.realty_user_id)
+        last_updating = await get_latest_operator_updating()
+        if not last_updating:
+            await create_operators_from_cian()
+        elif last_updating < datetime.now(tz=pytz.UTC) - timedelta(days=1):
+            await create_operators_from_cian()
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
         operators = await get_enriched_operators()
         teams = await get_teams()
         self.write(get_teams_page_html(
@@ -147,7 +157,9 @@ class AdminOperatorCardPageHandler(PublicHandler):
 
     async def get(self, operator_id: str) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_or_create_current_operator(self.realty_user_id)
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
         operator = await get_enriched_operator_by_id(operator_id)
         operators = await get_enriched_operators()
         teams = await get_teams()
@@ -200,7 +212,9 @@ class AdminTeamCardPageHandler(PublicHandler):
 
     async def get(self, team_id: str) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_or_create_current_operator(self.realty_user_id)
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
         team = await get_team_by_id(int(team_id))
         operators = await get_enriched_operators()
         teams = await get_teams()

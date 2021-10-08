@@ -17,6 +17,7 @@ async def create_operator_public(request: CreateOperatorRequest, user_id: int) -
             full_name=request.full_name,
             team_id=request.team_id,
             is_teamlead=False,
+            email=request.email,
         )
         message = 'Оператор был успешно создан.'
         success = True
@@ -37,6 +38,8 @@ async def update_operator_public(request: UpdateOperatorRequest, user_id: int) -
             operator_id=request.operator_id,
             full_name=request.full_name,
             team_id=request.team_id,
+            is_teamlead=False,
+            email=request.email,
         )
         message = 'Информация про оператора была успешно обновлена.'
         success = True
