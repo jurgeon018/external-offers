@@ -191,6 +191,7 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
                     if not (cian_user_id := await cian_user_id_of_recently_registrated_account(phone_number)):
                         register_response: RegisterUserByPhoneResponse = await v1_register_user_by_phone(
                             RegisterUserByPhoneRequest(
+                                is_professional=not is_by_home_owner,
                                 phone=phone_number,
                                 sms_template=runtime_settings.SMS_REGISTRATION_TEMPLATE
                             )
