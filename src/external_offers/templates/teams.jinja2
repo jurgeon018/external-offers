@@ -9,7 +9,7 @@
     font-weight: bold;
     padding: 0;
     }
-    .row.row-header {
+    .tablerow.tablerow-header {
     border-top: 2px solid #000000;
     }
     .column.columnheader {
@@ -28,7 +28,7 @@
     text-decoration: none;
     text-shadow: 0.5px 0.5px 0.5px #555;
     }
-    .row {
+    .tablerow {
     border-top: 0;
     border-bottom: 2px solid #000000;
     border-left: 2px solid #000000;
@@ -74,14 +74,14 @@
             Команды
         </div>
         <div class="grid">
-            <div class="row row-header">
+            <div class="tablerow tablerow-header">
                 <div class="column columnheader">ID</div>
                 <div class="column columnheader">Название</div>
                 <div class="column columnheader">Сегмент</div>
                 <div class="column columnheader">ID лида</div>
             </div>
             {% for team in teams %}
-            <div class="row">
+            <div class="tablerow">
                 <div class="column">
                     {{team.team_id}}
                 </div>
@@ -119,7 +119,7 @@
             Операторы
         </div>
         <div class="grid">
-            <div class="row row-header">
+            <div class="tablerow tablerow-header">
                 <div class="column columnheader">ID</div>
                 <div class="column columnheader">Имя</div>
                 <div class="column columnheader">Email</div>
@@ -127,7 +127,7 @@
                 <div class="column columnheader">Роль</div>
             </div>
             {% for operator in operators %}
-            <div class="row">
+            <div class="tablerow">
                 <div class="column column-link" onclick="onClickRedirectToOperatorCard('{{operator.operator_id}}')">
                     {{ operator.operator_id }}
                 </div>
@@ -147,7 +147,7 @@
                 </div>
                 {% endif %} #}
                 <div class="column">
-                    <select id="operatorTeam">
+                    <select id="operatorTeam" style="width: 110px;">
                         <option 
                             onclick="updateOperator(this)" data-operator_id="{{operator.operator_id}}"
                             value {% if not operator.team_id %} selected {% endif %}
