@@ -208,7 +208,10 @@ async def get_lastest_event_timestamp() -> Optional[datetime]:
         select([
             func.max(po.c.timestamp)
         ]).where(
-            po.c.is_test.is_(False)
+            and_(
+                po.c.external_offer_type != ExternalOfferType.commercial.value,
+                po.c.is_test.is_(False),
+            ),
         ).limit(1)
     )
     return await pg.get().fetchval(query, *params)

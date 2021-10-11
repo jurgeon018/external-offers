@@ -14,11 +14,9 @@
             Удалить команду
         </button>
 
-
         <hr>
 
-
-        <form id="team_form" method="POST">
+        <form id="team_form">
 
         <input type="hidden" name="teamId" value="{{team.team_id}}" />
         ID команды: {{team.team_id}}
@@ -51,7 +49,7 @@
         <hr>
         <h2>Настройки обьявлений</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки обьявлений</button>
-        <div style="display: none;">
+        <div class="toggledBlock" style="display: none;">
             <br>
             <span title="мультивыбор">Категории:</span>
             <select name="categories" multiple="multiple" size="10">
@@ -83,7 +81,7 @@
         <hr>
         <h2>Настройки пользователей</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки клиентов</button>
-        <div style="display: none;">
+        <div class="toggledBlock" style="display: none;">
             <br>
             <span title="мультивыбор">Сегмент:</span>
             <select name="segments" multiple="multiple" size="10">
@@ -138,11 +136,12 @@
             <input name="validDaysAfterCall" type="number" value='{{team_settings.get("valid_days_after_call")}}' placeholder="введите количество дней"/>
 
         </div>
-
+        
+        
         <hr>
         <h2>Настройки cортировок</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки сортировок</button>
-        <div style="display: none;">
+        <div class="toggledBlock" style="display: none;">
             <br>
             <span>Порядок признака 'Статус клиента(добивочный или новый)'</span><br>
             <input name="activationStatusPosition" value="{{team_settings.get('activation_status_position', '')}}" placeholder="" required/><br>
@@ -244,11 +243,10 @@
             
             
         </div><br><br>
-
         <hr>
         <h2>Настройки промокодов</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки промокодов</button>
-        <div style="display: none;">
+        <div class="toggledBlock" style="display: none;">
             <br>
             <span>регионы применения:</span><br>
             <select name="promocodeRegions" multiple="multiple" size="10">
@@ -288,20 +286,18 @@
         </div>
 
         <hr>
-        <input type='submit' value="Обновить информацию про команду"/>
+        
+        <button onclick="toggleBlocks()" type='submit'>Обновить информацию про команду</button>
 
         </form>
     </div>
 </div>
 <script>
     let DEBUG = 'True' === '{{debug}}';
-    let teamForm = document.getElementById('team_form')
-    console.log('1teamForm', teamForm)
     // fix for service.cian.ru
     window.onpopstate = function(event) {
         location.reload();
     };
-    console.log('2teamForm', teamForm)
     function formDataFromObject(obj) {
         var form_data = new URLSearchParams();
         for ( var key in obj ) {
@@ -381,8 +377,8 @@
         values["mainRegionsPriority"] = mainRegionsPriorityObj
         return values
     }
-    console.log('3teamForm', teamForm)
     async function updateTeam(event){
+        console.log('updateTeam')
         event.preventDefault()
         let team_form = document.getElementById('team_form')
         let form_values = collectFormValues(team_form)
@@ -400,6 +396,15 @@
         } else {
             alert('Не удалось обновить информацию о команде.');
         }
+    }
+    async function toggleBlocks(){
+        let form = document.getElementById('team_form')
+        if(!form.checkValidity()){
+            document.querySelectorAll('.toggledBlock').forEach((e)=>{
+                e.style.display = 'block';
+            })
+        }
+        form.addEventListener('submit', updateTeam)
     }
     async function deleteTeam(id){
         let obj = {
@@ -419,7 +424,6 @@
             alert('Не удалось удалить команду.')
         }
     }
-    teamForm.addEventListener('submit', updateTeam)
 </script>
 </body>
 </html>
