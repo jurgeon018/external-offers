@@ -4,14 +4,13 @@ import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 
+from external_offers.enums.operator_role import OperatorRole
 from external_offers.enums.user_segment import UserSegment
 from external_offers.helpers.region_names import REGION_NAMES
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
     Status as PublicationStatus,
 )
-from external_offers.enums.operator_role import OperatorRole
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_operator_and_offer_id,
