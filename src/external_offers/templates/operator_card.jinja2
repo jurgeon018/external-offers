@@ -65,6 +65,10 @@
 </div>
 <script>
     let DEBUG = 'True' === '{{debug}}';
+    // fix for service.cian.ru
+    window.onpopstate = function(event) {
+        location.reload();
+    };
     function formDataFromObject(obj) {
         var form_data = new URLSearchParams();
         for ( var key in obj ) {
