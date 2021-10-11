@@ -147,7 +147,7 @@
                 </div>
                 {% endif %} #}
                 <div class="column">
-                    <select id="operatorTeam" style="width: 110px;">
+                    <select id="operatorTeam" style="width: 90px;">
                         <option 
                             onclick="updateOperator(this)" data-operator_id="{{operator.operator_id}}"
                             value {% if not operator.team_id %} selected {% endif %}
@@ -199,6 +199,10 @@
 </div>
 <script>
     let DEBUG = 'True' === '{{debug}}';
+    // fix for service.cian.ru
+    window.onpopstate = function(event) {
+        location.reload();
+    };
     function formDataFromObject(obj) {
         var form_data = new URLSearchParams();
         for ( var key in obj ) {

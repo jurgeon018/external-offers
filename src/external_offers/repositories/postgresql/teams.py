@@ -26,6 +26,8 @@ async def get_team_by_id(team_id: int) -> Optional[Team]:
             [teams]
         ).where(
             teams.c.team_id == team_id
+        ).order_by(
+            teams.c.team_id.asc()
         ).limit(1)
     )
     row = await pg.get().fetchrow(query, *params)
