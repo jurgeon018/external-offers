@@ -165,7 +165,7 @@ async def create_operators_from_cian() -> None:
             if user.user_name:
                 full_name = user.user_name
             elif user.first_name and user.last_name:
-                full_name = user.first_name + user.last_name
+                full_name = f'{user.first_name} {user.last_name}'
             else:
                 full_name = None
             email = user.email
