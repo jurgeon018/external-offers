@@ -283,13 +283,14 @@
             <input name="promocodeGroupName" type="text" value="{{team_settings.get('promocode_group_name', '')}}" placeholder="Введите название групы промокодов" required/>
         </div>
 
-        <hr><button type="submit">Обновить информацию про команду</button>
+        <hr><button type='submit'>Обновить информацию про команду</button>
 
         </form>
     </div>
 </div>
 <script>
     let DEBUG = 'True' === '{{debug}}';
+    let teamForm = document.getElementById('team_form')
     // fix for service.cian.ru
     window.onpopstate = function(event) {
         location.reload();
@@ -374,7 +375,7 @@
         return values
     }
     async function updateTeam(event){
-        event.preventDefault();
+        event.preventDefault()
         let team_form = document.getElementById('team_form')
         let form_values = collectFormValues(team_form)
         let body = getBody(form_values)
@@ -410,6 +411,7 @@
             alert('Не удалось удалить команду.')
         }
     }
+    console.log('123')
     team_form.addEventListener('submit', updateTeam)
 </script>
 </body>
