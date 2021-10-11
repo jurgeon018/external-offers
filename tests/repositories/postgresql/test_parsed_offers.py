@@ -33,6 +33,10 @@ async def test_get_lastest_event_timestamp():
 
     # assert
     pg.get().fetchval.assert_called_with(
-        'SELECT max(parsed_offers_1.timestamp) AS max_1 \nFROM parsed_offers AS parsed_offers_1 \nWHERE parsed_offers_1.is_test IS false \n LIMIT $1',
+        'SELECT max(parsed_offers_1.timestamp) AS max_1 \n'
+        'FROM parsed_offers AS parsed_offers_1 \n'
+        'WHERE parsed_offers_1.external_offer_type IS NOT $1 AND parsed_offers_1.is_test IS false \n '
+        'LIMIT $2',
+        'commercial',
         1
     )
