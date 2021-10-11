@@ -13,7 +13,11 @@
         <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
+
+
         <hr>
+
+
         <form id="team_form" method="POST">
 
         <input type="hidden" name="teamId" value="{{team.team_id}}" />
@@ -283,7 +287,8 @@
             <input name="promocodeGroupName" type="text" value="{{team_settings.get('promocode_group_name', '')}}" placeholder="Введите название групы промокодов" required/>
         </div>
 
-        <hr><button type='submit'>Обновить информацию про команду</button>
+        <hr>
+        <input type='submit' value="Обновить информацию про команду"/>
 
         </form>
     </div>
@@ -291,10 +296,12 @@
 <script>
     let DEBUG = 'True' === '{{debug}}';
     let teamForm = document.getElementById('team_form')
+    console.log('1teamForm', teamForm)
     // fix for service.cian.ru
     window.onpopstate = function(event) {
         location.reload();
     };
+    console.log('2teamForm', teamForm)
     function formDataFromObject(obj) {
         var form_data = new URLSearchParams();
         for ( var key in obj ) {
@@ -374,11 +381,10 @@
         values["mainRegionsPriority"] = mainRegionsPriorityObj
         return values
     }
+    console.log('3teamForm', teamForm)
     async function updateTeam(event){
-        console.log('updateTeam')
         event.preventDefault()
         let team_form = document.getElementById('team_form')
-        console.log('team_form', team_form)
         let form_values = collectFormValues(team_form)
         let body = getBody(form_values)
         const response = await fetch("/api/admin/v1/update-team-public/", {
@@ -413,7 +419,6 @@
             alert('Не удалось удалить команду.')
         }
     }
-    console.log('teamForm', teamForm)
     teamForm.addEventListener('submit', updateTeam)
 </script>
 </body>

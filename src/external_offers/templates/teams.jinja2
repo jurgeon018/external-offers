@@ -154,17 +154,16 @@
                 {% endif %}
                 </div>
                 <div class="column">
-                    <select id="operatorTeam" style="width: 90px;">
+                    <select id="operatorTeam" style="width: 90px;" onchange="updateOperator(this)" data-operator_id="{{operator.operator_id}}">
                         <option 
-                            onclick="updateOperator(this)" data-operator_id="{{operator.operator_id}}"
-                            value {% if not operator.team_id %} selected {% endif %}
+                            value
+                            {% if not operator.team_id %} selected {% endif %}
                         >
                             -
                         </option>
                         {% for team in teams %}
                         <option 
                             value="{{team.team_id}}"
-                            onclick="updateOperator(this)" data-operator_id="{{operator.operator_id}}"
                             {% if operator.team_id == team.team_id %} selected {% endif %}
                         >
                             {{team.team_name}} ({{team.team_id}})
@@ -197,6 +196,7 @@
     <hr>
     {# !Операторы #}
 </div>
+</body>
 <script>
     let DEBUG = 'True' === '{{debug}}';
     // fix for service.cian.ru
@@ -270,8 +270,10 @@
             alert('Не удалось удалить оператора.')
         }
     }
-    async function updateOperator(elem){
-        let teamId = elem.value      
+    console.log("elem")
+    async function updateOperator(event){
+        let elem = event
+        let teamId = elem.value 
         let operatorId = elem.dataset.operator_id
         let email = document.getElementById(`operator_${operatorId}_email`)
         email = email.innerText;
@@ -357,5 +359,4 @@
         }
     }
 </script>
-</body>
 </html>
