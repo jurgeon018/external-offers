@@ -35,7 +35,7 @@
     Email: {% if operator.email %}{{operator.email}}{% else %}-{% endif %}
     <input
         value="{% if operator.email %}{{operator.email}}{% endif %}"
-        id="operatorEmail" type='text' name='email' placeholder='введите свой email'
+        id="operatorEmail" type='hidden' name='email' placeholder='введите свой email'
     />
     <br>
     <br>
@@ -103,6 +103,7 @@
     // crud
     async function updateOperator(){
         let name = document.getElementById('operatorName').value
+        // let email = document.getElementById('operatorEmail').value
         let email = document.getElementById('operatorEmail').value
         let teamId = document.getElementById('operatorTeam').value
         if(!name){

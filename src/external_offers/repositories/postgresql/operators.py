@@ -26,7 +26,8 @@ async def get_enriched_operators() -> List[EnrichedOperator]:
     rows = await pg.get().fetch("""
         SELECT * FROM operators
         LEFT OUTER JOIN teams ON operators.team_id = teams.team_id
-        WHERE operators.operator_id IS NOT NULL;
+        WHERE operators.operator_id IS NOT NULL
+        ORDER BY operator_id asc;
     """)
     return [enriched_operators_mapper.map_from(row) for row in rows]
 
