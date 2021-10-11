@@ -375,8 +375,10 @@
         return values
     }
     async function updateTeam(event){
+        console.log('updateTeam')
         event.preventDefault()
         let team_form = document.getElementById('team_form')
+        console.log('team_form', team_form)
         let form_values = collectFormValues(team_form)
         let body = getBody(form_values)
         const response = await fetch("/api/admin/v1/update-team-public/", {
@@ -411,8 +413,8 @@
             alert('Не удалось удалить команду.')
         }
     }
-    console.log('123')
-    team_form.addEventListener('submit', updateTeam)
+    console.log('teamForm', teamForm)
+    teamForm.addEventListener('submit', updateTeam)
 </script>
 </body>
 </html>
