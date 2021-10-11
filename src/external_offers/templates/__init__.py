@@ -71,6 +71,7 @@ def get_teams_page_html(
 ) -> str:
     # template = templates.get_template('teams_debug.jinja2')
     template = templates.get_template('teams.jinja2')
+    # template = templates.get_template('teams_debug.jinja2')
     return template.render(
         debug=runtime_settings.DEBUG,
         current_operator=current_operator,
