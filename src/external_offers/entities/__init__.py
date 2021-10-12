@@ -32,13 +32,22 @@ from external_offers.entities.clients import (
 )
 from external_offers.entities.event_log import EnrichedEventLogEntry, EventLogEntry
 from external_offers.entities.offers import EnrichedOffer, Offer, OfferStatus
+from external_offers.entities.operators import (
+    CreateOperatorRequest,
+    DeleteOperatorRequest,
+    EnrichedOperator,
+    Operator,
+    UpdateOperatorRequest,
+)
 from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferMessage
+from external_offers.entities.response import BasicResponse
 from external_offers.entities.return_client_by_phone import (
     ReturnClientByPhoneError,
     ReturnClientByPhoneRequest,
     ReturnClientByPhoneResponse,
 )
 from external_offers.entities.save_offer import SaveOfferRequest, SaveOfferResponse
+from external_offers.entities.teams import CreateTeamRequest, DeleteTeamRequest, Team, UpdateTeamRequest
 from external_offers.entities.test_objects import (
     CreateTestClientRequest,
     CreateTestClientResponse,
