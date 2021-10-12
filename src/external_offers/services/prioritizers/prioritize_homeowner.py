@@ -15,7 +15,7 @@ from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions
 )
 from external_offers.repositories.postgresql import set_cian_user_id_by_client_id
 from external_offers.repositories.users import v2_get_users_by_phone
-from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
+from external_offers.repositories.users.entities import GetUsersByPhoneResponseV2, UserModelV2, V2GetUsersByPhone
 from external_offers.services.prioritizers.build_priority import build_waiting_homeowner_priority
 
 
@@ -74,7 +74,7 @@ async def find_homeowner_client_account_priority(
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
 
         try:
-            response = await v2_get_users_by_phone(
+            response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
                 V2GetUsersByPhone(
                     phone=phone
                 )
