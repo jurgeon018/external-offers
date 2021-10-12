@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
@@ -78,6 +79,14 @@ async def find_homeowner_client_account_priority(
                     phone=phone
                 )
             )
+            if (
+                runtime_settings.CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS
+                and response.users
+            ):
+                # проверяет есть ли по номеру телефона такой аккаунт на циан.
+                # если есть - задание пропускается
+                # если нет - задание выдается оператору
+                return _CLEAR_CLIENT_PRIORITY
 
             # Приоритет для незарегистрированных собственников
             if not response.users:
