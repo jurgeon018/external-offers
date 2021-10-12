@@ -1,0 +1,156 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>
+Оператор {{operator.full_name}} ({{operator.operator_id}})
+</title>
+</head>
+<body>
+<div class="container">
+    <hr>
+    <div class="block">
+        <button data-link_to_page="/admin/teams/" onclick="onClickRedirectToTeams(this)">
+            Вернуться назад
+        </button>
+        <button style="color:red;" data-link_to_page="/admin/teams/" onclick="deleteOperator('{{operator.operator_id}}')">
+            Удалить профиль
+        </button>
+    </div>
+    <hr>
+    <br>
+    {% if operator.is_teamlead %} Тимлид {% else %} Не тимлид {% endif %}
+    <br>
+    <br>
+    
+    ID: <a target="_blank" href="https://service.cian.ru/customers/view/{{operator.operator_id}}">{{operator.operator_id}}</a>
+    <br>
+    <br>
+    Имя: {% if operator.full_name %}{{operator.full_name}}{% else %}-{% endif %}
+    <input
+        value="{% if operator.full_name %}{{operator.full_name}}{% endif %}"
+        id="operatorName" type='text' name='name' placeholder='введите свое имя'
+    />
+    <br>
+    <br>
+    Email: {% if operator.email %}{{operator.email}}{% else %}-{% endif %}
+    <input
+        value="{% if operator.email %}{{operator.email}}{% endif %}"
+        id="operatorEmail" type='hidden' name='email' placeholder='введите свой email'
+    />
+    <br>
+    <br>
+    Команда: 
+    {% if operator.team_id %}
+        <a style="color: blue; cursor: pointer;" onclick="onClickRedirectToTeamCard('{{operator.team_id}}')">
+            {{operator.team_name}}({{operator.team_id}})
+        </a>
+    {% else %}
+    -
+    {% endif %}
+    <select id="operatorTeam">
+        <option value {% if not operator.team_id %} selected {% endif %}>
+            -
+        </option>
+        {% for team in teams %}
+        <option value="{{team.team_id}}" {% if operator.team_id == team.team_id %} selected {% endif %}>
+            {{team.team_name}} ({{team.team_id}})
+        </option>
+        {% endfor %}
+    </select>
+    <br>
+    <br>
+    <button onclick="updateOperator()">
+        Обновить персональную информацию
+    </button>
+</div>
+<script>
+    let DEBUG = 'True' === '{{debug}}';
+    // fix for service.cian.ru
+    window.onpopstate = function(event) {
+        location.reload();
+    };
+    function formDataFromObject(obj) {
+        var form_data = new URLSearchParams();
+        for ( var key in obj ) {
+            form_data.append(key, obj[key]);
+        }
+        return form_data
+    }
+    function getBody(obj){
+        return DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+    }
+    function redirect(url){
+        if (DEBUG) {
+            window.location.href = url;
+        } else {
+            // workaround to redirect when on service.cian.ru
+            queryParams = new URLSearchParams(window.location.search)
+            queryParams.set("url", url);
+            history.pushState(null, null, "?"+queryParams.toString());
+            location.reload()
+        }
+    }
+    function onClickRedirectToTeams() {
+        redirect('/admin/teams/')
+    }
+    function onClickRedirectToOperatorCard(operator_id){
+        redirect(`/admin/operator-card/${operator_id}/`)
+    }
+    function onClickRedirectToTeamCard(team_id){
+        redirect(`/admin/team-card/${team_id}/`)
+    }
+
+    // crud
+    async function updateOperator(){
+        let name = document.getElementById('operatorName').value
+        // let email = document.getElementById('operatorEmail').value
+        let email = document.getElementById('operatorEmail').value
+        let teamId = document.getElementById('operatorTeam').value
+        if(!name){
+            alert('Введите свое имя!')
+            return
+        }
+        if(teamId == ""){
+            teamId = null;
+        }
+        let obj = {
+            "operatorId": '{{operator.operator_id}}',
+            "fullName": name,
+            "teamId": teamId,
+            'email': email,
+        }
+        const response = await fetch("/api/admin/v1/update-operator-public/", {
+            method: 'POST',
+            body: getBody(obj),
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            location.reload()
+        }else if (resp.success === false){
+            alert(resp.message)
+        } else {
+            alert('Не удалось обновить информацию об операторе.')
+        }
+    }
+    async function deleteOperator(id){
+        let obj = {
+            "operatorId": id,
+        }
+        const response = await fetch("/api/admin/v1/delete-operator-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            redirect('/admin/teams/')
+        } else if (resp.success === false){
+            alert(resp.message)
+        } else {
+            alert('Не удалось удалить оператора.')
+        }
+    }
+</script>
+</body>
+</html>
