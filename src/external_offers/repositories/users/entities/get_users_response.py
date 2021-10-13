@@ -11,11 +11,11 @@ cian-codegen version: 1.16.3
 from dataclasses import dataclass
 from typing import List
 
-from .role_model import RoleModel
+from .user_model import UserModel
 
 
 @dataclass
-class GetUserRolesResponse:
-    """Ответ на получение ролей пользователя"""
-    roles: List[RoleModel]
-    """Роли"""
+class GetUsersResponse:
+    """Список  моделей пользователей"""
+    users: List[UserModel]
+    """Модели пользователей"""

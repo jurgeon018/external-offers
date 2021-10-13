@@ -4,7 +4,7 @@ from typing import List, Optional
 from cian_core.runtime_settings import runtime_settings
 from jinja2 import Environment, PackageLoader
 
-from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer
+from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer, Operator, Team
 from external_offers.entities.parsed_offers import ParsedObjectModel
 from external_offers.repositories.monolith_cian_announcementapi.entities import CommercialPossibleAppointmentModel
 from external_offers.templates.filters import custom_filters
@@ -61,4 +61,51 @@ def get_offer_card_html(
         exist_drafts=exist_drafts,
         offer_is_draft=offer_is_draft,
         is_ready_business_enabled=1 if is_ready_business_enabled is True else 0,
+    )
+
+
+def get_teams_page_html(
+    current_operator: Operator,
+    operators: list[Operator],
+    teams: list[Team],
+) -> str:
+    template = templates.get_template('teams.jinja2')
+    # template = templates.get_template('teams_debug.jinja2')
+    return template.render(
+        debug=runtime_settings.DEBUG,
+        current_operator=current_operator,
+        operators=operators,
+        teams=teams,
+    )
+
+
+def get_team_card_html(
+    current_operator: Operator,
+    team: Team,
+    operators: list[Operator],
+    teams: list[Team],
+) -> str:
+    template = templates.get_template('team_card.jinja2')
+    return template.render(
+        debug=runtime_settings.DEBUG,
+        current_operator=current_operator,
+        team=team,
+        operators=operators,
+        teams=teams,
+    )
+
+
+def get_operator_card_html(
+    current_operator: Operator,
+    operator: Operator,
+    operators: list[Operator],
+    teams: list[Team],
+) -> str:
+    template = templates.get_template('operator_card.jinja2')
+    return template.render(
+        debug=runtime_settings.DEBUG,
+        current_operator=current_operator,
+        operator=operator,
+        operators=operators,
+        teams=teams,
     )

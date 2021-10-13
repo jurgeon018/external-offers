@@ -35,6 +35,18 @@ definitions:
     - roleName
     - userId
     type: object
+  WebApi.Models.GetUserIdsByRoleNameResponse:
+    description: Ответ на получение id пользователей, у которых есть переданная роль
+    properties:
+      userIds:
+        description: Id пользователей
+        items:
+          format: int64
+          type: integer
+        type: array
+    required:
+    - userIds
+    type: object
   WebApi.Models.GetUserRolesResponse:
     description: Ответ на получение ролей пользователя
     properties:
@@ -45,6 +57,17 @@ definitions:
         type: array
     required:
     - roles
+    type: object
+  WebApi.Models.GetUsersResponse:
+    description: Список  моделей пользователей
+    properties:
+      users:
+        description: Модели пользователей
+        items:
+          $ref: '#/definitions/WebApi.Models.UserModel'
+        type: array
+    required:
+    - users
     type: object
   WebApi.Models.RoleModel:
     description: Модель роли
@@ -62,6 +85,104 @@ definitions:
     required:
     - id
     - name
+    type: object
+  WebApi.Models.UserIdsRequest:
+    description: Модель запроса по Realty ID пользователей
+    properties:
+      userIds:
+        description: Список Realty ID пользователей
+        items:
+          format: int64
+          type: integer
+        type: array
+    type: object
+  WebApi.Models.UserModel:
+    description: Пользователь
+    properties:
+      birthday:
+        description: Дата рождения
+        format: date-time
+        type: string
+      cianUserId:
+        description: CianId
+        format: int64
+        type: integer
+      city:
+        description: Город из социальной сети
+        type: string
+      creationDate:
+        description: Дата создания пользователя
+        format: date-time
+        type: string
+      email:
+        description: Email
+        type: string
+      externalUserId:
+        description: Id партнера
+        type: string
+      externalUserSourceType:
+        description: Тип источника
+        enum:
+        - emls
+        - subAgents
+        - n1
+        - mlsn
+        type: string
+        x-emls: Пользователи из ЕМЛС
+        x-mlsn: Mlsn
+        x-n1: Партнер N1
+        x-subAgents: Субагенты
+      firstName:
+        description: Имя
+        type: string
+      hasAvatar:
+        description: Есть ли аватар у пользователя
+        type: boolean
+      id:
+        description: Id
+        format: int64
+        type: integer
+      ip:
+        description: Ip пользователя
+        format: int64
+        type: integer
+      lastName:
+        description: Фамилия
+        type: string
+      mainAnnouncementsRegionId:
+        description: Основной регион работы
+        format: int32
+        type: integer
+      secretCode:
+        description: Секретный код
+        type: string
+      state:
+        description: Состояние пользователя
+        enum:
+        - active
+        - blocked
+        - deleted
+        type: string
+        x-active: Аткивный
+        x-blocked: Заблокирован
+        x-deleted: Удалён
+      stateChangeReason:
+        description: Статус смены состояния
+        enum:
+        - ApplySanction
+        - SubAgent
+        - RemoveSanction
+        - UnBlockedByMasterAgent
+        - blockedBeforeRemove
+        type: string
+        x-ApplySanction: Блокировка из-за санкции
+        x-RemoveSanction: Снятие санкции
+        x-SubAgent: Блокировка мастер-агентом
+        x-UnBlockedByMasterAgent: Снятие блокировки мастер-агентом
+        x-blockedBeforeRemove: Блокировка перед удалением
+      userName:
+        description: Имя пользователя
+        type: string
     type: object
   WebApi.Models.UserModelV2:
     description: Пользователь
@@ -284,6 +405,50 @@ paths:
       summary: Получает все роли пользователя по его realtyUserId
       tags:
       - Roles
+  /v1/get-userids-by-rolename/:
+    get:
+      parameters:
+      - in: query
+        name: roleName
+        type: string
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Models.GetUserIdsByRoleNameResponse'
+      summary: Возвращает id пользователей, у которых есть переданная роль
+      tags:
+      - Roles
+  /v1/get-users/:
+    post:
+      consumes:
+      - application/json-patch+json
+      - application/json
+      - text/json
+      - application/*+json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/WebApi.Models.UserIdsRequest'
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Models.GetUsersResponse'
+      summary: Возвращает пользователей
+      tags:
+      - Users
   /v1/register-user-by-phone/:
     post:
       consumes:
@@ -310,6 +475,33 @@ paths:
         \ без подтверждения\r\nручка для \"Админки предразмещения\""
       tags:
       - UserRegistration
+  /v1/user-has-role/:
+    get:
+      parameters:
+      - format: int64
+        in: query
+        name: userId
+        type: integer
+      - in: query
+        name: roleName
+        type: string
+      - default: false
+        in: query
+        name: useCache
+        type: boolean
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: boolean
+      summary: Проверяет роль у пользователя
+      tags:
+      - Roles
   /v2/get-users-by-phone/:
     get:
       parameters:

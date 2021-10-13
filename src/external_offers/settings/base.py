@@ -232,6 +232,7 @@ SUITABLE_EXTERNAL_SOURCES_FOR_SAVE = ['1']
 SUITABLE_EXTERNAL_SOURCES_FOR_SEND = ['1']
 
 EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT = 3
+CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS: bool = False
 
 DEBUG: bool = False
 
@@ -272,3 +273,7 @@ DEFAULT_TEST_CLIENT = """{
     "client_email": "111@21.11",
     "main_account_chosen": false
 }"""
+ADMIN_OPERATOR_ROLE: str = 'Cian.PrepositionAdmin'
+# TODO: https://jira.cian.tech/browse/CD-116932 
+# вставить правильное название роли тимлида админки
+ADMIN_TEAMLEAD_ROLE: str = 'Cian.AdminTeamleadRole'

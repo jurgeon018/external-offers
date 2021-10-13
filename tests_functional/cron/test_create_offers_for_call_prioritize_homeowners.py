@@ -12,6 +12,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_emls__
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
@@ -83,6 +84,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': [
             'flatSale', 'flatRent', 'officeRent', 'houseRent', 'officeSale', 'houseSale'
@@ -169,6 +171,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_blocke
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
@@ -237,6 +240,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': [
             'flatSale', 'flatRent', 'officeRent', 'houseRent', 'officeSale', 'houseSale'
@@ -323,6 +327,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
@@ -361,6 +366,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': [
             'flatSale', 'flatRent', 'officeRent', 'houseRent', 'officeSale', 'houseSale'
@@ -413,6 +419,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
         'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
@@ -460,6 +467,63 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
                 ]
             }]}
         )
+    )
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+
+    # assert
+    offer_row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = '9d6c73b8-3057-47cc-b50a-419052da619f'
+        """
+    )
+
+    assert offer_row is None
+
+
+async def test_create_offers__clear_homeowners_with_existing_accounts_is_true__clients_cleared(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock,
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': True,
+        'OFFER_TASK_CREATION_SEGMENTS': ['d'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+        'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
+        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5
+    })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': [{
+                'id': 12835367,
+                'cianUserId': 12835367,
+                'mainAnnouncementsRegionId': 2,
+                'email': 'forias@yandex.ru',
+                'state': 'blocked',
+                'stateChangeReason': None,
+                'secretCode': '8321',
+                'birthday': '0001-01-01T00:00:00+02:31',
+                'firstName': 'Александровна',
+                'lastName': 'Ирина',
+                'city': None,
+                'userName': None,
+                'creationDate': '2017-01-20T22:22:58.913',
+                'ip': 167772335,
+                'externalUserSourceType': None,
+                'isAgent': False
+            }]}
+        ),
     )
 
     # act

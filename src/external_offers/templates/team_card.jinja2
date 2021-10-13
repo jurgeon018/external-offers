@@ -1,0 +1,157 @@
+<html>
+<head>
+<style>
+    .help_block {
+        font-size: 10px;
+    } 
+</style>
+<meta charset="utf-8">
+<title>Команда {{team.team_name}}({{team.team_id}})</title>
+</head>
+<body>
+<div class="container">
+    <hr>
+    <div class="block">
+        <button onclick="onClickRedirectToTeams(this)">
+            Вернуться к списку обьектов
+        </button>
+        <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
+            Удалить команду
+        </button>
+        <hr>
+        ID: {{team.team_id}}
+        <br>
+        <br>
+        ID лида команды: 
+        {% if team.lead_id %}
+            <a style="color: blue; cursor: pointer;" onclick="onClickRedirectToOperatorCard('{{team.lead_id}}')">
+                {{team.lead_id}}
+            </a>
+        {% else %}
+        -
+        {% endif %}
+        <select id="teamLeadId">
+            <option value="" {% if not team.lead_id %} selected {% endif %}>
+                -
+            </option>
+            {% for operator in operators %}
+                <option value="{{operator.operator_id}}" {% if team.lead_id == operator.operator_id %}selected{%endif%}>
+                    {{operator.full_name}}({{operator.operator_id}})
+                </option>
+            {% endfor %}
+        </select>
+        <br>
+        <br>
+        Название: {{team.team_name}}
+        <input value="{% if team.team_name %}{{team.team_name}}{% endif %}"
+            id="teamName" type='text' name='name' placeholder='введите название команды'
+        />
+        <br>
+        <br>
+        Сегмент: {% if team.segment %}{{team.segment.value}}{% else %}-{%endif%}
+        <select id="teamSegment">
+            <option {% if not team.segment %} selected {% endif %} value="">-</option>
+            <option {% if team.segment and team.segment.value == 'a' %} selected {% endif %} value="a">a</option>
+            <option {% if team.segment and team.segment.value == 'b' %} selected {% endif %} value="b">b</option>
+            <option {% if team.segment and team.segment.value == 'c' %} selected {% endif %} value="c">c</option>
+            <option {% if team.segment and team.segment.value == 'd' %} selected {% endif %} value="d">d</option>
+            {# <option {% if team.segment and team.segment.value == 'commercial' %} selected {% endif %} value="commercial">commercial</option> #}
+        </select>
+        <br>
+        <br>
+        <button onclick="updateTeam()">
+            Обновить информацию про команду
+        </button>
+    </div>
+</div>
+<script>
+    let DEBUG = 'True' === '{{debug}}';
+    // fix for service.cian.ru
+    window.onpopstate = function(event) {
+        location.reload();
+    };
+    function formDataFromObject(obj) {
+        var form_data = new URLSearchParams();
+        for ( var key in obj ) {
+            form_data.append(key, obj[key]);
+        }
+        return form_data
+    }
+    function getBody(obj){
+        return DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+    }
+    function redirect(url){
+        if (DEBUG) {
+            window.location.href = url;
+        } else {
+            // workaround to redirect when on service.cian.ru
+            queryParams = new URLSearchParams(window.location.search)
+            queryParams.set("url", url);
+            history.pushState(null, null, "?"+queryParams.toString());
+            location.reload()
+        }
+    }
+    function onClickRedirectToTeams(element) {
+        redirect('/admin/teams/')
+    }
+    function onClickRedirectToOperatorCard(operator_id) {
+        redirect(`/admin/operator-card/${operator_id}/`)
+    }
+    // crud
+    async function updateTeam(){
+        let teamId = '{{team.team_id}}'
+        let name = document.getElementById('teamName').value;
+        let segment = document.getElementById('teamSegment').value;
+        let leadId = document.getElementById('teamLeadId').value;
+        if(!name){
+            alert('Введите название команды')
+            return
+        }
+        if(!leadId){
+            alert('Выберите лида команды')
+            return
+        }
+        if(!segment){
+            segment = null
+        }
+        let obj = {
+            'teamId': teamId,
+            'leadId': leadId,
+            "teamName": name,
+            "segment": segment,
+        }
+        const response = await fetch("/api/admin/v1/update-team-public/", {
+            method: 'POST',
+            body: getBody(obj),
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message);
+            location.reload();
+        }else if (resp.success === false){
+            alert(resp.message);
+        } else {
+            alert('Не удалось обновить информацию о команде.');
+        }
+    }
+    async function deleteTeam(id){
+        let obj = {
+            "teamId": id,
+        }
+        const response = await fetch("/api/admin/v1/delete-team-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            redirect('/admin/teams/')
+        } else if (resp.success === false){
+            alert(resp.message)
+        }else {
+            alert('Не удалось удалить команду.')
+        }
+    }
+</script>
+</body>
+</html>
