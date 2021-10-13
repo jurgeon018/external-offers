@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 from simple_settings import settings
@@ -14,7 +15,7 @@ from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions
 )
 from external_offers.repositories.postgresql import set_cian_user_id_by_client_id
 from external_offers.repositories.users import v2_get_users_by_phone
-from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
+from external_offers.repositories.users.entities import GetUsersByPhoneResponseV2, UserModelV2, V2GetUsersByPhone
 from external_offers.services.prioritizers.build_priority import build_waiting_homeowner_priority
 
 
@@ -73,11 +74,19 @@ async def find_homeowner_client_account_priority(
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
 
         try:
-            response = await v2_get_users_by_phone(
+            response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
                 V2GetUsersByPhone(
                     phone=phone
                 )
             )
+            if (
+                runtime_settings.CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS
+                and response.users
+            ):
+                # проверяет есть ли по номеру телефона такой аккаунт на циан.
+                # если есть - задание пропускается
+                # если нет - задание выдается оператору
+                return _CLEAR_CLIENT_PRIORITY
 
             # Приоритет для незарегистрированных собственников
             if not response.users:
