@@ -45,12 +45,8 @@ class AdminOffersListPageHandler(PublicHandler):
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
-        unactivated = False
-        if client:
-            unactivated = client.unactivated
         offers = await get_enriched_offers_in_progress_by_operator(
             operator_id=self.realty_user_id,
-            unactivated=unactivated,
         )
         now = datetime.now()
         next_call_day = now + timedelta(days=settings.NEXT_CALL_DAY)
