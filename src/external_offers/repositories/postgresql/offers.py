@@ -82,13 +82,8 @@ async def get_offers_in_progress_by_operator(*, operator_id: int) -> list[Offer]
 async def get_enriched_offers_in_progress_by_operator(
     *,
     operator_id: int,
-    unactivated: bool = False,
 ) -> list[EnrichedOffer]:
-
-    if unactivated:
-        status_query = """(ofc.status = 'inProgress' AND ofc.publication_status = 'Draft')"""
-    else:
-        status_query = """ofc.status = 'inProgress'"""
+    status_query = """ofc.status = 'inProgress'"""
     query = f"""
         SELECT
             ofc.*,

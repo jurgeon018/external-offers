@@ -157,14 +157,13 @@ async def test_get_enriched_offers_in_progress_by_operator():
         'ofc.client_id = c.client_id\n        INNER JOIN\n            parsed_offers as po\n        '
         'ON\n            ofc.parsed_id = po.id\n        WHERE\n            '
         'c.operator_user_id = $1\n            '
-        'AND (ofc.status = \'inProgress\' AND ofc.publication_status = \'Draft\')\n    '
+        'AND ofc.status = \'inProgress\'\n    '
     )
     operator_id = 123123
     pg.get().fetch.return_value = future([])
     # act
     await postgresql.get_enriched_offers_in_progress_by_operator(
         operator_id=operator_id,
-        unactivated=True,
     )
     # assert
     pg.get().fetch.assert_called_with(query, operator_id)
