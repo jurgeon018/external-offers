@@ -301,7 +301,17 @@
     function formDataFromObject(obj) {
         var form_data = new URLSearchParams();
         for ( var key in obj ) {
-            form_data.append(key, obj[key]);
+            var value = obj[key];
+            if(value == 'null'){
+                value = null
+            }else if(value == null){
+                value = null
+            }else if(value.constructor.name == 'Array'){
+                value = JSON.stringify(value)
+            }else if(value.constructor.name == 'Object'){
+                value = JSON.stringify(value)
+            }
+            form_data.append(key, value);
         }
         return form_data
     }
@@ -337,6 +347,7 @@
         let values = {}
         for(var i=0; i < form.elements.length; i++){
             var item = form.elements.item(i);
+            {# console.log(item, item.name, item.value) #}
             if(item.multiple){
                 // values[item.name] = ''
                 values[item.name] = []
@@ -356,6 +367,10 @@
                 }
             }else if(item.class == "regionPriority"){
                 continue;
+            }else if(item.name == ""){
+                continue;
+            }else if(item.value == ""){
+                values[item.name] = null
             }else{
                 if(!item.value){
                     values[item.name] = null;
@@ -378,11 +393,13 @@
         return values
     }
     async function updateTeam(event){
-        console.log('updateTeam')
         event.preventDefault()
         let team_form = document.getElementById('team_form')
         let form_values = collectFormValues(team_form)
+        console.log('form_values', form_values)
         let body = getBody(form_values)
+        {# let body = JSON.stringify(form_values) #}
+        {# let body = formDataFromObject(form_values) #}
         const response = await fetch("/api/admin/v1/update-team-public/", {
             method: 'POST',
             body: body,
