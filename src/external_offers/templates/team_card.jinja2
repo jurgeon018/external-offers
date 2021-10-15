@@ -349,16 +349,14 @@
             var item = form.elements.item(i);
             {# console.log(item, item.name, item.value) #}
             if(item.multiple){
-                // values[item.name] = ''
                 values[item.name] = []
                 for(var j=0; j < item.options.length; j++){
                     var option = item.options[j];
                     if(option.selected){
-                        // values[item.name] += `'${option.value}', `
                         values[item.name].push(item.options[j].value)
                     }
                 }
-                // values[item.name] = values[item.name].slice(0,-2)
+                values[item.name] = JSON.stringify(values[item.name])
             }else if(item.type == "checkbox"){
                 if(item.value == "on"){
                     values[item.name] = true;
@@ -389,7 +387,7 @@
             var key = child.dataset.region_code
             mainRegionsPriorityObj[key] = parseInt(child.value)
         }
-        values["mainRegionsPriority"] = mainRegionsPriorityObj
+        values["mainRegionsPriority"] = JSON.stringify(mainRegionsPriorityObj)
         return values
     }
     async function updateTeam(event){

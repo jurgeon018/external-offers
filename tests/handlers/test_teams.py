@@ -141,23 +141,23 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.get_team_card_html',
         return_value=''
     )
-    get_team_settings_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin._get_team_settings',
         return_value=team_settings,
     )
-    get_categories_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin._get_categories',
         return_value=categories,
     )
-    get_regions_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin._get_regions',
         return_value=regions,
     )
-    get_segments_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin._get_segments',
         return_value=segments,
     )
-    get_subsegments_mock = mocker.patch(
+    mocker.patch(
         'external_offers.web.handlers.admin._get_subsegments',
         return_value=subsegments,
     )

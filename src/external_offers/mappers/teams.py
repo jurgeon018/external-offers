@@ -1,5 +1,4 @@
-from cian_entities import EntityMapper
-from cian_entities.mappers import EntityMapper, StrKeyDictMapper, ValueMapper
+from cian_entities.mappers import EntityMapper, ValueMapper
 
 from external_offers.entities import EnrichedOperator, Operator, Team
 

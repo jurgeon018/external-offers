@@ -2,8 +2,6 @@ import json
 from dataclasses import dataclass
 from typing import Optional
 
-from external_offers.enums.user_segment import UserSegment
-
 
 @dataclass
 class Team:
@@ -17,7 +15,7 @@ class Team:
     """Настройки команды"""
 
     def get_settings(self):
-        settings = {}    
+        settings = {}
         if self.settings:
             settings = json.loads(self.settings)
         return settings
@@ -38,10 +36,10 @@ class OffersSettings:
     """Категории"""
     regions: Optional[list[str]] = None
     """Регионы"""
-
-    """todo минимальная дата создания в очереди"""
-    
-    """todo флаг коллтрекинга"""
+    # todo: https://jira.cian.tech/browse/CD-116914
+    # минимальная дата создания в очереди
+    # todo: https://jira.cian.tech/browse/CD-116914
+    # флаг коллтрекинга
 
 
 @dataclass
@@ -78,10 +76,11 @@ class ClientsSettings:
     """% обьектов с площадки 'yandex'"""
     valid_days_after_call: Optional[int] = None
     """уже был в обзвоне"""
-
-    """Минимальная дата создания в очереди"""
+    # todo: https://jira.cian.tech/browse/CD-116914
+    # Минимальная дата создания в очереди
     calltracking: bool = True
     """Флаг колтрекинга"""
+
 
 @dataclass
 class PrioritySettings:
@@ -186,6 +185,24 @@ class TeamSettings(
 
 
 @dataclass
+class StrTeamSettings:
+    categories: Optional[str] = '[]'
+    """Категории"""
+    regions: Optional[str] = '[]'
+    """Категории"""
+    segments: Optional[str] = '[]'
+    """Категории"""
+    subsegments: Optional[str] = '[]'
+    """Категории"""
+    promocode_regions: Optional[str] = '[]'
+    """Категории"""
+    filling: Optional[str] = '[]'
+    """Категории"""
+    main_regions_priority: Optional[str] = '{}'
+    """Категории"""
+
+
+@dataclass
 class _UpdateTeamRequest:
     team_id: int
     """ID команды"""
@@ -197,8 +214,12 @@ class _UpdateTeamRequest:
 
 @dataclass
 class UpdateTeamRequest(
+    # StrTeamSettings должен быть в самом верху, чтобы перебить свойства из TeamSettings
+    StrTeamSettings,
     TeamSettings,
     _UpdateTeamRequest,
+    # _UpdateTeamRequest должен быть в самом низу, чтобы не получить ошибку
+    # TypeError: non-default argument 'team_id' follows default argument
 ):
     pass
 

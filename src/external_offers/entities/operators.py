@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
@@ -48,12 +47,6 @@ class EnrichedOperator:
     """ Имеет ли право быть лидом команд """
     segment: Optional[UserSegment] = None
     """Сегмент пользователей, которых будет обрабатывать команда"""
-
-    def get_settings(self):
-        settings = {}    
-        if self.settings:
-            settings = json.loads(self.settings)
-        return settings
 
 
 @dataclass
