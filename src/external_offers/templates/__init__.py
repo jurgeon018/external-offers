@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from cian_core.runtime_settings import runtime_settings
 from jinja2 import Environment, PackageLoader
@@ -69,9 +69,7 @@ def get_teams_page_html(
     operators: list[Operator],
     teams: list[Team],
 ) -> str:
-    # template = templates.get_template('teams_debug.jinja2')
     template = templates.get_template('teams.jinja2')
-    # template = templates.get_template('teams_debug.jinja2')
     return template.render(
         debug=runtime_settings.DEBUG,
         current_operator=current_operator,
@@ -83,7 +81,7 @@ def get_teams_page_html(
 def get_team_card_html(
     current_operator: Operator,
     team: Team,
-    team_settings: dict,
+    team_settings: dict[str, Any],
     operators: list[Operator],
     teams: list[Team],
     categories: list[str],

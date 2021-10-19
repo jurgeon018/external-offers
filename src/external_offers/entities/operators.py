@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 
 from external_offers.enums.user_segment import UserSegment
 
@@ -31,7 +31,7 @@ class EnrichedOperator:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
-    settings: dict
+    settings: dict[str, Any]
     """Настройки команды"""
     created_at: datetime
     """Дата создания оператора"""

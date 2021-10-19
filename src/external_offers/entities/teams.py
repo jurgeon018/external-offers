@@ -1,6 +1,6 @@
-import json
+from cian_json import json
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any
 
 
 @dataclass
@@ -11,7 +11,7 @@ class Team:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
-    settings: dict
+    settings: dict[str, Any]
     """Настройки команды"""
 
     def get_settings(self):
@@ -186,19 +186,19 @@ class TeamSettings(
 
 @dataclass
 class StrTeamSettings:
-    categories: Optional[str] = '[]'
+    categories: str = '[]'
     """Категории"""
-    regions: Optional[str] = '[]'
+    regions: str = '[]'
     """Категории"""
-    segments: Optional[str] = '[]'
+    segments: str = '[]'
     """Категории"""
-    subsegments: Optional[str] = '[]'
+    subsegments: str = '[]'
     """Категории"""
-    promocode_regions: Optional[str] = '[]'
+    promocode_regions: str = '[]'
     """Категории"""
-    filling: Optional[str] = '[]'
+    filling: str = '[]'
     """Категории"""
-    main_regions_priority: Optional[str] = '{}'
+    main_regions_priority: str = '{}'
     """Категории"""
 
 

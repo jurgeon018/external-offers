@@ -112,7 +112,6 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     regions = mocker.MagicMock(value=[])
     segments = mocker.MagicMock(value=[])
     subsegments = mocker.MagicMock(value=[])
-    # get_enriched_operator_by_id_mock = mocker.patch(
     mocker.patch(
         'external_offers.web.handlers.admin.get_enriched_operator_by_id',
         return_value=future(current_operator),
