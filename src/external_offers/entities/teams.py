@@ -1,6 +1,7 @@
-from cian_json import json
 from dataclasses import dataclass
-from typing import Optional, Any
+from typing import Any, Optional
+
+from cian_json import json
 
 
 @dataclass
