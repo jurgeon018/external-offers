@@ -412,6 +412,37 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: list[str]) -> Optio
     return rows
 
 
+async def set_waiting_offers_team_priority_by_offer_ids(
+    *,
+    offer_ids: list[str],
+    priority: int,
+    team_id: int,
+) -> None:
+    for offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=offer_ids,
+        chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
+    ):
+        # await pg.get().execute(f"""
+        # UPDATE offers_for_call
+        # SET team_settings = jsonb_set(team_settings, '"{team_id}"', '"{priority}"')
+        # WHERE id IN {tuple(offer_ids)} AND status = 'waiting';
+        # """)
+        query, params = asyncpgsa.compile_query(
+            update(
+                offers_for_call
+            ).values(
+                team_priorities=func.json_set(offers_for_call.team_priorities, f'$.{team_id}', priority)
+            ).where(
+                and_(
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                )
+            )
+        )
+        print(query, params)
+        await pg.get().execute(query, *params)
+
+
 async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: list[str], priority: int) -> None:
     for offer_ids_chunk in iterate_over_list_by_chunks(
         iterable=offer_ids,
@@ -528,11 +559,9 @@ async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: list[str])
         delete(
             offers_for_call
         ).where(
-            or_(
-                and_(
-                    offers_for_call.c.status == OfferStatus.waiting.value,
-                    offers_for_call.c.client_id.in_(client_ids),
-                )
+            and_(
+                offers_for_call.c.status == OfferStatus.waiting.value,
+                offers_for_call.c.client_id.in_(client_ids),
             )
         )
     )

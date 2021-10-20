@@ -5,32 +5,6 @@ from cian_json import json
 
 
 @dataclass
-class Team:
-    team_id: int
-    """ID команды"""
-    team_name: str
-    """Название команды"""
-    lead_id: str
-    """ID лида команды"""
-    settings: dict[str, Any]
-    """Настройки команды"""
-
-    def get_settings(self):
-        settings = {}
-        if self.settings:
-            settings = json.loads(self.settings)
-        return settings
-
-
-@dataclass
-class CreateTeamRequest:
-    team_name: str
-    """Название команды"""
-    lead_id: str
-    """ ID лида команды """
-
-
-@dataclass
 class OffersSettings:
     """Настройки фильтрации обьявлений"""
     categories: Optional[list[str]] = None
@@ -186,6 +160,33 @@ class TeamSettings(
 
 
 @dataclass
+class Team:
+    team_id: int
+    """ID команды"""
+    team_name: str
+    """Название команды"""
+    lead_id: str
+    """ID лида команды"""
+    settings: dict[str, Any]
+    """Настройки команды"""
+
+    def set_default_settings(self) -> None:
+        pass
+        # TODO
+
+    def get_settings(self) -> TeamSettings:
+        settings = None
+        if self.settings:
+            try:
+                json_settings = json.loads(self.settings)
+                settings = TeamSettings(**json_settings)
+            except Exception as e:
+                pass
+                # TODO: логирование про невалидные ошибки
+        return settings
+
+
+@dataclass
 class StrTeamSettings:
     categories: str = '[]'
     """Категории"""
@@ -201,6 +202,14 @@ class StrTeamSettings:
     """Категории"""
     main_regions_priority: str = '{}'
     """Категории"""
+
+
+@dataclass
+class CreateTeamRequest:
+    team_name: str
+    """Название команды"""
+    lead_id: str
+    """ ID лида команды """
 
 
 @dataclass

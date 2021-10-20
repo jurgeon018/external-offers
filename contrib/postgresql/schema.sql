@@ -48,6 +48,7 @@ CREATE TABLE offers_for_call
     started_at    timestamp with time zone,
     promocode     varchar,
     priority      int,
+    team_priorities jsonb,
     category      varchar,
     last_call_id  varchar,
     row_version         bigint                   not null default 0,

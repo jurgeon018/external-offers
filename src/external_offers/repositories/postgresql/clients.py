@@ -601,11 +601,9 @@ async def delete_waiting_clients_by_client_ids(
         delete(
             clients
         ).where(
-            or_(
-                and_(
-                    clients.c.status == ClientStatus.waiting.value,
-                    clients.c.client_id.in_(client_ids)
-                )
+            and_(
+                clients.c.status == ClientStatus.waiting.value,
+                clients.c.client_id.in_(client_ids)
             )
         )
     )

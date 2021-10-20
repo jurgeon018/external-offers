@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
@@ -8,6 +8,7 @@ from simple_settings import settings
 
 from external_offers.entities import HomeownerClientChooseMainProfileResult
 from external_offers.entities.clients import Client
+from external_offers.entities.teams import TeamSettings
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_profileapi._repo import v1_sanctions_get_sanctions
 from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions_get_sanctions import (
@@ -68,6 +69,7 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
 async def find_homeowner_client_account_priority(
     *,
     client: Client,
+    team_settings: Optional[TeamSettings] = None,
 ) -> int:
     cian_user_id = client.cian_user_id
     if not cian_user_id:
@@ -138,10 +140,12 @@ async def find_homeowner_client_account_priority(
 async def prioritize_homeowner_client(
     *,
     client: Client,
-    regions: List[int]
+    regions: List[int],
+    team_settings: Optional[TeamSettings] = None,
 ) -> int:
     account_priority = await find_homeowner_client_account_priority(
         client=client,
+        team_settings=team_settings,
     )
 
     if account_priority == _CLEAR_CLIENT_PRIORITY:
