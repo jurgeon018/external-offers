@@ -347,7 +347,6 @@
         let values = {}
         for(var i=0; i < form.elements.length; i++){
             var item = form.elements.item(i);
-            {# console.log(item, item.name, item.value) #}
             if(item.multiple){
                 values[item.name] = []
                 for(var j=0; j < item.options.length; j++){
@@ -358,11 +357,7 @@
                 }
                 values[item.name] = JSON.stringify(values[item.name])
             }else if(item.type == "checkbox"){
-                if(item.value == "on"){
-                    values[item.name] = true;
-                }else if(item.value == "off"){
-                    values[item.name] = false;
-                }
+                values[item.name] = item.checked;
             }else if(item.class == "regionPriority"){
                 continue;
             }else if(item.name == ""){
