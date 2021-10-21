@@ -123,8 +123,8 @@
                 <div class="column columnheader">ID</div>
                 <div class="column columnheader">Имя</div>
                 <div class="column columnheader">Email</div>
-                <div class="column columnheader">Команда</div>
                 <div class="column columnheader">Роль</div>
+                <div class="column columnheader">Команда</div>
             </div>
             {% for operator in operators %}
             <div class="tablerow">
@@ -147,7 +147,13 @@
                 </div>
                 {% endif %} #}
                 <div class="column">
-                
+                {% if operator.is_teamlead %}
+                Тимлид
+                {% else %}
+                Оператор
+                {% endif %}
+                </div>
+                <div class="column">
                     <select id="operatorTeam" style="width: 90px;" onchange="updateOperator(this)" data-operator_id="{{operator.operator_id}}">
                         <option 
                             value
@@ -164,13 +170,6 @@
                         </option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="column">
-                {% if operator.is_teamlead %}
-                Тимлид
-                {% else %}
-                Оператор
-                {% endif %}
                 </div>
                 <div class=column>
                     <button style="display:inline" onclick="deleteOperator('{{operator.operator_id}}')">
@@ -197,6 +196,7 @@
     <hr>
     {# !Операторы #}
 </div>
+</body>
 <script>
     let DEBUG = 'True' === '{{debug}}';
     // fix for service.cian.ru
@@ -270,8 +270,9 @@
             alert('Не удалось удалить оператора.')
         }
     }
-    async function updateOperator(elem){
-        let teamId = elem.value      
+    async function updateOperator(event){
+        let elem = event
+        let teamId = elem.value 
         let operatorId = elem.dataset.operator_id
         let email = document.getElementById(`operator_${operatorId}_email`)
         email = email.innerText;
@@ -357,5 +358,4 @@
         }
     }
 </script>
-</body>
 </html>

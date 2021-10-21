@@ -1,10 +1,5 @@
 <html>
 <head>
-<style>
-    .help_block {
-        font-size: 10px;
-    } 
-</style>
 <meta charset="utf-8">
 <title>Команда {{team.team_name}}({{team.team_id}})</title>
 </head>
@@ -18,19 +13,24 @@
         <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
+
         <hr>
-        ID: {{team.team_id}}
-        <br>
-        <br>
+
+        <form id="team_form">
+
+        <input type="hidden" name="teamId" value="{{team.team_id}}" />
+        ID команды: {{team.team_id}}
+        <br><br>
+
         ID лида команды: 
         {% if team.lead_id %}
-            <a style="color: blue; cursor: pointer;" onclick="onClickRedirectToOperatorCard('{{team.lead_id}}')">
+            <a style="color: blue; cursor: pointer;" title="перейти на страницу оператора" onclick="onClickRedirectToOperatorCard('{{team.lead_id}}')">
                 {{team.lead_id}}
             </a>
         {% else %}
         -
         {% endif %}
-        <select id="teamLeadId">
+        <select name="leadId" required>
             <option value="" {% if not team.lead_id %} selected {% endif %}>
                 -
             </option>
@@ -39,29 +39,257 @@
                     {{operator.full_name}}({{operator.operator_id}})
                 </option>
             {% endfor %}
-        </select>
-        <br>
-        <br>
+        </select><br><br>
+
         Название: {{team.team_name}}
-        <input value="{% if team.team_name %}{{team.team_name}}{% endif %}"
-            id="teamName" type='text' name='name' placeholder='введите название команды'
+        <input value="{% if team.team_name %}{{team.team_name}}{% endif %}"  required
+            type='text' name="teamName" placeholder='введите название команды'
         />
-        <br>
-        <br>
-        Сегмент: {% if team.segment %}{{team.segment.value}}{% else %}-{%endif%}
-        <select id="teamSegment">
-            <option {% if not team.segment %} selected {% endif %} value="">-</option>
-            <option {% if team.segment and team.segment.value == 'a' %} selected {% endif %} value="a">a</option>
-            <option {% if team.segment and team.segment.value == 'b' %} selected {% endif %} value="b">b</option>
-            <option {% if team.segment and team.segment.value == 'c' %} selected {% endif %} value="c">c</option>
-            <option {% if team.segment and team.segment.value == 'd' %} selected {% endif %} value="d">d</option>
-            {# <option {% if team.segment and team.segment.value == 'commercial' %} selected {% endif %} value="commercial">commercial</option> #}
-        </select>
-        <br>
-        <br>
-        <button onclick="updateTeam()">
-            Обновить информацию про команду
-        </button>
+        
+        <hr>
+        <h2>Настройки обьявлений</h2>
+        <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки обьявлений</button>
+        <div class="toggledBlock" style="display: none;">
+            <br>
+            <span title="мультивыбор">Категории:</span>
+            <select name="categories" multiple="multiple" size="10">
+            {% for category in categories %}
+                <option value="{{category}}" {% if category and category in team_settings.get('categories', []) %} selected {% endif %}>
+                    {{category}}
+                </option>
+            {% endfor %}
+            </select>
+            <br><br>
+            <span title="мультивыбор">Регионы:</span>
+            <select name="regions" multiple="multiple" size="10">
+            {% for region_code, region_name in regions.items() %}
+                <option value="{{region_code}}" {% if region_code and region_code in team_settings.get('regions', []) %} selected {% endif %}>
+                    {{region_name}}({{region_code}})
+                </option>
+            {% endfor %}
+            </select>
+            <br><br>
+
+            {# <span>минимальная дата создания в очереди:</span> #}
+            {# <input name="..." type="number" {% if team_settings.get('calltracking') == True %} checked {% endif %}/> #}
+            {# <br><br> #}
+            
+            <span>Флаг коллтрекинга:</span>
+            <input name="calltracking" type="checkbox" {% if team_settings.get('calltracking') == True %} checked {% endif %}/>
+        </div>
+
+        <hr>
+        <h2>Настройки пользователей</h2>
+        <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки клиентов</button>
+        <div class="toggledBlock" style="display: none;">
+            <br>
+            <span title="мультивыбор">Сегмент:</span>
+            <select name="segments" multiple="multiple" size="10">
+            {% for segment in segments %}
+                <option value="{{segment}}" {% if segment and segment in team_settings.get('segments', []) %} selected {%endif%}>
+                    {{segment}}
+                </option>
+            {% endfor %}
+            </select>
+            <br><br>
+            <span title="мультивыбор">Субсегмент:</span>
+            <select name="subsegments" multiple="multiple" size="10">
+            {% for subsegment in subsegments %}
+                <option value="{{subsegment}}" {% if subsegment and subsegment in team_settings.get('subsegments', []) %} selected {% endif %}>
+                    {{subsegment}}
+                </option>
+            {% endfor %}
+            </select>
+            <br><br>
+
+            <span title="включая границы">Количество уникальных объектов, которых нет на Циан:</span><br>
+            <input name="uniqueObjectsMin" placeholder="от" type="number" value="{{team_settings.unique_objects_min}}"/>
+            <input required name="uniqueObjectsMax" placeholder="до" type="number" value="{{team_settings.unique_objects_max}}"/>
+            <br><br>
+
+            <span title="необязательный параметр">% коммерческих объектов от общего числа объектов:</span><br>
+            <input name="commercialObjectsPercentageMin" placeholder="от" type="number" value="{{team_settings.commercial_objects_percentage_min}}"/>
+            <input name="commercialObjectsPercentageMax" placeholder="до" type="number" value="{{team_settings.commercial_objects_percentage_max}}"/>
+            <br><br>
+
+            <span title="необязательный параметр">% загородных объектов от общего числа объектов:</span><br>
+            <input name="suburbanObjectsPercentageMin" placeholder="от" type="number" value="{{team_settings.suburban_objects_percentage_min}}"/>
+            <input name="suburbanObjectsPercentageMax" placeholder="до" type="number" value="{{team_settings.suburban_objects_percentage_max}}"/>
+            <br><br>
+
+            <span title="необязательный параметр">% объектов с авито:</span><br>
+            <input name="avitoObjectsPercentageMin" type="number" value='{{team_settings.get("avito_objects_percentage_min")}}' placeholder="от"/>
+            <input name="avitoObjectsPercentageMax" type="number" value='{{team_settings.get("avito_objects_percentage_max")}}' placeholder="до"/>
+            <br><br>
+
+            <span title="необязательный параметр">% объектов с домклика:</span><br>
+            <input name="domclickObjectsPercentageMin" type="number" value='{{team_settings.get("domclick_objects_percentage_min")}}' placeholder="от"/>
+            <input name="domclickObjectsPercentageMax" type="number" value='{{team_settings.get("domclick_objects_percentage_max")}}' placeholder="до"/>
+            <br><br>
+
+            <span title="необязательный параметр">% объектов с яндекса:</span><br>
+            <input name="yandexObjectsPercentageMin" type="number" value='{{team_settings.get("yandex_objects_percentage_min")}}' placeholder="от"/>
+            <input name="yandexObjectsPercentageMax" type="number" value='{{team_settings.get("yandex_objects_percentage_max")}}' placeholder="до"/>
+            <br><br>
+
+            <span title="фиксируем период, за который пользователи исключаются.  например : были в обзвоне посл 7, 14, 30 дней, 60 дней, 90 дней, 180 дней, 360 дней, за весь период обзвона">уже был в обзвоне:</span><br>
+            <input name="validDaysAfterCall" type="number" value='{{team_settings.get("valid_days_after_call")}}' placeholder="введите количество дней"/>
+
+        </div>
+        
+        
+        <hr>
+        <h2>Настройки cортировок</h2>
+        <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки сортировок</button>
+        <div class="toggledBlock" style="display: none;">
+            <br>
+            <span>Порядок признака 'Статус клиента(добивочный или новый)'</span><br>
+            <input name="activationStatusPosition" value="{{team_settings.get('activation_status_position', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет добивочного клиента</span><br>
+            <input name="unactivatedClientPriority" value="{{team_settings.get('unactivated_client_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет нового клиента</span><br>
+            <input name="newClientPriority" value="{{team_settings.get('new_client_priority', '')}}" placeholder="" required/><br>
+            
+            <br><br>
+            <span>Порядок признака 'Cтатус звонка'</span><br>
+            <input name="callStatusPosition" value="{{team_settings.get('call_status_position', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет перезвонов</span><br>
+            <input name="callLaterPriority" value="{{team_settings.get('call_later_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет недозвонов</span><br>
+            <input name="callMissedPriority" value="{{team_settings.get('call_missed_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет ожидающих</span><br>
+            <input name="waitingPriority" value="{{team_settings.get('waiting_priority', '')}}" placeholder="" required/><br>
+            
+            <br><br>
+            <span>Порядок признака 'Регион'</span><br>
+            <input name="regionPosition" value="{{team_settings.get('region_position', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет регионов</span>
+            <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки регионов</button>
+            <div id="mainRegionsPriority">
+            {% for region_code, region_name in regions.items() %}
+            <br>
+            <span>
+                {{region_name}}({{region_code}})
+            </span>
+            <br>
+            <input
+                data-region_code="{{region_code}}"
+                value="{{ team_settings.get('main_regions_priority', {}).get(region_code, '')}}"
+                style="width: 400;" type="number"
+                placeholder="Введите приоритет региона '{{region_name}}({{region_code}})'"
+            />
+            {% endfor %}
+            </div>
+            <br>
+            
+            <br><br>
+            <span>Порядок признака 'Сегмент'</span><br>
+            <input name="segmentPosition" value="{{team_settings.get('segment_position', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет для сегмента SMB</span><br>
+            <input name="smbPriority" value="{{team_settings.get('smb_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет для сегмента собственников</span><br>
+            <input name="homeownerPriority" value="{{team_settings.get('homeowner_priority', '')}}" placeholder="" required/><br>
+            
+            <br><br>
+            <span>Порядок признака 'Статус Учетной Записи(наличие учетной записи и количество обьявлений'</span><br>
+            <input name="lkPosition" value="{{team_settings.get('lk_position', '')}}" placeholder="" required/><br>
+
+            <span>Приоритет для smb: нет ЛК на циан</span><br>
+            <input name="noLkSmbPriority" value="{{team_settings.get('no_lk_smb_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет 'Нет ЛК на циан'</span><br>
+            <input name="noActiveSmbPriority" value="{{team_settings.get('no_active_smb_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет 'нет активных объявлений'</span><br>
+            <input name="keepProportionSmbPriority" value="{{team_settings.get('keep_proportion_smb_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет 'соблюдена пропорция заданий в админке и уже активных объявлений у клиента'</span><br>
+            <input name="noLkHomeownerPriority" value="{{team_settings.get('no_lk_homeowner_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет для smb: есть активный ЛК на циан</span><br>
+            <input name="activeLkNoHomeownerPriority" value="{{team_settings.get('active_lk_homeowner_priority', '')}}" placeholder="" required/><br>
+            
+            <br><br>            
+            <span>Порядок признака 'Тип сделки'</span><br>
+            <input name="dealTypePosition" value="{{team_settings.get('deal_type_position', '')}}" placeholder="" required/><br>
+
+            <span>Приоритет продажи</span><br>
+            <input name="salePriority" value="{{team_settings.get('sale_priority', '')}}" placeholder="" required/><br>
+
+            <span>Приоритет аренды</span><br>         
+            <input name="rentPriority" value="{{team_settings.get('rent_priority', '')}}" placeholder="" required/><br>
+            
+            <br><br>
+
+            <span>Порядок признака 'Тип Недвижимости'</span><br>
+            <input name="offerTypePosition" value="{{team_settings.get('offer_type_position', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет городской недвижимости</span><br>
+            <input name="flatPriority" value="{{team_settings.get('flat_priority', '')}}" placeholder="" required/><br>
+            
+            <span>Приоритет загородной недвижимости</span><br>
+            <input name="suburbanPriority" value="{{team_settings.get('suburban_priority', '')}}" placeholder="" required/><br>
+
+            <span>Приоритет комерческой недвижимости</span><br>
+            <input name="commercialPriority" value="{{team_settings.get('commercial_priority', '')}}" placeholder="" required/><br>
+            
+            
+        </div><br><br>
+        <hr>
+        <h2>Настройки промокодов</h2>
+        <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки промокодов</button>
+        <div class="toggledBlock" style="display: none;">
+            <br>
+            <span>регионы применения:</span><br>
+            <select name="promocodeRegions" multiple="multiple" size="10">
+                {% for region_code, region_name in regions.items() %}
+                <option value="{{region_code}}" {% if region_code and region_code in team_settings.get('promocode_regions', []) %}selected{% endif %}>
+                    {{region_name}}({{region_code}})
+                </option>
+                {% endfor %}
+            </select><br><br>
+            
+            <span>наполнение:<span><br>
+            <select name="filling" multiple="multiple" size="10">
+                <option value="paid" {% if "paid" in team_settings.get('filling', []) %} selected {% endif %}>
+                    платные
+                </option>
+                <option value="premium" {% if "premium" in team_settings.get('filling', []) %} selected {% endif %}>
+                    премиум
+                </option>
+                <option value="top" {% if "top" in team_settings.get('filling', []) %} selected {% endif %}>
+                    топ
+                </option>
+                <option value="auction_points" {% if "auction_points" in team_settings.get('filling', []) %} selected {% endif %}>
+                    баллы на аукцион
+                </option>
+            </select><br><br>
+            
+            <span>стоимость:</span><br>
+            <input name="promocodePrice" type="number" value="{{team_settings['promocode_price']}}" placeholder="Введите стоимость" required/>
+            <br><br>
+            
+            <span>срок действия:</span><br>
+            <input name="promocodePeriod" type="number" value="{{team_settings['promocode_period']}}" placeholder="Введите срок действия(в днях)" required/>
+            <br><br>
+            
+            <span>название группы:</span><br>
+            <input name="promocodeGroupName" type="text" value="{{team_settings.get('promocode_group_name', '')}}" placeholder="Введите название групы промокодов" required/>
+        </div>
+
+        <hr>
+        
+        <button onclick="toggleBlocks()" type='submit'>Обновить информацию про команду</button>
+
+        </form>
     </div>
 </div>
 <script>
@@ -73,13 +301,31 @@
     function formDataFromObject(obj) {
         var form_data = new URLSearchParams();
         for ( var key in obj ) {
-            form_data.append(key, obj[key]);
+            var value = obj[key];
+            if(value == 'null'){
+                value = null
+            }else if(value == null){
+                value = null
+            }else if(value.constructor.name == 'Array'){
+                value = JSON.stringify(value)
+            }else if(value.constructor.name == 'Object'){
+                value = JSON.stringify(value)
+            }
+            form_data.append(key, value);
         }
         return form_data
     }
     function getBody(obj){
         return DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
     }
+    function toggleBlock(element) {
+        var x = element.nextElementSibling;
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    } 
     function redirect(url){
         if (DEBUG) {
             window.location.href = url;
@@ -97,42 +343,78 @@
     function onClickRedirectToOperatorCard(operator_id) {
         redirect(`/admin/operator-card/${operator_id}/`)
     }
-    // crud
-    async function updateTeam(){
-        let teamId = '{{team.team_id}}'
-        let name = document.getElementById('teamName').value;
-        let segment = document.getElementById('teamSegment').value;
-        let leadId = document.getElementById('teamLeadId').value;
-        if(!name){
-            alert('Введите название команды')
-            return
+    function collectFormValues(form){
+        let values = {}
+        for(var i=0; i < form.elements.length; i++){
+            var item = form.elements.item(i);
+            if(item.multiple){
+                values[item.name] = []
+                for(var j=0; j < item.options.length; j++){
+                    var option = item.options[j];
+                    if(option.selected){
+                        values[item.name].push(item.options[j].value)
+                    }
+                }
+                values[item.name] = JSON.stringify(values[item.name])
+            }else if(item.type == "checkbox"){
+                values[item.name] = item.checked;
+            }else if(item.class == "regionPriority"){
+                continue;
+            }else if(item.name == ""){
+                continue;
+            }else if(item.value == ""){
+                values[item.name] = null
+            }else{
+                if(!item.value){
+                    values[item.name] = null;
+                }else{
+                    values[item.name] = item.value;
+                }
+            }
         }
-        if(!leadId){
-            alert('Выберите лида команды')
-            return
+        var mainRegionsPriority = document.getElementById("mainRegionsPriority")
+        var mainRegionsPriorityObj = {}
+        for(var k=0; k < mainRegionsPriority.children.length; k++){
+            var child = mainRegionsPriority.children[k];
+            if(!child.value){
+                continue;
+            }
+            var key = child.dataset.region_code
+            mainRegionsPriorityObj[key] = parseInt(child.value)
         }
-        if(!segment){
-            segment = null
-        }
-        let obj = {
-            'teamId': teamId,
-            'leadId': leadId,
-            "teamName": name,
-            "segment": segment,
-        }
+        values["mainRegionsPriority"] = JSON.stringify(mainRegionsPriorityObj)
+        return values
+    }
+    async function updateTeam(event){
+        event.preventDefault()
+        let team_form = document.getElementById('team_form')
+        let form_values = collectFormValues(team_form)
+        console.log('form_values', form_values)
+        let body = getBody(form_values)
+        {# let body = JSON.stringify(form_values) #}
+        {# let body = formDataFromObject(form_values) #}
         const response = await fetch("/api/admin/v1/update-team-public/", {
             method: 'POST',
-            body: getBody(obj),
+            body: body,
         });
         resp = await response.json();
         if (resp.success === true) {
             alert(resp.message);
-            location.reload();
+            //location.reload();
         }else if (resp.success === false){
             alert(resp.message);
         } else {
             alert('Не удалось обновить информацию о команде.');
         }
+    }
+    async function toggleBlocks(){
+        let form = document.getElementById('team_form')
+        if(!form.checkValidity()){
+            document.querySelectorAll('.toggledBlock').forEach((e)=>{
+                e.style.display = 'block';
+            })
+        }
+        form.addEventListener('submit', updateTeam)
     }
     async function deleteTeam(id){
         let obj = {

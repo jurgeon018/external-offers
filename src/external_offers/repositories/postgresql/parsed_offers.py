@@ -209,8 +209,8 @@ async def get_lastest_event_timestamp() -> Optional[datetime]:
             func.max(po.c.timestamp)
         ]).where(
             and_(
-                po.c.external_offer_type != ExternalOfferType.commercial.value,
-                po.c.is_test.is_(False),
+                po.c.is_test.isnot(True),
+                po.c.external_offer_type.is_distinct_from('commercial'),
             ),
         ).limit(1)
     )

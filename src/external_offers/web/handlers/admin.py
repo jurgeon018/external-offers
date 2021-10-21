@@ -5,7 +5,12 @@ from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 
 from external_offers.enums.operator_role import OperatorRole
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
+from external_offers.enums.user_segment import UserSegment
+from external_offers.helpers.region_names import REGION_NAMES
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
+    Category,
+    Status as PublicationStatus,
+)
 from external_offers.repositories.postgresql import (
     exists_offers_draft_by_client,
     exists_offers_in_progress_by_operator_and_offer_id,
@@ -161,6 +166,42 @@ class AdminOperatorCardPageHandler(PublicHandler):
         ))
 
 
+def _get_categories():
+    return [category.value for category in Category]
+
+
+def _get_segments():
+    return [segment.value for segment in UserSegment]
+
+
+def _get_regions():
+    return REGION_NAMES
+
+
+def _get_subsegments():
+    return [
+        'commercial',
+        'a > 1000',
+        'a 500-1000',
+        'b 300-500',
+        'b 30-300',
+        'c >= 60',
+        'c 50-60',
+        'c 40-50',
+        'c 30-40',
+        'c 20-30',
+        'c 10-20',
+        'c 5-10',
+        'c 3-5',
+        'c < 3',
+        'd',
+    ]
+
+
+def _get_team_settings(team):
+    return team.get_settings()
+
+
 class AdminTeamCardPageHandler(PublicHandler):
     # pylint: disable=abstract-method
 
@@ -172,9 +213,19 @@ class AdminTeamCardPageHandler(PublicHandler):
         team = await get_team_by_id(int(team_id))
         operators = await get_enriched_operators()
         teams = await get_teams()
+        categories = _get_categories()
+        segments = _get_segments()
+        regions = _get_regions()
+        subsegments = _get_subsegments()
+        team_settings = _get_team_settings(team)
         self.write(get_team_card_html(
             current_operator=current_operator,
             team=team,
+            team_settings=team_settings,
             operators=operators,
             teams=teams,
+            categories=categories,
+            regions=regions,
+            segments=segments,
+            subsegments=subsegments,
         ))

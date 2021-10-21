@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
-from external_offers.enums.teams import TeamSettings
 from external_offers.enums.user_segment import UserSegment
 
 
@@ -32,6 +31,8 @@ class EnrichedOperator:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
+    settings: dict[str, Any]
+    """Настройки команды"""
     created_at: datetime
     """Дата создания оператора"""
     updated_at: datetime
@@ -46,8 +47,6 @@ class EnrichedOperator:
     """ Имеет ли право быть лидом команд """
     segment: Optional[UserSegment] = None
     """Сегмент пользователей, которых будет обрабатывать команда"""
-    settings: Optional[TeamSettings] = None
-    """Настройки команды"""
 
 
 @dataclass
