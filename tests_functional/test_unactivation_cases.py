@@ -1,9 +1,10 @@
-from datetime import datetime, timedelta
-import pytz
 import asyncio
-from cian_json import json 
-from cian_functional_test_utils.pytest_plugin import MockResponse
+from datetime import datetime, timedelta
+
+import pytz
 from cian_functional_test_utils.data_fixtures import load_json_data
+from cian_functional_test_utils.pytest_plugin import MockResponse
+from cian_json import json
 
 
 async def test_main_case(
@@ -19,8 +20,8 @@ async def test_main_case(
     monolith_cian_service_mock,
     monolith_cian_profileapi_mock,
 ):
-    fetch_ofc_sql = '''select * from offers_for_call;'''
-    fetch_clients_sql = '''select * from clients;'''
+    fetch_ofc_sql = 'select * from offers_for_call;'
+    fetch_clients_sql = 'select * from clients;'
     operator_id = 11111111
     source_user_id = '1'
     source_object_id = '1_1'
@@ -30,8 +31,8 @@ async def test_main_case(
     new_row_version = 33324598804
 
     # # # # # тест cтандартного кейса админки
-    print()
-    print('создать тестовые задания и тестовых клиентов')
+    # print()
+    # print('создать тестовые задания и тестовых клиентов')
     client_id = await _create_test_client(
         runtime_settings=runtime_settings,
         http=http,
@@ -47,7 +48,7 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0])
+    # _print(ofc=ofc[0], client=clients[0])
     assert len(ofc) == 1
     assert len(clients) == 1
     assert ofc[0]['status'] == 'waiting'
@@ -64,8 +65,8 @@ async def test_main_case(
     assert clients[0]['is_test'] is True
 
     # # # #
-    print()
-    print('получить задания через админку первый раз после создания заданий')
+    # print()
+    # print('получить задания через админку первый раз после создания заданий')
     update_offers_list_response = await _update_offers_list(
         http=http,
         users_mock=users_mock,
@@ -73,7 +74,7 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0]) 
+    # _print(ofc=ofc[0], client=clients[0])
     assert update_offers_list_response['success'] is True
     assert update_offers_list_response['errors'] == []
     assert len(ofc) == 1
@@ -87,8 +88,8 @@ async def test_main_case(
     assert clients[0]['status'] == 'inProgress'
 
     # # # # #
-    print()
-    print('предразместить задание через админку')
+    # print()
+    # print('предразместить задание через админку')
     save_offer_response = await _save_offer(
         http=http,
         offer_id=offer_id,
@@ -104,7 +105,7 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0]) 
+    # _print(ofc=ofc[0], client=clients[0])
     assert save_offer_response['status'] == 'ok'
     assert save_offer_response['message'] == 'Объявление успешно создано'
     assert clients[0]['status'] == 'accepted'
@@ -116,8 +117,8 @@ async def test_main_case(
     assert ofc[0]['offer_cian_id'] == offer_cian_id
 
     # # # # #
-    print()
-    print('взять задания и увидеть "Отсутствуют доступные задания"(потому что после предразмещения клиент не стал еще добивочным)')
+    # print()
+    # print('взять задания после предразмещения клиент не стал еще добивочным)')
     update_offers_list_response = await _update_offers_list(
         http=http,
         users_mock=users_mock,
@@ -125,7 +126,7 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0])
+    # _print(ofc=ofc[0], client=clients[0])
     assert update_offers_list_response['success'] is False
     assert update_offers_list_response['errors'][0]['message'] == 'Отсутствуют доступные задания'
     assert update_offers_list_response['errors'][0]['code'] == 'suitableClientMissing'
@@ -136,8 +137,8 @@ async def test_main_case(
     assert clients[0]['unactivated'] is False
 
     # # # # #
-    print()
-    print('обновить статус публикации(сделать клиента добивочным)')   
+    # print()
+    # print('обновить статус публикации(сделать клиента добивочным)')
     # await _update_publication_status(
     #     queue_service=queue_service,
     #     offer_cian_id=offer_cian_id,
@@ -154,7 +155,7 @@ async def test_main_case(
 
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0])
+    # _print(ofc=ofc[0], client=clients[0])
     assert response['success'] is True
     assert response['message'] == 'Успех! Статус был изменен на Draft.'
     assert ofc[0]['publication_status'] == 'Draft'
@@ -165,10 +166,10 @@ async def test_main_case(
     assert clients[0]['unactivated'] is True
 
     # # # # #
-    print()
-    print('взять задания в работу, получить добивочного клиента в работу.')
+    # print()
+    # print('взять задания в работу, получить добивочного клиента в работу.')
     # Нужно уменьшить дату для того чтобы сработала проверка
-    # clients.c.next_call <= now в assign_suitable_client_to_operator 
+    # clients.c.next_call <= now в assign_suitable_client_to_operator
     next_call = (datetime.now(pytz.utc) - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
     await pg.execute(f"""
         update clients set next_call = '{next_call}' where client_id = '{client_id}'
@@ -180,7 +181,7 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0])
+    # _print(ofc=ofc[0], client=clients[0])
     assert update_offers_list_response['success'] is True
     assert update_offers_list_response['errors'] == []
     assert clients[0]['operator_user_id'] == operator_id
@@ -190,8 +191,8 @@ async def test_main_case(
     # # # # # cтандартный кейс админки закончился
 
     # # # # # тест добивочных карточек
-    print()
-    print('вернуть добивочного клиента в перезвон')
+    # print()
+    # print('вернуть добивочного клиента в перезвон')
     dt = datetime.now(pytz.utc) - timedelta(days=4)
     call_later_datetime = (dt).strftime('%Y-%m-%d %H:%M:%S')
     _call_later_status_response = await _set_call_later_status_for_client(
@@ -202,15 +203,13 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0])
+    # _print(ofc=ofc[0], client=clients[0])
     assert _call_later_status_response['success'] is True
     assert _call_later_status_response['errors'] == []
     assert clients[0]['operator_user_id'] == operator_id
     assert clients[0]['status'] == 'callLater'
     assert clients[0]['next_call'].date() == dt.date()
     assert ofc[0]['status'] == 'callLater'
-
-    # print('получить задание, вернуть добивочного клиента в перезвон. получить задание, вернуть добивочного клиента в перезвон')
 
     # # # # # #
     offer_id2 = await _create_test_offer(
@@ -222,8 +221,8 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    print('создать новое задание')
-    _print(ofc=ofc[0], client=clients[0])
+    # print('создать новое задание')
+    # _print(ofc=ofc[0], client=clients[0])
     assert len(ofc) == 2
     assert len(clients) == 1
     assert clients[0]['status'] == 'callLater'
@@ -235,7 +234,7 @@ async def test_main_case(
     assert ofc[1]['status'] == 'waiting'
 
     # # # # # #
-    print('получить задания')
+    # print('получить задания')
     update_offers_list_response = await _update_offers_list(
         http=http,
         users_mock=users_mock,
@@ -243,8 +242,8 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    _print(ofc=ofc[0], client=clients[0])
-    _print(ofc=ofc[1])
+    # _print(ofc=ofc[0], client=clients[0])
+    # _print(ofc=ofc[1])
     assert update_offers_list_response['success'] is True
     assert update_offers_list_response['errors'] == []
     assert clients[0]['status'] == 'inProgress'
@@ -253,15 +252,15 @@ async def test_main_case(
     # # # # # тест добивочных карточек закончился
 
 
-def _print(*, ofc=None, client=None):
-    if ofc:
-        for key, value in ofc.items():
-            print('offers_for_call.{key: <22}{value}'.format(key=key, value=value))
-            # print(key, value)
-    if client:
-        for key, value in client.items():
-            print('clients.{key: <30}{value}'.format(key=key, value=value))
-            # print('key, value)
+# def _print(*, ofc=None, client=None):
+#     if ofc:
+#         for key, value in ofc.items():
+#            print('offers_for_call.{key: <22}{value}'.format(key=key, value=value))
+#            print(key, value)
+#     if client:
+#         for key, value in client.items():
+#            print('clients.{key: <30}{value}'.format(key=key, value=value))
+#            print('key, value)
 
 
 async def _create_test_client(
@@ -349,7 +348,7 @@ async def _update_offers_list(
             'isTest': True,
         },
         expected_status=200
-    )    
+    )
     response = json.loads(response.body.decode('utf-8'))
     return response
 
@@ -433,7 +432,7 @@ async def _save_offer(
         path='/promocode/apply/',
         response=MockResponse(
             status=200,
-            body=""
+            body=''
         ),
     )
     resp = await http.request(
@@ -485,7 +484,7 @@ async def _set_call_later_status_for_client(
             'callLaterDatetime': call_later_datetime,
         },
         expected_status=200
-    )    
+    )
     response = json.loads(response.body.decode('utf-8'))
     return response
 
@@ -498,30 +497,30 @@ async def _update_publication_status(
     new_row_version,
 ):
     offer = {
-        "model": {
-            "bargainTerms": {
-            "price": 3103560.0
+        'model': {
+            'bargainTerms': {
+                'price': 3103560.0
             },
-            "phones": [
-            {
-                "number": "4012658894",
-                "countryCode": "+7",
-                "sourcePhone": {
-                "number": "4012751166",
-                "countryCode": "+7"
+            'phones': [
+                {
+                    'number': '4012658894',
+                    'countryCode': '+7',
+                    'sourcePhone': {
+                        'number': '4012751166',
+                        'countryCode': '+7'
+                    }
                 }
-            }
             ],
-            "id": offer_cian_id,
-            "userId": cian_user_id,
-            "cianUserId": cian_user_id,
-            "cianId": offer_cian_id,
-            "category": "newBuildingFlatSale",
-            "rowVersion": new_row_version,
-            "status": "Draft"
+            'id': offer_cian_id,
+            'userId': cian_user_id,
+            'cianUserId': cian_user_id,
+            'cianId': offer_cian_id,
+            'category': 'newBuildingFlatSale',
+            'rowVersion': new_row_version,
+            'status': 'Draft'
         },
-        "operationId": "1934fc2a-7a72-494c-b050-dc38adc24ac6",
-        "date": "2020-04-15T16:35:36.2632391+03:00"
+        'operationId': '1934fc2a-7a72-494c-b050-dc38adc24ac6',
+        'date': '2020-04-15T16:35:36.2632391+03:00'
     }
     await queue_service.wait_consumer('external-offers.process_announcement_v2')
     await queue_service.publish('announcement_reporting.change', offer, exchange='announcements')
@@ -548,7 +547,7 @@ async def _update_test_object_publication_status(
             'publicationStatus': publication_status,
         },
         expected_status=200
-    )    
+    )
     response = json.loads(response.body.decode('utf-8'))
     return response
 
@@ -568,28 +567,28 @@ async def test_unactivated_objects_deletion(
 ):
     # arrange
     offer = {
-        "model": {
-            "bargainTerms": {
-            "price": 3103560.0
+        'model': {
+            'bargainTerms': {
+                'price': 3103560.0
             },
-            "phones": [
-            {
-                "number": "4012658894",
-                "countryCode": "+7",
-                "sourcePhone": {
-                "number": "4012751166",
-                "countryCode": "+7"
+            'phones': [
+                {
+                    'number': '4012658894',
+                    'countryCode': '+7',
+                    'sourcePhone': {
+                        'number': '4012751166',
+                        'countryCode': '+7'
+                    }
                 }
-            }
             ],
-            "id": 227888824,
-            "cianId": 227888824,
-            "category": "newBuildingFlatSale",
-            "rowVersion": 33324598804,
-            "status": "Draft"
+            'id': 227888824,
+            'cianId': 227888824,
+            'category': 'newBuildingFlatSale',
+            'rowVersion': 33324598804,
+            'status': 'Draft'
         },
-        "operationId": "1934fc2a-7a72-494c-b050-dc38adc24ac6",
-        "date": "2020-04-15T16:35:36.2632391+03:00"
+        'operationId': '1934fc2a-7a72-494c-b050-dc38adc24ac6',
+        'date': '2020-04-15T16:35:36.2632391+03:00'
     }
 
     operator_id = 1
@@ -638,7 +637,7 @@ async def test_unactivated_objects_deletion(
         },
         json={},
         expected_status=200
-    )    
+    )
 
     # 3. оператор предразмещает обьявление клиента
     # status='draft', publication_status=null
@@ -705,7 +704,7 @@ async def test_unactivated_objects_deletion(
     )
     await pg.fetchrow(f"""UPDATE offers_for_call SET offer_cian_id={offer_cian_id};""")
 
-    # 4. обьявление с обновленным статусом публикации приходит в консьюмер, 
+    # 4. обьявление с обновленным статусом публикации приходит в консьюмер,
     # publication_status='Draft'
     await queue_service.wait_consumer('external-offers.process_announcement_v2')
     await queue_service.publish('announcement_reporting.change', offer, exchange='announcements')
@@ -719,7 +718,7 @@ async def test_unactivated_objects_deletion(
     offer_for_call_after = await pg.fetchrow(f"""
         SELECT * FROM offers_for_call WHERE offer_cian_id={offer_cian_id};
     """)
-    client_after = await pg.fetchrow(f"""
+    client_after = await pg.fetchrow("""
         SELECT * FROM clients WHERE avito_user_id='c42bb598767308327e1dffbe7241486c';
     """)
     assert offer_for_call_after is not None

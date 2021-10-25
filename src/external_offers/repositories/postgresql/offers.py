@@ -204,6 +204,7 @@ async def set_offers_in_progress_by_client(
     *,
     client_id: str,
     call_id: str,
+    drafted: bool = False,
 ) -> list[str]:
     sql = (
         update(
@@ -212,7 +213,7 @@ async def set_offers_in_progress_by_client(
             status=OfferStatus.in_progress.value,
             last_call_id=call_id
         ).where(
-            offers_for_call.c.client_id == client_id
+            offers_for_call.c.client_id == client_id,
         ).returning(
             offers_for_call.c.id
         )
