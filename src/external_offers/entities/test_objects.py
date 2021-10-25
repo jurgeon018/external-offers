@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+from external_offers.repositories.monolith_cian_announcementapi.entities.swagger_object_model import Status as PublicationStatus
 
 
 @dataclass
@@ -121,7 +122,6 @@ class DeleteTestObjectsResponse:
     """Статус операции"""
     message: str
     """Сообщение"""
-from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 
 
 @dataclass

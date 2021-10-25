@@ -204,20 +204,7 @@ async def set_offers_in_progress_by_client(
     *,
     client_id: str,
     call_id: str,
-    drafted: bool = False,
 ) -> list[str]:
-    if drafted:
-        # Если клиент добивочный, то проставляет in_progress всем черновикам
-        query = and_(
-            offers_for_call.c.client_id == client_id,
-            offers_for_call.c.publication_status == PublicationStatus.draft.value,
-        )
-    else:
-        # Если клиент новый, то проставляет in_progress всем нечерновикам
-        query = and_(
-            offers_for_call.c.client_id == client_id,
-            offers_for_call.c.status != OfferStatus.draft.value,
-        )
     sql = (
         update(
             offers_for_call
@@ -225,7 +212,7 @@ async def set_offers_in_progress_by_client(
             status=OfferStatus.in_progress.value,
             last_call_id=call_id
         ).where(
-            query
+            offers_for_call.c.client_id == client_id
         ).returning(
             offers_for_call.c.id
         )

@@ -89,11 +89,9 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
                     )
                 ]
             )
-        client_is_unactivated = await get_client_unactivated_by_client_id(client_id=client_id)
         if offers_ids := await set_offers_in_progress_by_client(
             client_id=client_id,
             call_id=call_id,
-            drafted=client_is_unactivated,
         ):
             
             await save_event_log_for_offers(

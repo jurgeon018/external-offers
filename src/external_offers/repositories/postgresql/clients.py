@@ -156,7 +156,9 @@ async def assign_suitable_client_to_operator(
             clients.c.client_id
         )
     )
-    return await pg.get().fetchval(query, *params)
+    val = await pg.get().fetchval(query, *params)
+    print('val', val)
+    return val
 
 
 async def get_client_unactivated_by_client_id(*, client_id) -> bool:

@@ -255,10 +255,10 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     parsed_offer = await get_parsed_offer_for_creation_by_id(id=parsed_id)
     # # # offer
     offer_id = generate_guid()
-    if client.status == ClientStatus.waiting:
-        offer_status = OfferStatus.waiting
-    else:
+    if client.status == ClientStatus.in_progress:
         offer_status = OfferStatus.in_progress
+    else:
+        offer_status = OfferStatus.waiting
     offer = Offer(
         # dynamic params from request
         priority=get_attr(obj, 'offer_priority'),

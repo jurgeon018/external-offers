@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 async def process_announcement(
-        object_model: Optional[SwaggerObjectModel],
+    object_model: Optional[SwaggerObjectModel],
 ) -> None:
     if not object_model:
         return
