@@ -1,7 +1,8 @@
 import asyncio
-from cian_json import json 
-from cian_functional_test_utils.pytest_plugin import MockResponse
+
 from cian_functional_test_utils.data_fixtures import load_json_data
+from cian_functional_test_utils.pytest_plugin import MockResponse
+from cian_json import json
 
 
 async def _create_test_objects(
