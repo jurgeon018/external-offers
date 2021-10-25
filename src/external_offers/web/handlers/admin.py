@@ -88,7 +88,6 @@ class AdminOffersCardPageHandler(PublicHandler):
         offer_object_model = await get_parsed_offer_object_model_by_offer_id(
             offer_id=offer_id
         )
-        print('offer_object_model', offer_object_model)
 
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
