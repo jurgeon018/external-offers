@@ -87,7 +87,6 @@ teams = sa.Table(
     sa.Column('team_id', sa.INT, unique=True, nullable=False, autoincrement=True, primary_key=True),
     sa.Column('team_name', sa.VARCHAR, unique=True, nullable=True),
     sa.Column('lead_id', sa.VARCHAR, nullable=False),
-    sa.Column('segment', sa.VARCHAR, nullable=True),
     sa.Column('settings', JSONB(), nullable=True),
 )
 
