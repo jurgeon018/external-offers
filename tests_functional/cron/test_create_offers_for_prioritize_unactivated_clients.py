@@ -17,7 +17,7 @@ async def test_prioritize_unactivated_clients(
     priority_4 = "NULL"
     priority_5 = "NULL"
     # приоретизация обьявления 6 должна вернуть _CLEAR_CLIENT_PRIORITY, т.к у него нет региона
-    priority_6 = 987654333
+    priority_6 = "NULL"
     await pg.execute("""
         INSERT INTO clients (
             segment, unactivated, client_id, avito_user_id, client_phones, status
@@ -133,6 +133,4 @@ async def test_prioritize_unactivated_clients(
     assert offer3['priority'] == 131136121
     assert offer4['priority'] == 132129521
     assert offer5['priority'] == 132129521
-    # задание добивочного клиента не удалено даже при том что у него пустой регион
-    # изменилась только первая и посление 2 цифры приоритета
-    assert offer6['priority'] == 187654321
+    assert offer6['priority'] == None
