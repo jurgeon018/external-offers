@@ -198,7 +198,7 @@ async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optiona
     )
 
     row = await pg.get().fetchrow(query, *params)
-
+    print('row', row)
     return parsed_object_model_mapper.map_from(json.loads(row['source_object_model'])) if row else None
 
 
