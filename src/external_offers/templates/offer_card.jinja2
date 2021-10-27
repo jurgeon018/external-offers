@@ -912,6 +912,25 @@
             }
         }
 
+        function removeNanValues(obj){
+            for(var key in obj){
+                var value = obj[key]
+                if (
+                    value == 'NaN' ||
+                    Object.is(value, NaN)
+                ){
+                    delete obj[key]
+                    if(
+                        key != 'test_key1' && key != 'test_key2'
+                    ){
+                        alert(`По ключу ${key} лежало значение ${value}.`)
+                    }
+                    console.log(`По ключу ${key} лежало значение ${value}.`)
+                }
+            }
+            return obj
+        }
+
         const saveOffer = () => {
             let category = getCategoryType.val();
             if (getPrice.val() === "") {
@@ -1026,7 +1045,9 @@
                 let prepayMonths = getNumberOrStrNull(getPrepayMonths.val())
                 if(prepayMonths) obj.prepayMonths = prepayMonths
             {% endif %}
-
+            obj['test_key1'] = NaN
+            obj['test_key2'] = 'NaN'
+            obj = removeNanValues(obj)
             $.post("/api/admin/v1/save-offer/",  
                 DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
