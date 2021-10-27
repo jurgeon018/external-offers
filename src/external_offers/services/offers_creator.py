@@ -137,6 +137,8 @@ async def clear_and_prioritize_waiting_offers() -> None:
             )
         if client_priority == _CLEAR_CLIENT_PRIORITY:
             prefix = str(runtime_settings.UNACTIVATED_CLIENT_PRIORITY)
+            if client_count.priority is None:
+                continue
             client_priority = prefix + str(client_count.priority)[1:-2]
             clients_priority[client_count.client_id] = client_priority
         else:
