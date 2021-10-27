@@ -354,7 +354,7 @@
                     <option value="room5" {% if parsed_object_model.rooms_count == 5 %}selected{% endif %}>
                         5
                     </option>
-                    <option value="room6_plus"  {% if parsed_object_model.rooms_count > 5 %}selected{% endif %}>
+                    <option value="room6_plus"  {% if parsed_object_model.rooms_count and parsed_object_model.rooms_count > 5 %}selected{% endif %}>
                         6+
                     </option>
                     <option value="open_plan">свободная планировка</option>
