@@ -1051,9 +1051,19 @@
             $.post("/api/admin/v1/save-offer/",  
                 DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
+                console.log(data)
                 switch (data.status) {
                     case 'ok':
-                        alert('Объявление успешно создано как черновик');
+                        var msg = `Объявление успешно создано как черновик. `
+                        // msg += ``
+                        // msg += `offerId=${data.offerId}; `
+                        // msg += ``
+                        // msg += `clientId=${data.clientId}; `
+                        msg += ``
+                        msg += `offerCianId=${data.offerCianId}; `
+                        msg += ``
+                        msg += `cianUserId=${data.cianUserId}; `
+                        alert(msg);
                         if (DEBUG) {
                             window.location.href = `/admin/offers-list/`;
                         } else {

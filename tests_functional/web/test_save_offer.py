@@ -33,6 +33,8 @@ async def test_save_offer__correct_json__status_ok(
     await runtime_settings.set({
         'RECENTLY_REGISTRATION_CHECK_DELAY': 120
     })
+    offer_cian_id = 1243433
+    cian_user_id = 7777777
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
@@ -96,7 +98,7 @@ async def test_save_offer__correct_json__status_ok(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777,
+                    'id': cian_user_id,
                     'isAgent': True
                 }
             }
@@ -122,7 +124,7 @@ async def test_save_offer__correct_json__status_ok(
         path='/v2/announcements/draft/',
         response=MockResponse(
             body={
-                'realtyObjectId': 1243433,
+                'realtyObjectId': offer_cian_id,
             }
         ),
     )
@@ -165,13 +167,19 @@ async def test_save_offer__correct_json__status_ok(
             'X-Real-UserId': operator_user_id
         }
     )
+    body = json.loads(response.body)
 
     # assert
-    assert json.loads(response.body)['status'] == 'ok'
+    assert body['status'] == 'ok'
+    assert body['message'] == 'Объявление успешно создано'
+    assert body['offerId'] == save_offer_request_body['offerId']
+    assert body['clientId'] == save_offer_request_body['clientId']
+    assert body['offerCianId'] == offer_cian_id
+    assert body['cianUserId'] == cian_user_id
 
     offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
     assert offers_event_log[0]['status'] == 'draft'
-    assert offers_event_log[0]['offer_id'] == '1'
+    assert offers_event_log[0]['offer_id'] == save_offer_request_body['offerId']
     request = await sms_stub.get_request()
     assert request.data == expected_data
 
@@ -1868,6 +1876,8 @@ async def test_save_offer__suburban__correct_json__status_ok(
     await runtime_settings.set({
         'RECENTLY_REGISTRATION_CHECK_DELAY': 120
     })
+    offer_cian_id = 1243433
+    cian_user_id = 7777777
     operator_user_id = 123123
     client_id = '1'
     await pg.execute(
@@ -1922,7 +1932,7 @@ async def test_save_offer__suburban__correct_json__status_ok(
                 'isRegistered': True,
                 'userData': {
                     'email': 'testemail@cian.ru',
-                    'id': 7777777,
+                    'id': cian_user_id,
                     'isAgent': True
                 }
             }
@@ -1948,7 +1958,7 @@ async def test_save_offer__suburban__correct_json__status_ok(
         path='/v2/announcements/draft/',
         response=MockResponse(
             body={
-                'realtyObjectId': 1243433,
+                'realtyObjectId': offer_cian_id,
             }
         ),
     )
@@ -1985,13 +1995,18 @@ async def test_save_offer__suburban__correct_json__status_ok(
             'X-Real-UserId': operator_user_id
         }
     )
+    body = json.loads(response.body)
 
     # assert
-    assert json.loads(response.body)['status'] == 'ok'
-
+    assert body['status'] == 'ok'
+    assert body['message'] == 'Объявление успешно создано'
+    assert body['offerId'] == save_offer_request_body_for_suburban['offerId']
+    assert body['clientId'] == save_offer_request_body_for_suburban['clientId']
+    assert body['offerCianId'] == offer_cian_id
+    assert body['cianUserId'] == cian_user_id
     offers_event_log = await pg.fetch('SELECT * FROM event_log where operator_user_id=$1', [operator_user_id])
     assert offers_event_log[0]['status'] == 'draft'
-    assert offers_event_log[0]['offer_id'] == '1'
+    assert offers_event_log[0]['offer_id'] == save_offer_request_body_for_suburban['offerId']
 
 
 async def test_save_offer__geocode_failed__billing_region_id_is_zero(
