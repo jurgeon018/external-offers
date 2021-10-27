@@ -1055,6 +1055,14 @@
                 switch (data.status) {
                     case 'ok':
                         var msg = `Объявление успешно создано как черновик. `
+                        // msg += ``
+                        // msg += `offerId=${data.offerId}; `
+                        // msg += ``
+                        // msg += `clientId=${data.clientId}; `
+                        msg += ``
+                        msg += `offerCianId=${data.offerCianId}; `
+                        msg += ``
+                        msg += `cianUserId=${data.cianUserId}; `
                         alert(msg);
                         if (DEBUG) {
                             window.location.href = `/admin/offers-list/`;
