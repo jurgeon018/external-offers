@@ -173,7 +173,7 @@
           <button onclick="redirectToTeamsPage(this)">Команды</button>
         </div>
         <hr>
-        {% if operator_is_tester %}
+        {% if not operator_is_tester %}
           <div class="test_block">
               <input id="sourceUserIdInput" type="text" placeholder="Введите sourceUserId клиента"/>
               <button id="createTestClient">Создать тестового клиента</button>
