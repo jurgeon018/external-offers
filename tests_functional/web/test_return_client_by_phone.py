@@ -93,5 +93,7 @@ async def test_return_client_by_phone__correct_request__client_and_offers_return
     assert client['status'] == 'inProgress'
     assert before_return_call_missed_offer['status'] == 'inProgress'
     assert before_return_call_missed_offer['last_call_id'] is not None
-    assert before_return_draft_offer['status'] == 'draft'
-    assert before_return_draft_offer['last_call_id'] is None
+    assert before_return_draft_offer['status'] == 'inProgress'
+    assert before_return_draft_offer['last_call_id'] is not None
+    # assert before_return_draft_offer['status'] == 'draft'
+    # assert before_return_draft_offer['last_call_id'] is None
