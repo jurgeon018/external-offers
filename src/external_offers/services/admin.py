@@ -70,6 +70,7 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
         )
 
     operator_roles = await get_operator_roles(operator_id=user_id)
+    # operator_roles = []
 
     async with pg.get().transaction():
         call_id = generate_guid()

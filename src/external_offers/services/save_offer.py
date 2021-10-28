@@ -460,7 +460,11 @@ async def save_offer_public(request: SaveOfferRequest, *, user_id: int) -> SaveO
 
         return SaveOfferResponse(
             status=SaveOfferStatus.ok,
-            message='Объявление успешно создано'
+            message='Объявление успешно создано',
+            offer_id=request.offer_id,
+            client_id=request.client_id,
+            offer_cian_id=offer_cian_id,
+            cian_user_id=cian_user_id,
         )
 
 

@@ -80,3 +80,11 @@ class SaveOfferResponse:
     """Статус сохрарнения объявления"""
     message: Optional[str] = ''
     """Информационное сообщение для отображения пользователю"""
+    offer_id: Optional[str] = None
+    """ID обьявления"""
+    client_id: Optional[str] = None
+    """ID клиента"""
+    offer_cian_id: Optional[int] = None
+    """ID обьявления на циане"""
+    cian_user_id: Optional[int] = None
+    """ID пользователя на циане"""
