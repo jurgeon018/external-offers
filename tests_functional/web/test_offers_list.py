@@ -818,7 +818,7 @@ async def test_delete_offer__exist_offers_in_progress__client_accepted_if_no_off
         ]
     )
 
-    assert row_client['operator_user_id'] is None
+    assert row_client['operator_user_id'] == operator_user_id
     assert row_client['status'] == 'accepted'
 
 
@@ -1041,7 +1041,7 @@ async def test_decline_client__exist_draft__client_accepted(
         ]
     )
 
-    assert row_client['operator_user_id'] is None
+    assert row_client['operator_user_id'] == operator_user_id
     assert row_client['status'] == 'accepted'
 
 
