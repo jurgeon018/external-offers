@@ -198,7 +198,6 @@ async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optiona
     )
 
     row = await pg.get().fetchrow(query, *params)
-
     return parsed_object_model_mapper.map_from(json.loads(row['source_object_model'])) if row else None
 
 
@@ -209,8 +208,8 @@ async def get_lastest_event_timestamp() -> Optional[datetime]:
             func.max(po.c.timestamp)
         ]).where(
             and_(
-                po.c.external_offer_type != ExternalOfferType.commercial.value,
-                po.c.is_test.is_(False),
+                po.c.is_test.isnot(True),
+                po.c.external_offer_type.is_distinct_from('commercial'),
             ),
         ).limit(1)
     )

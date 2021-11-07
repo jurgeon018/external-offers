@@ -328,7 +328,7 @@
             </div>
             <div class="offerTotalAreaInput">
                 <input type="number" required value="{{ parsed_object_model.total_area }}"
-                       placeholder="Площать объекта в м2"
+                       placeholder="Площадь объекта в м2"
                        class="input-control" id="getTotalArea">
             </div>
 
@@ -338,13 +338,25 @@
             </div>
             <div class="offerRoomsCountSelect" style="display: {% if parsed_object_model.is_allow_rooms %}block{% else %}none{% endif %};">
                 <select class="select-control" id="getRoomsCount">
-                    <option value="" selected disabled>Не выбрано</option>
-                    <option value="room1">1</option>
-                    <option value="room2">2</option>
-                    <option value="room3">3</option>
-                    <option value="room4">4</option>
-                    <option value="room5">5</option>
-                    <option value="room6_plus">6+</option>
+                    <option value="" {% if not parsed_object_model.rooms_count %}selected{% endif %} disabled>Не выбрано</option>
+                    <option value="room1" {% if parsed_object_model.rooms_count == 1 %}selected{% endif %}>
+                        1
+                    </option>
+                    <option value="room2" {% if parsed_object_model.rooms_count == 2 %}selected{% endif %}>
+                        2
+                    </option>
+                    <option value="room3" {% if parsed_object_model.rooms_count == 3 %}selected{% endif %}>
+                        3
+                    </option>
+                    <option value="room4" {% if parsed_object_model.rooms_count == 4 %}selected{% endif %}>
+                        4
+                    </option>
+                    <option value="room5" {% if parsed_object_model.rooms_count == 5 %}selected{% endif %}>
+                        5
+                    </option>
+                    <option value="room6_plus"  {% if parsed_object_model.rooms_count and parsed_object_model.rooms_count > 5 %}selected{% endif %}>
+                        6+
+                    </option>
                     <option value="open_plan">свободная планировка</option>
                     <option value="studio">студия</option>
                 </select>
@@ -370,7 +382,7 @@
             </div>
             <div class="offerLandAreaInput" style="display: {% if parsed_object_model.is_suburban_sale or parsed_object_model.is_commercial_land %}block{% else %}none{% endif %};">
                 <input type="number" required value="{{ parsed_object_model.land_area }}"
-                    placeholder="Площать участка в сотках"
+                    placeholder="Площадь участка в сотках"
                     class="input-control" id="getLandArea">
                 <select class="select-control" id="getAreaUnit">
                     <option value="" selected>Не выбрано</option>
@@ -455,7 +467,7 @@
             <div class="offerDescriptionTitleInput">
                     <textarea class="input-control"
                               placeholder="Описание объявления"
-                              id="getDescription"></textarea>
+                              id="getDescription">{% if parsed_object_model.description %}{{parsed_object_model.description}}{% endif %}</textarea>
             </div>
         </div>
             {% if not exist_drafts %}
@@ -900,6 +912,25 @@
             }
         }
 
+        function removeNanValues(obj){
+            for(var key in obj){
+                var value = obj[key]
+                if (
+                    value == 'NaN' ||
+                    Object.is(value, NaN)
+                ){
+                    delete obj[key]
+                    if(
+                        key != 'test_key1' && key != 'test_key2'
+                    ){
+                        alert(`По ключу ${key} лежало значение ${value}.`)
+                    }
+                    console.log(`По ключу ${key} лежало значение ${value}.`)
+                }
+            }
+            return obj
+        }
+
         const saveOffer = () => {
             let category = getCategoryType.val();
             if (getPrice.val() === "") {
@@ -1014,13 +1045,25 @@
                 let prepayMonths = getNumberOrStrNull(getPrepayMonths.val())
                 if(prepayMonths) obj.prepayMonths = prepayMonths
             {% endif %}
-
+            obj['test_key1'] = NaN
+            obj['test_key2'] = 'NaN'
+            obj = removeNanValues(obj)
             $.post("/api/admin/v1/save-offer/",  
                 DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
+                console.log(data)
                 switch (data.status) {
                     case 'ok':
-                        alert('Объявление успешно создано как черновик');
+                        var msg = `Объявление успешно создано как черновик. `
+                        // msg += ``
+                        // msg += `offerId=${data.offerId}; `
+                        // msg += ``
+                        // msg += `clientId=${data.clientId}; `
+                        msg += ``
+                        msg += `offerCianId=${data.offerCianId}; `
+                        msg += ``
+                        msg += `cianUserId=${data.cianUserId}; `
+                        alert(msg);
                         if (DEBUG) {
                             window.location.href = `/admin/offers-list/`;
                         } else {

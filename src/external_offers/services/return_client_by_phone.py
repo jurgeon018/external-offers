@@ -58,7 +58,6 @@ async def return_client_by_phone(request: ReturnClientByPhoneRequest, user_id: i
         if offers_ids := await set_offers_in_progress_by_client(
             client_id=client.client_id,
             call_id=call_id,
-            drafted=client.unactivated,
         ):
             await save_event_log_for_offers(
                 offers_ids=offers_ids,

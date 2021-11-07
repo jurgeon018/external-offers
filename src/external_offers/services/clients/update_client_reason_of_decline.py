@@ -16,7 +16,6 @@ async def update_client_reason_of_decline_public(
             success=False,
         )
     try:
-        print('request.reason_of_decline', request.reasonOfDecline)
         await set_reason_of_decline_by_client_id(
             client_id=client_id,
             reason_of_decline=request.reasonOfDecline.value if request.reasonOfDecline else None

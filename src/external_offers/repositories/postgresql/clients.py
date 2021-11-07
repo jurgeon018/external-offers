@@ -568,7 +568,6 @@ async def set_client_accepted_and_no_operator_if_no_offers_in_progress(
             clients
         ).values(
             status=ClientStatus.accepted.value,
-            operator_user_id=None
         ).where(
             and_(
                 clients.c.client_id == client_id,

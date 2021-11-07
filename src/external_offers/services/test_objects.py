@@ -227,20 +227,20 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
             'address': get_attr(obj, 'address'),
             'region': get_attr(obj, 'region'),
             'price': get_attr(obj, 'price'),
-            'price_type': get_attr(obj, 'price_type'),
+            'priceType': get_attr(obj, 'price_type'),
             'contact': get_attr(obj, 'contact'),
-            'total_area': get_attr(obj, 'total_area'),
-            'floor_number': get_attr(obj, 'floor_number'),
-            'floors_count': get_attr(obj, 'floors_count'),
-            'rooms_count': get_attr(obj, 'rooms_count'),
+            'totalArea': get_attr(obj, 'total_area'),
+            'floorNumber': get_attr(obj, 'floor_number'),
+            'floorsCount': get_attr(obj, 'floors_count'),
+            'roomsCount': get_attr(obj, 'rooms_count'),
             'url': get_attr(obj, 'url'),
-            'is_agency': get_attr(obj, 'is_agency'),
-            'is_developer': get_attr(obj, 'is_developer'),
-            'is_studio': get_attr(obj, 'is_studio'),
+            'isAgency': get_attr(obj, 'is_agency'),
+            'isDeveloper': get_attr(obj, 'is_developer'),
+            'isStudio': get_attr(obj, 'is_studio'),
             'town': get_attr(obj, 'town'),
             'lat': float(get_attr(obj, 'lat')),
             'lng': float(get_attr(obj, 'lng')),
-            'living_area': get_attr(obj, 'living_area'),
+            'livingArea': get_attr(obj, 'living_area'),
             'description': get_attr(obj, 'description'),
         },
     )
@@ -255,10 +255,10 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     parsed_offer = await get_parsed_offer_for_creation_by_id(id=parsed_id)
     # # # offer
     offer_id = generate_guid()
-    if client.status == ClientStatus.waiting:
-        offer_status = OfferStatus.waiting
-    else:
+    if client.status == ClientStatus.in_progress:
         offer_status = OfferStatus.in_progress
+    else:
+        offer_status = OfferStatus.waiting
     offer = Offer(
         # dynamic params from request
         priority=get_attr(obj, 'offer_priority'),
