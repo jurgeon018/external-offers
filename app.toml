@@ -4,7 +4,6 @@ team = "b2b-core"
 name = "python"
 version = "3.9"
 features.preset = "v2"
-features.disabled = ["mypy_ci_fail"]
 
 [[dependency]]
 type = "postgres"
