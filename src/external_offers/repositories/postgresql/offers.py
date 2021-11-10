@@ -8,6 +8,7 @@ from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
+from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -400,62 +401,69 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: list[str]) -> Optio
     return rows
 
 
-async def set_waiting_offers_team_priority_by_offer_ids(
+async def set_waiting_offers_priority_by_offer_ids(
     *,
     offer_ids: list[str],
     priority: int,
-    team_id: int,
+    team_id: Optional[int],
 ) -> None:
     for offer_ids_chunk in iterate_over_list_by_chunks(
         iterable=offer_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):
-        # await pg.get().execute(f"""
-        # UPDATE offers_for_call
-        # SET team_settings = jsonb_set(team_settings, '"{team_id}"', '"{priority}"')
-        # WHERE id IN {tuple(offer_ids)} AND status = 'waiting';
-        # """)
+        if team_id:
+            sql = """
+            UPDATE offers_for_call
+            SET team_priorities = jsonb_set(
+                coalesce(team_priorities, '{}'),
+                '{%s}',
+                '%s'
+            )
+            WHERE id IN %s AND status = 'waiting';
+            """ % (
+                team_id,
+                priority,
+                tuple(offer_ids_chunk),
+            )
+            await pg.get().execute(sql)
+            continue
+            # values = {
+            #     "team_priorities": func.json_set(
+            #         # offers_for_call.c.team_priorities,
+            #         coalesce(offers_for_call.c.team_priorities, '{}'),
+            #         # f'$.{team_id}',
+            #         f'{team_id}',
+            #         f"'{priority}'",
+            #     ),
+            # }
+            # condition = and_(
+            #     offers_for_call.c.id.in_(offer_ids_chunk),
+            #     offers_for_call.c.status == OfferStatus.waiting.value,
+            # )
+
+        else:
+            values = {
+                "priority": priority
+            }
+            condition = or_(
+                and_(
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                ),
+                and_(
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                )
+            )
         query, params = asyncpgsa.compile_query(
             update(
                 offers_for_call
             ).values(
-                team_priorities=func.json_set(offers_for_call.team_priorities, f'$.{team_id}', priority)
+                **values
             ).where(
-                and_(
-                    offers_for_call.c.id.in_(offer_ids_chunk),
-                    offers_for_call.c.status == OfferStatus.waiting.value,
-                )
+                condition
             )
         )
-        print(query, params)
-        await pg.get().execute(query, *params)
-
-
-async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: list[str], priority: int) -> None:
-    for offer_ids_chunk in iterate_over_list_by_chunks(
-        iterable=offer_ids,
-        chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
-    ):
-        sql = (
-            update(
-                offers_for_call
-            ).values(
-                priority=priority
-            ).where(
-                or_(
-                    and_(
-                        offers_for_call.c.status == OfferStatus.waiting.value,
-                        offers_for_call.c.id.in_(offer_ids_chunk),
-                    ),
-                    and_(
-                        offers_for_call.c.publication_status == PublicationStatus.draft.value,
-                        offers_for_call.c.id.in_(offer_ids_chunk),
-                    )
-                )
-            )
-        )
-
-        query, params = asyncpgsa.compile_query(sql)
         await pg.get().execute(query, *params)
 
 

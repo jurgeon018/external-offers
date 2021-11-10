@@ -151,7 +151,6 @@ async def test_create_offers__exist_suitable_commercial_parsed_offer__creates_wa
     )
     assert row['status'] == 'waiting'
 
-
 async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_offer(
     pg,
     runtime_settings,
@@ -172,6 +171,7 @@ async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_
     })
 
     created_at = datetime.now(pytz.utc) - timedelta(weeks=3)
+    priority = 1
     await pg.execute(
         """
         INSERT INTO public.offers_for_call (
@@ -190,7 +190,7 @@ async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_
         """,
         ['1', 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6', '1',
          'waiting', created_at, created_at, None,
-         created_at, 1, None]
+         created_at, priority, None]
     )
 
     await users_mock.add_stub(
