@@ -4,6 +4,7 @@ from typing import AsyncGenerator, Optional
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
+from external_offers.entities.clients import ClientDraftOffersCount
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
@@ -691,13 +692,14 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_unactivated_clients_counts_by_clients():
+async def get_unactivated_clients_counts_by_clients() -> Optional[list[ClientDraftOffersCount]]:
     query, params = asyncpgsa.compile_query(
         select(
             [
                 offers_for_call.c.id,
                 offers_for_call.c.client_id,
                 offers_for_call.c.priority,
+                offers_for_call.c.team_priorities,
                 over(func.count(), partition_by=offers_for_call.c.client_id).label('draft_offers_count')
             ]
         ).select_from(

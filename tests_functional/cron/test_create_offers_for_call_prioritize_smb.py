@@ -1,8 +1,8 @@
 import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
-_CLEAR_CLIENT_PRIORITY = -1
 
+_CLEAR_CLIENT_PRIORITY = -1
 
 
 # async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_blocked__doesnt_creates_waiting_offer(

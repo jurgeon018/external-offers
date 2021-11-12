@@ -53,6 +53,20 @@ from external_offers.utils import get_next_call_date_when_call_missed
 logger = logging.getLogger(__name__)
 
 
+async def get_operator_team_id(operator_id: int) -> int:
+    return 1
+    # TODO: перенести запрос в репозиториес
+    query, params = asyncpgsa.compile_query(
+        select([
+            operators.c.operator_team,
+        ]).where(
+            operators.c.operator_id == operator_id
+        ).limit(1)
+    )
+    operator_team_id = await pg.fetchval(query, *params)
+    return operator_team_id
+
+
 async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
     exists = await exists_offers_in_progress_by_operator(
@@ -71,11 +85,14 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
 
     operator_roles = []
     operator_roles = await get_operator_roles(operator_id=user_id)
-
+    operator_team_id = await get_operator_team_id(operator_id=user_id)
+    print('operator_team_id', operator_team_id)
+    print('type(operator_team_id)', type(operator_team_id))
     async with pg.get().transaction():
         call_id = generate_guid()
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
+            operator_team_id=operator_team_id,
             call_id=call_id,
             operator_roles=operator_roles,
             is_test=request.is_test,

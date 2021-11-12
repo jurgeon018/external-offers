@@ -40,6 +40,7 @@ clients = sa.Table(
     sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('main_account_chosen', sa.BOOLEAN, nullable=False),
     sa.Column('comment', sa.VARCHAR, nullable=True),
+    sa.Column('team_id', sa.VARCHAR, nullable=True),
     sa.Column('reason_of_decline', sa.VARCHAR, nullable=True),
     sa.Column('additional_numbers', sa.VARCHAR, nullable=True),
     sa.Column('additional_emails', sa.VARCHAR, nullable=True),

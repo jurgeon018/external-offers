@@ -62,9 +62,14 @@ async def prioritize_client(
     *,
     client_id: str,
     client_count: int,
-    team_settings: Optional[TeamSettings],
+    team: Optional[Team],
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_CLIENT_PRIORITY """
+
+    if team:
+        team_settings = team.get_settings()
+    else:
+        team_settings = None
 
     client: Optional[Client] = await get_client_by_client_id(
         client_id=client_id
@@ -103,21 +108,17 @@ async def prioritize_waiting_offers(
     team: Optional[Team],
 ) -> None:
     """Проставляем заданиям командные(team_priorities) и внекомандные(priority) приоритеты"""
-    team_settings = None
-
-    if team:
-        team_settings = team.get_settings()
 
     clients_priority = await prioritize_clients(
         waiting_clients_counts=waiting_clients_counts,
-        team_settings=team_settings,
+        team=team,
     )
 
-    if not team:
-        clients_priority = await prioritize_unactivated_clients(
-            clients_priority=clients_priority,
-            unactivated_clients_counts=unactivated_clients_counts,
-        )
+    clients_priority = await prioritize_unactivated_clients(
+        clients_priority=clients_priority,
+        unactivated_clients_counts=unactivated_clients_counts,
+        team=team,
+    )
 
     offers_priority = await prioritize_offers(
         clients_priority=clients_priority,
@@ -125,7 +126,7 @@ async def prioritize_waiting_offers(
     if team:
         for priority, offer_ids in offers_priority.items():
             logger.warning(
-                'После приоритизации для команды №%d для %d обьявлений будет задан приоритет %d',
+                'После приоритизации для команды %d для %d обьявлений будет задан приоритет %d',
                 team.team_id,
                 len(offer_ids),
                 priority
@@ -152,6 +153,7 @@ async def prioritize_waiting_offers(
 async def prioritize_unactivated_clients(
     clients_priority: list[ClientWaitingOffersCount],
     unactivated_clients_counts: list,
+    team: Optional[Team],
 ) -> list[ClientWaitingOffersCount]:
     ''' Просчитать приоритеты для добивочных заданий '''
     prefix = str(runtime_settings.UNACTIVATED_CLIENT_PRIORITY)
@@ -161,7 +163,7 @@ async def prioritize_unactivated_clients(
             client_priority = await prioritize_client(
                 client_id=client_count.client_id,
                 client_count=client_count.draft_offers_count,
-                team_settings=None,
+                team=team,
             )
         if client_priority == _CLEAR_CLIENT_PRIORITY:
             if client_count.priority is None:
@@ -190,8 +192,8 @@ async def prioritize_offers(clients_priority):
 
 async def prioritize_clients(
     *,
-    waiting_clients_counts,
-    team_settings,
+    waiting_clients_counts: list[ClientWaitingOffersCount],
+    team: Optional[Team],
 ):
     clients_priority: Dict[int, int] = {}
     for client_count in waiting_clients_counts:
@@ -199,7 +201,7 @@ async def prioritize_clients(
             client_priority = await prioritize_client(
                 client_id=client_count.client_id,
                 client_count=client_count.waiting_offers_count,
-                team_settings=team_settings,
+                team=team,
             )
         if client_priority != _CLEAR_CLIENT_PRIORITY:
             prefix = str(runtime_settings.NEW_CLIENT_PRIORITY)

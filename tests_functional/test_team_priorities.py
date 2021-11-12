@@ -1,8 +1,53 @@
 from cian_functional_test_utils.pytest_plugin import MockResponse
+
+
+async def test_assign_suitable_client_to_operator(
+    pg,
+    http,
+    offers_and_clients_fixture,
+    users_mock,
+):
+    print(1)
+    # arrange
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
+    # создать операторов
+    # создать задания
+    operator_without_offers_in_progress = 60024636
+    x = await pg.fetch('''
+    select * from offers_for_call
+    ''')
+
+    # act
+    # взять в работу
+    resp = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_without_offers_in_progress
+        },
+        json={},
+        expected_status=200
+    )
+
+    # assert
+    assert resp.data['success']
+    assert not resp.data['errors']
+
+
+
+
+from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-async def test_create_offers(
+async def test_create_offers_for_call__prioritize_teams(
     pg,
     runtime_settings,
     runner,
@@ -88,6 +133,7 @@ async def test_create_offers(
     offers_for_call = await pg.fetch('''select priority, team_priorities from offers_for_call''')
     clients = await pg.fetch('''select * from clients''')
     offers_for_call = await pg.fetch('''select * from offers_for_call''')
+    # TODO: СДЕЛАТЬ ТАК ЧТОБ БЫЛИ РАЗНЫЕ ПРИОРИТЕТЫ А НЕ ТОЛЬКО -1
     assert json.loads(offers_for_call[0]['team_priorities']) == {"1": -1, "2": -1, "3": -1, "4": -1, "5": -1}
     assert json.loads(offers_for_call[1]['team_priorities']) == {"1": -1, "2": -1, "3": -1, "4": -1, "5": -1}
     assert json.loads(offers_for_call[2]['team_priorities']) == {"1": -1, "2": -1, "3": -1, "4": -1, "5": -1}

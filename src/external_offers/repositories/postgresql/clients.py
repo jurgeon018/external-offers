@@ -7,7 +7,7 @@ from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import true
-from sqlalchemy.sql.functions import coalesce
+from sqlalchemy.sql.functions import coalesce, func
 
 from external_offers import pg
 from external_offers.entities import Client
@@ -23,6 +23,7 @@ _NO_CALLS = 0
 _ONE_CALL = 1
 
 _NO_OFFER_CATEGORY = ''
+_CLEAR_CLIENT_PRIORITY = -1
 
 
 async def get_client_in_progress_by_operator(
@@ -48,6 +49,7 @@ async def get_client_in_progress_by_operator(
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
+    operator_team_id: Optional[int] = None,
     call_id: str,
     operator_roles: List[str],
     is_test: bool = False,
@@ -55,7 +57,6 @@ async def assign_suitable_client_to_operator(
     now = datetime.now(pytz.utc)
 
     is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
-
     commercial_category_clause = (
         coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY)
         .in_(runtime_settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES)
@@ -66,6 +67,15 @@ async def assign_suitable_client_to_operator(
         if is_commercial_moderator
         else ~commercial_category_clause
     )
+
+    if runtime_settings.DEBUG:
+    # if runtime_settings.USE_TEAM_PRIORITIES:
+        if operator_team_id:
+            priority_ordering = nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
+        else:
+            priority_ordering = nullslast(offers_for_call.c.priority.asc())
+    else:
+        priority_ordering = nullslast(offers_for_call.c.priority.asc())
 
     first_suitable_offer_client_cte = (
         select(
@@ -91,6 +101,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.status == ClientStatus.waiting.value,
                     clients.c.is_test == is_test,
                     offer_category_clause,
+                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны
@@ -104,6 +115,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.next_call <= now,
                     clients.c.is_test == is_test,
                     offer_category_clause,
+                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
                 ),
                 # добивочные клиенты
                 and_(
@@ -117,6 +129,7 @@ async def assign_suitable_client_to_operator(
                     ]),
                     clients.c.is_test == is_test,
                     offer_category_clause,
+                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны добивочных клиентов с неактивироваными черновиками
@@ -130,10 +143,11 @@ async def assign_suitable_client_to_operator(
                     offers_for_call.c.publication_status == PublicationStatus.draft.value,
                     clients.c.is_test == is_test,
                     offer_category_clause,
+                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
                 ),
             )
         ).order_by(
-            nullslast(offers_for_call.c.priority.asc()),
+            priority_ordering,
             offers_for_call.c.created_at.desc()
         ).limit(
             1
@@ -149,13 +163,16 @@ async def assign_suitable_client_to_operator(
             operator_user_id=operator_id,
             status=ClientStatus.in_progress.value,
             calls_count=coalesce(clients.c.calls_count, _NO_CALLS) + _ONE_CALL,
-            last_call_id=call_id
+            last_call_id=call_id,
+            team_id=operator_team_id,
         ).where(
             clients.c.client_id == first_suitable_offer_client_cte.c.client_id
         ).returning(
             clients.c.client_id
         )
     )
+    # print("first_suitable_offer_client_cte", first_suitable_offer_client_cte)
+    # print(query, params)
     return await pg.get().fetchval(query, *params)
 
 
