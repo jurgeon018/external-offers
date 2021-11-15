@@ -194,7 +194,9 @@ async def test_main_case(
     # print()
     # print('вернуть добивочного клиента в перезвон')
     dt = datetime.now(pytz.utc) - timedelta(days=4)
-    call_later_datetime = (dt).strftime('%Y-%m-%d %H:%M:%S')
+    # call_later_datetime = (dt).strftime('%Y-%m-%d %H:%M:%S')
+    call_later_datetime = dt.isoformat()
+
     _call_later_status_response = await _set_call_later_status_for_client(
         http=http,
         operator_id=operator_id,

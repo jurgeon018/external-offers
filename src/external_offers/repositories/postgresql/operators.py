@@ -122,3 +122,15 @@ async def get_latest_operator_updating() -> Optional[datetime]:
         ]).limit(1)
     )
     return await pg.get().fetchval(query, *params)
+
+
+async def get_operator_team_id(operator_id: int) -> Optional[int]:
+    query, params = asyncpgsa.compile_query(
+        select([
+            operators.c.team_id,
+        ]).where(
+            operators.c.operator_id == str(operator_id)
+        ).limit(1)
+    )
+    operator_team_id = await pg.get().fetchval(query, *params)
+    return int(operator_team_id) if operator_team_id else None

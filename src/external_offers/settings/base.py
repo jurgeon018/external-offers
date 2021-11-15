@@ -235,6 +235,7 @@ EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT = 3
 CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS: bool = False
 
 DEBUG: bool = False
+ENABLE_TEAM_PRIORITIES: bool = False
 
 # Дефолтные обьекты для тестирования
 DEFAULT_TEST_OFFER = """{

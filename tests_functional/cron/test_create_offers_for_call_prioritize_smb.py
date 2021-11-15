@@ -230,9 +230,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
     assert row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-
-# async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__doesnt_creates_waiting_offer(
-async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__creates_waiting_offer_with_clear_priority(
     pg,
     runtime_settings,
     runner,
@@ -441,9 +439,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_smb_without
     assert client_row['cian_user_id'] is None
 
 
-
-# async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_active__doesnt_creates_waiting_offer(
-async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_active__creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_active__creates_waiting_offer_with_clear_priority(
     pg,
     runtime_settings,
     runner,
@@ -1004,9 +1000,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-
-# async def test_create_offers__profile_is_blocked___offers_not_created(
-async def test_create_offers__profile_is_blocked___offers_created(
+async def test_create_offers__profile_is_blocked___offers_with_cleared_priority_created(
     pg,
     runtime_settings,
     runner,
@@ -1096,15 +1090,13 @@ async def test_create_offers__profile_is_blocked___offers_created(
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-
-# async def test_create_offers__client_has_wrong_source_type___offers_not_created(
 @pytest.mark.parametrize('source_type', [
     'subAgents',
     'emls',
     'n1',
     'mlsn',
 ])
-async def test_create_offers__client_has_wrong_source_type___offers_created(
+async def test_create_offers__client_has_wrong_source_type___offers_with_cleared_priority_created(
     pg,
     runtime_settings,
     runner,
@@ -1178,9 +1170,7 @@ async def test_create_offers__client_has_wrong_source_type___offers_created(
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-
-async def test_create_offers__client_exceeds_maximum_active_offers_proportion___offers_created(
-# async def test_create_offers__client_exceeds_maximum_active_offers_proportion___offers_not_created(
+async def test_create_offers__client_exceeds_maximum_active_offers_proportion___offers_has_clear_priority(
     pg,
     runtime_settings,
     runner,

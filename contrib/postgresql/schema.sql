@@ -74,7 +74,7 @@ CREATE TABLE clients
     calls_count      smallint,
     last_call_id     varchar,
     comment          varchar,
-    team_id          varchar default null,
+    team_id          int default null,
     reason_of_decline varchar default null,
     additional_numbers varchar default null,
     additional_emails varchar default null,

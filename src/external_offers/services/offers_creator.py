@@ -14,15 +14,12 @@ from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientStatus, ClientWaitingOffersCount
 from external_offers.entities.offers import ExternalOfferType
-from external_offers.entities.teams import Team, TeamSettings
+from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
 from external_offers.helpers.uuid import generate_guid
-from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.repositories.postgresql import (
     delete_old_waiting_offers_for_call,
-    delete_waiting_clients_by_client_ids,
     delete_waiting_clients_with_count_off_limit,
-    delete_waiting_offers_for_call_by_client_ids,
     delete_waiting_offers_for_call_with_count_off_limit,
     get_client_by_avito_user_id,
     get_client_by_client_id,
@@ -37,6 +34,7 @@ from external_offers.repositories.postgresql import (
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
+from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 from external_offers.services.prioritizers.prioritize_offer import mapping_offer_categories_to_priority
 
@@ -155,7 +153,7 @@ async def prioritize_unactivated_clients(
     unactivated_clients_counts: list,
     team: Optional[Team],
 ) -> list[ClientWaitingOffersCount]:
-    ''' Просчитать приоритеты для добивочных заданий '''
+    """ Просчитать приоритеты для добивочных заданий """
     prefix = str(runtime_settings.UNACTIVATED_CLIENT_PRIORITY)
 
     for client_count in unactivated_clients_counts:
@@ -216,11 +214,9 @@ async def sync_offers_for_call_with_parsed() -> None:
     if settings.ENABLE_LAST_SYNC_DATE_FETCHING:
         last_sync_date = await get_last_sync_date()
 
-    print('!!!!!!!!!!!!')
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
         last_sync_date=last_sync_date
     ):
-        print('parsed_offers', parsed_offers)
         logger.info('Fetched %d parsed offers', len(parsed_offers))
 
         rows = await get_offers_parsed_ids_by_parsed_ids(
@@ -229,7 +225,6 @@ async def sync_offers_for_call_with_parsed() -> None:
         parsed_offer_ids_existing = set(row['parsed_id'] for row in rows)
 
         for parsed_offer in parsed_offers:
-            print("parsed_offer", parsed_offer)
             if parsed_offer.id in parsed_offer_ids_existing:
                 continue
 
@@ -281,15 +276,12 @@ async def clear_and_prioritize_waiting_offers():
     waiting_clients_counts = await get_waiting_offer_counts_by_clients()
     unactivated_clients_counts = await get_unactivated_clients_counts_by_clients()
     teams = await get_teams()
-
     await prioritize_waiting_offers(
         waiting_clients_counts=waiting_clients_counts,
         unactivated_clients_counts=unactivated_clients_counts,
         team=None,
     )
-    print('team', None)
     for team in teams:
-        print('team', team)
         await prioritize_waiting_offers(
             waiting_clients_counts=waiting_clients_counts,
             unactivated_clients_counts=unactivated_clients_counts,
@@ -298,6 +290,6 @@ async def clear_and_prioritize_waiting_offers():
 
     if runtime_settings.get(
         'ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL',
-        settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL
+        runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL
     ):
         await delete_old_waiting_offers_for_call()

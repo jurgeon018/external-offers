@@ -7,7 +7,7 @@ from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import true
-from sqlalchemy.sql.functions import coalesce, func
+from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import Client
@@ -54,6 +54,7 @@ async def assign_suitable_client_to_operator(
     operator_roles: List[str],
     is_test: bool = False,
 ) -> str:
+
     now = datetime.now(pytz.utc)
 
     is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
@@ -68,14 +69,18 @@ async def assign_suitable_client_to_operator(
         else ~commercial_category_clause
     )
 
-    if runtime_settings.DEBUG:
-    # if runtime_settings.USE_TEAM_PRIORITIES:
-        if operator_team_id:
-            priority_ordering = nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
-        else:
-            priority_ordering = nullslast(offers_for_call.c.priority.asc())
+    if runtime_settings.ENABLE_TEAM_PRIORITIES and operator_team_id:
+        priority_ordering = (
+            nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
+        )
+        priority_clause = [
+            offers_for_call.c.team_priorities[str(operator_team_id)] != str(_CLEAR_CLIENT_PRIORITY)
+        ]
     else:
         priority_ordering = nullslast(offers_for_call.c.priority.asc())
+        priority_clause = [
+            offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY
+        ]
 
     first_suitable_offer_client_cte = (
         select(
@@ -101,7 +106,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.status == ClientStatus.waiting.value,
                     clients.c.is_test == is_test,
                     offer_category_clause,
-                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
+                    *priority_clause,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны
@@ -115,7 +120,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.next_call <= now,
                     clients.c.is_test == is_test,
                     offer_category_clause,
-                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
+                    *priority_clause,
                 ),
                 # добивочные клиенты
                 and_(
@@ -129,7 +134,7 @@ async def assign_suitable_client_to_operator(
                     ]),
                     clients.c.is_test == is_test,
                     offer_category_clause,
-                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
+                    *priority_clause,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны добивочных клиентов с неактивироваными черновиками
@@ -143,7 +148,7 @@ async def assign_suitable_client_to_operator(
                     offers_for_call.c.publication_status == PublicationStatus.draft.value,
                     clients.c.is_test == is_test,
                     offer_category_clause,
-                    offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY,
+                    *priority_clause,
                 ),
             )
         ).order_by(
@@ -171,8 +176,6 @@ async def assign_suitable_client_to_operator(
             clients.c.client_id
         )
     )
-    # print("first_suitable_offer_client_cte", first_suitable_offer_client_cte)
-    # print(query, params)
     return await pg.get().fetchval(query, *params)
 
 
@@ -185,26 +188,6 @@ async def get_client_unactivated_by_client_id(*, client_id) -> bool:
         ).limit(1)
     )
     return await pg.get().fetchval(query, *params)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 async def assign_client_to_operator_and_increase_calls_count(
@@ -275,8 +258,13 @@ async def set_client_to_status_and_set_next_call_date_and_return(
     )
     query, params = asyncpgsa.compile_query(sql)
     row = await pg.get().fetchrow(query, *params)
-
-    return client_mapper.map_from(row) if row else None
+    res = client_mapper.map_from(row) if row else None
+    # print('next_call', next_call.date())
+    # print('res.next_call', res.next_call.date())
+    # print("row['next_call']", row['next_call'])
+    # assert next_call.date() == res.next_call.date()
+    # assert next_call.date() == row['next_call'].date()
+    return res
 
 
 async def set_client_to_decline_status_and_return(

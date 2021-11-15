@@ -4,6 +4,7 @@ import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 
+from external_offers.entities.teams import Team
 from external_offers.enums.operator_role import OperatorRole
 from external_offers.enums.user_segment import UserSegment
 from external_offers.helpers.region_names import REGION_NAMES
@@ -200,7 +201,7 @@ def _get_subsegments():
     ]
 
 
-def _get_team_settings(team):
+def _get_team_settings(team: Team):
     return team.get_settings()
 
 

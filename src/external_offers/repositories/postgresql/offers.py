@@ -4,7 +4,6 @@ from typing import AsyncGenerator, Optional
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
-from external_offers.entities.clients import ClientDraftOffersCount
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
@@ -13,6 +12,7 @@ from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
+from external_offers.entities.clients import ClientDraftOffersCount
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.enums import OfferStatus
 from external_offers.mappers import (
@@ -413,6 +413,12 @@ async def set_waiting_offers_priority_by_offer_ids(
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):
         if team_id:
+            offer_ids = str(tuple(offer_ids_chunk))
+            if offer_ids[-2] == ',':
+                lst = list(offer_ids)
+                # убирает кому в конце кортежа
+                lst[-2] = ''  
+                offer_ids = ''.join(lst)
             sql = """
             UPDATE offers_for_call
             SET team_priorities = jsonb_set(
@@ -424,7 +430,7 @@ async def set_waiting_offers_priority_by_offer_ids(
             """ % (
                 team_id,
                 priority,
-                tuple(offer_ids_chunk),
+                offer_ids,
             )
             await pg.get().execute(sql)
             continue
@@ -444,7 +450,7 @@ async def set_waiting_offers_priority_by_offer_ids(
 
         else:
             values = {
-                "priority": priority
+                'priority': priority
             }
             condition = or_(
                 and_(
