@@ -20,6 +20,7 @@ from external_offers.entities.parsed_offers import (
 )
 from external_offers.enums.external_offer_type import ExternalOfferType
 from external_offers.enums.object_model import Category
+from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
     parsed_offer_for_creation_mapper,
@@ -234,25 +235,35 @@ async def delete_outdated_parsed_offers(
     updated_at_border: datetime
 ) -> None:
     po = tables.parsed_offers.alias()
+    ofc = tables.offers_for_call.alias()
 
-    sql = (
-        delete(
-            po
+    query, params = asyncpgsa.compile_query(
+        select(
+            [
+                ofc.c.parsed_id,
+            ]
         ).where(
-            po.c.id.in_(
-                select(
-                    [
-                        po.c.id
-                    ]
-                ).where(
-                    po.c.updated_at < updated_at_border
+            ofc.c.status.in_([
+                OfferStatus.in_progress.value,
+                OfferStatus.call_missed.value,
+                OfferStatus.call_later.value,
+            ])
+        )
+    )
+    parsed_ids_of_non_final_offers = await pg.get().fetch(query, *params)
+
+    query, params = asyncpgsa.compile_query(
+        (
+            delete(
+                po
+            ).where(
+                and_(
+                    po.c.updated_at < updated_at_border,
+                    po.c.id.notin_(parsed_ids_of_non_final_offers)
                 )
             )
         )
     )
-
-    query, params = asyncpgsa.compile_query(sql)
-
     await pg.get().execute(query, *params)
 
 
