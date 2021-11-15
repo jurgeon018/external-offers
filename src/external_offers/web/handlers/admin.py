@@ -48,7 +48,7 @@ class AdminOffersListPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        
+
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )

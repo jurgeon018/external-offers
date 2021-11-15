@@ -230,7 +230,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
     assert row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__creates_waiting_offer_with_clear_priority(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__creates_offer_with_clear_priority(
     pg,
     runtime_settings,
     runner,
@@ -439,7 +439,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_smb_without
     assert client_row['cian_user_id'] is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_active__creates_waiting_offer_with_clear_priority(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_active__creates_clear_priority_offer(
     pg,
     runtime_settings,
     runner,
@@ -924,8 +924,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     assert client_row['cian_user_id'] is None
 
 
-
-# async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sanctions__clears_client(
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sanctions__doesnt_clear_client(
     pg,
     runtime_settings,

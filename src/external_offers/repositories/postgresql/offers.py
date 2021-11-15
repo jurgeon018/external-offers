@@ -8,7 +8,6 @@ from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
-from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -412,12 +411,27 @@ async def set_waiting_offers_priority_by_offer_ids(
         iterable=offer_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):
-        if team_id:
+        if not team_id:
+            values = {
+                'priority': priority
+            }
+            condition = or_(
+                and_(
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                ),
+                and_(
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                )
+            )
+
+        else:
             offer_ids = str(tuple(offer_ids_chunk))
             if offer_ids[-2] == ',':
                 lst = list(offer_ids)
                 # убирает кому в конце кортежа
-                lst[-2] = ''  
+                lst[-2] = ''
                 offer_ids = ''.join(lst)
             sql = """
             UPDATE offers_for_call
@@ -447,21 +461,6 @@ async def set_waiting_offers_priority_by_offer_ids(
             #     offers_for_call.c.id.in_(offer_ids_chunk),
             #     offers_for_call.c.status == OfferStatus.waiting.value,
             # )
-
-        else:
-            values = {
-                'priority': priority
-            }
-            condition = or_(
-                and_(
-                    offers_for_call.c.status == OfferStatus.waiting.value,
-                    offers_for_call.c.id.in_(offer_ids_chunk),
-                ),
-                and_(
-                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
-                    offers_for_call.c.id.in_(offer_ids_chunk),
-                )
-            )
         query, params = asyncpgsa.compile_query(
             update(
                 offers_for_call

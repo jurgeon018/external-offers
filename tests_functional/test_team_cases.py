@@ -2,19 +2,19 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-def _print(objects, table=None):
-    print()
-    print('loop start')
-    for obj in objects:
-        print(f'\n{"№": <30}{objects.index(obj)+1}')
-        for key, value in obj.items():
-            if table == 'ofc':
-                print('{table}.{key: <30}{value}'.format(table=table, key=key, value=value))
-            elif table == 'clients':
-                print('{table}.{key: <22}{value}'.format(table=table, key=key, value=value))
-            else:
-                print('{table}.{key: <30}{value}'.format(table=table, key=key, value=value))
-    print('loop end')
+# def _print(objects, table=None):
+#     print()
+#     print('loop start')
+#     for obj in objects:
+#         print(f'\n{"№": <30}{objects.index(obj)+1}')
+#         for key, value in obj.items():
+#             if table == 'ofc':
+#                 print('{table}.{key: <30}{value}'.format(table=table, key=key, value=value))
+#             elif table == 'clients':
+#                 print('{table}.{key: <22}{value}'.format(table=table, key=key, value=value))
+#             else:
+#                 print('{table}.{key: <30}{value}'.format(table=table, key=key, value=value))
+#     print('loop end')
 
 
 async def test_team_priorities(
@@ -31,9 +31,7 @@ async def test_team_priorities(
     announcements_mock
 ):
 
-
     # arrange
-
 
     cian_user_id = 12835367
     await runtime_settings.set({
@@ -104,15 +102,12 @@ async def test_team_priorities(
         ),
     )
 
-
     # act & assert
-
 
     # создать операторов и команды(TODO переделать через ручку)
     # print('создать операторов и команды')
     await pg.execute_scripts(teams_fixture)
     # print('\n\n\n')
-
 
     # создать спаршеные обьявления(TODO переделать через консьюмер)
     # print('создать спаршеные обьявления')
@@ -120,12 +115,11 @@ async def test_team_priorities(
     # await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     # print('\n\n\n')
 
-
     # создать задания из спаршеных обьявлений(через крон)
     # print('создать задания из спаршеных обьявлений')
     await runner.run_python_command('create-offers-for-call')
-    clients = await pg.fetch('''select * from clients''')
-    ofc = await pg.fetch('''select * from offers_for_call''')
+    clients = await pg.fetch("""select * from clients""")
+    ofc = await pg.fetch("""select * from offers_for_call""")
     # _print(ofc, table='ofc')
     # _print(clients, table='clients')
     # проверить что задания создаются
@@ -158,14 +152,25 @@ async def test_team_priorities(
     assert ofc[5]['priority'] == 231115211
     # TODO: https://jira.cian.tech/browse/CD-116915/
     # проверить разные приритеты команд
-    assert json.loads(ofc[0]['team_priorities']) == {"1": 231120211, "2": 231120211, "3": 231120211, "4": 231120211, "5": 231120211}
-    assert json.loads(ofc[1]['team_priorities']) == {"1": 231120211, "2": 231120211, "3": 231120211, "4": 231120211, "5": 231120211}
-    assert json.loads(ofc[2]['team_priorities']) == {"1": 231120211, "2": 231120211, "3": 231120211, "4": 231120211, "5": 231120211}
-    assert json.loads(ofc[3]['team_priorities']) == {"1": 231120211, "2": 231120211, "3": 231120211, "4": 231120211, "5": 231120211}
-    assert json.loads(ofc[4]['team_priorities']) == {"1": 231115223, "2": 231115223, "3": 231115223, "4": 231115223, "5": 231115223}
-    assert json.loads(ofc[5]['team_priorities']) == {"1": 231115211, "2": 231115211, "3": 231115211, "4": 231115211, "5": 231115211}
+    assert json.loads(ofc[0]['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    }
+    assert json.loads(ofc[1]['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    }
+    assert json.loads(ofc[2]['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    }
+    assert json.loads(ofc[3]['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    }
+    assert json.loads(ofc[4]['team_priorities']) == {
+        '1': 231115223, '2': 231115223, '3': 231115223, '4': 231115223, '5': 231115223
+    }
+    assert json.loads(ofc[5]['team_priorities']) == {
+        '1': 231115211, '2': 231115211, '3': 231115211, '4': 231115211, '5': 231115211
+    }
     # print('\n\n\n')
-
 
     # взять клиента и задания в работу
     # print('взять клиента и задания в работу')
@@ -183,8 +188,8 @@ async def test_team_priorities(
         json={},
         expected_status=200
     )
-    clients = await pg.fetch('''select * from clients''')
-    ofc = await pg.fetch('''select * from offers_for_call''')
+    clients = await pg.fetch("""select * from clients""")
+    ofc = await pg.fetch("""select * from offers_for_call""")
     # _print(ofc, table='ofc')
     # _print(clients, table='clients')
     assert resp.data['errors'] == []

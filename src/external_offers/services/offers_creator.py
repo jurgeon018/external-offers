@@ -45,7 +45,7 @@ _CLEAR_CLIENT_PRIORITY = -1
 
 
 async def clear_waiting_offers_and_clients_with_off_count_limits() -> None:
-    """ 
+    """
         Очищаем таблицу заданий и клиентов.
         Удаляются те клиенты в ожидании, у которых например меньше 1 и больше 5 обьявлений.
     """

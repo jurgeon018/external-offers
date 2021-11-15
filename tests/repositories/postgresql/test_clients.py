@@ -33,7 +33,6 @@ async def test_assign_suitable_client_to_operator(mocker):
     default_offer_category = ''
     # https://www.joydeepdeb.com/tools/line-break.html
     query = (
-        # 'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND clients.operator_user_id IS NULL AND offers_for_call.status = $39 AND clients.status = $40 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND clients.operator_user_id = $31 AND offers_for_call.status IN ($41, $42) AND clients.next_call <= $27 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS true AND clients.operator_user_id = $32 AND clients.next_call <= $28 AND offers_for_call.publication_status = $36 AND clients.status NOT IN ($43) AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS true AND clients.operator_user_id = $33 AND offers_for_call.status IN ($44, $45) AND clients.next_call <= $29 AND offers_for_call.publication_status = $37 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.created_at DESC \n LIMIT $34 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$38, operator_user_id=$30, calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$46 FROM first_suitable_offer_client_cte WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING clients.client_id'
         'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id '
         'AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = '
         'clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS '
@@ -57,9 +56,10 @@ async def test_assign_suitable_client_to_operator(mocker):
         '$18) AND offers_for_call.priority != $35 ORDER BY offers_for_call.priority ASC '
         'NULLS LAST, offers_for_call.created_at DESC \n LIMIT $34 FOR UPDATE SKIP LOCKED)\n '
         'UPDATE clients SET status=$38, operator_user_id=$30, '
-        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$46 FROM first_suitable_offer_client_cte '
+        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$46 '
+        'FROM first_suitable_offer_client_cte '
         'WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING '
-        'clients.client_id' 
+        'clients.client_id'
     )
     args = (
         0,
@@ -130,7 +130,6 @@ async def test_assign_suitable_client_to_operator__commercial_operator(mocker):
     default_offer_category = ''
     # https://www.joydeepdeb.com/tools/line-break.html
     query = (
-        # 'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND clients.operator_user_id IS NULL AND offers_for_call.status = $39 AND clients.status = $40 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND clients.operator_user_id = $31 AND offers_for_call.status IN ($41, $42) AND clients.next_call <= $27 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS true AND clients.operator_user_id = $32 AND clients.next_call <= $28 AND offers_for_call.publication_status = $36 AND clients.status NOT IN ($43) AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS true AND clients.operator_user_id = $33 AND offers_for_call.status IN ($44, $45) AND clients.next_call <= $29 AND offers_for_call.publication_status = $37 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.created_at DESC \n LIMIT $34 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$38, operator_user_id=$30, calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$46 FROM first_suitable_offer_client_cte WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING clients.client_id'
         'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id '
         'AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = '
         'clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS '
@@ -145,7 +144,8 @@ async def test_assign_suitable_client_to_operator__commercial_operator(mocker):
         '$16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS true '
         'AND clients.operator_user_id = $32 AND clients.next_call <= $28 AND '
         'offers_for_call.publication_status = $36 AND clients.status NOT IN ($43) AND clients.is_test = false AND '
-        'coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, '
+        'coalesce(offers_for_call.category, $19) IN '
+        '($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, '
         '$11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR '
         'clients.unactivated IS true AND clients.operator_user_id = $33 AND offers_for_call.status IN ($44, '
         '$45) AND clients.next_call <= $29 AND offers_for_call.publication_status = $37 AND '
@@ -154,7 +154,8 @@ async def test_assign_suitable_client_to_operator__commercial_operator(mocker):
         'AND offers_for_call.priority != $35 ORDER BY offers_for_call.priority ASC NULLS '
         'LAST, offers_for_call.created_at DESC \n LIMIT $34 FOR UPDATE SKIP LOCKED)\n UPDATE '
         'clients SET status=$38, operator_user_id=$30, '
-        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$46 FROM first_suitable_offer_client_cte '
+        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, '
+        'team_id=$46 FROM first_suitable_offer_client_cte '
         'WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING '
         'clients.client_id'
     )

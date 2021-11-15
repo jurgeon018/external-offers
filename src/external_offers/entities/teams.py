@@ -170,18 +170,12 @@ class Team:
     settings: dict[str, Any]
     """Настройки команды"""
 
-    def set_default_settings(self) -> None:
-        pass
-
     def get_settings(self) -> TeamSettings:
         settings = None
         if self.settings:
-            try:
-                json_settings = json.loads(self.settings)
-                settings = json_settings
-                # settings = TeamSettings(**json_settings)
-            except Exception:
-                pass
+            json_settings = json.loads(self.settings)
+            settings = json_settings
+            # settings = TeamSettings(**json_settings)
         return settings
 
 
