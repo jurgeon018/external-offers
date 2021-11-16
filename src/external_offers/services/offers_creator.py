@@ -296,7 +296,7 @@ async def clear_and_prioritize_waiting_offers():
                 team=team,
             )
         )
-    await asyncio.gather(team_priorities)
+    await asyncio.gather(*team_priorities)
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()
