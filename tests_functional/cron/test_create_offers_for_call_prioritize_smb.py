@@ -515,7 +515,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_a
         """
     )
 
-    # assert offer_row is None
+    
     assert offer_row is not None
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
@@ -642,7 +642,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         """
     )
 
-    # assert offer_row is None
+    
     assert offer_row is not None
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
@@ -829,7 +829,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         """
     )
 
-    # assert offer_row is None
+    
     assert offer_row is not None
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
@@ -988,7 +988,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
         """
     )
 
-    # assert offer_row is None
+    
     assert offer_row is not None
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
@@ -1078,7 +1078,7 @@ async def test_create_offers__profile_is_blocked___offers_with_cleared_priority_
         """
     )
 
-    # assert offer_row is None
+    
     assert offer_row is not None
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
@@ -1158,7 +1158,7 @@ async def test_create_offers__client_has_wrong_source_type___offers_with_cleared
         """
     )
 
-    # assert offer_row is None
+    
     assert offer_row is not None
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
@@ -1233,6 +1233,6 @@ async def test_create_offers__client_exceeds_maximum_active_offers_proportion___
         """
     )
 
-    # assert offer_row is None
+    
     assert offer_row is not None
     assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
