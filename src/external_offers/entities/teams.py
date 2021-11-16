@@ -11,11 +11,10 @@ class OffersSettings:
     """Категории"""
     regions: Optional[list[str]] = None
     """Регионы"""
-    # todo: https://jira.cian.tech/browse/CD-116914
-    # минимальная дата создания в очереди
-    # todo: https://jira.cian.tech/browse/CD-116914
-    # флаг коллтрекинга
-
+    # TODO: минимальная дата создания в очереди
+    """Минимальная дата создания в очереди"""
+    calltracking: bool = True
+    """Флаг колтрекинга"""
 
 @dataclass
 class ClientsSettings:
@@ -51,10 +50,6 @@ class ClientsSettings:
     """% обьектов с площадки 'yandex'"""
     valid_days_after_call: Optional[int] = None
     """уже был в обзвоне"""
-    # todo: https://jira.cian.tech/browse/CD-116914
-    # Минимальная дата создания в очереди
-    calltracking: bool = True
-    """Флаг колтрекинга"""
 
 
 @dataclass
@@ -63,8 +58,8 @@ class PrioritySettings:
     Настройки приоритетов в очереди
     Приоритет собирается из 7 частей в число равной длины для всех заданий(для сквозной сортировки)
     1-5 - части приоритета для клиента
-    1 часть - тип клиента: добивочный клиент с неактивированым черновиком, новый клиент
     """
+    # 1 часть - тип клиента: добивочный клиент с неактивированым черновиком, новый клиент
     activation_status_position: int = 1
     """Порядок признака 'Статус клиента(добивочный или новый)'"""
     unactivated_client_priority: int = 1
@@ -133,17 +128,22 @@ class PrioritySettings:
     subsegment_position: int = 10
     """Порядок признака 'Субсегмент'"""
 
+from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_item_model import(
+    DurationInDays
+)
 
 @dataclass
 class PromocodeSettings:
     """Настройки промокодов"""
-    promocode_regions: Optional[list[str]] = None
-    """Регионы применения"""
+    promocode_polygons: Optional[list[str]] = None
+    """Регионы применения(айдишники полигонов)"""
+    regions_with_paid_publication: Optional[list[str]] = None
+    """Регионы применения(айдишники регионов)"""
     filling: Optional[list[str]] = None
     """Наполнение"""
     promocode_price: int = 0
     """Стоимость"""
-    promocode_period: int = 30
+    promocode_period: DurationInDays = DurationInDays.thirty
     """Срок действия промокодов"""
     promocode_group_name: Optional[str] = None
     """Название групы промокодов"""
