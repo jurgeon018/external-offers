@@ -2,21 +2,6 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-# def _print(objects, table=None):
-#     print()
-#     print('loop start')
-#     for obj in objects:
-#         print(f'\n{"№": <30}{objects.index(obj)+1}')
-#         for key, value in obj.items():
-#             if table == 'ofc':
-#                 print('{table}.{key: <30}{value}'.format(table=table, key=key, value=value))
-#             elif table == 'clients':
-#                 print('{table}.{key: <22}{value}'.format(table=table, key=key, value=value))
-#             else:
-#                 print('{table}.{key: <30}{value}'.format(table=table, key=key, value=value))
-#     print('loop end')
-
-
 async def test_team_priorities(
     pg,
     http,
@@ -36,20 +21,14 @@ async def test_team_priorities(
     cian_user_id = 12835367
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
-        # 'OFFER_TASK_CREATION_SEGMENTS': ['d'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent', 'officeRent'],
-        # 'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580, 184723],
-        # 'OFFER_TASK_CREATION_REGIONS': [4580],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'NO_ACTIVE_SMB_PRIORITY': 2,
         'SMB_PRIORITY': 1,
         'WAITING_PRIORITY': 3,
         'ENABLE_TEAM_PRIORITIES': True,
-        # 'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
-        # 'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        # 'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
     })
 
     await users_mock.add_stub(
@@ -105,18 +84,13 @@ async def test_team_priorities(
     # act & assert
 
     # создать операторов и команды(TODO переделать через ручку)
-    # print('создать операторов и команды')
     await pg.execute_scripts(teams_fixture)
-    # print('\n\n\n')
 
     # создать спаршеные обьявления(TODO переделать через консьюмер)
-    # print('создать спаршеные обьявления')
     await pg.execute_scripts(parsed_offers_for_teams)
     # await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
-    # print('\n\n\n')
 
     # создать задания из спаршеных обьявлений(через крон)
-    # print('создать задания из спаршеных обьявлений')
     await runner.run_python_command('create-offers-for-call')
     clients = await pg.fetch("""select * from clients""")
     ofc = await pg.fetch("""select * from offers_for_call""")
@@ -170,10 +144,8 @@ async def test_team_priorities(
     assert json.loads(ofc[5]['team_priorities']) == {
         '1': 231115211, '2': 231115211, '3': 231115211, '4': 231115211, '5': 231115211
     }
-    # print('\n\n\n')
 
     # взять клиента и задания в работу
-    # print('взять клиента и задания в работу')
     operator_id = 73478905
     operator_team_id = await pg.fetchval("""
         SELECT team_id FROM operators WHERE operator_id=$1;
@@ -208,11 +180,3 @@ async def test_team_priorities(
     assert ofc[3]['status'] == 'waiting'
     assert ofc[4]['status'] == 'inProgress'
     assert ofc[5]['status'] == 'inProgress'
-    # print('\n\n\n')
-
-    # TODO: https://jira.cian.tech/browse/CD-116915/
-    # - протестить весь флоу админки:
-    #   - отправить в перезвон
-    #   - взять в работу
-    #   - сохранить обьявление
-    #   - проверить добивочность

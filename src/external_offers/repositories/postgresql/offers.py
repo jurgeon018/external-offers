@@ -448,19 +448,6 @@ async def set_waiting_offers_priority_by_offer_ids(
             )
             await pg.get().execute(sql)
             continue
-            # values = {
-            #     "team_priorities": func.json_set(
-            #         # offers_for_call.c.team_priorities,
-            #         coalesce(offers_for_call.c.team_priorities, '{}'),
-            #         # f'$.{team_id}',
-            #         f'{team_id}',
-            #         f"'{priority}'",
-            #     ),
-            # }
-            # condition = and_(
-            #     offers_for_call.c.id.in_(offer_ids_chunk),
-            #     offers_for_call.c.status == OfferStatus.waiting.value,
-            # )
         query, params = asyncpgsa.compile_query(
             update(
                 offers_for_call

@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Optional
 
 import pytz
 from cian_core.context import new_operation_id
@@ -174,7 +174,7 @@ async def prioritize_unactivated_clients(
 
 
 async def prioritize_offers(clients_priority):
-    offers_priority: Dict[int, List[str]] = defaultdict(list)
+    offers_priority: dict[int, list[str]] = defaultdict(list)
 
     async with pg.get().transaction():
         async for offer in get_offers_for_prioritization_by_client_ids(clients_priority.keys()):
@@ -193,7 +193,7 @@ async def prioritize_clients(
     waiting_clients_counts: list[ClientWaitingOffersCount],
     team: Optional[Team],
 ):
-    clients_priority: Dict[int, int] = {}
+    clients_priority: dict[int, int] = {}
     for client_count in waiting_clients_counts:
         with new_operation_id():
             client_priority = await prioritize_client(
@@ -288,8 +288,5 @@ async def clear_and_prioritize_waiting_offers():
             team=team,
         )
 
-    if runtime_settings.get(
-        'ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL',
-        runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL
-    ):
+    if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()

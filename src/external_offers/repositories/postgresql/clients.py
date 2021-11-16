@@ -259,11 +259,6 @@ async def set_client_to_status_and_set_next_call_date_and_return(
     query, params = asyncpgsa.compile_query(sql)
     row = await pg.get().fetchrow(query, *params)
     res = client_mapper.map_from(row) if row else None
-    # print('next_call', next_call.date())
-    # print('res.next_call', res.next_call.date())
-    # print("row['next_call']", row['next_call'])
-    # assert next_call.date() == res.next_call.date()
-    # assert next_call.date() == row['next_call'].date()
     return res
 
 
