@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime
@@ -273,20 +274,29 @@ async def sync_offers_for_call_with_parsed() -> None:
 
 async def clear_and_prioritize_waiting_offers():
     await clear_waiting_offers_and_clients_with_off_count_limits()
-    waiting_clients_counts = await get_waiting_offer_counts_by_clients()
-    unactivated_clients_counts = await get_unactivated_clients_counts_by_clients()
-    teams = await get_teams()
-    await prioritize_waiting_offers(
-        waiting_clients_counts=waiting_clients_counts,
-        unactivated_clients_counts=unactivated_clients_counts,
-        team=None,
+
+    waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
+        get_waiting_offer_counts_by_clients(),
+        get_unactivated_clients_counts_by_clients(),
     )
-    for team in teams:
-        await prioritize_waiting_offers(
+
+    team_priorities = [
+        prioritize_waiting_offers(
             waiting_clients_counts=waiting_clients_counts,
             unactivated_clients_counts=unactivated_clients_counts,
-            team=team,
+            team=None,
         )
+    ]
+    teams = await get_teams()
+    for team in teams:
+        team_priorities.append(
+            prioritize_waiting_offers(
+                waiting_clients_counts=waiting_clients_counts,
+                unactivated_clients_counts=unactivated_clients_counts,
+                team=team,
+            )
+        )
+    await asyncio.gather(team_priorities)
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()
