@@ -2,7 +2,10 @@ import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_blocked__doesnt_creates_waiting_offer(
+_CLEAR_CLIENT_PRIORITY = -1
+
+
+async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_blocked__creates_waiting_offer(
     pg,
     runtime_settings,
     runner,
@@ -69,7 +72,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    assert row is None
+    assert row is not None
+    assert row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_agent__prioritize_as_no_lk(
@@ -150,7 +154,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_
     assert client_row['cian_user_id'] is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_agent__doesnt_creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_agent__creates_waiting_offer(
     pg,
     runtime_settings,
     runner,
@@ -218,10 +222,11 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    assert row is None
+    assert row is not None
+    assert row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__doesnt_creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__creates_offer_with_clear_priority(
     pg,
     runtime_settings,
     runner,
@@ -288,7 +293,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    assert row is None
+    assert row is not None
+    assert row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agent_with_0_active__creates_waiting_offer(
@@ -428,7 +434,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_smb_without
     assert client_row['cian_user_id'] is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_active__doesnt_creates_waiting_offer(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_active__creates_clear_priority_offer(
     pg,
     runtime_settings,
     runner,
@@ -509,7 +515,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_a
         """
     )
 
-    assert offer_row is None
+    assert offer_row is not None
+    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_many_active__creates_waiting_offer(
@@ -633,7 +640,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         """
     )
 
-    assert offer_row is None
+    assert offer_row is not None
+    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multiple_accounts__creates_waiting_offer(
@@ -738,6 +746,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multip
     assert client_row['cian_user_id'] == 12835367
 
 
+
 async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_get_active__creates_waiting_offer(
     pg,
     runtime_settings,
@@ -817,7 +826,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         """
     )
 
-    assert offer_row is None
+    assert offer_row is not None
+    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_homeowner__prioritize_as_no_lk(
@@ -905,7 +915,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     assert client_row['cian_user_id'] is None
 
 
-async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sanctions__clears_client(
+async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sanctions__doesnt_clear_client(
     pg,
     runtime_settings,
     runner,
@@ -974,10 +984,11 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
         """
     )
 
-    assert offer_row is None
+    assert offer_row is not None
+    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-async def test_create_offers__profile_is_blocked___offers_not_created(
+async def test_create_offers__profile_is_blocked___offers_with_cleared_priority_created(
     pg,
     runtime_settings,
     runner,
@@ -1062,7 +1073,8 @@ async def test_create_offers__profile_is_blocked___offers_not_created(
         """
     )
 
-    assert offer_row is None
+    assert offer_row is not None
+    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
 @pytest.mark.parametrize('source_type', [
@@ -1071,7 +1083,7 @@ async def test_create_offers__profile_is_blocked___offers_not_created(
     'n1',
     'mlsn',
 ])
-async def test_create_offers__client_has_wrong_source_type___offers_not_created(
+async def test_create_offers__client_has_wrong_source_type___offers_with_cleared_priority_created(
     pg,
     runtime_settings,
     runner,
@@ -1140,10 +1152,11 @@ async def test_create_offers__client_has_wrong_source_type___offers_not_created(
         """
     )
 
-    assert offer_row is None
+    assert offer_row is not None
+    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
 
 
-async def test_create_offers__client_exceeds_maximum_active_offers_proportion___offers_not_created(
+async def test_create_offers__client_exceeds_maximum_active_offers_proportion___offers_has_clear_priority(
     pg,
     runtime_settings,
     runner,
@@ -1213,4 +1226,5 @@ async def test_create_offers__client_exceeds_maximum_active_offers_proportion___
         """
     )
 
-    assert offer_row is None
+    assert offer_row is not None
+    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY

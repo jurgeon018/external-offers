@@ -4,6 +4,7 @@ import pytz
 from cian_core.runtime_settings import runtime_settings
 from simple_settings import settings
 
+from external_offers.entities.teams import Team
 from external_offers.enums.operator_role import OperatorRole
 from external_offers.enums.user_segment import UserSegment
 from external_offers.helpers.region_names import REGION_NAMES
@@ -47,6 +48,7 @@ class AdminOffersListPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
+
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
@@ -199,7 +201,7 @@ def _get_subsegments():
     ]
 
 
-def _get_team_settings(team):
+def _get_team_settings(team: Team):
     return team.get_settings()
 
 

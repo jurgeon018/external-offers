@@ -11,6 +11,7 @@ from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
+from external_offers.entities.clients import ClientDraftOffersCount
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.enums import OfferStatus
 from external_offers.mappers import (
@@ -400,31 +401,62 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: list[str]) -> Optio
     return rows
 
 
-async def set_waiting_offers_priority_by_offer_ids(*, offer_ids: list[str], priority: int) -> None:
+async def set_waiting_offers_priority_by_offer_ids(
+    *,
+    offer_ids: list[str],
+    priority: int,
+    team_id: Optional[int],
+) -> None:
     for offer_ids_chunk in iterate_over_list_by_chunks(
         iterable=offer_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):
-        sql = (
+        if not team_id:
+            values = {
+                'priority': priority
+            }
+            condition = or_(
+                and_(
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                ),
+                and_(
+                    offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                )
+            )
+
+        else:
+            offer_ids = str(tuple(offer_ids_chunk))
+            if offer_ids[-2] == ',':
+                lst = list(offer_ids)
+                # убирает кому в конце кортежа
+                lst[-2] = ''
+                offer_ids = ''.join(lst)
+            sql = """
+            UPDATE offers_for_call
+            SET team_priorities = jsonb_set(
+                coalesce(team_priorities, '{}'),
+                '{%s}',
+                '%s'
+            )
+            WHERE id IN %s AND status = 'waiting';
+            """ % (
+                team_id,
+                priority,
+                offer_ids,
+            )
+            await pg.get().execute(sql)
+            continue
+        query, params = asyncpgsa.compile_query(
             update(
                 offers_for_call
             ).values(
-                priority=priority
+                **values
             ).where(
-                or_(
-                    and_(
-                        offers_for_call.c.status == OfferStatus.waiting.value,
-                        offers_for_call.c.id.in_(offer_ids_chunk),
-                    ),
-                    and_(
-                        offers_for_call.c.publication_status == PublicationStatus.draft.value,
-                        offers_for_call.c.id.in_(offer_ids_chunk),
-                    )
-                )
+                condition
             )
         )
-
-        query, params = asyncpgsa.compile_query(sql)
         await pg.get().execute(query, *params)
 
 
@@ -516,11 +548,9 @@ async def delete_waiting_offers_for_call_by_client_ids(*, client_ids: list[str])
         delete(
             offers_for_call
         ).where(
-            or_(
-                and_(
-                    offers_for_call.c.status == OfferStatus.waiting.value,
-                    offers_for_call.c.client_id.in_(client_ids),
-                )
+            and_(
+                offers_for_call.c.status == OfferStatus.waiting.value,
+                offers_for_call.c.client_id.in_(client_ids),
             )
         )
     )
@@ -654,13 +684,14 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_unactivated_clients_counts_by_clients():
+async def get_unactivated_clients_counts_by_clients() -> Optional[list[ClientDraftOffersCount]]:
     query, params = asyncpgsa.compile_query(
         select(
             [
                 offers_for_call.c.id,
                 offers_for_call.c.client_id,
                 offers_for_call.c.priority,
+                offers_for_call.c.team_priorities,
                 over(func.count(), partition_by=offers_for_call.c.client_id).label('draft_offers_count')
             ]
         ).select_from(
