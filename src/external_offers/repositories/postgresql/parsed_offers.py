@@ -18,7 +18,7 @@ from external_offers.entities.parsed_offers import (
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
-from external_offers.enums.external_offer_type import ExternalOfferType
+from external_offers.entities.teams import Team
 from external_offers.enums.object_model import Category
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
@@ -87,37 +87,41 @@ async def save_test_parsed_offer(
     await pg.get().execute(query, *params)
 
 
-from external_offers.entities.teams import Team
 async def get_parsed_ids_for_cleaning(
     team: Optional[Team],
-) -> list[int]:
+) -> list[str]:
     po = tables.parsed_offers.alias()
     if team:
-        regions = team.get_settings()['regions']
-        user_segments = team.get_settings()['user_segments']
-        categories = team.get_settings()['categories']
-        assert type(regions) == list
-        assert type(user_segments) == list
-        assert type(categories) == list
+        team_settings = team.get_settings()
+        regions = team_settings['regions']
+        user_segments = team_settings['segments']
+        categories = team_settings['categories']
     else:
         regions = settings.OFFER_TASK_CREATION_REGIONS
         user_segments = settings.OFFER_TASK_CREATION_SEGMENTS
         categories = settings.OFFER_TASK_CREATION_CATEGORIES
-        # user_segments = settings.COMMERCIAL_OFFER_TASK_CREATION_SEGMENTS
-        # categories = settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES
+    assert type(regions) == list
+    assert type(user_segments) == list
+    assert type(categories) == list
     query, params = asyncpgsa.compile_query(
         select([
             po.c.id,
-        ]).where(
+        ])
+        .where(
             or_(
-                po.c.source_object_model['user_segment'].notin_(user_segments),
+                po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
                 po.c.source_object_model['region'].as_integer().notin_(regions),
                 po.c.source_object_model['category'].as_string().notin_(categories),
             )
         )
     )
+    # print('regions: ', regions)
+    # print('user_segments: ', user_segments)
+    # print('categories: ', categories)
+    # print(query)
+    # print(params)
     rows = await pg.get().fetch(query, *params)
-    parsed_ids = [int(row['id']) for row in rows]
+    parsed_ids = [row['id'] for row in rows]
     return parsed_ids
 
 
@@ -128,7 +132,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
 
     po = tables.parsed_offers.alias()
 
-    common_options = [
+    options = [
         po.c.source_object_model['phones'] != [],
         po.c.source_object_model['phones'] != JSON.NULL,
         po.c.source_object_model['phones'] != [''],
@@ -136,39 +140,16 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         not_(po.c.synced),
     ]
     if last_sync_date:
-        common_options.append(po.c.timestamp > last_sync_date)
-    # if settings.OFFER_TASK_CREATION_REGIONS:
-    #     common_options.append(
-    #         po.c.source_object_model['region'].as_integer().in_(settings.OFFER_TASK_CREATION_REGIONS)
-    #     )
-
-    # commercial_options = [
-    #     *common_options,
-    #     po.c.external_offer_type == ExternalOfferType.commercial.value,
-    #     po.c.source_object_model['category'].as_string().in_(settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES),
-    #     po.c.user_segment.in_(settings.COMMERCIAL_OFFER_TASK_CREATION_SEGMENTS),
-    # ]
-
-    # flat_options = [
-    #     *common_options,
-    # ]
-    # if settings.OFFER_TASK_CREATION_CATEGORIES:
-    #     flat_options.append(
-    #         po.c.source_object_model['category'].as_string().in_(settings.OFFER_TASK_CREATION_CATEGORIES)
-    #     )
-    # if settings.OFFER_TASK_CREATION_SEGMENTS:
-    #     flat_options.append(po.c.user_segment.in_(settings.OFFER_TASK_CREATION_SEGMENTS))
+        options.append(po.c.timestamp > last_sync_date)
 
     selected_non_synced_offers_cte = (
         select([
             po,
         ])
         .where(
-            *common_options,
-            # or_(
-            #     and_(*flat_options),
-            #     and_(*commercial_options),
-            # )
+            and_(
+                *options,
+            )
         )
         .limit(settings.OFFER_TASK_CREATION_OFFER_FETCH_LIMIT)
         .cte('selected_non_synced_offers_cte')

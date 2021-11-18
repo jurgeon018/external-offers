@@ -24,7 +24,13 @@ def build_priority_from_blocks(
         + str(region_priority if region_priority else _EMPTY)
         + str(account_priority if account_priority else _EMPTY)
     ).ljust(_PRIORITY_LENGTH, _ZERO)
-
+    # print()
+    # print('call_status_priority: ', call_status_priority)
+    # print('region_priority: ', region_priority)
+    # print('client_type_priority: ', client_type_priority)
+    # print('account_priority: ', account_priority)
+    # print('builded_priority: ', builded_priority)
+    # print()
     return int(builded_priority)
 
 

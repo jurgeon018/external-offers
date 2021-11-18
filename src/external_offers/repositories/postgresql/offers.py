@@ -10,10 +10,10 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
-from external_offers.entities.teams import Team
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
 from external_offers.entities.clients import ClientDraftOffersCount
 from external_offers.entities.offers import OfferForPrioritization
+from external_offers.entities.teams import Team
 from external_offers.enums import OfferStatus
 from external_offers.mappers import (
     client_draft_offers_count_mapper,
@@ -402,7 +402,7 @@ async def get_offers_parsed_ids_by_parsed_ids(*, parsed_ids: list[str]) -> Optio
     return rows
 
 
-async def remove_comma(offer_ids):
+def remove_comma(offer_ids: list) -> str:
     offer_ids = str(tuple(offer_ids))
     if offer_ids[-2] == ',':
         lst = list(offer_ids)
@@ -421,7 +421,6 @@ async def set_waiting_offers_team_priorities_by_offer_ids(
         iterable=offer_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):  
-        offer_ids = remove_comma(offer_ids_chunk)
         sql = """
         UPDATE offers_for_call
         SET team_priorities = jsonb_set(
@@ -433,13 +432,13 @@ async def set_waiting_offers_team_priorities_by_offer_ids(
         """ % (
             team_id,
             priority,
-            offer_ids,
+            remove_comma(offer_ids_chunk),
         )
         # TODO: переделать на $1 $2 $3 и [team_id, priority, offer_ids]
         await pg.get().execute(sql)
 
 
-async def set_waiting_offers_team_priorities_by_parsed_ids(
+async def set_waiting_offers_priority_by_parsed_ids(
     parsed_ids: list[int],
     team: Optional[Team],
     priority: int,
@@ -449,23 +448,39 @@ async def set_waiting_offers_team_priorities_by_parsed_ids(
         iterable=parsed_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):  
-        parsed_ids = remove_comma(parsed_ids_chunk)
-        sql = """
-        UPDATE offers_for_call
-        SET team_priorities = jsonb_set(
-            coalesce(team_priorities, '{}'),
-            '{%s}',
-            '%s'
-        )
-        WHERE parsed_id IN %s AND status = 'waiting'
-        RETURNING id;
-        """ % (
-            team.id,
-            priority,
-            parsed_ids,
-        )
-        # TODO: переделать на $1 $2 $3 и [team_id, priority, parsed_ids]
-        rows = await pg.get().fetch(sql)
+        if team:
+            params = []
+            query = """
+            UPDATE offers_for_call
+            SET team_priorities = jsonb_set(
+                coalesce(team_priorities, '{}'),
+                '{%s}',
+                '%s'
+            )
+            WHERE parsed_id IN %s AND status = 'waiting'
+            RETURNING id;
+            """ % (
+                team.team_id,
+                priority,
+                remove_comma(parsed_ids_chunk),
+            )
+            # TODO: переделать на $1 $2 $3 и [team.team_id, priority, parsed_ids_chunk]
+        else:
+            query, params = asyncpgsa.compile_query(
+                update(
+                    offers_for_call
+                ).where(
+                    and_(
+                        offers_for_call.c.parsed_id.in_(parsed_ids_chunk),
+                        offers_for_call.c.status == OfferStatus.waiting.value,
+                    )
+                ).values(
+                    priority=priority
+                ).returning(
+                    offers_for_call.c.id
+                )
+            )
+        rows = await pg.get().fetch(query, *params)
         offer_ids.extend([row['id'] for row in rows])
     return offer_ids
 
@@ -753,8 +768,10 @@ async def get_unactivated_clients_counts_by_clients() -> Optional[list[ClientDra
 
 
 async def get_waiting_offer_counts_by_clients(
-    cleared_offer_ids: list[int],
+    cleared_offer_ids: Optional[list[int]] = None,
 ) -> list[ClientWaitingOffersCount]:
+    if cleared_offer_ids is None:
+        cleared_offer_ids = []
     sql = (
         select(
             [waiting_offers_counts_cte]

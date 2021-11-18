@@ -128,9 +128,6 @@ class PrioritySettings:
     subsegment_position: int = 10
     """Порядок признака 'Субсегмент'"""
 
-from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_item_model import(
-    DurationInDays
-)
 
 @dataclass
 class PromocodeSettings:
@@ -139,11 +136,12 @@ class PromocodeSettings:
     """Регионы применения(айдишники полигонов)"""
     regions_with_paid_publication: Optional[list[str]] = None
     """Регионы применения(айдишники регионов)"""
+    # TODO: https://jira.cian.tech/browse/CD-116917
     filling: Optional[list[str]] = None
     """Наполнение"""
     promocode_price: int = 0
     """Стоимость"""
-    promocode_period: DurationInDays = DurationInDays.thirty
+    promocode_period: Optional[str] = None
     """Срок действия промокодов"""
     promocode_group_name: Optional[str] = None
     """Название групы промокодов"""
@@ -171,7 +169,7 @@ class Team:
     """Настройки команды"""
 
     def get_settings(self) -> TeamSettings:
-        settings = None
+        settings = {}
         if self.settings:
             json_settings = json.loads(self.settings)
             settings = json_settings
@@ -184,13 +182,15 @@ class StrTeamSettings:
     categories: str = '[]'
     """Категории"""
     regions: str = '[]'
-    """Категории"""
+    """Регионы"""
     segments: str = '[]'
-    """Категории"""
+    """Сегменты"""
     subsegments: str = '[]'
-    """Категории"""
-    promocode_regions: str = '[]'
-    """Категории"""
+    """Субсегменты"""
+    promocode_polygons: str = '[]'
+    """ID полигонов"""
+    regions_with_paid_publication: str = '[]'
+    """ID регионов"""
     filling: str = '[]'
     """Категории"""
     main_regions_priority: str = '{}'

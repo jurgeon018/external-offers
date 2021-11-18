@@ -5,9 +5,23 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 
 async def test_teams(pg, http, runtime_settings):
     # arrange
-    DEFAULT_MAIN_REGIONS_PRIORITY = {}
+    default_main_regions_priority = {}
+    default_categories = []
+    default_regions = []
+    default_segments = []
+    default_promocode_polygons = []
+    default_regions_with_paid_publications = []
+    default_enable_thirty_duration = True
+    default_promocode_group_name = 'group_name'
     await runtime_settings.set({
-        'MAIN_REGIONS_PRIORITY': DEFAULT_MAIN_REGIONS_PRIORITY,
+        'MAIN_REGIONS_PRIORITY': default_main_regions_priority,
+        'OFFER_TASK_CREATION_CATEGORIES': default_categories,
+        'OFFER_TASK_CREATION_REGIONS': default_regions,
+        'OFFER_TASK_CREATION_SEGMENTS': default_segments,
+        'PROMOCODE_POLYGONS': default_promocode_polygons,
+        'REGIONS_WITH_PAID_PUBLICATION': default_regions_with_paid_publications,
+        'ENABLE_THIRTY_DURATION': default_enable_thirty_duration,
+        'PROMOCODE_GROUP_NAME': default_promocode_group_name,
     })
     name = 'Команда1'
     lead_id = '1'
@@ -17,13 +31,10 @@ async def test_teams(pg, http, runtime_settings):
     default_calltracking = True
     default_activation_status_position = 1
     default_promocode_price = 0
-    default_categories = []
-    default_regions = []
-    default_segments = []
     default_subsegments = []
-    default_promocode_regions = []
+    default_promocode_polygons = []
+    default_regions_with_paid_publication = []
     default_filling = []
-    default_main_regions_priority = DEFAULT_MAIN_REGIONS_PRIORITY
     new_valid_days_after_call = None
     new_calltracking = True
     new_activation_status_position = 1
@@ -32,7 +43,8 @@ async def test_teams(pg, http, runtime_settings):
     new_regions = ['reg1', 'reg2']
     new_segments = ['c', 'b']
     new_subsegments = ['c']
-    new_promocode_regions = ['region1', 'region2']
+    new_promocode_polygons = ['region1', 'region2']
+    new_regions_with_paid_publication = ['region1', 'region2']
     new_filling = ['1', '2']
     new_main_regions_priority = {
         'reg1': '1',
@@ -82,7 +94,8 @@ async def test_teams(pg, http, runtime_settings):
             'regions': json.dumps(new_regions),
             'segments': json.dumps(new_segments),
             'subsegments': json.dumps(new_subsegments),
-            'promocodeRegions': json.dumps(new_promocode_regions),
+            'promocodePolygons': json.dumps(new_promocode_polygons),
+            'regionsWithPaidPublication': json.dumps(new_regions_with_paid_publication),
             'filling': json.dumps(new_filling),
             'mainRegionsPriority': json.dumps(new_main_regions_priority),
         },
@@ -124,7 +137,8 @@ async def test_teams(pg, http, runtime_settings):
     assert after_creation_settings['regions'] == default_regions
     assert after_creation_settings['segments'] == default_segments
     assert after_creation_settings['subsegments'] == default_subsegments
-    assert after_creation_settings['promocode_regions'] == default_promocode_regions
+    assert after_creation_settings['promocode_polygons'] == default_promocode_polygons
+    assert after_creation_settings['regions_with_paid_publication'] == default_regions_with_paid_publication
     assert after_creation_settings['filling'] == default_filling
     assert after_creation_settings['main_regions_priority'] == default_main_regions_priority
     # read
@@ -144,7 +158,8 @@ async def test_teams(pg, http, runtime_settings):
     assert after_update_settings['regions'] == new_regions
     assert after_update_settings['segments'] == new_segments
     assert after_update_settings['subsegments'] == new_subsegments
-    assert after_update_settings['promocode_regions'] == new_promocode_regions
+    assert after_update_settings['promocode_polygons'] == new_promocode_polygons
+    assert after_update_settings['regions_with_paid_publication'] == new_regions_with_paid_publication
     assert after_update_settings['filling'] == new_filling
     assert after_update_settings['main_regions_priority'] == new_main_regions_priority
     # delete

@@ -456,52 +456,54 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
     assert event_log[0]['status'] == 'inProgress'
 
 
-async def test_update_offers_list__commercial_operator_without_client__returns_success(
-        pg,
-        http,
-        offers_and_clients_fixture,
-        users_mock,
-):
-    # arrange
-    await users_mock.add_stub(
-        method='GET',
-        path='/v1/get-user-roles/',
-        response=MockResponse(
-            body={
-                'roles': [{'id': 1, 'name': 'CommercialPrepublicationModerator'}]
-            }
-        ),
-    )
+# async def test_update_offers_list__commercial_operator_without_client__returns_success(
+#         pg,
+#         http,
+#         offers_and_clients_fixture,
+#         users_mock,
+# ):
+#     # arrange
+#     await users_mock.add_stub(
+#         method='GET',
+#         path='/v1/get-user-roles/',
+#         response=MockResponse(
+#             body={
+#                 'roles': [{'id': 1, 'name': 'CommercialPrepublicationModerator'}]
+#             }
+#         ),
+#     )
 
-    await pg.execute_scripts(offers_and_clients_fixture)
-    operator_without_offers_in_progress = 60024636
+    # await pg.execute_scripts(offers_and_clients_fixture)
+    # operator_without_offers_in_progress = 60024636
 
-    # act
-    resp = await http.request(
-        'POST',
-        '/api/admin/v1/update-offers-list/',
-        headers={
-            'X-Real-UserId': operator_without_offers_in_progress
-        },
-        expected_status=200,
-        json={'isTest': False}
-    )
+    # # act
+    # resp = await http.request(
+    #     'POST',
+    #     '/api/admin/v1/update-offers-list/',
+    #     headers={
+    #         'X-Real-UserId': operator_without_offers_in_progress
+    #     },
+    #     expected_status=200,
+    #     json={'isTest': False}
+    # )
 
-    # assert
-    assert resp.data['success']
-    assert not resp.data['errors']
+    # # assert
+    # assert resp.data['success']
+    # assert not resp.data['errors']
 
-    clients = await pg.fetch(
-        'SELECT * FROM clients WHERE operator_user_id=$1',
-        [
-            operator_without_offers_in_progress
-        ]
-    )
-    assert clients
+    # clients = await pg.fetch(
+    #     'SELECT * FROM clients WHERE operator_user_id=$1',
+    #     [
+    #         operator_without_offers_in_progress
+    #     ]
+    # )
+    # assert clients
 
-    client = clients[0]
-    assert client['client_email'] == 'commercial-alex@gmail.com'
-    assert client['operator_user_id'] == operator_without_offers_in_progress
+    # client = clients[0]
+    # # TODO: протестить выдачу комерческих заданий по обычному приоритету
+    # # TODO: протестить выдачу комерческих заданий по приоритету команды
+    # assert client['client_email'] == 'commercial-alex@gmail.com'
+    # assert client['operator_user_id'] == operator_without_offers_in_progress
 
 
 @pytest.mark.parametrize(

@@ -143,6 +143,11 @@ async def prioritize_homeowner_client(
     regions: List[int],
     team_settings: Optional[TeamSettings] = None,
 ) -> int:
+    print('!!!!!!!!!!!!!!!!!!!!!')
+    print('!!!!!!!!!!!!!!!!!!!!!')
+    print('!!!!!!!!!!!!!!!!!!!!!')
+    print('!!!!!!!!!!!!!!!!!!!!!')
+    print('!!!!!!!!!!!!!!!!!!!!!')
     account_priority = await find_homeowner_client_account_priority(
         client=client,
         team_settings=team_settings,

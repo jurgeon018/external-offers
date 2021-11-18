@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
+from cian_functional_test_utils.data_fixtures import load_json_data
+from cian_json import json
 
 
 @pytest.fixture(autouse=True, scope='session')
