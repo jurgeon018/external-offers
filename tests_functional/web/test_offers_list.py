@@ -368,6 +368,7 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
         """
         INSERT INTO public.offers_for_call(
             id,
+            priority,
             parsed_id,
             client_id,
             status,
@@ -375,10 +376,11 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
             started_at,
             synced_at,
             last_call_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         """,
         [
             '1',
+            231120211,
             'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
             '7',
             status,

@@ -31,8 +31,6 @@ async def test_main_case(
     new_row_version = 33324598804
 
     # # # # # тест cтандартного кейса админки
-    # print()
-    # print('создать тестовые задания и тестовых клиентов')
     client_id = await _create_test_client(
         runtime_settings=runtime_settings,
         http=http,
@@ -48,7 +46,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
     assert len(ofc) == 1
     assert len(clients) == 1
     assert ofc[0]['status'] == 'waiting'
@@ -65,8 +62,6 @@ async def test_main_case(
     assert clients[0]['is_test'] is True
 
     # # # #
-    # print()
-    # print('получить задания через админку первый раз после создания заданий')
     update_offers_list_response = await _update_offers_list(
         http=http,
         users_mock=users_mock,
@@ -74,7 +69,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
     assert update_offers_list_response['success'] is True
     assert update_offers_list_response['errors'] == []
     assert len(ofc) == 1
@@ -87,9 +81,6 @@ async def test_main_case(
     assert clients[0]['client_id'] == client_id
     assert clients[0]['status'] == 'inProgress'
 
-    # # # # #
-    # print()
-    # print('предразместить задание через админку')
     save_offer_response = await _save_offer(
         http=http,
         offer_id=offer_id,
@@ -105,7 +96,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
     assert save_offer_response['status'] == 'ok'
     assert save_offer_response['message'] == 'Объявление успешно создано'
     assert clients[0]['status'] == 'accepted'
@@ -116,9 +106,6 @@ async def test_main_case(
     assert ofc[0]['publication_status'] is None
     assert ofc[0]['offer_cian_id'] == offer_cian_id
 
-    # # # # #
-    # print()
-    # print('взять задания после предразмещения клиент не стал еще добивочным)')
     update_offers_list_response = await _update_offers_list(
         http=http,
         users_mock=users_mock,
@@ -126,7 +113,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
     assert update_offers_list_response['success'] is False
     assert update_offers_list_response['errors'][0]['message'] == 'Отсутствуют доступные задания'
     assert update_offers_list_response['errors'][0]['code'] == 'suitableClientMissing'
@@ -136,9 +122,6 @@ async def test_main_case(
     assert clients[0]['status'] == 'accepted'
     assert clients[0]['unactivated'] is False
 
-    # # # # #
-    # print()
-    # print('обновить статус публикации(сделать клиента добивочным)')
     # await _update_publication_status(
     #     queue_service=queue_service,
     #     offer_cian_id=offer_cian_id,
@@ -155,7 +138,6 @@ async def test_main_case(
 
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
     assert response['success'] is True
     assert response['message'] == 'Успех! Статус был изменен на Draft.'
     assert ofc[0]['publication_status'] == 'Draft'
@@ -165,9 +147,6 @@ async def test_main_case(
     assert clients[0]['status'] == 'accepted'
     assert clients[0]['unactivated'] is True
 
-    # # # # #
-    # print()
-    # print('взять задания в работу, получить добивочного клиента в работу.')
     # Нужно уменьшить дату для того чтобы сработала проверка
     # clients.c.next_call <= now в assign_suitable_client_to_operator
     next_call = (datetime.now(pytz.utc) - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
@@ -181,7 +160,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
     assert update_offers_list_response['success'] is True
     assert update_offers_list_response['errors'] == []
     assert clients[0]['operator_user_id'] == operator_id
@@ -191,10 +169,9 @@ async def test_main_case(
     # # # # # cтандартный кейс админки закончился
 
     # # # # # тест добивочных карточек
-    # print()
-    # print('вернуть добивочного клиента в перезвон')
     dt = datetime.now(pytz.utc) - timedelta(days=4)
-    call_later_datetime = (dt).strftime('%Y-%m-%d %H:%M:%S')
+    call_later_datetime = dt.isoformat()
+
     _call_later_status_response = await _set_call_later_status_for_client(
         http=http,
         operator_id=operator_id,
@@ -203,7 +180,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
     assert _call_later_status_response['success'] is True
     assert _call_later_status_response['errors'] == []
     assert clients[0]['operator_user_id'] == operator_id
@@ -221,8 +197,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # print('создать новое задание')
-    # _print(ofc=ofc[0], client=clients[0])
     assert len(ofc) == 2
     assert len(clients) == 1
     assert clients[0]['status'] == 'callLater'
@@ -234,7 +208,6 @@ async def test_main_case(
     assert ofc[1]['status'] == 'waiting'
 
     # # # # # #
-    # print('получить задания')
     update_offers_list_response = await _update_offers_list(
         http=http,
         users_mock=users_mock,
@@ -242,8 +215,6 @@ async def test_main_case(
     )
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    # _print(ofc=ofc[0], client=clients[0])
-    # _print(ofc=ofc[1])
     assert update_offers_list_response['success'] is True
     assert update_offers_list_response['errors'] == []
     assert clients[0]['status'] == 'inProgress'

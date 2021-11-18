@@ -55,8 +55,18 @@ def parsed_offers_fixture_for_offers_for_call_test(database_fixture_folder):
 
 
 @pytest.fixture
+def parsed_offers_for_teams(database_fixture_folder):
+    return database_fixture_folder / 'parsed_offers_for_teams.sql'
+
+
+@pytest.fixture
 def segmentation_rows_fixture(database_fixture_folder):
     return database_fixture_folder / 'segmentation_rows.sql'
+
+
+@pytest.fixture
+def teams_fixture(database_fixture_folder):
+    return database_fixture_folder / 'teams.sql'
 
 
 @pytest.fixture

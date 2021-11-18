@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
@@ -7,6 +7,7 @@ from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import SmbClientChooseMainProfileResult
 from external_offers.entities.clients import Client
+from external_offers.entities.teams import TeamSettings
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
 from external_offers.repositories.announcements.entities import V2GetUserActiveAnnouncementsCount
@@ -195,7 +196,8 @@ async def prioritize_smb_client(
     *,
     client: Client,
     client_count: int,
-    regions: List[int]
+    regions: List[int],
+    team_settings: Optional[TeamSettings] = None,
 ) -> int:
     account_priority = await find_smb_client_account_priority(
         client=client,
