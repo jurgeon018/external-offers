@@ -20,8 +20,6 @@ from external_offers.repositories.postgresql.teams import create_team, delete_te
 
 
 def build_default_team_settings() -> dict[str, Any]:
-    # TODO: узнать можно ли вызывать runtime_settings в глобальной области видимости,
-    # и перенести проставление дефолтных значений из runtime_settings в датакласс TeamSettings
     offers_settings = {
         'categories': runtime_settings.OFFER_TASK_CREATION_CATEGORIES,
         'regions': runtime_settings.OFFER_TASK_CREATION_REGIONS,

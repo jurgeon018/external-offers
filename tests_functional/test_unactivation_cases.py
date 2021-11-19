@@ -220,18 +220,6 @@ async def test_main_case(
     assert clients[0]['status'] == 'inProgress'
     assert ofc[1]['status'] == 'inProgress'
     assert ofc[0]['status'] == 'inProgress'
-    # # # # # тест добивочных карточек закончился
-
-
-# def _print(*, ofc=None, client=None):
-#     if ofc:
-#         for key, value in ofc.items():
-#            print('offers_for_call.{key: <22}{value}'.format(key=key, value=value))
-#            print(key, value)
-#     if client:
-#         for key, value in client.items():
-#            print('clients.{key: <30}{value}'.format(key=key, value=value))
-#            print('key, value)
 
 
 async def _create_test_client(

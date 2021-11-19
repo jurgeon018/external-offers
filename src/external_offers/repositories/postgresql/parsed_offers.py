@@ -116,11 +116,6 @@ async def get_parsed_ids_for_cleaning(
             )
         )
     )
-    # print('regions: ', regions)
-    # print('user_segments: ', user_segments)
-    # print('categories: ', categories)
-    # print(query)
-    # print(params)
     rows = await pg.get().fetch(query, *params)
     parsed_ids = [row['id'] for row in rows]
     return parsed_ids

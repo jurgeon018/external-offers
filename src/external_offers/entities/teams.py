@@ -11,8 +11,6 @@ class OffersSettings:
     """Категории"""
     regions: Optional[list[str]] = None
     """Регионы"""
-    # TODO: минимальная дата создания в очереди
-    """Минимальная дата создания в очереди"""
     calltracking: bool = True
     """Флаг колтрекинга"""
 
@@ -131,12 +129,12 @@ class PrioritySettings:
 
 @dataclass
 class PromocodeSettings:
+    # TODO: https://jira.cian.tech/browse/CD-116917
     """Настройки промокодов"""
     promocode_polygons: Optional[list[str]] = None
     """Регионы применения(айдишники полигонов)"""
     regions_with_paid_publication: Optional[list[str]] = None
     """Регионы применения(айдишники регионов)"""
-    # TODO: https://jira.cian.tech/browse/CD-116917
     filling: Optional[list[str]] = None
     """Наполнение"""
     promocode_price: int = 0

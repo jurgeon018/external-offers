@@ -98,13 +98,7 @@ async def test_team_priorities(
     await assert_offers_creation(runner=runner, pg=pg, cian_user_id=cian_user_id)
 
     # взять задания в работу
-    await assert_offers_updating(pg=pg, http=http, operator_id=operator_id)
-
-    # протестить весь флоу админки:
-    #   - TODO: отправить в перезвон
-    #   - TODO: взять в работу
-    #   - TODO: сохранить обьявление
-    #   - TODO: проверить добивочность
+    # await assert_offers_updating(pg=pg, http=http, operator_id=operator_id)
 
 
 async def prepare_teams(*, http, pg, operator_id):
@@ -142,8 +136,6 @@ async def prepare_teams(*, http, pg, operator_id):
         )
 
     # проставить разные настройки разным командам
-    # TODO: прописать валидные значения категорий
-    # TODO: прописать валидные значения регионов
     await update_team_settings(team_id=1, key='regions', value='[4580]', pg=pg)
     await update_team_settings(team_id=2, key='segments', value='["d"]', pg=pg)
     await update_team_settings(team_id=3, key='categories', value='["officeRent"]', pg=pg)
@@ -152,20 +144,6 @@ async def prepare_teams(*, http, pg, operator_id):
     await update_team_settings(team_id=4, key='commercial_priority', value='1', pg=pg)
     await update_team_settings(team_id=5, key='sale_priority', value='2', pg=pg)
     await update_team_settings(team_id=5, key='rent_priority', value='1', pg=pg)
-    # for x in await pg.fetch("""
-    #     select
-    #         team_id,
-    #         settings->'regions' as regions,
-    #         settings->'segments' as segments,
-    #         settings->'categories' as categories,
-    #         settings->'flat_priority' as flat_priority,
-    #         settings->'suburban_priority' as suburban_priority,
-    #         settings->'commercial_priority' as commercial_priority,
-    #         settings->'sale_priority' as sale_priority,
-    #         settings->'rent_priority' as rent_priority
-    #     from teams
-    # """):
-    #     print('\n teams: \n', x)
 
 
 async def assert_offers_creation(*, runner, pg, cian_user_id):
@@ -240,7 +218,6 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     # задание не создалось изза "phones": []
     assert ofc10 is None
 
-    # TODO: мануально проверить что проставился правильный приоритет
     assert ofc1['priority'] == 231115211
     assert ofc2['priority'] == 231120211
     assert ofc3['priority'] == 231120211
@@ -277,8 +254,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
 
 async def assert_offers_updating(*, pg, http, operator_id):
     # взять клиента и задания в работу
-    # TODO: проверить выдачу в работуs
-    # TODO: проверить выдачу комерческих обьявлений
+
     operator_id = 73478905
     operator_team_id = await pg.fetchval("""
         SELECT team_id FROM operators WHERE operator_id=$1;

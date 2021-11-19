@@ -420,7 +420,7 @@ async def set_waiting_offers_team_priorities_by_offer_ids(
     for offer_ids_chunk in iterate_over_list_by_chunks(
         iterable=offer_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
-    ):  
+    ):
         sql = """
         UPDATE offers_for_call
         SET team_priorities = jsonb_set(
@@ -434,7 +434,6 @@ async def set_waiting_offers_team_priorities_by_offer_ids(
             priority,
             remove_comma(offer_ids_chunk),
         )
-        # TODO: переделать на $1 $2 $3 и [team_id, priority, offer_ids]
         await pg.get().execute(sql)
 
 
@@ -464,7 +463,6 @@ async def set_waiting_offers_priority_by_parsed_ids(
                 priority,
                 remove_comma(parsed_ids_chunk),
             )
-            # TODO: переделать на $1 $2 $3 и [team.team_id, priority, parsed_ids_chunk]
         else:
             query, params = asyncpgsa.compile_query(
                 update(

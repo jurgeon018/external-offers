@@ -178,9 +178,6 @@ async def assign_suitable_client_to_operator(
         )
     )
     result = await pg.get().fetchval(query, *params)
-    print("result", result)
-    # print("first_suitable_offer_client_cte", first_suitable_offer_client_cte)
-    # print("query, params", query, params)
     return result
 
 

@@ -84,11 +84,7 @@ async def prioritize_client(
 
     if regions in ([], [None]):
         return _CLEAR_PRIORITY
-    print('\n client: ', client)
-    print('\n client and client.segment and client.segment.is_c: ', client and client.segment and client.segment.is_c)
-    print('\n client and client.segment and client.segment.is_d: ', client and client.segment and client.segment.is_d)
     if client and client.segment and client.segment.is_c:
-        print('SEGMENT C!!!')
         priority = await prioritize_smb_client(
             client=client,
             client_count=client_count,
@@ -98,7 +94,6 @@ async def prioritize_client(
         return priority
 
     if client and client.segment and client.segment.is_d:
-        print('SEGMENT D!!!')
         priority = await prioritize_homeowner_client(
             client=client,
             regions=regions,
@@ -251,13 +246,8 @@ async def sync_offers_for_call_with_parsed() -> None:
         parsed_offer_ids_existing = set(row['parsed_id'] for row in rows)
 
         for parsed_offer in parsed_offers:
-            print()
-            print()
-            print()
-            print()
             if parsed_offer.id in parsed_offer_ids_existing:
                 continue
-            print('\n parsed_offer while creation: ', parsed_offer)
             client = await get_client_by_avito_user_id(
                 avito_user_id=parsed_offer.source_user_id
             )
@@ -278,7 +268,6 @@ async def sync_offers_for_call_with_parsed() -> None:
                     status=ClientStatus.waiting,
                     segment=UserSegment.from_str(segment) if segment else None
                 )
-                print('\n client while creation: ', client)
                 await save_client(
                     client=client
                 )
@@ -298,10 +287,6 @@ async def sync_offers_for_call_with_parsed() -> None:
                 external_offer_type=ExternalOfferType.from_str(external_offer_type) if external_offer_type else None,
             )
             await save_offer_for_call(offer=offer)
-            print()
-            print()
-            print()
-            print()
     await clear_and_prioritize_waiting_offers()
 
 
