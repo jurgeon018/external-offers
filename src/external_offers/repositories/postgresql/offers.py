@@ -447,7 +447,7 @@ async def set_waiting_offers_priority_by_parsed_ids(
     for parsed_ids_chunk in iterate_over_list_by_chunks(
         iterable=parsed_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
-    ):  
+    ):
         if team:
             params = []
             query = """
