@@ -1,7 +1,8 @@
+import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Optional
 
 import pytz
 from cian_core.context import new_operation_id
@@ -197,7 +198,8 @@ async def prioritize_unactivated_clients(
 
 
 async def prioritize_offers(clients_priority):
-    offers_priority: Dict[int, List[str]] = defaultdict(list)
+    offers_priority: dict[int, list[str]] = defaultdict(list)
+
     async with pg.get().transaction():
         async for offer in get_offers_for_prioritization_by_client_ids(clients_priority.keys()):
             client_priority = clients_priority[offer.client_id]
@@ -215,7 +217,7 @@ async def prioritize_clients(
     waiting_clients_counts: list[ClientWaitingOffersCount],
     team: Optional[Team],
 ):
-    clients_priority: Dict[int, int] = {}
+    clients_priority: dict[int, int] = {}
     for client_count in waiting_clients_counts:
         with new_operation_id():
             client_priority = await prioritize_client(
@@ -304,16 +306,29 @@ async def sync_offers_for_call_with_parsed() -> None:
 async def clear_and_prioritize_waiting_offers():
     # x = await get_waiting_offer_counts_by_clients()
     await clear_waiting_offers_and_clients_with_off_count_limits()
-    # y = await get_waiting_offer_counts_by_clients()
-    # print("\n x: ", x)
-    # print("\n y: ", y)
-    await prioritize_waiting_offers(team=None)
+
+    waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
+        get_waiting_offer_counts_by_clients(),
+        get_unactivated_clients_counts_by_clients(),
+    )
+
+    team_priorities = [
+        prioritize_waiting_offers(
+            waiting_clients_counts=waiting_clients_counts,
+            unactivated_clients_counts=unactivated_clients_counts,
+            team=None,
+        )
+    ]
     teams = await get_teams()
     for team in teams:
-        await prioritize_waiting_offers(team=team)
+        team_priorities.append(
+            prioritize_waiting_offers(
+                waiting_clients_counts=waiting_clients_counts,
+                unactivated_clients_counts=unactivated_clients_counts,
+                team=team,
+            )
+        )
+    await asyncio.gather(*team_priorities)
 
-    if runtime_settings.get(
-        'ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL',
-        runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL
-    ):
+    if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()

@@ -28,6 +28,7 @@ from external_offers.mappers.parsed_offers import (
     parsed_offer_message_mapper,
 )
 from external_offers.repositories.postgresql import tables
+from external_offers.utils import iterate_over_list_by_chunks
 
 
 async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
@@ -244,11 +245,9 @@ async def delete_outdated_parsed_offers(
     ofc = tables.offers_for_call.alias()
 
     query, params = asyncpgsa.compile_query(
-        select(
-            [
-                ofc.c.parsed_id,
-            ]
-        ).where(
+        select([
+            ofc.c.parsed_id
+        ]).where(
             ofc.c.status.in_([
                 OfferStatus.in_progress.value,
                 OfferStatus.call_missed.value,
@@ -256,21 +255,33 @@ async def delete_outdated_parsed_offers(
             ])
         )
     )
-    parsed_ids_of_non_final_offers = await pg.get().fetch(query, *params)
-
-    query, params = asyncpgsa.compile_query(
-        (
+    parsed_ids_of_offers_in_nonfinal_status = await pg.get().fetch(query, *params)
+    parsed_ids = [row['parsed_id'] for row in parsed_ids_of_offers_in_nonfinal_status]
+    if parsed_ids:
+        for parsed_ids_chunk in iterate_over_list_by_chunks(
+            iterable=parsed_ids,
+            chunk_size=settings.DELETE_OLD_OFFERS_CHUNK,
+        ):
+            query, params = asyncpgsa.compile_query(
+                delete(
+                    po
+                ).where(
+                    and_(
+                        po.c.updated_at < updated_at_border,
+                        po.c.id.notin_(parsed_ids_chunk)
+                    )
+                )
+            )
+            await pg.get().execute(query, *params)
+    else:
+        query, params = asyncpgsa.compile_query(
             delete(
                 po
             ).where(
-                and_(
-                    po.c.updated_at < updated_at_border,
-                    po.c.id.notin_(parsed_ids_of_non_final_offers)
-                )
+                po.c.updated_at < updated_at_border,
             )
         )
-    )
-    await pg.get().execute(query, *params)
+        await pg.get().execute(query, *params)
 
 
 async def iterate_over_parsed_offers_sorted(

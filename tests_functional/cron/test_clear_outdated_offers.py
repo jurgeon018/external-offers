@@ -319,7 +319,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
         'ENABLE_OUTDATED_OFFERS_CLEARING': True,
         'ENABLE_WAS_UPDATE_CHECK': False,
         'OFFER_UPDATE_CHECK_WINDOW_IN_HOURS': 24,
-        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 2
+        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 2,
+        'DELETE_OLD_OFFERS_CHUNK': 1,
     })
 
     await pg.execute(
@@ -374,6 +375,31 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
 
     await pg.execute(
         """
+        INSERT INTO public.parsed_offers (
+            id,
+            user_segment,
+            source_object_id,
+            source_user_id, source_object_model,
+            is_calltracking,
+            "timestamp",
+            created_at,
+            updated_at
+        ) VALUES (
+            '4e6c73b8-3057-47cc-b50a-419052da619f',
+            'b',
+            '1_3931442443',
+            '48f05f430722c915c498113b16ba0e79',
+            '{}',
+            false,
+            now() - interval '3 day',
+            now() - interval '3 day',
+            now() - interval '3 day'
+        );
+        """
+    )
+
+    await pg.execute(
+        """
         INSERT INTO public.offers_for_call(
             id,
             parsed_id,
@@ -392,7 +418,7 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06'
-            )
+        )
         """
     )
 
@@ -413,6 +439,29 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             '7',
             3,
             'draft',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+            )
+        """
+    )
+    await pg.execute(
+        """
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            offer_cian_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '3',
+            '4e6c73b8-3057-47cc-b50a-419052da619f',
+            '8',
+            4,
+            'callLater',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06'

@@ -277,8 +277,9 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
 
 async def assert_offers_updating(*, pg, http, operator_id):
     # взять клиента и задания в работу
-    # TODO: проверить выдачу в работу
+    # TODO: проверить выдачу в работуs
     # TODO: проверить выдачу комерческих обьявлений
+    operator_id = 73478905
     operator_team_id = await pg.fetchval("""
         SELECT team_id FROM operators WHERE operator_id=$1;
     """, [str(operator_id)])

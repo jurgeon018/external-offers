@@ -173,7 +173,6 @@ class Team:
         if self.settings:
             json_settings = json.loads(self.settings)
             settings = json_settings
-            # settings = TeamSettings(**json_settings)
         return settings
 
 
