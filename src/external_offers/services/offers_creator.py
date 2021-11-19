@@ -124,9 +124,12 @@ async def prioritize_waiting_offers(
         team=team,
         priority=_CLEAR_PRIORITY,
     )
-    # достает задания в ожидании(при этом фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
-    waiting_clients_counts = await get_waiting_offer_counts_by_clients(
-        cleared_offer_ids=cleared_offer_ids
+    waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
+        # достает задания в ожидании(при этом фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
+        get_waiting_offer_counts_by_clients(
+            cleared_offer_ids=cleared_offer_ids,
+        ),
+        get_unactivated_clients_counts_by_clients(),
     )
     # создает приоритеты для заданий в ожидании
     clients_priority = await prioritize_clients(
@@ -134,7 +137,6 @@ async def prioritize_waiting_offers(
         team=team,
     )
     # достает добивочные задания
-    unactivated_clients_counts = await get_unactivated_clients_counts_by_clients()
     # создает часть приоритета для добивочных заданий
     clients_priority = await prioritize_unactivated_clients(
         clients_priority=clients_priority,
@@ -307,15 +309,8 @@ async def clear_and_prioritize_waiting_offers():
     # x = await get_waiting_offer_counts_by_clients()
     await clear_waiting_offers_and_clients_with_off_count_limits()
 
-    waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
-        get_waiting_offer_counts_by_clients(),
-        get_unactivated_clients_counts_by_clients(),
-    )
-
     team_priorities = [
         prioritize_waiting_offers(
-            waiting_clients_counts=waiting_clients_counts,
-            unactivated_clients_counts=unactivated_clients_counts,
             team=None,
         )
     ]
@@ -323,8 +318,6 @@ async def clear_and_prioritize_waiting_offers():
     for team in teams:
         team_priorities.append(
             prioritize_waiting_offers(
-                waiting_clients_counts=waiting_clients_counts,
-                unactivated_clients_counts=unactivated_clients_counts,
                 team=team,
             )
         )

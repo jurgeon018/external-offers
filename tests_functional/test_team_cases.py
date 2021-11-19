@@ -98,7 +98,7 @@ async def test_team_priorities(
     await assert_offers_creation(runner=runner, pg=pg, cian_user_id=cian_user_id)
 
     # взять задания в работу
-    # await assert_offers_updating(pg=pg, http=http, operator_id=operator_id)
+    await assert_offers_updating(pg=pg, http=http, operator_id=operator_id)
 
     # протестить весь флоу админки:
     #   - TODO: отправить в перезвон
