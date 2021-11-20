@@ -1,7 +1,6 @@
 from external_offers.repositories.postgresql.clients import (
     assign_client_to_operator_and_increase_calls_count,
     assign_suitable_client_to_operator,
-    delete_waiting_clients_by_client_ids,
     get_cian_user_id_by_client_id,
     get_client_by_avito_user_id,
     get_client_by_client_id,

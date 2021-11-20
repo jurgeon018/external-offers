@@ -594,26 +594,6 @@ async def set_client_accepted_and_no_operator_if_no_offers_in_progress(
     return bool(client_id)
 
 
-async def delete_waiting_clients_by_client_ids(
-    *,
-    client_ids: List[str]
-) -> None:
-    sql = (
-        delete(
-            clients
-        ).where(
-            and_(
-                clients.c.status == ClientStatus.waiting.value,
-                clients.c.client_id.in_(client_ids)
-            )
-        )
-    )
-
-    query, params = asyncpgsa.compile_query(sql)
-
-    await pg.get().execute(query, *params)
-
-
 async def update_clients_operator(
     *,
     old_operator_id: int,

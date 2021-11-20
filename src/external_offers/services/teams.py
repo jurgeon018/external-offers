@@ -31,6 +31,7 @@ def build_default_team_settings() -> dict[str, Any]:
     clients_settings = {
         'segments': runtime_settings.OFFER_TASK_CREATION_SEGMENTS,
         'subsegments': [],
+        # TODO: https://jira.cian.tech/browse/CD-116416
         # '???': runtime_settings.OFFER_TASK_CREATION_MINIMUM_OFFERS,
         # '???': runtime_settings.OFFER_TASK_CREATION_MAXIMUM_OFFERS,
         # 'unique_objects_min': TODO,
@@ -86,17 +87,13 @@ def build_default_team_settings() -> dict[str, Any]:
         # 'commercial_position': ...,
         # 'subsegment_position': ...,
     }
-    if runtime_settings.ENABLE_THIRTY_DURATION:
-        promocode_period = DurationInDays.thirty.value
-    else:
-        promocode_period = DurationInDays.seven.value
     promocode_settings = {
         'promocode_polygons': runtime_settings.PROMOCODE_POLYGONS,
         'regions_with_paid_publication': runtime_settings.REGIONS_WITH_PAID_PUBLICATION,
         # TODO: https://jira.cian.tech/browse/CD-116917
         'filling': [],
         # 'promocode_price': ...,
-        'promocode_period': promocode_period,
+        'promocode_period': DurationInDays.thirty.value,
         'promocode_group_name': runtime_settings.PROMOCODE_GROUP_NAME,
     }
     settings = asdict(TeamSettings(

@@ -766,10 +766,8 @@ async def get_unactivated_clients_counts_by_clients() -> Optional[list[ClientDra
 
 
 async def get_waiting_offer_counts_by_clients(
-    cleared_offer_ids: Optional[list[int]] = None,
+    cleared_offer_ids: list[int],
 ) -> list[ClientWaitingOffersCount]:
-    if cleared_offer_ids is None:
-        cleared_offer_ids = []
     sql = (
         select(
             [waiting_offers_counts_cte]

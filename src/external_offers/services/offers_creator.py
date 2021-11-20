@@ -291,7 +291,6 @@ async def sync_offers_for_call_with_parsed() -> None:
 
 
 async def clear_and_prioritize_waiting_offers():
-    # x = await get_waiting_offer_counts_by_clients()
     await clear_waiting_offers_and_clients_with_off_count_limits()
 
     team_priorities = [
