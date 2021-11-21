@@ -18,7 +18,33 @@ SAVE_OFFER_MSG: str = (
 ENABLE_LAST_SYNC_DATE_FETCHING: bool = True
 OFFER_TASK_CREATION_OFFER_FETCH_LIMIT: int = 1000
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
-OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
+OFFER_TASK_CREATION_CATEGORIES: List[str] = [
+    'flatSale',
+    'flatRent',
+    'flatShareSale',
+    'officeSale',
+    'warehouseSale',
+    'shoppingAreaSale',
+    'industrySale',
+    'buildingSale',
+    'freeAppointmentObjectSale',
+    'businessSale',
+    'commercialLandSale',
+    'publicCateringSale',
+    'carServiceSale',
+    'domesticServicesSale',
+    'officeRent',
+    'warehouseRent',
+    'shoppingAreaRent',
+    'industryRent',
+    'buildingRent',
+    'freeAppointmentObjectRent',
+    'businessRent',
+    'commercialLandRent',
+    'publicCateringRent',
+    'carServiceRent',
+    'domesticServicesRent'
+]
 COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES: List[str] = [    # Все коммерческие категории, кроме гаража
     'officeSale',
     'warehouseSale',

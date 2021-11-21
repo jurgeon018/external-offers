@@ -102,10 +102,15 @@ async def choose_main_smb_client_profile(
     )
 
 
+
+
+
+
 async def find_smb_client_account_priority(
     *,
     client: Client,
-    client_count: int
+    client_count: int,
+    team_settings: dict,
 ) -> int:
     cian_user_id = client.cian_user_id
     if not cian_user_id:
@@ -121,7 +126,10 @@ async def find_smb_client_account_priority(
             # Приоритет для незарегистрированных smb пользователей
             if not response.users:
                 statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-                return runtime_settings.NO_LK_SMB_PRIORITY
+                return team_settings.get(
+                    'no_lk_smb_priority',
+                    runtime_settings.NO_LK_SMB_PRIORITY
+                )
 
             sanctions_response = await v1_sanctions_get_sanctions(
                 V1SanctionsGetSanctions(
@@ -182,13 +190,17 @@ async def find_smb_client_account_priority(
     # Приоритет по отсутствию активных объявлений на циане
     if active_response.count == _NO_ACTIVE:
         statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
-        return runtime_settings.NO_ACTIVE_SMB_PRIORITY
-
+        return team_settings.get(
+            'no_active_smb_priority',
+            runtime_settings.NO_ACTIVE_SMB_PRIORITY
+        )
     # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
     if (active_response.count / client_count) <= runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
         statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
-        return runtime_settings.KEEP_PROPORTION_SMB_PRIORITY
-
+        return team_settings.get(
+            'keep_proportion_smb_priority',
+            runtime_settings.KEEP_PROPORTION_SMB_PRIORITY
+        )
     return _CLEAR_CLIENT_PRIORITY
 
 
@@ -197,11 +209,12 @@ async def prioritize_smb_client(
     client: Client,
     client_count: int,
     regions: List[int],
-    team_settings: Optional[TeamSettings] = None,
+    team_settings: dict,
 ) -> int:
     account_priority = await find_smb_client_account_priority(
         client=client,
-        client_count=client_count
+        client_count=client_count,
+        team_settings=team_settings,
     )
 
     if account_priority == _CLEAR_CLIENT_PRIORITY:
@@ -209,5 +222,6 @@ async def prioritize_smb_client(
 
     return build_waiting_smb_priority(
         regions=regions,
-        account_priority=account_priority
+        account_priority=account_priority,
+        team_settings=team_settings,
     )

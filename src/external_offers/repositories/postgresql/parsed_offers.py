@@ -101,9 +101,6 @@ async def get_parsed_ids_for_cleaning(
         regions = settings.OFFER_TASK_CREATION_REGIONS
         user_segments = settings.OFFER_TASK_CREATION_SEGMENTS
         categories = settings.OFFER_TASK_CREATION_CATEGORIES
-    assert isinstance(regions, list)
-    assert isinstance(user_segments, list)
-    assert isinstance(categories, list)
     query, params = asyncpgsa.compile_query(
         select([
             po.c.id,

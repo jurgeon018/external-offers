@@ -58,7 +58,6 @@ async def assign_suitable_client_to_operator(
     now = datetime.now(pytz.utc)
 
     if runtime_settings.ENABLE_TEAM_PRIORITIES and operator_team_id:
-        assert False, 'поправить'
         priority_ordering = (
             nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
         )
@@ -67,7 +66,6 @@ async def assign_suitable_client_to_operator(
         ]
         offer_category_clause = []
     else:
-
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
         commercial_category_clause = (
             coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY)

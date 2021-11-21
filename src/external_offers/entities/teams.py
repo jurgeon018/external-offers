@@ -163,10 +163,10 @@ class Team:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
-    settings: dict[str, Any]
+    settings: str
     """Настройки команды"""
 
-    def get_settings(self) -> TeamSettings:
+    def get_settings(self) -> dict:
         settings = {}
         if self.settings:
             json_settings = json.loads(self.settings)

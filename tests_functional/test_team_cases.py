@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+
+import pytz
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
@@ -98,7 +101,7 @@ async def test_team_priorities(
     await assert_offers_creation(runner=runner, pg=pg, cian_user_id=cian_user_id)
 
     # взять задания в работу
-    # await assert_offers_updating(pg=pg, http=http, operator_id=operator_id)
+    await assert_offers_updating(pg=pg, http=http, operator_id=operator_id)
 
 
 async def prepare_teams(*, http, pg, operator_id):
@@ -227,39 +230,38 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert ofc12['priority'] == 231120212
     assert ofc13['priority'] == 231115223
     assert json.loads(ofc1['team_priorities']) == {
-        '1': -1, '2': 231115211, '3': 231115211, '4': 231115211, '5': 231115211
+        '1': -1, '2': 231115211, '3': 231115211, '4': 231115213, '5': 231115221
     }
     assert json.loads(ofc2['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': -1, '4': 231120211, '5': 231120211
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
     assert json.loads(ofc3['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': -1, '4': 231120211, '5': 231120211
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
     assert json.loads(ofc4['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': -1, '4': 231120211, '5': 231120211
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
     assert json.loads(ofc5['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': -1, '4': 231120211, '5': 231120211
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
     assert json.loads(ofc11['team_priorities']) == {
         '1': -1, '2': -1, '3': -1, '4': -1, '5': -1
     }
     assert json.loads(ofc12['team_priorities']) == {
-        '1': 231120212, '2': 231120212, '3': -1, '4': 231120212, '5': 231120212
+        '1': 231120212, '2': 231120212, '3': -1, '4': 231120212, '5': 231120222
     }
     assert json.loads(ofc13['team_priorities']) == {
-        '1': -1, '2': 231115223, '3': 231115223, '4': 231115223, '5': 231115223
+        '1': -1, '2': 231115223, '3': 231115223, '4': 231115221, '5': 231115213
     }
 
 
 async def assert_offers_updating(*, pg, http, operator_id):
     # взять клиента и задания в работу
-
-    operator_id = 73478905
+    team_id = 1
     operator_team_id = await pg.fetchval("""
         SELECT team_id FROM operators WHERE operator_id=$1;
     """, [str(operator_id)])
-    assert operator_team_id
+    assert operator_team_id == team_id
     resp = await http.request(
         'POST',
         '/api/admin/v1/update-offers-list/',
@@ -270,23 +272,73 @@ async def assert_offers_updating(*, pg, http, operator_id):
         expected_status=200
     )
     clients = await pg.fetch("""select * from clients""")
-    ofc = await pg.fetch("""select * from offers_for_call""")
+    client = clients[3]
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
     assert resp.data['errors'] == []
     assert resp.data['success']
-    assert len(ofc) == 6
-    assert len(clients) == 3
     assert clients[0]['status'] == 'waiting'
     assert clients[1]['status'] == 'waiting'
-    assert clients[2]['status'] == 'inProgress'
+    assert clients[2]['status'] == 'waiting'
     assert clients[0]['team_id'] is None
     assert clients[1]['team_id'] is None
-    assert clients[2]['team_id'] == operator_team_id
-    assert ofc[0]['status'] == 'waiting'
-    assert ofc[1]['status'] == 'waiting'
-    assert ofc[2]['status'] == 'waiting'
-    assert ofc[3]['status'] == 'waiting'
-    assert ofc[4]['status'] == 'inProgress'
-    assert ofc[5]['status'] == 'inProgress'
+    assert clients[2]['team_id'] is None
+    assert client['status'] == 'inProgress'
+    assert client['team_id'] == team_id
+    assert ofc['status'] == 'inProgress'
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    # отправить в перезвон
+    dt = datetime.now(pytz.utc) - timedelta(days=4)
+    call_later_datetime = dt.isoformat()
+
+    _call_later_status_response = await _set_call_later_status_for_client(
+        http=http,
+        operator_id=operator_id,
+        client_id=client['client_id'],
+        call_later_datetime=call_later_datetime,
+    )
+    assert _call_later_status_response['success'] is True
+    assert _call_later_status_response['errors'] == []
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    client = await pg.fetchrow("""
+        select * from clients where client_id=$1
+    """, [client['client_id']])
+    assert client['operator_user_id'] == operator_id
+    assert client['status'] == 'callLater'
+    assert client['next_call'].date() == dt.date()
+    assert ofc['status'] == 'callLater'
+    # взять в работу
+    resp = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        json={},
+        expected_status=200
+    )
+    resp = json.loads(resp.body.decode('utf-8'))
+    assert resp['success'] is True
+    assert resp['errors'] == []
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    client = await pg.fetchrow("""
+        select * from clients where client_id=$1
+    """, [client['client_id']])
+    assert client['status'] == 'inProgress'
+    assert client['team_id'] == team_id
+    assert ofc['status'] == 'inProgress'
+    assert ofc['priority'] == 231120211
+    new_priority = 100000
+    assert json.loads(ofc['team_priorities']) == {
+        '1': new_priority, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
+    }
 
 
 async def update_team_settings(*, key, value, team_id, pg):
@@ -298,3 +350,26 @@ async def update_team_settings(*, key, value, team_id, pg):
     )
     WHERE team_id = {team_id};
     """)
+
+
+async def _set_call_later_status_for_client(
+    *,
+    http,
+    operator_id,
+    client_id,
+    call_later_datetime,
+):
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/call-later-client/',
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        json={
+            'clientId': client_id,
+            'callLaterDatetime': call_later_datetime,
+        },
+        expected_status=200
+    )
+    response = json.loads(response.body.decode('utf-8'))
+    return response

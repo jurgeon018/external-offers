@@ -13,6 +13,9 @@
         <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
+        <button onclick="prioritize('{{team.team_id}}')">
+            Пересчитать приоритеты
+        </button>
 
         <hr>
 
@@ -49,7 +52,7 @@
         <hr>
         <h2>Настройки обьявлений</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки обьявлений</button>
-        <div class="toggledBlock" style="display: none;">
+        <div class="toggledBlock" style="display: none; padding-left:15px;">
             <br>
             <span title="мультивыбор">Категории:</span>
             <select name="categories" multiple="multiple" size="10">
@@ -74,14 +77,14 @@
             {# <input name="..." type="number" {% if team_settings.get('calltracking') == True %} checked {% endif %}/> #}
             {# <br><br> #}
             
-            <span>Флаг коллтрекинга:</span>
-            <input name="calltracking" type="checkbox" {% if team_settings.get('calltracking') == True %} checked {% endif %}/>
+            {# <span>Флаг коллтрекинга:</span>
+            <input name="calltracking" type="checkbox" {% if team_settings.get('calltracking') == True %} checked {% endif %}/> #}
         </div>
 
         <hr>
         <h2>Настройки пользователей</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки клиентов</button>
-        <div class="toggledBlock" style="display: none;">
+        <div class="toggledBlock" style="display: none; padding-left:15px;">
             <br>
             <span title="мультивыбор">Сегмент:</span>
             <select name="segments" multiple="multiple" size="10">
@@ -92,7 +95,8 @@
             {% endfor %}
             </select>
             <br><br>
-            <span title="мультивыбор">Субсегмент:</span>
+
+            {# <span title="мультивыбор">Субсегмент:</span>
             <select name="subsegments" multiple="multiple" size="10">
             {% for subsegment in subsegments %}
                 <option value="{{subsegment}}" {% if subsegment and subsegment in team_settings.get('subsegments', []) %} selected {% endif %}>
@@ -100,9 +104,9 @@
                 </option>
             {% endfor %}
             </select>
-            <br><br>
+            <br><br> #}
 
-            <span title="включая границы">Количество уникальных объектов, которых нет на Циан:</span><br>
+            {# <span title="включая границы">Количество уникальных объектов, которых нет на Циан:</span><br>
             <input name="uniqueObjectsMin" placeholder="от" type="number" value="{{team_settings.unique_objects_min}}"/>
             <input required name="uniqueObjectsMax" placeholder="до" type="number" value="{{team_settings.unique_objects_max}}"/>
             <br><br>
@@ -133,7 +137,7 @@
             <br><br>
 
             <span title="фиксируем период, за который пользователи исключаются.  например : были в обзвоне посл 7, 14, 30 дней, 60 дней, 90 дней, 180 дней, 360 дней, за весь период обзвона">уже был в обзвоне:</span><br>
-            <input name="validDaysAfterCall" type="number" value='{{team_settings.get("valid_days_after_call")}}' placeholder="введите количество дней"/>
+            <input name="validDaysAfterCall" type="number" value='{{team_settings.get("valid_days_after_call")}}' placeholder="введите количество дней"/> #}
 
         </div>
         
@@ -141,7 +145,7 @@
         <hr>
         <h2>Настройки cортировок</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки сортировок</button>
-        <div class="toggledBlock" style="display: none;">
+        <div class="toggledBlock" style="display: none; padding-left:15px;">
             <br>
             <span>Порядок признака 'Статус клиента(добивочный или новый)'</span><br>
             <input name="activationStatusPosition" value="{{team_settings.get('activation_status_position', '')}}" placeholder="" required/><br>
@@ -171,7 +175,7 @@
             
             <span>Приоритет регионов</span>
             <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки регионов</button>
-            <div id="mainRegionsPriority">
+            <div id="mainRegionsPriority" style="padding-left: 30px">
             {% for region_code, region_name in regions.items() %}
             <br>
             <span>
@@ -243,10 +247,10 @@
             
             
         </div><br><br>
-        <hr>
+        {# <hr>
         <h2>Настройки промокодов</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки промокодов</button>
-        <div class="toggledBlock" style="display: none;">
+        <div class="toggledBlock" style="display: none; padding-left:15px;">
             <br>
             <span>регионы применения:</span><br>
             <select name="promocodeRegions" multiple="multiple" size="10">
@@ -283,7 +287,7 @@
             
             <span>название группы:</span><br>
             <input name="promocodeGroupName" type="text" value="{{team_settings.get('promocode_group_name', '')}}" placeholder="Введите название групы промокодов" required/>
-        </div>
+        </div> #}
 
         <hr>
         
@@ -343,6 +347,150 @@
     function onClickRedirectToOperatorCard(operator_id) {
         redirect(`/admin/operator-card/${operator_id}/`)
     }
+    function validate_values(form_values){
+        console.log('form_values', form_values)
+        var positions = [
+            form_values['activationStatusPosition'],
+            form_values['callStatusPosition'],
+            form_values['regionPosition'],
+            form_values['segmentPosition'],
+            form_values['lkPosition'],
+            form_values['dealTypePosition'],
+            form_values['offerTypePosition'],
+        ]
+        var positionsSet = new Set(positions)
+        var positionsMax = Math.max.apply(this, [...positionsSet])
+        var positionsMin = Math.min.apply(this, [...positionsSet])
+
+        var activationStatusPriorities = [
+            form_values['unactivatedClientPriority'],
+            form_values['newClientPriority'],
+        ]
+        var activationStatusPrioritiesSet = new Set(activationStatusPriorities)
+        var activationStatusPrioritiesMax = Math.max.apply(this, [...activationStatusPrioritiesSet])
+        var activationStatusPrioritiesMin = Math.max.apply(this, [...activationStatusPrioritiesSet])
+
+        var callStatusPriorities = [
+            form_values['callLaterPriority'],
+            form_values['callMissedPriority'],
+            form_values['waitingPriority'],
+        ]
+        var callStatusPrioritiesSet = new Set(callStatusPriorities)
+        var callStatusPrioritiesMax = Math.max.apply(this, [...callStatusPrioritiesSet])
+        var callStatusPrioritiesMin = Math.max.apply(this, [...callStatusPrioritiesSet])
+
+        var segmentPriorities = [
+            form_values['smbPriority'],
+            form_values['homeownerPriority'],
+        ]
+        var segmentPrioritiesSet = new Set(segmentPriorities)
+        var segmentPrioritiesMax = Math.max.apply(this, [...segmentPrioritiesSet])
+        var segmentPrioritiesMin = Math.max.apply(this, [...segmentPrioritiesSet])
+ 
+        // var lkPriorities = [
+        //     form_values['noLkSmbPriority'],
+        //     form_values['noActiveSmbPriority'],
+        //     form_values['keepProportionSmbPriority'],
+        //     form_values['noLkHomeownerPriority'],
+        //     form_values['activeLkHomeownerPriority'],
+        // ]
+        // var lkPrioritiesSet = new Set(lkPriorities)
+        // var lkPrioritiesMax = Math.max.apply(this, [...lkPrioritiesSet])
+        // var lkPrioritiesMin = Math.max.apply(this, [...lkPrioritiesSet])
+ 
+        var dealTypePriorities = [
+            form_values['salePriority'],
+            form_values['rentPriority'],
+        ]
+        var dealTypePrioritiesSet = new Set(dealTypePriorities)
+        var dealTypePrioritiesMax = Math.max.apply(this, [...dealTypePrioritiesSet])
+        var dealTypePrioritiesMin = Math.max.apply(this, [...dealTypePrioritiesSet])
+
+        var offerTypePriorities = [
+            form_values['flatPriority'],
+            form_values['suburbanPriority'],
+            form_values['commercialPriority'],
+        ]
+        var offerTypePrioritiesSet = new Set(offerTypePriorities)
+        var offerTypePrioritiesMax = Math.max.apply(this, [...offerTypePrioritiesSet])
+        var offerTypePrioritiesMin = Math.max.apply(this, [...offerTypePrioritiesSet])
+ 
+        // positions
+        if(positionsSet.size < positions.length){
+            return `В разделе "Настройки cортировок" есть повторяющиеся значения среди порядков признаков. Все значения должны быть уникальными.`
+        }
+        else if(positionsMax > positions.length){
+            return `В разделе "Настройки cортировок" среди порядков признаков есть значения больше 7. Все значения должны быть меньше 8 и больше 0.`
+        }
+        else if(positionsMin < 1){
+            return `В разделе "Настройки cортировок" среди порядков признаков есть значения меньше 1. Все значения должны быть меньше 8 и больше 0.`
+        }
+        // activationStatusPriorities
+        else if(activationStatusPrioritiesSet.size < activationStatusPriorities.length){
+            console.log('activationStatusPrioritiesSet.size', activationStatusPrioritiesSet.size)
+            console.log('activationStatusPriorities.length', activationStatusPriorities.length)
+            return `В значениях признака "Статус клиента" есть повторяющиеся значения приоритетов. Все значения должны быть уникальными.`
+        }
+        else if(activationStatusPrioritiesMax > activationStatusPriorities.length){
+            return `В значениях признака "Статус клиента" есть значения больше ${activationStatusPriorities.length}. Все значения должны быть меньше ${activationStatusPriorities.length} и больше 0.`
+        }
+        else if(activationStatusPrioritiesMin < 1){
+            return `В значениях признака "Статус клиента" есть значения меньше 1. Все значения должны быть меньше ${activationStatusPriorities.length} и больше 0.`
+        }
+        // callStatusPriorities
+        else if(callStatusPrioritiesSet.size < callStatusPriorities.length){
+            return `В значениях признака "Cтатус звонка" есть повторяющиеся значения приоритетов. Все значения должны быть уникальными.`
+        }
+        else if(callStatusPrioritiesMax > callStatusPriorities.length){
+            return `В значениях признака "Статус звонка" есть значения больше ${callStatusPriorities.length}. Все значения должны быть меньше ${callStatusPriorities.length} и больше 0.`
+        }
+        else if(callStatusPrioritiesMin < 1){
+            return `В значениях признака "Статус звонка" есть значения меньше 1. Все значения должны быть меньше ${callStatusPriorities.length} и больше 0.`
+        }
+        // segmentPriorities
+        else if(segmentPrioritiesSet.size < segmentPriorities.length){
+            return `В значениях признака "Сегмент" есть повторяющиеся значения приоритетов. Все значения должны быть уникальными.`
+        }
+        else if(segmentPrioritiesMax > segmentPriorities.length){
+            return `В значениях признака "Сегмент" есть значения больше ${segmentPriorities.length}. Все значения должны быть меньше ${segmentPriorities.length} и больше 0.`
+        }
+        else if(segmentPrioritiesMin < 1){
+            return `В значениях признака "Сегмент" есть значения меньше 1. Все значения должны быть меньше ${segmentPriorities.length} и больше 0.`
+        }
+        // // lkPriorities
+        // else if(lkPrioritiesSet.size < lkPriorities.length){
+        //     return `В значениях признака "Статус Учетной Записи" есть повторяющиеся значения приоритетов. Все значения должны быть уникальными.`
+        // }
+        // else if(lkPrioritiesMax > lkPriorities.length){
+        //     return `В значениях признака "Статус Учетной Записи" есть значения больше ${lkPriorities.length}. Все значения должны быть меньше ${lkPriorities.length} и больше 0.`
+        // }
+        // else if(lkPrioritiesMin < 1){
+        //     return `В значениях признака "Статус Учетной Записи" есть значения меньше 1. Все значения должны быть меньше ${lkPriorities.length} и больше 0.`
+        // }
+        // dealTypePriorities
+        else if(dealTypePrioritiesSet.size < dealTypePriorities.length){
+            return `В значениях признака "Тип сделки" есть повторяющиеся значения приоритетов. Все значения должны быть уникальными.`
+        }
+        else if(dealTypePrioritiesMax > dealTypePriorities.length){
+            return `В значениях признака "Тип сделки" есть значения больше ${dealTypePriorities.length}. Все значения должны быть меньше ${dealTypePriorities.length} и больше 0.`
+        }
+        else if(dealTypePrioritiesMin < 1){
+            return `В значениях признака "Тип сделки" есть значения меньше 1. Все значения должны быть меньше ${dealTypePriorities.length} и больше 0.`
+        }
+        // offerTypePriorities
+        else if(offerTypePrioritiesSet.size < offerTypePriorities.length){
+            return `В значениях признака "Тип Недвижимости" есть повторяющиеся значения приоритетов. Все значения должны быть уникальными.`
+        }
+        else if(offerTypePrioritiesMax > offerTypePriorities.length){
+            return `В значениях признака "Тип Недвижимости" есть значения больше ${offerTypePriorities.length}. Все значения должны быть меньше ${offerTypePriorities.length} и больше 0.`
+        }
+        else if(offerTypePrioritiesMin < 1){
+            return `В значениях признака "Тип Недвижимости" есть значения меньше 1. Все значения должны быть меньше ${offerTypePriorities.length} и больше 0.`
+        }
+        else{
+            return null
+        }
+    }
     function collectFormValues(form){
         let values = {}
         for(var i=0; i < form.elements.length; i++){
@@ -389,10 +537,12 @@
         event.preventDefault()
         let team_form = document.getElementById('team_form')
         let form_values = collectFormValues(team_form)
-        console.log('form_values', form_values)
+        let message = validate_values(form_values)
+        if(message){
+            alert(message)
+            return
+        }
         let body = getBody(form_values)
-        {# let body = JSON.stringify(form_values) #}
-        {# let body = formDataFromObject(form_values) #}
         const response = await fetch("/api/admin/v1/update-team-public/", {
             method: 'POST',
             body: body,
@@ -415,6 +565,23 @@
             })
         }
         form.addEventListener('submit', updateTeam)
+    }
+    async function prioritize(teamId){
+        let obj = {
+            "teamId": teamId,
+        }
+        const response = await fetch("/api/admin/v1/prioritize-waiting-offers-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+        } else if (resp.success === false){
+            alert(resp.message)
+        }else {
+            alert('Не удалось приоретизировать задания для команды.')
+        }
     }
     async function deleteTeam(id){
         let obj = {

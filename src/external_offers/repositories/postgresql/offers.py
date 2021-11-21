@@ -255,19 +255,31 @@ async def set_offers_promo_given_by_client(*, client_id: str) -> list[str]:
     )
 
 
-async def set_offers_call_missed_by_client(*, client_id: str) -> list[str]:
+async def set_offers_call_missed_by_client(
+    *,
+    client_id: str,
+    team_settings: dict,
+    team_id: Optional[int],
+) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_missed,
-        priority=build_call_missed_priority()
+        priority=build_call_missed_priority(team_settings=team_settings),
+        team_id=team_id,
     )
 
 
-async def set_offers_call_later_by_client(*, client_id: str) -> list[str]:
+async def set_offers_call_later_by_client(
+    *,
+    client_id: str,
+    team_settings: dict,
+    team_id: Optional[int],
+) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_later,
-        priority=build_call_later_priority()
+        priority=build_call_later_priority(team_settings=team_settings),
+        team_id=team_id,
     )
 
 
@@ -275,33 +287,54 @@ async def set_offers_status_and_priority_by_client(
     *,
     client_id: str,
     status: OfferStatus,
-    priority: Optional[int] = None
+    priority: Optional[int] = None,
+    team_id: Optional[int] = None,
 ) -> list[str]:
-    values = {
-        'status': status.value
-    }
-
-    if priority:
-        values['priority'] = priority
-
-    sql = (
-        update(
-            offers_for_call
-        ).values(
-            **values
-        ).where(
-            and_(
-                offers_for_call.c.client_id == client_id,
-                offers_for_call.c.status == OfferStatus.in_progress.value
-            )
-        ).returning(
-            offers_for_call.c.id
+    if team_id and priority:
+        params = []
+        query = """
+        UPDATE offers_for_call
+        SET status = '%s',
+        team_priorities = jsonb_set(
+            coalesce(team_priorities, '{}'),
+            '{%s}',
+            '%s'
         )
-    )
+        WHERE client_id = '%s' AND status = '%s'
+        RETURNING id;
+        """ % (
+            status.value,
+            team_id,
+            priority,
+            client_id,
+            OfferStatus.in_progress.value,
+        )
+    else:
+        values = {
+            'status': status.value
+        }
 
-    query, params = asyncpgsa.compile_query(sql)
+        if priority:
+            values['priority'] = priority
+
+        sql = (
+            update(
+                offers_for_call
+            ).values(
+                **values
+            ).where(
+                and_(
+                    offers_for_call.c.client_id == client_id,
+                    offers_for_call.c.status == OfferStatus.in_progress.value
+                )
+            ).returning(
+                offers_for_call.c.id
+            )
+        )
+
+        query, params = asyncpgsa.compile_query(sql)
+
     result = await pg.get().fetch(query, *params)
-
     return [r['id'] for r in result]
 
 

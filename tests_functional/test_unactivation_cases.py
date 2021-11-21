@@ -166,8 +166,6 @@ async def test_main_case(
     assert clients[0]['status'] == 'inProgress'
     assert ofc[0]['status'] == 'inProgress'
 
-    # # # # # cтандартный кейс админки закончился
-
     # # # # # тест добивочных карточек
     dt = datetime.now(pytz.utc) - timedelta(days=4)
     call_later_datetime = dt.isoformat()
