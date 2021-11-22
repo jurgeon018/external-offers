@@ -1,6 +1,7 @@
+import asyncio
+
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
-import asyncio
 
 
 async def test_update_priorities(

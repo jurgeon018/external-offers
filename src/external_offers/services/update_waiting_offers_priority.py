@@ -1,9 +1,10 @@
+import asyncio
+
 from external_offers.entities.response import BasicResponse
 from external_offers.entities.update_waiting_offers_priority import PrioritizeWaitingOffersRequest
 from external_offers.repositories.postgresql.teams import get_team_by_id
 from external_offers.services.offers_creator import prioritize_waiting_offers
-from tornado.ioloop import IOLoop
-import asyncio
+
 
 async def prioritize_waiting_offers_public(
     request: PrioritizeWaitingOffersRequest,
