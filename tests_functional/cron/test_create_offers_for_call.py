@@ -256,7 +256,7 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    # assert row is None
+
     assert row['priority'] == _CLEAR_PRIORITY
 
 
@@ -291,7 +291,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
         SELECT * FROM offers_for_call WHERE parsed_id = '575ff03a-573c-4bac-8599-28f17e68a0d8'
         """
     )
-    # assert row is None
+
     assert row['priority'] == _CLEAR_PRIORITY
 
 

@@ -5,7 +5,7 @@ from external_offers.enums.object_model import Category
 
 def get_mapping_offer_categories_to_priority(
     team_settings: dict
-):
+) -> dict[Category, str]:
     SALE_PRIORITY = str(
         team_settings.get(
             'sale_priority',

@@ -169,7 +169,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     statuses = [row['status'] for row in rows]
     assert len(set(statuses)) == 1
     assert statuses[0] == 'waiting'
-
+    
     ofc1 = await pg.fetchrow(
         'SELECT * FROM offers_for_call WHERE parsed_id = \'894ff03a-573c-4bac-8599-28f17e68a0d8\''
     )

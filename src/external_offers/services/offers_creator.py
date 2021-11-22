@@ -103,6 +103,7 @@ async def prioritize_client(
 async def prioritize_waiting_offers(
     *,
     team: Optional[Team],
+    is_test: bool = False,
 ) -> None:
     """Проставляем заданиям командные(team_priorities) и внекомандные(priority) приоритеты"""
     if team:

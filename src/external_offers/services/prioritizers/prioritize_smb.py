@@ -102,10 +102,6 @@ async def choose_main_smb_client_profile(
     )
 
 
-
-
-
-
 async def find_smb_client_account_priority(
     *,
     client: Client,

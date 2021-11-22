@@ -42,8 +42,6 @@ def build_region_priority_from_region(
     )
     if not region_settings:
         region_settings = runtime_settings.MAIN_REGIONS_PRIORITY
-    elif isinstance(region_settings, str):
-        region_settings = json.loads(region_settings)
     regions_priorities = [
         region_settings.get(
             str(region),
