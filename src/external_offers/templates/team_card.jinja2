@@ -568,7 +568,7 @@
     }
     async function prioritize(teamId){
         let obj = {
-            "teamId": parseInt(teamId),
+            "teamId": teamId,
         }
         const response = await fetch("/api/admin/v1/prioritize-waiting-offers-public/", {
             method: 'POST',

@@ -10,7 +10,7 @@ async def prioritize_waiting_offers_public(
     request: PrioritizeWaitingOffersRequest,
     user_id: int
 ) -> BasicResponse:
-    team_id = request.team_id
+    team_id = int(request.team_id)
     team = await get_team_by_id(team_id)
     await prioritize_waiting_offers(team=team)
     return BasicResponse(
