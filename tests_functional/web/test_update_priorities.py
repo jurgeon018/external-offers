@@ -92,7 +92,7 @@ async def test_update_priorities(
         'POST',
         '/api/admin/v1/prioritize-waiting-offers-public/',
         json={
-            'teamId': team_id,
+            'teamId': str(team_id),
         },
         headers={
             'X-Real-UserId': 1
