@@ -1,5 +1,6 @@
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
+import asyncio
 
 
 async def test_update_priorities(
@@ -102,8 +103,9 @@ async def test_update_priorities(
     response = json.loads(resp.body.decode('utf-8'))
 
     assert response['success'] is True
-    assert response['message'] == f'Приоритеты для команды {team_id} были успешно изменены'
+    assert response['message'] == f'Проставление приоритетов для команды {team_id} было запущено'
 
+    await asyncio.sleep(1)
     ofc = await pg.fetchrow("""
     select * from offers_for_call
     where parsed_id = '9d6c73b8-3057-47cc-b50a-419052da619f'
