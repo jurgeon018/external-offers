@@ -101,6 +101,7 @@ async def get_parsed_ids_for_cleaning(
         regions = settings.OFFER_TASK_CREATION_REGIONS
         user_segments = settings.OFFER_TASK_CREATION_SEGMENTS
         categories = settings.OFFER_TASK_CREATION_CATEGORIES
+    regions = [str(region) for region in regions]
     query, params = asyncpgsa.compile_query(
         select([
             po.c.id,
@@ -108,7 +109,7 @@ async def get_parsed_ids_for_cleaning(
         .where(
             or_(
                 po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
-                po.c.source_object_model['region'].as_integer().notin_(regions),
+                po.c.source_object_model['region'].as_string().notin_(regions),
                 po.c.source_object_model['category'].as_string().notin_(categories),
             )
         )

@@ -63,7 +63,7 @@ class AdminOffersListPageHandler(PublicHandler):
             second=settings.NEXT_CALL_SECONDS
         )
         operator_roles = []
-        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
+        # operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(

@@ -2,7 +2,7 @@ import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional, final
+from typing import Optional
 
 import pytz
 from cian_core.context import new_operation_id

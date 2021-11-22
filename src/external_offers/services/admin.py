@@ -403,7 +403,6 @@ async def set_call_missed_status_for_client(
         team_settings = {}
         team_id = None
         operator = await get_operator_by_id(user_id)
-        print('1 operator', operator)
         if operator:
             team = await get_team_by_id(operator.team_id)
             if team:
@@ -459,7 +458,6 @@ async def set_call_later_status_for_client(
         team_settings = {}
         team_id = None
         operator = await get_operator_by_id(user_id)
-        print('2 operator', operator)
 
         if operator:
             team = await get_team_by_id(operator.team_id)
