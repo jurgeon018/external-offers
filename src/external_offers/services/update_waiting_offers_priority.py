@@ -8,7 +8,7 @@ from external_offers.services.offers_creator import prioritize_waiting_offers
 
 async def prioritize_waiting_offers_public(
     request: PrioritizeWaitingOffersRequest,
-    user_id:int
+    user_id: int
 ) -> BasicResponse:
     team_id = request.team_id
     team = await get_team_by_id(team_id)

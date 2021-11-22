@@ -2,7 +2,7 @@ import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional
+from typing import Optional, final
 
 import pytz
 from cian_core.context import new_operation_id
@@ -216,7 +216,7 @@ async def prioritize_offers(
                 )
                 offer_priority = mapping_offer_categories_to_priority[offer.category]
                 final_priority = str(client_priority) + str(offer_priority)
-                if len(final_priority) == 7:
+                if len(final_priority) == 9:
                     final_priority = shuffle_priority_positions(
                         priority=final_priority,
                         team_settings=team_settings,
