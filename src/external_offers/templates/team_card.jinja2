@@ -55,7 +55,7 @@
         <div class="toggledBlock" style="display: none; padding-left:15px;">
             <br>
             <span title="мультивыбор">Категории:</span>
-            <select name="categories" multiple="multiple" size="10">
+            <select name="categories" multiple="multiple" size="20">
             {% for category in categories %}
                 <option value="{{category}}" {% if category and category in team_settings.get('categories', []) %} selected {% endif %}>
                     {{category}}{% if category in commercial_categories %}(commercial){%endif%}
@@ -64,7 +64,7 @@
             </select>
             <br><br>
             <span title="мультивыбор">Регионы:</span>
-            <select name="regions" multiple="multiple" size="10">
+            <select name="regions" multiple="multiple" size="20">
             {% for region_code, region_name in regions.items() %}
                 <option value="{{region_code}}" {% if region_code and region_code in team_settings.get('regions', []) %} selected {% endif %}>
                     {{region_name}}({{region_code}})
@@ -184,7 +184,7 @@
             <br>
             <input
                 data-region_code="{{region_code}}"
-                value="{{ team_settings.get('main_regions_priority', {}).get(region_code, '')}}"
+                value="{{ team_settings.get('main_regions_priority', {}).get(region_code, '99')}}"
                 style="width: 400;" type="number"
                 placeholder="Введите приоритет региона '{{region_name}}({{region_code}})'"
             />
