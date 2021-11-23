@@ -89,7 +89,9 @@ async def save_test_parsed_offer(
 
 
 async def get_parsed_ids_for_cleaning(
+    *,
     team: Optional[Team],
+    is_test: Optional[bool] = None,
 ) -> list[str]:
     po = tables.parsed_offers.alias()
     if team:
@@ -102,16 +104,22 @@ async def get_parsed_ids_for_cleaning(
         user_segments = settings.OFFER_TASK_CREATION_SEGMENTS
         categories = settings.OFFER_TASK_CREATION_CATEGORIES
     regions = [str(region) for region in regions]
+    options = or_(
+        po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
+        po.c.source_object_model['region'].as_string().notin_(regions),
+        po.c.source_object_model['category'].as_string().notin_(categories),
+    )
+    if isinstance(is_test, bool):
+        options = and_(
+            po.c.is_test == is_test,
+            options,
+        )
     query, params = asyncpgsa.compile_query(
         select([
             po.c.id,
         ])
         .where(
-            or_(
-                po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
-                po.c.source_object_model['region'].as_string().notin_(regions),
-                po.c.source_object_model['category'].as_string().notin_(categories),
-            )
+            options
         )
     )
     rows = await pg.get().fetch(query, *params)

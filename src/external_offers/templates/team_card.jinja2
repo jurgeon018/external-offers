@@ -13,10 +13,14 @@
         <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
-        <button onclick="prioritize('{{team.team_id}}')">
+        <button onclick="prioritizeReal('{{team.team_id}}')">
             Пересчитать приоритеты
         </button>
-
+        {% if operator_is_tester %}
+        <button onclick="prioritizeTest('{{team.team_id}}')">
+            Пересчитать приоритеты тестовых заданий
+        </button>
+        {% endif %}
         <hr>
 
         <form id="team_form">
@@ -545,9 +549,27 @@
         }
         form.addEventListener('submit', updateTeam)
     }
-    async function prioritize(teamId){
+    async function prioritizeReal(teamId){
         let obj = {
             "teamId": teamId,
+        }
+        const response = await fetch("/api/admin/v1/prioritize-waiting-offers-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+        } else if (resp.success === false){
+            alert(resp.message)
+        }else {
+            alert('Не удалось приоретизировать задания для команды.')
+        }
+    }
+    async function prioritizeTest(teamId){
+        let obj = {
+            "teamId": teamId,
+            "isTest": true,
         }
         const response = await fetch("/api/admin/v1/prioritize-waiting-offers-public/", {
             method: 'POST',

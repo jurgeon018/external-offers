@@ -36,10 +36,8 @@ from external_offers.repositories.postgresql import (
     set_waiting_offers_priority_by_offer_ids,
 )
 from external_offers.repositories.postgresql.offers import (
-    set_waiting_offers_priority_by_parsed_ids,
     set_waiting_offers_team_priorities_by_offer_ids,
 )
-from external_offers.repositories.postgresql.parsed_offers import get_parsed_ids_for_cleaning
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
@@ -103,7 +101,7 @@ async def prioritize_client(
 async def prioritize_waiting_offers(
     *,
     team: Optional[Team],
-    is_test: bool = False,
+    is_test: Optional[bool] = None,
 ) -> None:
     """Проставляем заданиям командные(team_priorities) и внекомандные(priority) приоритеты"""
     if team:
@@ -111,19 +109,11 @@ async def prioritize_waiting_offers(
     else:
         team_settings = {}
     # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
-    parsed_ids = await get_parsed_ids_for_cleaning(team)
-    # связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
+    # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
     # (задания фильтруются в assign_suitable_client_to_operator по приоритету _CLEAR_PRIORITY)
-    cleared_offer_ids = await set_waiting_offers_priority_by_parsed_ids(
-        parsed_ids=parsed_ids,
-        team=team,
-        priority=_CLEAR_PRIORITY,
-    )
     waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
         # достает задания в ожидании(при этом фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
-        get_waiting_offer_counts_by_clients(
-            cleared_offer_ids=cleared_offer_ids,
-        ),
+        get_waiting_offer_counts_by_clients(team=team, is_test=is_test),
         get_unactivated_clients_counts_by_clients(),
     )
     # создает приоритеты для заданий в ожидании

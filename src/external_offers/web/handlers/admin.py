@@ -253,4 +253,5 @@ class AdminTeamCardPageHandler(PublicHandler):
             regions=regions,
             segments=segments,
             subsegments=subsegments,
+            operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
         ))

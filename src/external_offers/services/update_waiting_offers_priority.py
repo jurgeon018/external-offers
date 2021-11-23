@@ -11,8 +11,9 @@ async def prioritize_waiting_offers_public(
     user_id: int
 ) -> BasicResponse:
     team_id = int(request.team_id)
+    is_test = request.is_test
     team = await get_team_by_id(team_id)
-    asyncio.create_task(prioritize_waiting_offers(team=team, is_test=True))
+    asyncio.create_task(prioritize_waiting_offers(team=team, is_test=is_test))
     return BasicResponse(
         success=True,
         message=f'Проставление приоритетов для команды {team_id} было запущено',

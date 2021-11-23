@@ -1,10 +1,23 @@
 import asyncio
 
+import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-async def test_update_priorities(
+# get_parsed_ids_for_cleaning
+# set_waiting_offers_priority_by_parsed_ids
+# get_waiting_offer_counts_by_clients
+# прогнать тесты
+# тест
+# TODO фронт
+
+
+@pytest.mark.parametrize('is_test_request, is_test_value', [
+    (None, 'f'),
+    (True, 't'),
+])
+async def test_update_priorities__real_offers(
     http,
     pg,
     runner,
@@ -12,6 +25,8 @@ async def test_update_priorities(
     users_mock,
     monolith_cian_profileapi_mock,
     announcements_mock,
+    is_test_request,
+    is_test_value,
 ):
     cian_user_id = 12345
     await users_mock.add_stub(
@@ -68,6 +83,11 @@ async def test_update_priorities(
 
     await runner.run_python_command('create-offers-for-call')
 
+    await pg.execute(f"""
+    UPDATE offers_for_call SET is_test='{is_test_value}';
+    UPDATE clients SET is_test='{is_test_value}';
+    UPDATE parsed_offers SET is_test='{is_test_value}';
+    """)
     await http.request(
         'POST',
         '/api/admin/v1/create-team-public/',
@@ -95,6 +115,7 @@ async def test_update_priorities(
         '/api/admin/v1/prioritize-waiting-offers-public/',
         json={
             'teamId': str(team_id),
+            'isTest': is_test_request,
         },
         headers={
             'X-Real-UserId': 1

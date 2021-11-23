@@ -89,6 +89,7 @@ def get_team_card_html(
     regions: list[str],
     segments: list[str],
     subsegments: list[str],
+    operator_is_tester: bool,
 ) -> str:
     template = templates.get_template('team_card.jinja2')
     return template.render(
@@ -103,6 +104,7 @@ def get_team_card_html(
         regions=regions,
         segments=segments,
         subsegments=subsegments,
+        operator_is_tester=operator_is_tester,
     )
 
 

@@ -24,6 +24,7 @@ from external_offers.mappers import (
     offers,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
+from external_offers.repositories.postgresql.parsed_offers import get_parsed_ids_for_cleaning
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.services.prioritizers.build_priority import build_call_later_priority, build_call_missed_priority
 from external_offers.utils import iterate_over_list_by_chunks
@@ -37,6 +38,7 @@ waiting_offers_counts_cte = (
         [
             offers_for_call.c.id,
             offers_for_call.c.client_id,
+            offers_for_call.c.is_test,
             over(func.count(), partition_by=offers_for_call.c.client_id).label('waiting_offers_count')
         ]
     )
@@ -471,11 +473,13 @@ async def set_waiting_offers_team_priorities_by_offer_ids(
 
 
 async def set_waiting_offers_priority_by_parsed_ids(
-    parsed_ids: list[int],
     team: Optional[Team],
     priority: int,
+    is_test: Optional[bool],
 ) -> list[int]:
     offer_ids = []
+    parsed_ids = await get_parsed_ids_for_cleaning(team=team, is_test=is_test)
+
     for parsed_ids_chunk in iterate_over_list_by_chunks(
         iterable=parsed_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
@@ -799,15 +803,29 @@ async def get_unactivated_clients_counts_by_clients() -> Optional[list[ClientDra
 
 
 async def get_waiting_offer_counts_by_clients(
-    cleared_offer_ids: list[int],
+    *,
+    team: Optional[Team],
+    is_test: Optional[bool],
 ) -> list[ClientWaitingOffersCount]:
+    _CLEAR_PRIORITY = -1
+    cleared_offer_ids = await set_waiting_offers_priority_by_parsed_ids(
+        team=team,
+        priority=_CLEAR_PRIORITY,
+        is_test=is_test,
+    )
+    options = waiting_offers_counts_cte.c.id.notin_(
+        cleared_offer_ids
+    )
+    if isinstance(is_test, bool):
+        options = and_(
+            waiting_offers_counts_cte.c.is_test == is_test,
+            options,
+        )
     sql = (
         select(
             [waiting_offers_counts_cte]
         ).where(
-            waiting_offers_counts_cte.c.id.notin_(
-                cleared_offer_ids
-            )
+            options
         ).distinct(
             waiting_offers_counts_cte.c.client_id
         )

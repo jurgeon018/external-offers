@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from cian_core.runtime_settings import runtime_settings
-from cian_json import json
 
 
 _ZERO = '0'
