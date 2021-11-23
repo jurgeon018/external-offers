@@ -35,9 +35,7 @@ from external_offers.repositories.postgresql import (
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
-from external_offers.repositories.postgresql.offers import (
-    set_waiting_offers_team_priorities_by_offer_ids,
-)
+from external_offers.repositories.postgresql.offers import set_waiting_offers_team_priorities_by_offer_ids
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority

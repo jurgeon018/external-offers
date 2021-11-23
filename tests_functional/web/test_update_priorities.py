@@ -5,14 +5,6 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-# get_parsed_ids_for_cleaning
-# set_waiting_offers_priority_by_parsed_ids
-# get_waiting_offer_counts_by_clients
-# прогнать тесты
-# тест
-# TODO фронт
-
-
 @pytest.mark.parametrize('is_test_request, is_test_value', [
     (None, 'f'),
     (True, 't'),
