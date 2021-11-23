@@ -190,6 +190,7 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
                 regions=regions,
                 segments=segments,
                 subsegments=subsegments,
+                operator_is_tester=False,
             )
         ]
     )
