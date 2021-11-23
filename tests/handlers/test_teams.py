@@ -109,6 +109,7 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     teams = mocker.MagicMock(value=[])
     team_settings = mocker.MagicMock(value=[])
     categories = mocker.MagicMock(value=[])
+    commercial_categories = mocker.MagicMock(value=[])
     regions = mocker.MagicMock(value=[])
     segments = mocker.MagicMock(value=[])
     subsegments = mocker.MagicMock(value=[])
@@ -149,6 +150,10 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
         return_value=categories,
     )
     mocker.patch(
+        'external_offers.web.handlers.admin._get_commercial_categories',
+        return_value=commercial_categories,
+    )
+    mocker.patch(
         'external_offers.web.handlers.admin._get_regions',
         return_value=regions,
     )
@@ -181,6 +186,7 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
                 operators=operators,
                 teams=teams,
                 categories=categories,
+                commercial_categories=commercial_categories,
                 regions=regions,
                 segments=segments,
                 subsegments=subsegments,

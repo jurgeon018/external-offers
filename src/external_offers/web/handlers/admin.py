@@ -168,7 +168,28 @@ class AdminOperatorCardPageHandler(PublicHandler):
         ))
 
 
-def _get_categories():
+def _get_commercial_categories() -> list[str]:
+    return [
+        Category.office_sale.value,
+        Category.free_appointment_object_sale.value,
+        Category.shopping_area_sale.value,
+        Category.warehouse_sale.value,
+        Category.industry_sale.value,
+        Category.building_sale.value,
+        Category.business_sale.value,
+        Category.commercial_land_sale.value,
+        Category.office_rent.value,
+        Category.free_appointment_object_rent.value,
+        Category.shopping_area_rent.value,
+        Category.warehouse_rent.value,
+        Category.industry_rent.value,
+        Category.building_rent.value,
+        Category.business_rent.value,
+        Category.commercial_land_rent.value,
+    ]
+
+
+def _get_categories() -> list[str]:
     return [category.value for category in Category]
 
 
@@ -216,6 +237,7 @@ class AdminTeamCardPageHandler(PublicHandler):
         operators = await get_enriched_operators()
         teams = await get_teams()
         categories = _get_categories()
+        commercial_categories = _get_commercial_categories()
         segments = _get_segments()
         regions = _get_regions()
         subsegments = _get_subsegments()
@@ -227,6 +249,7 @@ class AdminTeamCardPageHandler(PublicHandler):
             operators=operators,
             teams=teams,
             categories=categories,
+            commercial_categories=commercial_categories,
             regions=regions,
             segments=segments,
             subsegments=subsegments,

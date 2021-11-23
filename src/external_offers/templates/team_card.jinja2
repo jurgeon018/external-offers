@@ -58,7 +58,7 @@
             <select name="categories" multiple="multiple" size="10">
             {% for category in categories %}
                 <option value="{{category}}" {% if category and category in team_settings.get('categories', []) %} selected {% endif %}>
-                    {{category}}
+                    {{category}}{% if category in commercial_categories %}(commercial){%endif%}
                 </option>
             {% endfor %}
             </select>
