@@ -152,7 +152,7 @@
         <div class="toggledBlock" style="display: none; padding-left:15px;">
             <br>
 
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex;">
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="activationStatusPosition" value="{{team_settings.get('activation_status_position', '')}}" placeholder="" required/><br>
                     <span>Порядок признака 'Статус клиента'</span><br>
@@ -160,14 +160,12 @@
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="unactivatedClientPriority" value="{{team_settings.get('unactivated_client_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет добивочного клиента</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="newClientPriority" value="{{team_settings.get('new_client_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет нового клиента</span><br>
                 </div>
             </div>
             <hr>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex;">
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="callStatusPosition" value="{{team_settings.get('call_status_position', '')}}" placeholder="" required/><br>
                     <span>Порядок признака 'Cтатус звонка'</span><br>
@@ -175,12 +173,8 @@
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="callLaterPriority" value="{{team_settings.get('call_later_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет перезвонов</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="callMissedPriority" value="{{team_settings.get('call_missed_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет недозвонов</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="waitingPriority" value="{{team_settings.get('waiting_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет ожидающих</span><br>
                 </div>
@@ -207,7 +201,7 @@
                 </div>
             </div>
             <hr>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex;">
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="segmentPosition" value="{{team_settings.get('segment_position', '')}}" placeholder="" required/><br>
                     <span>Порядок признака 'Сегмент'</span><br>
@@ -215,14 +209,12 @@
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="smbPriority" value="{{team_settings.get('smb_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет для сегмента SMB</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="homeownerPriority" value="{{team_settings.get('homeowner_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет для сегмента собственников</span><br>
                 </div>
             </div>
             <hr>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex;">
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="lkPosition" value="{{team_settings.get('lk_position', '')}}" placeholder="" required/><br>
                     <span>Порядок признака 'Статус Учетной Записи(наличие учетной записи и количество обьявлений'</span><br>
@@ -230,26 +222,18 @@
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="noLkSmbPriority" value="{{team_settings.get('no_lk_smb_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет для smb: нет ЛК на циан</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="noActiveSmbPriority" value="{{team_settings.get('no_active_smb_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет 'Нет ЛК на циан'</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="keepProportionSmbPriority" value="{{team_settings.get('keep_proportion_smb_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет 'нет активных объявлений'</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="noLkHomeownerPriority" value="{{team_settings.get('no_lk_homeowner_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет 'соблюдена пропорция заданий в админке и уже активных объявлений у клиента'</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="activeLkNoHomeownerPriority" value="{{team_settings.get('active_lk_homeowner_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет для smb: есть активный ЛК на циан</span><br>
                 </div>
             </div>
             <hr>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex;">
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="dealTypePosition" value="{{team_settings.get('deal_type_position', '')}}" placeholder="" required/><br>
                     <span>Порядок признака 'Тип сделки'</span><br>
@@ -257,14 +241,12 @@
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="salePriority" value="{{team_settings.get('sale_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет продажи</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="rentPriority" value="{{team_settings.get('rent_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет аренды</span><br>         
                 </div>
             </div>
             <hr>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex;">
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="offerTypePosition" value="{{team_settings.get('offer_type_position', '')}}" placeholder="" required/><br>
                     <span>Порядок признака 'Тип Недвижимости'</span><br>
@@ -272,12 +254,8 @@
                 <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="flatPriority" value="{{team_settings.get('flat_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет городской недвижимости</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="suburbanPriority" value="{{team_settings.get('suburban_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет загородной недвижимости</span><br>
-                </div>
-                <div style="margin: 10px 20px; width: 250px; display: flex; flex-direction: column;">
                     <input name="commercialPriority" value="{{team_settings.get('commercial_priority', '')}}" placeholder="" required/><br>
                     <span>Приоритет комерческой недвижимости</span><br>
                 </div>
