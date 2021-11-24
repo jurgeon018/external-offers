@@ -41,9 +41,9 @@
             <option value="" {% if not team.lead_id %} selected {% endif %}>
                 -
             </option>
-            {% for operator in operators %}
-                <option value="{{operator.operator_id}}" {% if team.lead_id == operator.operator_id %}selected{%endif%}>
-                    {{operator.full_name}}({{operator.operator_id}})
+            {% for teamlead in teamleads %}
+                <option value="{{teamlead.operator_id}}" {% if team.lead_id == teamlead.operator_id %}selected{%endif%}>
+                    {{teamlead.full_name}}({{teamlead.operator_id}})
                 </option>
             {% endfor %}
         </select><br><br>
