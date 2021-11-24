@@ -82,7 +82,7 @@ def get_team_card_html(
     current_operator: Operator,
     team: Team,
     team_settings: dict[str, Any],
-    operators: list[Operator],
+    teamleads: list[Operator],
     teams: list[Team],
     categories: list[str],
     commercial_categories: list[str],
@@ -97,7 +97,7 @@ def get_team_card_html(
         current_operator=current_operator,
         team=team,
         team_settings=team_settings,
-        operators=operators,
+        teamleads=teamleads,
         teams=teams,
         commercial_categories=commercial_categories,
         categories=categories,
@@ -111,7 +111,6 @@ def get_team_card_html(
 def get_operator_card_html(
     current_operator: Operator,
     operator: Operator,
-    operators: list[Operator],
     teams: list[Team],
 ) -> str:
     template = templates.get_template('operator_card.jinja2')
@@ -119,6 +118,5 @@ def get_operator_card_html(
         debug=runtime_settings.DEBUG,
         current_operator=current_operator,
         operator=operator,
-        operators=operators,
         teams=teams,
     )

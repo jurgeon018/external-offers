@@ -23,6 +23,7 @@ from external_offers.repositories.postgresql import (
 from external_offers.repositories.postgresql.operators import (
     get_enriched_operator_by_id,
     get_enriched_operators,
+    get_enriched_teamleads,
     get_latest_operator_updating,
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
@@ -132,14 +133,17 @@ class AdminTeamsPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
+        if not current_operator.is_teamlead and self.realty_user_id not in runtime_settings.TEST_OPERATOR_IDS:
+            self.write('У вас нет прав тимлида для просмотра текущей страницы'.encode('utf-8'))
+            return
         last_updating = await get_latest_operator_updating()
         if not last_updating:
             await create_operators_from_cian()
         elif last_updating < datetime.now(tz=pytz.UTC) - timedelta(days=1):
             await create_operators_from_cian()
-        current_operator = await get_or_create_operator(
-            operator_id=self.realty_user_id
-        )
         operators = await get_enriched_operators()
         teams = await get_teams()
         self.write(get_teams_page_html(
@@ -157,13 +161,14 @@ class AdminOperatorCardPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id
         )
+        if not current_operator.is_teamlead and self.realty_user_id not in runtime_settings.TEST_OPERATOR_IDS:
+            self.write('У вас нет прав тимлида для просмотра текущей страницы'.encode('utf-8'))
+            return
         operator = await get_enriched_operator_by_id(operator_id)
-        operators = await get_enriched_operators()
         teams = await get_teams()
         self.write(get_operator_card_html(
             current_operator=current_operator,
             operator=operator,
-            operators=operators,
             teams=teams,
         ))
 
@@ -233,8 +238,12 @@ class AdminTeamCardPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id
         )
+        if not current_operator.is_teamlead and self.realty_user_id not in runtime_settings.TEST_OPERATOR_IDS:
+            self.write('У вас нет прав тимлида для просмотра текущей страницы'.encode('utf-8'))
+            return
+
         team = await get_team_by_id(int(team_id))
-        operators = await get_enriched_operators()
+        teamleads = await get_enriched_teamleads()
         teams = await get_teams()
         categories = _get_categories()
         commercial_categories = _get_commercial_categories()
@@ -246,7 +255,7 @@ class AdminTeamCardPageHandler(PublicHandler):
             current_operator=current_operator,
             team=team,
             team_settings=team_settings,
-            operators=operators,
+            teamleads=teamleads,
             teams=teams,
             categories=categories,
             commercial_categories=commercial_categories,

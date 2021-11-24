@@ -182,7 +182,7 @@
             <hr>
             <div style="padding-left: 20px;">
                 <input name="regionPosition" value="{{team_settings.get('region_position', '')}}" placeholder="" required/><br>
-                <span>Порядок признака 'Регион'</span>
+                <span>Порядок признака 'Регион'</span><br>
                 <button type="button" onclick="toggleBlock(this)">Показать\скрыть приоритеты регионов</button>
                 <div id="mainRegionsPriority" style="padding-left: 130px">
                 {% for region_code, region_name in regions.items() %}
