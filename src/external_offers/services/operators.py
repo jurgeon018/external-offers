@@ -1,7 +1,13 @@
 from asyncpg.exceptions import PostgresError, UniqueViolationError
 
-from external_offers.entities.operators import CreateOperatorRequest, DeleteOperatorRequest, UpdateOperatorRequest
+from external_offers.entities.operators import (
+    CreateOperatorRequest,
+    DeleteOperatorRequest,
+    UpdateOperatorRequest,
+    UpdateOperatorsRequest,
+)
 from external_offers.entities.response import BasicResponse
+from external_offers.services.operator_roles import create_operators_from_cian
 from external_offers.repositories.postgresql.operators import (
     create_operator,
     delete_operator_by_id,
@@ -49,6 +55,12 @@ async def update_operator_public(request: UpdateOperatorRequest, user_id: int) -
         success=success,
         message=message
     )
+
+
+async def update_operators_public(request: UpdateOperatorsRequest, user_id: int) -> BasicResponse:
+    """Обновить список пользователей"""
+    await create_operators_from_cian()
+    return BasicResponse(success=True, message='Список пользователей был успешно обновлен.')
 
 
 async def delete_operator_public(request: DeleteOperatorRequest, user_id: int) -> BasicResponse:

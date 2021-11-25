@@ -74,6 +74,11 @@ class UpdateOperatorRequest:
 
 
 @dataclass
+class UpdateOperatorsRequest:
+    pass
+
+
+@dataclass
 class DeleteOperatorRequest:
     operator_id: str
     """ID оператора которого нужно удалить"""
