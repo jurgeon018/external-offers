@@ -29,7 +29,7 @@ from external_offers.repositories.postgresql.operators import (
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
 from external_offers.services.operator_roles import (
-    create_operators_from_cian,
+    update_operators,
     get_operator_roles,
     get_or_create_operator,
 )
@@ -141,9 +141,9 @@ class AdminTeamsPageHandler(PublicHandler):
             return
         last_updating = await get_latest_operator_updating()
         if not last_updating:
-            await create_operators_from_cian()
+            await update_operators()
         elif last_updating < datetime.now(tz=pytz.UTC) - timedelta(days=1):
-            await create_operators_from_cian()
+            await update_operators()
         operators = await get_enriched_operators()
         teams = await get_teams()
         self.write(get_teams_page_html(

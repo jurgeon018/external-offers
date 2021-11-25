@@ -9,10 +9,13 @@ cian-codegen version: 1.17.0
 
 """
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
-class V1GetUserRoles:
-    use_cache: Optional[bool] = None
-    user_id: Optional[int] = None
+class RemoveRoleFromUserRequest:
+    """Запрос на отключение роли"""
+
+    role_name: str
+    """Название роли"""
+    user_id: int
+    """Id пользователя"""

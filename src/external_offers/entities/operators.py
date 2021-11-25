@@ -53,12 +53,6 @@ class EnrichedOperator:
 class CreateOperatorRequest:
     operator_id: str
     """ID оператора"""
-    full_name: str
-    """Имя оператора"""
-    team_id: Optional[int] = None
-    """ID команды"""
-    email: Optional[str] = None
-    """Емейл оператора"""
 
 
 @dataclass

@@ -187,6 +187,11 @@ async def test_update_operators_public(
     assert response['success'] is True
     assert len(operators) == 3
 
+    assert operators[0]['operator_id'] ==  '2'
+    assert operators[0]['email'] ==  'email2@cian.ru'
+    assert operators[0]['full_name'] == 'Юзер2'
+    assert operators[0]['is_teamlead'] is True
+
     assert operators[1]['operator_id'] ==  '3'
     assert operators[1]['email'] ==  'email3@cian.ru'
     assert operators[1]['full_name'] ==  'Юзер 3'
@@ -196,8 +201,3 @@ async def test_update_operators_public(
     assert operators[2]['email']  is None
     assert operators[2]['full_name']  is None
     assert operators[2]['is_teamlead']  is True
-
-    assert operators[0]['operator_id'] ==  '2'
-    assert operators[0]['email'] ==  'email2@cian.ru'
-    assert operators[0]['full_name'] == 'Юзер2'
-    assert operators[0]['is_teamlead'] is True

@@ -12,9 +12,11 @@
         <button data-link_to_page="/admin/teams/" onclick="onClickRedirectToTeams(this)">
             Вернуться назад
         </button>
+        {% if current_operator.is_teamlead %}
         <button style="color:red;" data-link_to_page="/admin/teams/" onclick="deleteOperator('{{operator.operator_id}}')">
             Удалить профиль
         </button>
+        {% endif %}
     </div>
     <hr>
     <br>
@@ -59,9 +61,11 @@
     </select>
     <br>
     <br>
+    {% if current_operator.is_teamlead %}
     <button onclick="updateOperator()">
         Обновить персональную информацию
     </button>
+    {% endif %}
 </div>
 <script>
     let DEBUG = 'True' === '{{debug}}';

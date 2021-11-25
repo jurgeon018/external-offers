@@ -68,10 +68,7 @@ async def get_enriched_operator_by_id(operator_id: Union[str, int]) -> Optional[
 async def create_operator(
     *,
     operator_id: Union[int, str],
-    full_name: Optional[str] = None,
-    team_id: Optional[int] = None,
     is_teamlead: bool = False,
-    email: Optional[str] = None,
 ) -> None:
     now = datetime.now(tz=pytz.utc)
     query, params = asyncpgsa.compile_query(
@@ -79,10 +76,7 @@ async def create_operator(
             operators
         ).values(
             operator_id=str(operator_id),
-            full_name=full_name,
-            team_id=team_id,
             is_teamlead=is_teamlead,
-            email=email,
             created_at=now,
             updated_at=now,
         )

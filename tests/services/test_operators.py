@@ -15,14 +15,21 @@ async def test_create_operator__success_is_true(http_client, base_url, mocker):
         'external_offers.services.operators.create_operator',
         return_value=future(None),
     )
+    mocker.patch(
+        'external_offers.services.operator_roles.v1_add_role_to_user',
+        return_value=future(None),
+    )
+    mocker.patch(
+        'external_offers.services.operators.update_operators',
+        return_value=future(None),
+    )
+    
     # act
     result = await http_client.fetch(
         base_url+'/api/admin/v1/create-operator-public/',
         method='POST',
         body=json.dumps({
             'operatorId': '123',
-            'fullName': 'name',
-            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -30,8 +37,8 @@ async def test_create_operator__success_is_true(http_client, base_url, mocker):
     )
     body = json.loads(result.body)
     # assert
-    assert body['success'] is True
     assert body['message'] == 'Оператор был успешно создан.'
+    assert body['success'] is True
 
 
 @pytest.mark.gen_test
@@ -42,14 +49,16 @@ async def test_create_operator__unique_violation_error(http_client, base_url, mo
         'external_offers.services.operators.create_operator',
         side_effect=UniqueViolationError(msg),
     )
+    mocker.patch(
+        'external_offers.services.operator_roles.v1_add_role_to_user',
+        return_value=future(None),
+    )
     # act
     result = await http_client.fetch(
         base_url+'/api/admin/v1/create-operator-public/',
         method='POST',
         body=json.dumps({
             'operatorId': '123',
-            'fullName': 'name',
-            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -69,14 +78,16 @@ async def test_create_operator__postgres_error(http_client, base_url, mocker):
         'external_offers.services.operators.create_operator',
         side_effect=PostgresError(msg),
     )
+    mocker.patch(
+        'external_offers.services.operator_roles.v1_add_role_to_user',
+        return_value=future(None),
+    )
     # act
     result = await http_client.fetch(
         base_url+'/api/admin/v1/create-operator-public/',
         method='POST',
         body=json.dumps({
             'operatorId': '123',
-            'fullName': 'name',
-            'teamId': '1',
         }),
         headers={
             'X-Real-UserId': '1',
@@ -154,6 +165,10 @@ async def test_delete_operator__success_is_true(http_client, base_url, mocker):
         'external_offers.services.operators.delete_operator_by_id',
         return_value=future(None),
     )
+    mocker.patch(
+        'external_offers.services.operator_roles.v1_remove_role_from_user',
+        return_value=future(None),
+    )
     # act
     result = await http_client.fetch(
         base_url+'/api/admin/v1/delete-operator-public/',
@@ -178,6 +193,10 @@ async def test_delete_operator__postgres_error(http_client, base_url, mocker):
     mocker.patch(
         'external_offers.services.operators.delete_operator_by_id',
         side_effect=PostgresError(msg),
+    )
+    mocker.patch(
+        'external_offers.services.operator_roles.v1_remove_role_from_user',
+        return_value=future(None),
     )
     # act
     result = await http_client.fetch(

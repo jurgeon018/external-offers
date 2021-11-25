@@ -1,4 +1,5 @@
 from typing import List, NoReturn, Optional, Union
+from typing_extensions import runtime
 
 import backoff
 from cian_core.degradation import DegradationResult, get_degradation_handler
@@ -12,7 +13,7 @@ from external_offers.repositories.postgresql.operators import (
     get_enriched_operator_by_id,
     update_operator_by_id,
 )
-from external_offers.repositories.users import v1_get_user_roles
+from external_offers.repositories.users import v1_get_user_roles, v1_remove_role_from_user, v1_add_role_to_user
 from external_offers.repositories.users._repo import v1_get_userids_by_rolename, v1_get_users, v1_user_has_role
 from external_offers.repositories.users.entities import (
     GetUserIdsByRoleNameResponse,
@@ -23,6 +24,8 @@ from external_offers.repositories.users.entities import (
     V1GetUserRoles,
     V1GetUseridsByRolename,
     V1UserHasRole,
+    RemoveRoleFromUserRequest,
+    AddRoleToUserRequest,
 )
 
 
@@ -136,29 +139,29 @@ async def user_has_role(
     return has_role
 
 
-async def get_users_by_role(role_name: str) -> List[UserModel]:
-    user_ids_response: GetUserIdsByRoleNameResponse = await v1_get_userids_by_rolename(
-        V1GetUseridsByRolename(
-            role_name=role_name
+async def remove_operator_role(operator_id: str) -> None:
+    await v1_remove_role_from_user(
+        RemoveRoleFromUserRequest(
+            user_id=int(operator_id),
+            role_name=runtime_settings.ADMIN_OPERATOR_ROLE,
         )
     )
-    user_ids: List[int] = user_ids_response.user_ids
-    if not user_ids:
-        return []
-    users_response: GetUsersResponse = await v1_get_users(
-        UserIdsRequest(
-            user_ids=user_ids
+
+
+async def add_operator_role_to_user(operator_id: str) -> None:
+    await v1_add_role_to_user(
+        AddRoleToUserRequest(
+            user_id=int(operator_id),
+            role_name=runtime_settings.ADMIN_OPERATOR_ROLE,            
         )
     )
-    users: List[UserModel] = users_response.users
-    return users
 
 
-async def create_operators_from_cian() -> None:
+async def update_operators() -> Optional[str]:
     try:
         users = await get_users_by_role(role_name=runtime_settings.ADMIN_OPERATOR_ROLE)
-    except ApiClientException:
-        users = []
+    except ApiClientException as e:
+        return str(e)
     for user in users:
         operator_id = user.id  # or user.cian_user_id
         if operator_id:
@@ -180,3 +183,21 @@ async def create_operators_from_cian() -> None:
                 is_teamlead=is_teamlead,
                 email=email,
             )
+
+
+async def get_users_by_role(role_name: str) -> List[UserModel]:
+    user_ids_response: GetUserIdsByRoleNameResponse = await v1_get_userids_by_rolename(
+        V1GetUseridsByRolename(
+            role_name=role_name
+        )
+    )
+    user_ids: List[int] = user_ids_response.user_ids
+    if not user_ids:
+        return []
+    users_response: GetUsersResponse = await v1_get_users(
+        UserIdsRequest(
+            user_ids=user_ids
+        )
+    )
+    users: List[UserModel] = users_response.users
+    return users

@@ -10,9 +10,11 @@
         <button onclick="onClickRedirectToTeams(this)">
             Вернуться к списку обьектов
         </button>
+        {% if str(current_operator.operator_id) == str(team.lead_id) %}
         <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
+        {% endif %}
         <button onclick="prioritizeReal('{{team.team_id}}')">
             Пересчитать приоритеты
         </button>
@@ -306,8 +308,9 @@
         </div> #}
 
         <hr>
-        
+        {% if current_operator.is_teamlead %}
         <button onclick="toggleBlocks()" type='submit'>Обновить информацию про команду</button>
+        {% endif %}
 
         </form>
     </div>

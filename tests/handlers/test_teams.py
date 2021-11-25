@@ -9,7 +9,7 @@ async def test_teams_page_handler(mocker, http_client, base_url):
     operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
     mocker.patch(
-        'external_offers.web.handlers.admin.create_operators_from_cian',
+        'external_offers.web.handlers.admin.update_operators',
         return_value=future(None),
     )
     mocker.patch(
