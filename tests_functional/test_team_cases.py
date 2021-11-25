@@ -230,7 +230,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert ofc12['priority'] == 231120212
     assert ofc13['priority'] == 231115223
     assert json.loads(ofc1['team_priorities']) == {
-        '1': -1, '2': 231115211, '3': 231115211, '4': 231115213, '5': 231115221
+        '1': -1, '2': -1, '3': 231115211, '4': 231115213, '5': 231115221
     }
     assert json.loads(ofc2['team_priorities']) == {
         '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
@@ -242,7 +242,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
         '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
     assert json.loads(ofc5['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
+        '1': 231120211, '2': -1, '3': -1, '4': 231120213, '5': 231120221
     }
     assert json.loads(ofc11['team_priorities']) == {
         '1': -1, '2': -1, '3': -1, '4': -1, '5': -1
@@ -251,7 +251,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
         '1': 231120212, '2': 231120212, '3': -1, '4': 231120212, '5': 231120222
     }
     assert json.loads(ofc13['team_priorities']) == {
-        '1': -1, '2': 231115223, '3': 231115223, '4': 231115221, '5': 231115213
+        '1': -1, '2': -1, '3': 231115223, '4': 231115221, '5': 231115213
     }
 
 
@@ -337,7 +337,7 @@ async def assert_offers_updating(*, pg, http, operator_id):
     assert ofc['priority'] == 231120211
     new_priority = 100000
     assert json.loads(ofc['team_priorities']) == {
-        '1': new_priority, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
+        '1': new_priority, '2': -1, '3': -1, '4': 231120213, '5': 231120221
     }
 
 

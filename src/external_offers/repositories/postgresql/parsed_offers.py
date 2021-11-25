@@ -105,7 +105,8 @@ async def get_parsed_ids_for_cleaning(
         categories = settings.OFFER_TASK_CREATION_CATEGORIES
     regions = [str(region) for region in regions]
     options = or_(
-        po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
+        po.c.user_segment.notin_(user_segments),
+        # po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
         po.c.source_object_model['region'].as_string().notin_(regions),
         po.c.source_object_model['category'].as_string().notin_(categories),
     )
