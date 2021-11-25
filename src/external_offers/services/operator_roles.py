@@ -161,7 +161,7 @@ async def update_operators() -> Optional[str]:
     try:
         users = await get_users_by_role(role_name=runtime_settings.ADMIN_OPERATOR_ROLE)
     except ApiClientException as e:
-        return str(e)
+        return str(e.message)
     for user in users:
         operator_id = user.id  # or user.cian_user_id
         if operator_id:

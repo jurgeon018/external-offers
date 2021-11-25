@@ -140,9 +140,7 @@ class AdminTeamsPageHandler(PublicHandler):
             self.write('У вас нет прав тимлида для просмотра текущей страницы'.encode('utf-8'))
             return
         last_updating = await get_latest_operator_updating()
-        if not last_updating:
-            await update_operators()
-        elif last_updating < datetime.now(tz=pytz.UTC) - timedelta(days=1):
+        if (not last_updating) or (last_updating < datetime.now(tz=pytz.UTC) - timedelta(days=1)):
             await update_operators()
         operators = await get_enriched_operators()
         teams = await get_teams()

@@ -82,7 +82,7 @@ async def delete_operator_public(request: DeleteOperatorRequest, user_id: int) -
         success = True
         message = 'Оператор был успешно удален.'
     except ApiClientException as e:
-        message = f'Во время удаления роли оператора произошла ошибка: {e}'
+        message = f'Во время удаления роли оператора произошла ошибка: {e.message}'
     except PostgresError as e:
         message = f'Во время удаления оператора произошла ошибка: {e}'
     return BasicResponse(
