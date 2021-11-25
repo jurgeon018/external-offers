@@ -1,7 +1,6 @@
 from external_offers.repositories.postgresql.clients import (
     assign_client_to_operator_and_increase_calls_count,
     assign_suitable_client_to_operator,
-    delete_waiting_clients_by_client_ids,
     get_cian_user_id_by_client_id,
     get_client_by_avito_user_id,
     get_client_by_client_id,
@@ -72,6 +71,7 @@ from external_offers.repositories.postgresql.offers import (
     set_offers_phone_unavailable_by_client,
     set_offers_promo_given_by_client,
     set_waiting_offers_priority_by_offer_ids,
+    set_waiting_offers_team_priorities_by_offer_ids,
     sync_offers_for_call_with_kafka_by_ids,
     try_to_lock_offer_and_return_status,
 )

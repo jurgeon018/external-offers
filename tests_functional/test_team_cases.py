@@ -1,34 +1,42 @@
+from datetime import datetime, timedelta
+
+import pytz
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
+
+
+_CLEAR_PRIORITY = -1
 
 
 async def test_team_priorities(
     pg,
     http,
-    offers_and_clients_fixture,
     runtime_settings,
     runner,
-    parsed_offers_fixture_for_offers_for_call_test,
     parsed_offers_for_teams,
-    teams_fixture,
     monolith_cian_profileapi_mock,
     users_mock,
-    announcements_mock
+    announcements_mock,
 ):
-
     # arrange
-
+    OFFER_TASK_CREATION_SEGMENTS = ['c']
+    OFFER_TASK_CREATION_CATEGORIES = ['flatSale', 'officeSale', 'houseSale', 'officeRent']
+    OFFER_TASK_CREATION_REGIONS = [4580, 184723]
+    NO_ACTIVE_SMB_PRIORITY = 2
+    SMB_PRIORITY = 1
+    WAITING_PRIORITY = 3
     cian_user_id = 12835367
+    operator_id = 1
     await runtime_settings.set({
-        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
-        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent', 'officeRent'],
-        'OFFER_TASK_CREATION_REGIONS': [4580, 184723],
+        'ENABLE_TEAM_PRIORITIES': True,
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
-        'NO_ACTIVE_SMB_PRIORITY': 2,
-        'SMB_PRIORITY': 1,
-        'WAITING_PRIORITY': 3,
-        'ENABLE_TEAM_PRIORITIES': True,
+        'OFFER_TASK_CREATION_SEGMENTS': OFFER_TASK_CREATION_SEGMENTS,
+        'OFFER_TASK_CREATION_CATEGORIES': OFFER_TASK_CREATION_CATEGORIES,
+        'OFFER_TASK_CREATION_REGIONS': OFFER_TASK_CREATION_REGIONS,
+        'NO_ACTIVE_SMB_PRIORITY': NO_ACTIVE_SMB_PRIORITY,
+        'SMB_PRIORITY': SMB_PRIORITY,
+        'WAITING_PRIORITY': WAITING_PRIORITY,
     })
 
     await users_mock.add_stub(
@@ -83,74 +91,177 @@ async def test_team_priorities(
 
     # act & assert
 
-    # создать операторов и команды(TODO переделать через ручку)
-    await pg.execute_scripts(teams_fixture)
-
-    # создать спаршеные обьявления(TODO переделать через консьюмер)
+    # создать спаршеные обьявления
     await pg.execute_scripts(parsed_offers_for_teams)
-    # await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
 
+    # создать команды, операторов и настройки
+    await prepare_teams(http=http, pg=pg, operator_id=operator_id)
+
+    # создать задания для прозвона
+    await assert_offers_creation(runner=runner, pg=pg, cian_user_id=cian_user_id)
+
+    # взять задания в работу
+    await assert_offers_updating(pg=pg, http=http, operator_id=operator_id)
+
+
+async def prepare_teams(*, http, pg, operator_id):
+    # создать несколько операторов(по 1 оператору на каждую команду)
+    teams_amount = 5
+    for i in range(teams_amount):
+        await http.request(
+            'POST',
+            '/api/admin/v1/create-operator-public/',
+            json={
+                'operatorId': str(i),
+                'fullName': f'Оператор №{i+1}',
+                'teamId': str(i),
+            },
+            headers={
+                'X-Real-UserId': operator_id
+            },
+            expected_status=200
+        )
+
+    # создать несколько команд через ручку
+    # (если делать через pg.execute то придется руками прописывать большое количество дефолтных параметров)
+    for i in range(teams_amount):
+        await http.request(
+            'POST',
+            '/api/admin/v1/create-team-public/',
+            json={
+                'teamName': f'Команда №{i+1}',
+                'leadId': str(i),
+            },
+            headers={
+                'X-Real-UserId': operator_id
+            },
+            expected_status=200
+        )
+
+    # проставить разные настройки разным командам
+    await update_team_settings(team_id=1, key='regions', value='[4580]', pg=pg)
+    await update_team_settings(team_id=2, key='segments', value='["d"]', pg=pg)
+    await update_team_settings(team_id=3, key='categories', value='["officeRent"]', pg=pg)
+    await update_team_settings(team_id=4, key='flat_priority', value='3', pg=pg)
+    await update_team_settings(team_id=4, key='suburban_priority', value='2', pg=pg)
+    await update_team_settings(team_id=4, key='commercial_priority', value='1', pg=pg)
+    await update_team_settings(team_id=5, key='sale_priority', value='2', pg=pg)
+    await update_team_settings(team_id=5, key='rent_priority', value='1', pg=pg)
+
+
+async def assert_offers_creation(*, runner, pg, cian_user_id):
     # создать задания из спаршеных обьявлений(через крон)
     await runner.run_python_command('create-offers-for-call')
-    clients = await pg.fetch("""select * from clients""")
-    ofc = await pg.fetch("""select * from offers_for_call""")
-    # _print(ofc, table='ofc')
-    # _print(clients, table='clients')
+
     # проверить что задания создаются
-    assert len(ofc) == 6
+    ofc = await pg.fetch("""select * from offers_for_call""")
+    assert len(ofc) == 8
+
     # проверить что клиенты создаются
-    assert len(clients) == 3
-    # проверить что проставились правильные приоритеты
-    offer_row = await pg.fetchrow(
-        """
-        SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
-        """
-    )
-    client_row = await pg.fetchrow(
-        """
-        SELECT * FROM clients WHERE client_id = $1
-        """,
-        [offer_row['client_id']]
-    )
-    assert client_row['cian_user_id'] == cian_user_id
+    clients = await pg.fetch("""select * from clients""")
+    assert len(clients) == 4
+
     assert clients[0]['status'] == 'waiting'
     assert clients[1]['status'] == 'waiting'
     assert clients[2]['status'] == 'waiting'
-    assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 231120211
-    assert ofc[0]['priority'] == 231120211
-    assert ofc[1]['priority'] == 231120211
-    assert ofc[2]['priority'] == 231120211
-    assert ofc[3]['priority'] == 231120211
-    assert ofc[4]['priority'] == 231115223
-    assert ofc[5]['priority'] == 231115211
-    # TODO: https://jira.cian.tech/browse/CD-116915/
-    # проверить разные приритеты команд
-    assert json.loads(ofc[0]['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    assert clients[3]['status'] == 'waiting'
+    rows = await pg.fetch('select status from offers_for_call')
+    statuses = [row['status'] for row in rows]
+    assert len(set(statuses)) == 1
+    assert statuses[0] == 'waiting'
+
+    ofc1 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'894ff03a-573c-4bac-8599-28f17e68a0d8\''
+    )
+    ofc2 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'1d6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc3 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'2d6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc4 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'3d6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc5 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'996c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc6 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'7b6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc7 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'126c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc8 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'2e6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc9 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'3e6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc10 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'4e6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc11 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'575ff03a-573c-4bac-8599-28f17e68a0d8\''
+    )
+    ofc12 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'9d6c73b8-3057-47cc-b50a-419052da619f\''
+    )
+    ofc13 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'821ff03a-573c-4bac-8599-28f17e68a0d8\''
+    )
+
+    # задание не создалось изза is_calltracking==True
+    assert ofc6 is None
+    # задание не создалось изза synced==True
+    assert ofc7 is None
+    # задание не создалось изза "phones": null
+    assert ofc8 is None
+    # задание не создалось изза "phones": [""]
+    assert ofc9 is None
+    # задание не создалось изза "phones": []
+    assert ofc10 is None
+
+    assert ofc1['priority'] == 231115211
+    assert ofc2['priority'] == 231120211
+    assert ofc3['priority'] == 231120211
+    assert ofc4['priority'] == 231120211
+    assert ofc5['priority'] == 231120211
+    assert ofc11['priority'] == _CLEAR_PRIORITY
+    assert ofc12['priority'] == 231120212
+    assert ofc13['priority'] == 231115223
+    assert json.loads(ofc1['team_priorities']) == {
+        '1': -1, '2': 231115211, '3': 231115211, '4': 231115213, '5': 231115221
     }
-    assert json.loads(ofc[1]['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    assert json.loads(ofc2['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
-    assert json.loads(ofc[2]['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    assert json.loads(ofc3['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
-    assert json.loads(ofc[3]['team_priorities']) == {
-        '1': 231120211, '2': 231120211, '3': 231120211, '4': 231120211, '5': 231120211
+    assert json.loads(ofc4['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
-    assert json.loads(ofc[4]['team_priorities']) == {
-        '1': 231115223, '2': 231115223, '3': 231115223, '4': 231115223, '5': 231115223
+    assert json.loads(ofc5['team_priorities']) == {
+        '1': 231120211, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
     }
-    assert json.loads(ofc[5]['team_priorities']) == {
-        '1': 231115211, '2': 231115211, '3': 231115211, '4': 231115211, '5': 231115211
+    assert json.loads(ofc11['team_priorities']) == {
+        '1': -1, '2': -1, '3': -1, '4': -1, '5': -1
+    }
+    assert json.loads(ofc12['team_priorities']) == {
+        '1': 231120212, '2': 231120212, '3': -1, '4': 231120212, '5': 231120222
+    }
+    assert json.loads(ofc13['team_priorities']) == {
+        '1': -1, '2': 231115223, '3': 231115223, '4': 231115221, '5': 231115213
     }
 
+
+async def assert_offers_updating(*, pg, http, operator_id):
     # взять клиента и задания в работу
-    operator_id = 73478905
+    team_id = 1
     operator_team_id = await pg.fetchval("""
         SELECT team_id FROM operators WHERE operator_id=$1;
     """, [str(operator_id)])
-    assert operator_team_id
+    assert operator_team_id == team_id
     resp = await http.request(
         'POST',
         '/api/admin/v1/update-offers-list/',
@@ -161,22 +272,104 @@ async def test_team_priorities(
         expected_status=200
     )
     clients = await pg.fetch("""select * from clients""")
-    ofc = await pg.fetch("""select * from offers_for_call""")
-    # _print(ofc, table='ofc')
-    # _print(clients, table='clients')
+    client = clients[3]
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
     assert resp.data['errors'] == []
     assert resp.data['success']
-    assert len(ofc) == 6
-    assert len(clients) == 3
     assert clients[0]['status'] == 'waiting'
     assert clients[1]['status'] == 'waiting'
-    assert clients[2]['status'] == 'inProgress'
+    assert clients[2]['status'] == 'waiting'
     assert clients[0]['team_id'] is None
     assert clients[1]['team_id'] is None
-    assert clients[2]['team_id'] == operator_team_id
-    assert ofc[0]['status'] == 'waiting'
-    assert ofc[1]['status'] == 'waiting'
-    assert ofc[2]['status'] == 'waiting'
-    assert ofc[3]['status'] == 'waiting'
-    assert ofc[4]['status'] == 'inProgress'
-    assert ofc[5]['status'] == 'inProgress'
+    assert clients[2]['team_id'] is None
+    assert client['status'] == 'inProgress'
+    assert client['team_id'] == team_id
+    assert ofc['status'] == 'inProgress'
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    # отправить в перезвон
+    dt = datetime.now(pytz.utc) - timedelta(days=4)
+    call_later_datetime = dt.isoformat()
+
+    _call_later_status_response = await _set_call_later_status_for_client(
+        http=http,
+        operator_id=operator_id,
+        client_id=client['client_id'],
+        call_later_datetime=call_later_datetime,
+    )
+    assert _call_later_status_response['success'] is True
+    assert _call_later_status_response['errors'] == []
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    client = await pg.fetchrow("""
+        select * from clients where client_id=$1
+    """, [client['client_id']])
+    assert client['operator_user_id'] == operator_id
+    assert client['status'] == 'callLater'
+    assert client['next_call'].date() == dt.date()
+    assert ofc['status'] == 'callLater'
+    # взять в работу
+    resp = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        json={},
+        expected_status=200
+    )
+    resp = json.loads(resp.body.decode('utf-8'))
+    assert resp['success'] is True
+    assert resp['errors'] == []
+    ofc = await pg.fetchrow("""
+        select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    client = await pg.fetchrow("""
+        select * from clients where client_id=$1
+    """, [client['client_id']])
+    assert client['status'] == 'inProgress'
+    assert client['team_id'] == team_id
+    assert ofc['status'] == 'inProgress'
+    assert ofc['priority'] == 231120211
+    new_priority = 100000
+    assert json.loads(ofc['team_priorities']) == {
+        '1': new_priority, '2': 231120211, '3': -1, '4': 231120213, '5': 231120221
+    }
+
+
+async def update_team_settings(*, key, value, team_id, pg):
+    await pg.execute(f"""
+    UPDATE teams SET settings = jsonb_set(
+        coalesce(settings, '{{}}'),
+        '{{{key}}}',
+        '{value}'
+    )
+    WHERE team_id = {team_id};
+    """)
+
+
+async def _set_call_later_status_for_client(
+    *,
+    http,
+    operator_id,
+    client_id,
+    call_later_datetime,
+):
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/call-later-client/',
+        headers={
+            'X-Real-UserId': operator_id
+        },
+        json={
+            'clientId': client_id,
+            'callLaterDatetime': call_later_datetime,
+        },
+        expected_status=200
+    )
+    response = json.loads(response.body.decode('utf-8'))
+    return response

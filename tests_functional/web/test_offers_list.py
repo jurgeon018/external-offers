@@ -456,54 +456,6 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
     assert event_log[0]['status'] == 'inProgress'
 
 
-async def test_update_offers_list__commercial_operator_without_client__returns_success(
-        pg,
-        http,
-        offers_and_clients_fixture,
-        users_mock,
-):
-    # arrange
-    await users_mock.add_stub(
-        method='GET',
-        path='/v1/get-user-roles/',
-        response=MockResponse(
-            body={
-                'roles': [{'id': 1, 'name': 'CommercialPrepublicationModerator'}]
-            }
-        ),
-    )
-
-    await pg.execute_scripts(offers_and_clients_fixture)
-    operator_without_offers_in_progress = 60024636
-
-    # act
-    resp = await http.request(
-        'POST',
-        '/api/admin/v1/update-offers-list/',
-        headers={
-            'X-Real-UserId': operator_without_offers_in_progress
-        },
-        expected_status=200,
-        json={'isTest': False}
-    )
-
-    # assert
-    assert resp.data['success']
-    assert not resp.data['errors']
-
-    clients = await pg.fetch(
-        'SELECT * FROM clients WHERE operator_user_id=$1',
-        [
-            operator_without_offers_in_progress
-        ]
-    )
-    assert clients
-
-    client = clients[0]
-    assert client['client_email'] == 'commercial-alex@gmail.com'
-    assert client['operator_user_id'] == operator_without_offers_in_progress
-
-
 @pytest.mark.parametrize(
     ['method_name', 'expected_status_for_in_progress'],
     [
@@ -620,6 +572,86 @@ async def test_call_missed_client__operator_and_in_progress__next_call_and_call_
     assert row_client['status'] == 'callMissed'
     assert row_offer['status'] == 'callMissed'
     assert row_offer['priority'] == expected_priority
+    assert expected_next_call_left_border <= row_client['next_call'] < expected_next_call_right_border
+
+
+async def test_call_missed_client__operator_and_in_progress__next_call_and_call_missed_team_priority_set(
+        pg,
+        http,
+        runtime_settings,
+        offers_and_clients_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    operator = 60024635
+    operator_client = '1'
+    expected_priority = 200000
+
+    expected_next_call = datetime.now(pytz.utc) + timedelta(days=1)
+    expected_next_call_left_border = expected_next_call - timedelta(minutes=1)
+    expected_next_call_right_border = expected_next_call + timedelta(minutes=1)
+
+    await runtime_settings.set({
+        'CALL_MISSED_PRIORITY': 2
+    })
+
+    # act
+    await http.request(
+        'POST',
+        '/api/admin/v1/create-operator-public/',
+        json={
+            'operatorId': str(operator),
+            'fullName': 'Оператор №1',
+            'teamId': '1',
+        },
+        headers={
+            'X-Real-UserId': operator
+        },
+        expected_status=200
+    )
+    await http.request(
+        'POST',
+        '/api/admin/v1/create-team-public/',
+        json={
+            'teamName': 'Команда №1',
+            'leadId': str(operator),
+        },
+        headers={
+            'X-Real-UserId': operator
+        },
+        expected_status=200
+    )
+    await http.request(
+        'POST',
+        '/api/admin/v1/call-missed-client/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={
+            'clientId': operator_client
+        },
+        expected_status=200
+    )
+
+    # assert
+    row_client = await pg.fetchrow(
+        'SELECT * FROM clients WHERE client_id=$1',
+        [
+            operator_client
+        ]
+    )
+
+    row_offer = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE client_id=$1',
+        [
+            operator_client
+        ]
+    )
+
+    assert row_client['operator_user_id'] == operator
+    assert row_client['status'] == 'callMissed'
+    assert row_offer['status'] == 'callMissed'
+    assert json.loads(row_offer['team_priorities'])['1'] == expected_priority
     assert expected_next_call_left_border <= row_client['next_call'] < expected_next_call_right_border
 
 

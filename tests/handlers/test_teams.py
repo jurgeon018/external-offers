@@ -5,7 +5,7 @@ from cian_test_utils import future
 @pytest.mark.gen_test
 async def test_teams_page_handler(mocker, http_client, base_url):
     user_id = '1'
-    current_operator = mocker.MagicMock()
+    current_operator = mocker.MagicMock(is_teamlead=True)
     operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
     mocker.patch(
@@ -18,7 +18,7 @@ async def test_teams_page_handler(mocker, http_client, base_url):
     )
     mocker.patch(
         'external_offers.web.handlers.admin.get_or_create_operator',
-        return_value=future(None),
+        return_value=future(current_operator),
     )
     mocker.patch(
         'external_offers.web.handlers.admin.get_enriched_operator_by_id',
@@ -60,7 +60,6 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     operator_id = '2'
     current_operator = mocker.MagicMock()
     operator = mocker.MagicMock()
-    operators = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
     mocker.patch(
         'external_offers.web.handlers.admin.get_enriched_operator_by_id',
@@ -72,10 +71,6 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     mocker.patch(
         'external_offers.services.operator_roles.get_enriched_operator_by_id',
         return_value=future(current_operator)
-    )
-    get_enriched_operators_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_enriched_operators',
-        return_value=future(operators)
     )
     get_teams_mock = mocker.patch(
         'external_offers.web.handlers.admin.get_teams',
@@ -95,7 +90,6 @@ async def test_operator_card_page_handler(mocker, http_client, base_url):
     )
 
     # assert
-    get_enriched_operators_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
 
 
@@ -105,10 +99,11 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     team_id = 2
     current_operator = mocker.MagicMock()
     team = mocker.MagicMock()
-    operators = mocker.MagicMock(value=[])
+    teamleads = mocker.MagicMock(value=[])
     teams = mocker.MagicMock(value=[])
     team_settings = mocker.MagicMock(value=[])
     categories = mocker.MagicMock(value=[])
+    commercial_categories = mocker.MagicMock(value=[])
     regions = mocker.MagicMock(value=[])
     segments = mocker.MagicMock(value=[])
     subsegments = mocker.MagicMock(value=[])
@@ -128,9 +123,9 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
         'external_offers.services.operator_roles.get_or_create_operator',
         return_value=future(current_operator)
     )
-    get_enriched_operators_mock = mocker.patch(
-        'external_offers.web.handlers.admin.get_enriched_operators',
-        return_value=future(operators)
+    get_enriched_teamleads_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_teamleads',
+        return_value=future(teamleads)
     )
     get_teams_mock = mocker.patch(
         'external_offers.web.handlers.admin.get_teams',
@@ -147,6 +142,10 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     mocker.patch(
         'external_offers.web.handlers.admin._get_categories',
         return_value=categories,
+    )
+    mocker.patch(
+        'external_offers.web.handlers.admin._get_commercial_categories',
+        return_value=commercial_categories,
     )
     mocker.patch(
         'external_offers.web.handlers.admin._get_regions',
@@ -170,7 +169,7 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
     )
     # assert
     get_team_by_id_mock.assert_called_once_with(team_id=team_id)
-    get_enriched_operators_mock.assert_called_once_with()
+    get_enriched_teamleads_mock.assert_called_once_with()
     get_teams_mock.assert_called_once_with()
     get_team_card_html_mock.assert_has_calls(
         [
@@ -178,12 +177,14 @@ async def test_team_card_page_handler(mocker, http_client, base_url):
                 current_operator=current_operator,
                 team_settings=team_settings,
                 team=team,
-                operators=operators,
+                teamleads=teamleads,
                 teams=teams,
                 categories=categories,
+                commercial_categories=commercial_categories,
                 regions=regions,
                 segments=segments,
                 subsegments=subsegments,
+                operator_is_tester=False,
             )
         ]
     )
