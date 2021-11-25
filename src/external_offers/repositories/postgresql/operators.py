@@ -68,6 +68,9 @@ async def get_enriched_operator_by_id(operator_id: Union[str, int]) -> Optional[
 async def create_operator(
     *,
     operator_id: Union[int, str],
+    full_name: Optional[str] = None,
+    team_id: Optional[int] = None,
+    email: Optional[str] = None,
     is_teamlead: bool = False,
 ) -> None:
     now = datetime.now(tz=pytz.utc)
@@ -76,6 +79,9 @@ async def create_operator(
             operators
         ).values(
             operator_id=str(operator_id),
+            full_name=full_name,
+            team_id=team_id,
+            email=email,
             is_teamlead=is_teamlead,
             created_at=now,
             updated_at=now,

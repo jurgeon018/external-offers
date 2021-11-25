@@ -24,12 +24,13 @@ async def create_operator_public(request: CreateOperatorRequest, user_id: int) -
             operator_id=request.operator_id,
             is_teamlead=False,
         )
+        error = False
         error = await update_operators()
-        message = 'Оператор был успешно создан.'
-        success = True
         if error:
-            success = False
             message = f'Во время обновления списка пользователей произошла ошибка: {error}'
+        else:
+            message = 'Оператор был успешно создан.'
+            success = True
     except ApiClientException as e:
         message = f'Во время создания оператора произошла ошибка: {e}'
     except UniqueViolationError as e:

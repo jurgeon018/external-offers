@@ -2,15 +2,74 @@ import json
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 import pytest
+from sqlalchemy.sql.operators import op
 
 
-async def test_operators(pg, http):
+async def test_operators(pg, http, users_mock):
     # arrange
-    operator_id = '123'
+    operator_id = '3'
     name = 'operator'
     team_id = 5
     new_name = 'new operator'
     new_team_id = 6
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/add-role-to-user/',
+        response=MockResponse(
+            body=None
+        ),
+    )
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/remove-role-from-user/',
+        response=MockResponse(
+            body=None
+        ),
+    )
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-userids-by-rolename/',
+        response=MockResponse(
+            body={
+                'userIds': [1, 2, 3, 4],
+            }
+        ),
+    )
+    await users_mock.add_stub(
+        method='POST',
+        path='/v1/get-users/',
+        response=MockResponse(
+            body={
+                'users': [
+                    {
+                        'user_name': 'Юзер1',
+                        'email': 'email1@cian.ru',
+                    },
+                    {
+                        'id': '2',
+                        'user_name': 'Юзер2',
+                        'email': 'email2@cian.ru',
+                    },
+                    {
+                        'id': '3',
+                        'first_name': 'Юзер',
+                        'last_name': '3',
+                        'email': 'email3@cian.ru',
+                    },
+                    {
+                        'id': '4',
+                    },
+                ],
+            }
+        ),
+    )
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/user-has-role/',
+        response=MockResponse(
+            body=True,
+        ),
+    )
     # act
     # create
     create_response = await http.request(
@@ -18,8 +77,6 @@ async def test_operators(pg, http):
         '/api/admin/v1/create-operator-public/',
         json={
             'operatorId': operator_id,
-            'fullName': name,
-            'teamId': team_id,
         },
         headers={
             'X-Real-UserId': 1
@@ -28,6 +85,7 @@ async def test_operators(pg, http):
     )
     create_response = json.loads(create_response.body.decode('utf-8'))
     operators_after_creation = await pg.fetch('SELECT * FROM operators')
+    operator_after_creation = await pg.fetchrow('SELECT * FROM operators where operator_id=$1', [operator_id])
     # update
     update_response = await http.request(
         'POST',
@@ -44,6 +102,8 @@ async def test_operators(pg, http):
     )
     update_response = json.loads(update_response.body.decode('utf-8'))
     operators_after_update = await pg.fetch('SELECT * FROM operators')
+    operator_after_update = await pg.fetchrow('SELECT * FROM operators WHERE operator_id=$1', [operator_id])
+
     # delete
     delete_response = await http.request(
         'POST',
@@ -62,21 +122,21 @@ async def test_operators(pg, http):
     # create
     assert create_response['message'] == 'Оператор был успешно создан.'
     assert create_response['success'] is True
-    assert len(operators_after_creation) == 1
-    assert operators_after_creation[0]['operator_id'] == operator_id
-    assert operators_after_creation[0]['full_name'] == name
-    assert operators_after_creation[0]['team_id'] == team_id
+    assert len(operators_after_creation) == 3
+    assert operator_after_creation['operator_id'] == operator_id
+    assert operator_after_creation['full_name'] == 'Юзер 3'
+    assert operator_after_creation['team_id'] == None
     # update
     assert update_response['message'] == 'Информация про оператора была успешно обновлена.'
     assert update_response['success'] is True
-    assert len(operators_after_update) == 1
-    assert operators_after_update[0]['operator_id'] == operator_id
-    assert operators_after_update[0]['full_name'] == new_name
-    assert operators_after_update[0]['team_id'] == new_team_id
+    assert len(operators_after_update) == 3
+    assert operator_after_update['operator_id'] == operator_id
+    assert operator_after_update['full_name'] == new_name
+    assert operator_after_update['team_id'] == new_team_id
     # delete
     assert delete_response['message'] == 'Оператор был успешно удален.'
     assert delete_response['success'] is True
-    assert len(operators_after_deletion) == 0
+    assert len(operators_after_deletion) == 2
 
 
 @pytest.mark.html
