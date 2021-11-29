@@ -20,9 +20,7 @@ from external_offers.repositories.postgresql import (
     get_offer_by_offer_id,
     get_parsed_offer_object_model_by_offer_id,
 )
-from external_offers.repositories.postgresql.offers import (
-    get_offer_comment_by_offer_id,
-)
+from external_offers.repositories.postgresql.offers import get_offer_comment_by_offer_id
 from external_offers.repositories.postgresql.operators import (
     get_enriched_operator_by_id,
     get_enriched_operators,

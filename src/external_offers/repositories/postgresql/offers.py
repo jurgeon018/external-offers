@@ -962,6 +962,5 @@ async def get_offer_comment_by_offer_id(offer_id: str) -> Optional[str]:
             offers_for_call.c.id == offer_id
         ).limit(1)
     )
-    comment = await pg.get().fetchval(query, *params) 
+    comment = await pg.get().fetchval(query, *params)
     return comment
-
