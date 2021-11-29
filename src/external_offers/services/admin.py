@@ -46,7 +46,8 @@ from external_offers.repositories.postgresql import (
     set_offers_promo_given_by_client,
 )
 from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id
-from external_offers.repositories.postgresql.operators import get_operator_team_id
+from external_offers.repositories.postgresql.operators import get_operator_by_id, get_operator_team_id
+from external_offers.repositories.postgresql.teams import get_team_by_id
 from external_offers.services.operator_roles import get_operator_roles
 from external_offers.utils import get_next_call_date_when_call_missed
 
@@ -399,9 +400,18 @@ async def set_call_missed_status_for_client(
             client_id=client_id,
             next_call=next_call
         )
-
+        team_settings = {}
+        team_id = None
+        operator = await get_operator_by_id(user_id)
+        if operator:
+            team = await get_team_by_id(operator.team_id)
+            if team:
+                team_settings = team.get_settings()
+                team_id = team.team_id
         if offers_ids := await set_offers_call_missed_by_client(
-            client_id=client_id
+            client_id=client_id,
+            team_settings=team_settings,
+            team_id=team_id,
         ):
             offer = await get_offer_by_offer_id(offer_id=offers_ids[0])
             await save_event_log_for_offers(
@@ -445,8 +455,19 @@ async def set_call_later_status_for_client(
             client_id=client_id,
             next_call=call_later_datetime
         )
+        team_settings = {}
+        team_id = None
+        operator = await get_operator_by_id(user_id)
+
+        if operator:
+            team = await get_team_by_id(operator.team_id)
+            if team:
+                team_settings = team.get_settings()
+                team_id = team.team_id
         if offers_ids := await set_offers_call_later_by_client(
-            client_id=client_id
+            client_id=client_id,
+            team_settings=team_settings,
+            team_id=team_id,
         ):
             offer = await get_offer_by_offer_id(offer_id=offers_ids[0])
             client = await get_client_by_client_id(client_id=request.client_id)

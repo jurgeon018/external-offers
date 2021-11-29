@@ -289,7 +289,6 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
     await set_waiting_offers_priority_by_offer_ids(
         offer_ids=[offer.id],
         priority=get_attr(obj, 'offer_priority'),
-        team_id=None,
     )
     return CreateTestOfferResponse(
         success=True,
