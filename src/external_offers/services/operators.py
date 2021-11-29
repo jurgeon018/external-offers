@@ -24,9 +24,7 @@ async def create_operator_public(request: CreateOperatorRequest, user_id: int) -
             operator_id=request.operator_id,
             is_teamlead=False,
         )
-        error = False
-        error = await update_operators()
-        if error:
+        if error := await update_operators():
             message = f'Во время обновления списка пользователей произошла ошибка: {error}'
         else:
             message = 'Оператор был успешно создан.'
@@ -47,8 +45,7 @@ async def update_operators_public(request: UpdateOperatorsRequest, user_id: int)
     """Обновить список пользователей"""
     success = True
     message = 'Список пользователей был успешно обновлен.'
-    error = await update_operators()
-    if error:
+    if error := await update_operators():
         success = False
         message = f'Во время обновления списка пользователей произошла ошибка: {error}'
     return BasicResponse(success=success, message=message)
