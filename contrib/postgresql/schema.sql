@@ -51,6 +51,7 @@ CREATE TABLE offers_for_call
     team_priorities jsonb,
     category      varchar,
     last_call_id  varchar,
+    comment       varchar,
     row_version         bigint                   not null default 0,
     synced_with_kafka   boolean                  not null default false,
     synced_with_grafana boolean                  not null default false,
