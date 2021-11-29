@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import AsyncGenerator, List, Optional, Union
 
 import asyncpgsa
 import pytz
@@ -134,3 +134,30 @@ async def get_operator_team_id(operator_id: int) -> Optional[int]:
     )
     operator_team_id = await pg.get().fetchval(query, *params)
     return int(operator_team_id) if operator_team_id else None
+
+
+async def iterate_over_operators_sorted(
+    *,
+    prefetch=settings.DEFAULT_PREFETCH,
+) -> AsyncGenerator[Operator, None]:
+    operators = operators.alias()
+    query, params = asyncpgsa.compile_query(
+        select(
+            [operators]
+        ).where(
+            and_(
+                operators.c.is_test == false(),
+                operators.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
+            )
+        ).order_by(
+            operators.c.created_at.asc(),
+            operators.c.id.asc()
+        )
+    )
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield operators_mapper.map_from(row)

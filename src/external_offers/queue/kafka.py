@@ -7,6 +7,10 @@ from external_offers.entities.kafka import (
     DraftAnnouncementsKafkaMessage,
     OfferForCallKafkaMessage,
     ParsedOfferKafkaMessage,
+    ClientsKafkaMessage,
+    EventLogsKafkaMessage,
+    OperatorsKafkaMessage,
+    TeamsKafkaMessage,
 )
 
 
@@ -28,4 +32,24 @@ offers_for_call_change_producer: EntityKafkaProducer[OfferForCallKafkaMessage] =
 parsed_offers_change_producer: EntityKafkaProducer[ParsedOfferKafkaMessage] = get_kafka_entity_producer(
     topic='parsed-offers.change',
     message_type=ParsedOfferKafkaMessage,
+)
+
+clients_change_producer: EntityKafkaProducer[ClientsKafkaMessage] = get_kafka_entity_producer(
+    topic='clients.change',
+    message_type=ClientsKafkaMessage,
+)
+
+event_logs_change_producer: EntityKafkaProducer[EventLogsKafkaMessage] = get_kafka_entity_producer(
+    topic='event_logs.change',
+    message_type=EventLogsKafkaMessage,
+)
+
+operators_change_producer: EntityKafkaProducer[OperatorsKafkaMessage] = get_kafka_entity_producer(
+    topic='operators.change',
+    message_type=OperatorsKafkaMessage,
+)
+
+teams_change_producer: EntityKafkaProducer[TeamsKafkaMessage] = get_kafka_entity_producer(
+    topic='teams.change',
+    message_type=TeamsKafkaMessage,
 )
