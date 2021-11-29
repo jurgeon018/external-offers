@@ -109,7 +109,11 @@ async def prepare_teams(*, http, pg, operator_id):
     teams_amount = 5
     for i in range(teams_amount):
         await pg.execute("""
-        INSERT INTO operators (operator_id, full_name, team_id, is_teamlead, created_at, updated_at) VALUES ($1, $2, $3, 't', 'now()', 'now()')
+        INSERT INTO operators (
+            operator_id, full_name, team_id, is_teamlead, created_at, updated_at
+        ) VALUES (
+            $1, $2, $3, 't', 'now()', 'now()'
+        )
         """, [str(i), f'Оператор №{i+1}', i])
 
     # создать несколько команд через ручку

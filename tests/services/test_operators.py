@@ -1,11 +1,11 @@
 import json
-from cian_http.api_client import Api
-from cian_http.exceptions import ApiClientException
 
 import pytest
 from asyncpg.exceptions import PostgresError, UniqueViolationError
+from cian_http.exceptions import ApiClientException
 from cian_test_utils import future
-from external_offers.services.operator_roles import update_operators, get_users_by_role, GetUserIdsByRoleNameResponse
+
+from external_offers.services.operator_roles import GetUserIdsByRoleNameResponse, get_users_by_role, update_operators
 
 
 # test_create_operator
@@ -26,7 +26,7 @@ async def test_create_operator__success_is_true(http_client, base_url, mocker):
         'external_offers.services.operators.update_operators',
         return_value=future(None),
     )
-    
+
     # act
     result = await http_client.fetch(
         base_url+'/api/admin/v1/create-operator-public/',
@@ -265,7 +265,7 @@ async def test_create_operator_public__error_while_updating(mocker, http_client,
     body = json.loads(result.body)
 
     assert body['message'] == f'Во время обновления списка пользователей произошла ошибка: {error}'
-    assert body['success'] is False 
+    assert body['success'] is False
 
 
 @pytest.mark.gen_test
@@ -287,7 +287,7 @@ async def test_update_operators_public__error_while_updating(base_url, http_clie
     )
     body = json.loads(result.body)
     assert body['message'] == f'Во время обновления списка пользователей произошла ошибка: {error}'
-    assert body['success'] is False 
+    assert body['success'] is False
 
 
 @pytest.mark.gen_test
@@ -309,4 +309,4 @@ async def test_delete_operator_public__error_while_removing_role(http_client, ba
     )
     body = json.loads(result.body)
     assert body['message'] == f'Во время удаления роли оператора произошла ошибка: {error}'
-    assert body['success'] is False 
+    assert body['success'] is False

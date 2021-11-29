@@ -8,12 +8,12 @@ from external_offers.entities.operators import (
     UpdateOperatorsRequest,
 )
 from external_offers.entities.response import BasicResponse
-from external_offers.services.operator_roles import add_operator_role_to_user, update_operators, remove_operator_role
 from external_offers.repositories.postgresql.operators import (
     create_operator,
     delete_operator_by_id,
     update_operator_by_id,
 )
+from external_offers.services.operator_roles import add_operator_role_to_user, remove_operator_role, update_operators
 
 
 async def create_operator_public(request: CreateOperatorRequest, user_id: int) -> BasicResponse:

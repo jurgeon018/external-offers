@@ -597,7 +597,11 @@ async def test_call_missed_client__operator_and_in_progress__next_call_and_call_
 
     # act
     await pg.execute("""
-    INSERT INTO operators (operator_id, full_name, team_id, is_teamlead, created_at, updated_at) VALUES ($1, $2, $3, 't', 'now()', 'now()')
+    INSERT INTO operators (
+        operator_id, full_name, team_id, is_teamlead, created_at, updated_at
+    ) VALUES (
+        $1, $2, $3, 't', 'now()', 'now()'
+    )
     """, [str(operator), 'Оператор №1', 1])
 
     await http.request(

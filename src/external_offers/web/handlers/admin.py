@@ -28,11 +28,7 @@ from external_offers.repositories.postgresql.operators import (
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
-from external_offers.services.operator_roles import (
-    update_operators,
-    get_operator_roles,
-    get_or_create_operator,
-)
+from external_offers.services.operator_roles import get_operator_roles, get_or_create_operator, update_operators
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (
     get_offer_card_html,
@@ -63,8 +59,7 @@ class AdminOffersListPageHandler(PublicHandler):
             minute=settings.NEXT_CALL_MINUTES,
             second=settings.NEXT_CALL_SECONDS
         )
-        # operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
-        operator_roles =[]
+        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(

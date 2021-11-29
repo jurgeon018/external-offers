@@ -1,5 +1,4 @@
 from typing import List, NoReturn, Optional, Union
-from typing_extensions import runtime
 
 import backoff
 from cian_core.degradation import DegradationResult, get_degradation_handler
@@ -13,19 +12,19 @@ from external_offers.repositories.postgresql.operators import (
     get_enriched_operator_by_id,
     update_operator_by_id,
 )
-from external_offers.repositories.users import v1_get_user_roles, v1_remove_role_from_user, v1_add_role_to_user
+from external_offers.repositories.users import v1_add_role_to_user, v1_get_user_roles, v1_remove_role_from_user
 from external_offers.repositories.users._repo import v1_get_userids_by_rolename, v1_get_users, v1_user_has_role
 from external_offers.repositories.users.entities import (
+    AddRoleToUserRequest,
     GetUserIdsByRoleNameResponse,
     GetUserRolesResponse,
     GetUsersResponse,
+    RemoveRoleFromUserRequest,
     UserIdsRequest,
     UserModel,
     V1GetUserRoles,
     V1GetUseridsByRolename,
     V1UserHasRole,
-    RemoveRoleFromUserRequest,
-    AddRoleToUserRequest,
 )
 
 
@@ -152,7 +151,7 @@ async def add_operator_role_to_user(operator_id: str) -> None:
     await v1_add_role_to_user(
         AddRoleToUserRequest(
             user_id=int(operator_id),
-            role_name=runtime_settings.ADMIN_OPERATOR_ROLE,            
+            role_name=runtime_settings.ADMIN_OPERATOR_ROLE,
         )
     )
 

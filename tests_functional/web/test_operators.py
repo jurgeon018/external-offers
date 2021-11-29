@@ -1,15 +1,12 @@
 import json
-from cian_functional_test_utils.pytest_plugin import MockResponse
 
 import pytest
-from sqlalchemy.sql.operators import op
+from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
 async def test_operators(pg, http, users_mock):
     # arrange
     operator_id = '3'
-    name = 'operator'
-    team_id = 5
     new_name = 'new operator'
     new_team_id = 6
     await users_mock.add_stub(
@@ -125,7 +122,7 @@ async def test_operators(pg, http, users_mock):
     assert len(operators_after_creation) == 3
     assert operator_after_creation['operator_id'] == operator_id
     assert operator_after_creation['full_name'] == 'Юзер 3'
-    assert operator_after_creation['team_id'] == None
+    assert operator_after_creation['team_id'] is None
     # update
     assert update_response['message'] == 'Информация про оператора была успешно обновлена.'
     assert update_response['success'] is True
@@ -247,17 +244,17 @@ async def test_update_operators_public(
     assert response['success'] is True
     assert len(operators) == 3
 
-    assert operators[0]['operator_id'] ==  '2'
-    assert operators[0]['email'] ==  'email2@cian.ru'
+    assert operators[0]['operator_id'] == '2'
+    assert operators[0]['email'] == 'email2@cian.ru'
     assert operators[0]['full_name'] == 'Юзер2'
     assert operators[0]['is_teamlead'] is True
 
-    assert operators[1]['operator_id'] ==  '3'
-    assert operators[1]['email'] ==  'email3@cian.ru'
-    assert operators[1]['full_name'] ==  'Юзер 3'
+    assert operators[1]['operator_id'] == '3'
+    assert operators[1]['email'] == 'email3@cian.ru'
+    assert operators[1]['full_name'] == 'Юзер 3'
     assert operators[1]['is_teamlead'] is True
 
-    assert operators[2]['operator_id'] ==  '4'
-    assert operators[2]['email']  is None
-    assert operators[2]['full_name']  is None
-    assert operators[2]['is_teamlead']  is True
+    assert operators[2]['operator_id'] == '4'
+    assert operators[2]['email'] is None
+    assert operators[2]['full_name'] is None
+    assert operators[2]['is_teamlead'] is True
