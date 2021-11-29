@@ -33,7 +33,7 @@ async def send_clients_to_kafka():
                     timeout=settings.DEFAULT_KAFKA_TIMEOUT
                 )
             except KafkaProducerError:
-                logger.warning('Не удалось отправить событие для клиента %s', client.id)
+                logger.warning('Не удалось отправить событие для клиента %s', client.client_id)
                 statsd.incr(
                     stat='send-clients-to-kafka.failed',
                 )

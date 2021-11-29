@@ -10,7 +10,7 @@ from simple_settings import settings
 from external_offers import pg
 from external_offers.entities.kafka import TeamKafkaMessage
 from external_offers.queue.kafka import teams_change_producer
-from external_offers.repositories.postgresql import iterate_over_teams_sorted
+from external_offers.repositories.postgresql.teams import iterate_over_teams_sorted
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ async def send_teams_to_kafka():
                     timeout=settings.DEFAULT_KAFKA_TIMEOUT
                 )
             except KafkaProducerError:
-                logger.warning('Не удалось отправить событие для команды %s', team.id)
+                logger.warning('Не удалось отправить событие для команды %s', team.team_id)
                 statsd.incr(
                     stat='send-teams-to-kafka.failed',
                 )

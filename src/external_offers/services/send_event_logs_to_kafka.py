@@ -10,7 +10,7 @@ from simple_settings import settings
 from external_offers import pg
 from external_offers.entities.kafka import EventLogKafkaMessage
 from external_offers.queue.kafka import event_logs_change_producer
-from external_offers.repositories.postgresql import iterate_over_event_logs_sorted
+from external_offers.repositories.postgresql.event_log import iterate_over_event_logs_sorted
 
 
 logger = logging.getLogger(__name__)

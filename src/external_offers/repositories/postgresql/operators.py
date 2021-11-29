@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import AsyncGenerator, List, Optional, Union
+from cian_core.runtime_settings import runtime_settings
 
 import asyncpgsa
 import pytz
@@ -138,20 +139,13 @@ async def get_operator_team_id(operator_id: int) -> Optional[int]:
 
 async def iterate_over_operators_sorted(
     *,
-    prefetch=settings.DEFAULT_PREFETCH,
+    prefetch=runtime_settings.DEFAULT_PREFETCH,
 ) -> AsyncGenerator[Operator, None]:
-    operators = operators.alias()
     query, params = asyncpgsa.compile_query(
         select(
             [operators]
-        ).where(
-            and_(
-                operators.c.is_test == false(),
-                operators.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
-            )
         ).order_by(
-            operators.c.created_at.asc(),
-            operators.c.id.asc()
+            operators.c.operator_id.asc()
         )
     )
     cursor = await pg.get().cursor(

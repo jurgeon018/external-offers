@@ -1,14 +1,16 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, AsyncGenerator
+from typing_extensions import runtime
 
 import asyncpgsa
+from cian_core.runtime_settings import runtime_settings
 import pytz
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import ClientStatus, OfferStatus
-from external_offers.entities.event_log import EnrichedEventLogEntry
+from external_offers.entities.event_log import EnrichedEventLogEntry, EventLogEntry
 from external_offers.mappers.event_log import enriched_event_log_entry_mapper
 from external_offers.repositories.postgresql.tables import clients, event_log, offers_for_call
 
@@ -123,3 +125,24 @@ async def get_enriched_event_log_entries_for_calls_kafka_sync(
 
     rows = await pg.get().fetch(query, *params)
     return [enriched_event_log_entry_mapper.map_from(row) for row in rows]
+
+
+async def iterate_over_event_logs_sorted(
+    *,
+    prefetch=runtime_settings.DEFAULT_PREFETCH
+) -> AsyncGenerator[EnrichedEventLogEntry, None]:
+    query, params = asyncpgsa.compile_query(
+        select([
+            event_log
+        ]).order_by(
+            event_log.c.created_at.asc(),
+            event_log.c.id.asc()
+        )
+    )
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield enriched_event_log_entry_mapper.map_from(row)

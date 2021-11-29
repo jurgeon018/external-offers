@@ -1,4 +1,5 @@
-from typing import Any, List, Optional
+from typing import Any, AsyncGenerator, List, Optional
+from cian_core.runtime_settings import runtime_settings
 
 import asyncpgsa
 from sqlalchemy.dialects.postgresql import insert
@@ -84,3 +85,23 @@ async def delete_team_by_id(team_id: int) -> None:
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def iterate_over_teams_sorted(
+    *,
+    prefetch=runtime_settings.DEFAULT_PREFETCH
+) -> AsyncGenerator[Team, None]:
+    query, params = asyncpgsa.compile_query(
+        select([
+            teams
+        ]).order_by(
+            teams.c.team_id.asc()
+        )
+    )
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield teams_mapper.map_from(row)

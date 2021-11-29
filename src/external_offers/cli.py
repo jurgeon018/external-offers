@@ -17,6 +17,10 @@ from external_offers.services.send_offers_and_clients_to_grafana import (
 )
 from external_offers.services.send_offers_for_call_to_kafka import send_offers_for_call_to_kafka
 from external_offers.services.send_parsed_offers_to_kafka import send_parsed_offers_to_kafka
+from external_offers.services.send_operators_to_kafka import send_operators_to_kafka
+from external_offers.services.send_teams_to_kafka import send_teams_to_kafka
+from external_offers.services.send_event_logs_to_kafka import send_event_logs_to_kafka
+from external_offers.services.send_clients_to_kafka import send_clients_to_kafka
 from external_offers.web.urls import urlpatterns
 
 
@@ -74,6 +78,30 @@ def send_parsed_offers_to_kafka_cron():
 def send_offers_for_call_to_kafka_cron():
     """ Отправить записи из таблицы offers_for_call в кафку """
     IOLoop.current().run_sync(send_offers_for_call_to_kafka)
+
+
+@cli.command()
+def send_operators_to_kafka_cron():
+    """ Отправить записи из таблицы operators в кафку """
+    IOLoop.current().run_sync(send_operators_to_kafka)
+
+
+@cli.command()
+def send_teams_to_kafka_cron():
+    """ Отправить записи из таблицы teams в кафку """
+    IOLoop.current().run_sync(send_teams_to_kafka)
+
+
+@cli.command()
+def send_event_logs_to_kafka_cron():
+    """ Отправить записи из таблицы event_log в кафку """
+    IOLoop.current().run_sync(send_event_logs_to_kafka)
+
+
+@cli.command()
+def send_clients_to_kafka_cron():
+    """ Отправить записи из таблицы clients в кафку """
+    IOLoop.current().run_sync(send_clients_to_kafka)
 
 
 # [ML] сохранение объявлений с внешних площадок

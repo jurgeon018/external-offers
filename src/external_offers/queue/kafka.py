@@ -7,10 +7,10 @@ from external_offers.entities.kafka import (
     DraftAnnouncementsKafkaMessage,
     OfferForCallKafkaMessage,
     ParsedOfferKafkaMessage,
-    ClientsKafkaMessage,
-    EventLogsKafkaMessage,
-    OperatorsKafkaMessage,
-    TeamsKafkaMessage,
+    ClientKafkaMessage,
+    EventLogKafkaMessage,
+    OperatorKafkaMessage,
+    TeamKafkaMessage,
 )
 
 
@@ -34,22 +34,22 @@ parsed_offers_change_producer: EntityKafkaProducer[ParsedOfferKafkaMessage] = ge
     message_type=ParsedOfferKafkaMessage,
 )
 
-clients_change_producer: EntityKafkaProducer[ClientsKafkaMessage] = get_kafka_entity_producer(
+clients_change_producer: EntityKafkaProducer[ClientKafkaMessage] = get_kafka_entity_producer(
     topic='clients.change',
-    message_type=ClientsKafkaMessage,
+    message_type=ClientKafkaMessage,
 )
 
-event_logs_change_producer: EntityKafkaProducer[EventLogsKafkaMessage] = get_kafka_entity_producer(
-    topic='event_logs.change',
-    message_type=EventLogsKafkaMessage,
+event_logs_change_producer: EntityKafkaProducer[EventLogKafkaMessage] = get_kafka_entity_producer(
+    topic='event-logs.change',
+    message_type=EventLogKafkaMessage,
 )
 
-operators_change_producer: EntityKafkaProducer[OperatorsKafkaMessage] = get_kafka_entity_producer(
+operators_change_producer: EntityKafkaProducer[OperatorKafkaMessage] = get_kafka_entity_producer(
     topic='operators.change',
-    message_type=OperatorsKafkaMessage,
+    message_type=OperatorKafkaMessage,
 )
 
-teams_change_producer: EntityKafkaProducer[TeamsKafkaMessage] = get_kafka_entity_producer(
+teams_change_producer: EntityKafkaProducer[TeamKafkaMessage] = get_kafka_entity_producer(
     topic='teams.change',
-    message_type=TeamsKafkaMessage,
+    message_type=TeamKafkaMessage,
 )
