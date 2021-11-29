@@ -692,7 +692,7 @@ async def delete_test_clients() -> None:
 
 async def iterate_over_clients_sorted(
     *,
-    prefetch=runtime_settings.DEFAULT_PREFETCH,
+    prefetch: int
 ) -> AsyncGenerator[Client, None]:
     query, params = asyncpgsa.compile_query(
         select(

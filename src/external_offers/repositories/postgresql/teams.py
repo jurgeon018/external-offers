@@ -89,7 +89,7 @@ async def delete_team_by_id(team_id: int) -> None:
 
 async def iterate_over_teams_sorted(
     *,
-    prefetch=runtime_settings.DEFAULT_PREFETCH
+    prefetch: int
 ) -> AsyncGenerator[Team, None]:
     query, params = asyncpgsa.compile_query(
         select([

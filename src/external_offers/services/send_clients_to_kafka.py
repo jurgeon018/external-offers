@@ -30,7 +30,7 @@ async def send_clients_to_kafka():
                         operation_id=str(uuid.uuid1()),
                         date=now
                     ),
-                    timeout=runtime_settings.DEFAULT_KAFKA_TIMEOUT
+                    timeout=runtime_settings.get('DEFAULT_KAFKA_TIMEOUT', 1)
                 )
             except KafkaProducerError:
                 logger.warning('Не удалось отправить событие для клиента %s', client.client_id)

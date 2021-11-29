@@ -128,7 +128,7 @@ async def get_enriched_event_log_entries_for_calls_kafka_sync(
 
 async def iterate_over_event_logs_sorted(
     *,
-    prefetch=runtime_settings.DEFAULT_PREFETCH
+    prefetch: int
 ) -> AsyncGenerator[EventLogEntry, None]:
     query, params = asyncpgsa.compile_query(
         select([

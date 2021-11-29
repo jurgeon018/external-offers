@@ -139,7 +139,7 @@ async def get_operator_team_id(operator_id: int) -> Optional[int]:
 
 async def iterate_over_operators_sorted(
     *,
-    prefetch=runtime_settings.DEFAULT_PREFETCH,
+    prefetch: int = runtime_settings.DEFAULT_PREFETCH,
 ) -> AsyncGenerator[Operator, None]:
     query, params = asyncpgsa.compile_query(
         select(
