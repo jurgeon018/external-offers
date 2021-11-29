@@ -235,7 +235,50 @@
                <div class="comment-client-messages" id="commentClientMessages"></div>
             </div>
              <div class="additional-fields-block">
-                 
+                 <h3>Дополнительные поля:</h3>
+                 <div class="reason-of-decline-client-block">
+                     <div>Причина отказа:</div>
+                     <select class="select-control" id="getReasonOfDecline">
+                         <option value="" selected>Не выбрано</option>
+                         <option value="not_effective">Циан не эффективен</option>
+                         <option value="expensive">Дорого</option>
+                         <option value="dont_like_support">Не нравится поддержка Циан</option>
+                         <option value="difficult_service" >Сложный сервис</option>
+                         <option value="not_a_publisher">Не я занимаюсь размещением</option>
+                         <option value="dont_engage_in_real_estate">Не занимается недвижимостью</option>
+                         <option value="only_residential_property">Только жилая</option>
+                         <option value="no_offers_and_wont_be">Нет объектов и не будет</option>
+                         <option value="no_offers_but_will_be">Нет объектов, но будут</option>
+                         <option value="decline_conversation">Сброс в отказ от разговора</option>
+                         <option value="not_interested">Не интересно</option>
+                         <option value="dont_trust">Не доверяю</option>
+                         <option value="have_no_time">Нет времени</option>
+                         <option value="frequent_calls">Частые звонки</option>
+                         <option value="other">Иное</option>
+                     </select>
+                     <button class="reason-of-decline-button" id="reasonOfDeclineClientButton">
+                         Сохранить
+                     </button>
+                     <div class="messages" id="reasonOfDeclineClientMessages"></div>
+                 </div>
+                 <div class="additional-numbers-client-block">
+                     <div>Доп. номера:</div>
+                     <input type="text" id="getAdditionalNumbers" placeholder="Доп. номера"
+                            value="" size=30>
+                     <button class="additional-numbers-client-button" id="additionalNumbersClientButton">
+                         Сохранить
+                     </button>
+                     <div class="messages" id="additionalNumbersClientMessages"></div>
+                 </div>
+                 <div class="additional-emails-client-block">
+                     <div>Доп. почты:</div>
+                     <input type="text" id="getAdditionalEmails" placeholder="Доп. почты"
+                            value="" size=30>
+                     <button class="additional-emails-client-button" id="additionalEmailsClientButton">
+                         Сохранить
+                     </button>
+                     <div class="messages" id="additionalEmailsClientMessages"></div>
+                 </div>
              </div>
 
          </div>
