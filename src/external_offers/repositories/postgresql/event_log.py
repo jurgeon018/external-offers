@@ -1,17 +1,16 @@
 from datetime import datetime
-from typing import List, Optional, AsyncGenerator
-from typing_extensions import runtime
+from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
-from cian_core.runtime_settings import runtime_settings
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 
 from external_offers import pg
 from external_offers.entities import ClientStatus, OfferStatus
 from external_offers.entities.event_log import EnrichedEventLogEntry, EventLogEntry
-from external_offers.mappers.event_log import enriched_event_log_entry_mapper
+from external_offers.mappers.event_log import enriched_event_log_entry_mapper, event_log_entry_mapper
 from external_offers.repositories.postgresql.tables import clients, event_log, offers_for_call
 
 
@@ -130,7 +129,7 @@ async def get_enriched_event_log_entries_for_calls_kafka_sync(
 async def iterate_over_event_logs_sorted(
     *,
     prefetch=runtime_settings.DEFAULT_PREFETCH
-) -> AsyncGenerator[EnrichedEventLogEntry, None]:
+) -> AsyncGenerator[EventLogEntry, None]:
     query, params = asyncpgsa.compile_query(
         select([
             event_log
@@ -145,4 +144,4 @@ async def iterate_over_event_logs_sorted(
         prefetch=prefetch
     )
     async for row in cursor:
-        yield enriched_event_log_entry_mapper.map_from(row)
+        yield event_log_entry_mapper.map_from(row)

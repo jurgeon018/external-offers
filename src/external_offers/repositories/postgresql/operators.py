@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import AsyncGenerator, List, Optional, Union
-from cian_core.runtime_settings import runtime_settings
 
 import asyncpgsa
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import delete, func, select, update
 

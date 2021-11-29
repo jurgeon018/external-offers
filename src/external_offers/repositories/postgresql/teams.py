@@ -1,7 +1,7 @@
 from typing import Any, AsyncGenerator, List, Optional
-from cian_core.runtime_settings import runtime_settings
 
 import asyncpgsa
+from cian_core.runtime_settings import runtime_settings
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import delete, select, update
 

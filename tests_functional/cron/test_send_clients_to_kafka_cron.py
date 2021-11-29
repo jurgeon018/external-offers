@@ -7,7 +7,7 @@ async def test_send_offers_for_call_called__final_offers_for_call_exist__correct
 
     await pg.execute("""
     INSERT INTO clients (
-        client_id, avito_user_id,  client_phones, status, synced_with_grafana,  is_test,  main_account_chosen, unactivated
+        client_id,avito_user_id,client_phones,status,synced_with_grafana,is_test,main_account_chosen,unactivated
     ) VALUES
     ('1', '1', '{+88005553535}',  'waiting', 'f',  'f',  'f', 'f'),
     ('2', '2', '{+88005553535}',  'waiting', 'f',  'f',  'f', 'f');

@@ -1,9 +1,9 @@
 import logging
 import uuid
 from datetime import datetime
-from cian_core.runtime_settings import runtime_settings
 
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_kafka import KafkaProducerError
 

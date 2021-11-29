@@ -2,14 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from external_offers.entities import (
-    Offer,
-    ParsedOffer,
-    Client,
-    EnrichedEventLogEntry, EventLogEntry,
-    Operator,
-    Team,
-)
+from external_offers.entities import Client, EventLogEntry, Offer, Operator, ParsedOffer, Team
 from external_offers.enums import CallStatus
 
 

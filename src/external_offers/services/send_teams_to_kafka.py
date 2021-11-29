@@ -3,9 +3,9 @@ import uuid
 from datetime import datetime
 
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_kafka import KafkaProducerError
-from simple_settings import settings
 
 from external_offers import pg
 from external_offers.entities.kafka import TeamKafkaMessage
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 async def send_teams_to_kafka():
     async with pg.get().transaction():
         async for team in iterate_over_teams_sorted(
-            prefetch=settings.TEAMS_FOR_KAFKA_FETCH_LIMIT
+            prefetch=runtime_settings.TEAMS_FOR_KAFKA_FETCH_LIMIT
         ):
             now = datetime.now(pytz.utc)
 
@@ -30,7 +30,7 @@ async def send_teams_to_kafka():
                         operation_id=str(uuid.uuid1()),
                         date=now
                     ),
-                    timeout=settings.DEFAULT_KAFKA_TIMEOUT
+                    timeout=runtime_settings.DEFAULT_KAFKA_TIMEOUT
                 )
             except KafkaProducerError:
                 logger.warning('Не удалось отправить событие для команды %s', team.team_id)

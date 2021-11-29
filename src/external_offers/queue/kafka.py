@@ -4,12 +4,12 @@ from cian_kafka import EntityKafkaProducer
 from external_offers.entities.kafka import (
     AlreadyPublishedKafkaMessage,
     CallsKafkaMessage,
-    DraftAnnouncementsKafkaMessage,
-    OfferForCallKafkaMessage,
-    ParsedOfferKafkaMessage,
     ClientKafkaMessage,
+    DraftAnnouncementsKafkaMessage,
     EventLogKafkaMessage,
+    OfferForCallKafkaMessage,
     OperatorKafkaMessage,
+    ParsedOfferKafkaMessage,
     TeamKafkaMessage,
 )
 
