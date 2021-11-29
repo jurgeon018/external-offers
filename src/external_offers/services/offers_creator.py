@@ -106,6 +106,7 @@ async def prioritize_waiting_offers(
         team_settings = team.get_settings()
     else:
         team_settings = {}
+    
     # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
     # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
     # (задания фильтруются в assign_suitable_client_to_operator по приоритету _CLEAR_PRIORITY)
