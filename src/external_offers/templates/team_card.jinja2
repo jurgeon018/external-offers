@@ -10,7 +10,7 @@
         <button onclick="onClickRedirectToTeams(this)">
             Вернуться к списку обьектов
         </button>
-        {% if str(current_operator.operator_id) == str(team.lead_id) %}
+        {% if current_operator.operator_id|string == team.lead_id|string %}
         <button style="color:red;" onclick="deleteTeam('{{team.team_id}}')">
             Удалить команду
         </button>
