@@ -57,18 +57,6 @@ async def assign_suitable_client_to_operator(
 
     now = datetime.now(pytz.utc)
 
-    is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
-    commercial_category_clause = (
-        coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY)
-        .in_(runtime_settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES)
-    )
-
-    offer_category_clause = (
-        commercial_category_clause
-        if is_commercial_moderator
-        else ~commercial_category_clause
-    )
-
     if runtime_settings.ENABLE_TEAM_PRIORITIES and operator_team_id:
         priority_ordering = (
             nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
@@ -76,7 +64,19 @@ async def assign_suitable_client_to_operator(
         priority_clause = [
             offers_for_call.c.team_priorities[str(operator_team_id)] != str(_CLEAR_CLIENT_PRIORITY)
         ]
+        offer_category_clause = []
     else:
+        is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
+        commercial_category_clause = (
+            coalesce(offers_for_call.c.category, _NO_OFFER_CATEGORY)
+            .in_(runtime_settings.COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES)
+        )
+
+        offer_category_clause = [
+            commercial_category_clause
+            if is_commercial_moderator
+            else ~commercial_category_clause
+        ]
         priority_ordering = nullslast(offers_for_call.c.priority.asc())
         priority_clause = [
             offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY
@@ -105,7 +105,7 @@ async def assign_suitable_client_to_operator(
                     offers_for_call.c.status == OfferStatus.waiting.value,
                     clients.c.status == ClientStatus.waiting.value,
                     clients.c.is_test == is_test,
-                    offer_category_clause,
+                    *offer_category_clause,
                     *priority_clause,
                 ),
                 and_(
@@ -119,7 +119,7 @@ async def assign_suitable_client_to_operator(
                     ]),
                     clients.c.next_call <= now,
                     clients.c.is_test == is_test,
-                    offer_category_clause,
+                    *offer_category_clause,
                     *priority_clause,
                 ),
                 # добивочные клиенты
@@ -133,7 +133,7 @@ async def assign_suitable_client_to_operator(
                         ClientStatus.declined.value,
                     ]),
                     clients.c.is_test == is_test,
-                    offer_category_clause,
+                    *offer_category_clause,
                     *priority_clause,
                 ),
                 and_(
@@ -147,7 +147,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.next_call <= now,
                     offers_for_call.c.publication_status == PublicationStatus.draft.value,
                     clients.c.is_test == is_test,
-                    offer_category_clause,
+                    *offer_category_clause,
                     *priority_clause,
                 ),
             )
@@ -160,7 +160,6 @@ async def assign_suitable_client_to_operator(
             'first_suitable_offer_client_cte'
         )
     )
-
     query, params = asyncpgsa.compile_query(
         update(
             clients
@@ -176,7 +175,8 @@ async def assign_suitable_client_to_operator(
             clients.c.client_id
         )
     )
-    return await pg.get().fetchval(query, *params)
+    result = await pg.get().fetchval(query, *params)
+    return result
 
 
 async def get_client_unactivated_by_client_id(*, client_id) -> bool:
@@ -590,26 +590,6 @@ async def set_client_accepted_and_no_operator_if_no_offers_in_progress(
     client_id = await pg.get().fetchval(query, *params)
 
     return bool(client_id)
-
-
-async def delete_waiting_clients_by_client_ids(
-    *,
-    client_ids: List[str]
-) -> None:
-    sql = (
-        delete(
-            clients
-        ).where(
-            and_(
-                clients.c.status == ClientStatus.waiting.value,
-                clients.c.client_id.in_(client_ids)
-            )
-        )
-    )
-
-    query, params = asyncpgsa.compile_query(sql)
-
-    await pg.get().execute(query, *params)
 
 
 async def update_clients_operator(

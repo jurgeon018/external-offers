@@ -26,7 +26,7 @@ class Offer:
     """Дата создания спаршенного объявления"""
     priority: Optional[int] = None
     """Приоритет объявления для операторов без команд"""
-    team_priorities: Optional[dict[str, int]] = None
+    team_priorities: Optional[str] = None
     """Приоритет обьявления для разных команд"""
     offer_cian_id: Optional[int] = None
     """Идентификатор объявления на Циане"""

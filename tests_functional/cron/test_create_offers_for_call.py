@@ -5,6 +5,9 @@ import pytz
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
+_CLEAR_PRIORITY = -1
+
+
 async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creates_waiting_client(
     pg,
     runtime_settings,
@@ -69,12 +72,19 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
     await runner.run_python_command('create-offers-for-call')
 
     # assert
-    row = await pg.fetchrow(
+    client_id = await pg.fetchval(
         """
-        SELECT * FROM clients WHERE avito_user_id = '25f05f430722c915c498113b16ba0e78'
+        SELECT client_id FROM clients WHERE avito_user_id = '25f05f430722c915c498113b16ba0e78'
         """
     )
-    assert row is None
+    rows = await pg.fetch(
+        """
+        SELECT * FROM offers_for_call WHERE client_id = $1
+        """, [client_id]
+    )
+    assert len(rows) == 1
+    assert rows[0]['priority'] == _CLEAR_PRIORITY
+    # assert rows is None
 
 
 async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer(
@@ -246,7 +256,8 @@ async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__does
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    assert row is None
+
+    assert row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___doesnt_create_offer(
@@ -280,7 +291,8 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_segment___does
         SELECT * FROM offers_for_call WHERE parsed_id = '575ff03a-573c-4bac-8599-28f17e68a0d8'
         """
     )
-    assert row is None
+
+    assert row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doesnt_create_offer(
@@ -315,7 +327,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_category___doe
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
         """
     )
-    assert row is None
+    assert row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_parsed_offer_without_phones__doesnt_create_offer(
@@ -669,8 +681,8 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_without_minimum_use
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_REGIONS': [4580],
-        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 4,
-        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 5,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 6,
     })
     await users_mock.add_stub(
         method='GET',
