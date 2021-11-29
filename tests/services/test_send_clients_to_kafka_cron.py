@@ -8,15 +8,15 @@ from external_offers.services.send_clients_to_kafka import send_clients_to_kafka
 
 async def test_send_clients__kafka_error__expect_warning(mocker):
     # arrange
-    iterate_over_clients_sorted_mock = mocker.patch('external_offers.services.send_clients_to_kafka'
-                                                          '.iterate_over_clients_sorted')
-
-    clients_change_producer_mock = mocker.patch('external_offers.services.send_clients_to_kafka'
-                                                      '.clients_change_producer')
-
-    logger_mock = mocker.patch('external_offers.services.send_clients_to_kafka'
-                               '.logger')
-
+    iterate_over_clients_sorted_mock = mocker.patch(
+        'external_offers.services.send_clients_to_kafka.iterate_over_clients_sorted'
+    )
+    clients_change_producer_mock = mocker.patch(
+        'external_offers.services.send_clients_to_kafka.clients_change_producer'
+    )
+    logger_mock = mocker.patch(
+        'external_offers.services.send_clients_to_kafka.logger'
+    )
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()
     iterate_return_value.__aiter__.return_value = [
@@ -43,15 +43,15 @@ async def test_send_clients__kafka_error__expect_warning(mocker):
 
 async def test_send_clients__producer_success_and_failed__expect_statsd_incr(mocker):
     # arrange
-    iterate_over_clients_sorted_mock = mocker.patch('external_offers.services.send_clients_to_kafka'
-                                                          '.iterate_over_clients_sorted')
-
-    clients_change_producer_mock = mocker.patch('external_offers.services.send_clients_to_kafka'
-                                                      '.clients_change_producer')
-
-    statsd_incr_mock = mocker.patch('external_offers.services.'
-                                    'send_clients_to_kafka.statsd.incr')
-
+    iterate_over_clients_sorted_mock = mocker.patch(
+        'external_offers.services.send_clients_to_kafka.iterate_over_clients_sorted'
+    )
+    clients_change_producer_mock = mocker.patch(
+        'external_offers.services.send_clients_to_kafka.clients_change_producer'
+    )
+    statsd_incr_mock = mocker.patch(
+        'external_offers.services.send_clients_to_kafka.statsd.incr'
+    )
 
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()

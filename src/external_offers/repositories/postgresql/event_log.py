@@ -3,7 +3,6 @@ from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
 import pytz
-from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 

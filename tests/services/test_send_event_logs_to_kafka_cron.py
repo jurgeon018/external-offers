@@ -8,15 +8,15 @@ from external_offers.services.send_event_logs_to_kafka import send_event_logs_to
 
 async def test_send_event_logs__kafka_error__expect_warning(mocker):
     # arrange
-    iterate_over_event_logs_sorted_mock = mocker.patch('external_offers.services.send_event_logs_to_kafka'
-                                                          '.iterate_over_event_logs_sorted')
-
-    event_logs_change_producer_mock = mocker.patch('external_offers.services.send_event_logs_to_kafka'
-                                                      '.event_logs_change_producer')
-
-    logger_mock = mocker.patch('external_offers.services.send_event_logs_to_kafka'
-                               '.logger')
-
+    iterate_over_event_logs_sorted_mock = mocker.patch(
+        'external_offers.services.send_event_logs_to_kafka.iterate_over_event_logs_sorted'
+    )
+    event_logs_change_producer_mock = mocker.patch(
+        'external_offers.services.send_event_logs_to_kafka.event_logs_change_producer'
+    )
+    logger_mock = mocker.patch(
+        'external_offers.services.send_event_logs_to_kafka.logger'
+    )
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()
     iterate_return_value.__aiter__.return_value = [
@@ -43,15 +43,17 @@ async def test_send_event_logs__kafka_error__expect_warning(mocker):
 
 async def test_send_event_logs__producer_success_and_failed__expect_statsd_incr(mocker):
     # arrange
-    iterate_over_event_logs_sorted_mock = mocker.patch('external_offers.services.send_event_logs_to_kafka'
-                                                          '.iterate_over_event_logs_sorted')
+    iterate_over_event_logs_sorted_mock = mocker.patch(
+        'external_offers.services.send_event_logs_to_kafka.iterate_over_event_logs_sorted'
+    )
 
-    event_logs_change_producer_mock = mocker.patch('external_offers.services.send_event_logs_to_kafka'
-                                                      '.event_logs_change_producer')
+    event_logs_change_producer_mock = mocker.patch(
+        'external_offers.services.send_event_logs_to_kafka.event_logs_change_producer'
+    )
 
-    statsd_incr_mock = mocker.patch('external_offers.services.'
-                                    'send_event_logs_to_kafka.statsd.incr')
-
+    statsd_incr_mock = mocker.patch(
+        'external_offers.services.send_event_logs_to_kafka.statsd.incr'
+    )
 
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()
