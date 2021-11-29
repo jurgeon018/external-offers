@@ -618,6 +618,38 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
     await pg.get().execute(query, *params)
 
 
+async def delete_calltracking_clients() -> None:
+    query = """
+    with calltracking_offers_cte as (
+        select
+            offers_for_call.client_id as client_id,
+            offers_for_call.id as offer_id
+        from offers_for_call  
+        join parsed_offers on parsed_offers.id = offers_for_call.parsed_id
+        where parsed_offers.is_calltracking
+    )
+    delete from clients
+    where client_id in (select client_id from calltracking_offers_cte);
+    """
+    await pg.get().execute(query)
+
+
+async def delete_calltracking_offers() -> None:
+    query = """
+    with calltracking_offers_cte as (
+        select
+            offers_for_call.client_id as client_id,
+            offers_for_call.id as offer_id
+        from offers_for_call  
+        join parsed_offers on parsed_offers.id = offers_for_call.parsed_id
+        where parsed_offers.is_calltracking
+    )
+    delete from offers_for_call
+    where id in (select offer_id from calltracking_offers_cte);
+    """
+    await pg.get().execute(query)
+
+
 async def delete_waiting_offers_for_call_with_count_off_limit() -> None:
     sql = (
         delete(

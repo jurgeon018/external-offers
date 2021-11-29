@@ -35,6 +35,10 @@ from external_offers.repositories.postgresql import (
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
+from external_offers.repositories.postgresql.offers import (
+    delete_calltracking_clients,
+    delete_calltracking_offers,
+)
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 from external_offers.services.prioritizers.prioritize_offer import mapping_offer_categories_to_priority
@@ -298,5 +302,9 @@ async def clear_and_prioritize_waiting_offers():
         )
     await asyncio.gather(*team_priorities)
 
+    await delete_calltracking_clients()
+    await delete_calltracking_offers()
+
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()
+    
