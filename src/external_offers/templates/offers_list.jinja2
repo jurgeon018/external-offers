@@ -254,7 +254,6 @@
                <div class="comment-client-messages" id="commentClientMessages"></div>
             </div>
              <div class="additional-fields-block">
-                 {% if is_commercial_moderator %}
                  <h3>Дополнительные поля:</h3>
                  <div class="reason-of-decline-client-block">
                      <div>Причина отказа:</div>
@@ -299,7 +298,6 @@
                      </button>
                      <div class="messages" id="additionalEmailsClientMessages"></div>
                  </div>
-                 {% endif %}
              </div>
 
          </div>
@@ -596,7 +594,6 @@
            document.getElementById("commentClientMessages").innerHTML = resp.message
          };
 
-         {% if is_commercial_moderator %}
          $( document ).ready(function() {
              let reasonOfDecline = "{{ client.reason_of_decline.value if client else '' }}"
              $("#getReasonOfDecline option").each(function () {
@@ -647,7 +644,6 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
-         {% endif %}
          document.getElementById("callInterruptedClientButton").onclick = async function () {
            let obj =  {
                'clientId': '{{ client.client_id }}'

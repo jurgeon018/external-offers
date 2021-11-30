@@ -16,8 +16,8 @@ class UserSegment(StrEnum):
     """SMB"""
     d = 'd'
     """Собственник"""
-    commercial = 'commercial'
-    """Коммерческий"""
+    # commercial = 'commercial'
+    # """Коммерческий"""
 
     @classmethod
     def from_str(cls, value: str):
@@ -26,5 +26,5 @@ class UserSegment(StrEnum):
             'b': cls.b,
             'c': cls.c,
             'd': cls.d,
-            'commercial': cls.commercial,
+            # 'commercial': cls.commercial,
         }[value]
