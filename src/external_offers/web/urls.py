@@ -21,11 +21,8 @@ from external_offers.services.update_client_comment import update_client_comment
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_clients_operator import update_clients_operator_public
 from external_offers.services.update_offer_category import update_offer_category_public
-<<<<<<< HEAD
 from external_offers.services.update_offer_comment import update_offer_comment_public
-=======
 from external_offers.services.update_waiting_offers_priority import prioritize_waiting_offers_public
->>>>>>> d662914fc5eac4ec5cf3dc54992276b6a8e2eca8
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
