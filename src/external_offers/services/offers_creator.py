@@ -307,4 +307,3 @@ async def clear_and_prioritize_waiting_offers():
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()
-    
