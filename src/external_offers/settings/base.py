@@ -18,8 +18,33 @@ SAVE_OFFER_MSG: str = (
 ENABLE_LAST_SYNC_DATE_FETCHING: bool = True
 OFFER_TASK_CREATION_OFFER_FETCH_LIMIT: int = 1000
 OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
-COMMERCIAL_OFFER_TASK_CREATION_SEGMENTS: List[str] = ['c']
-OFFER_TASK_CREATION_CATEGORIES: List[str] = ['flatSale', 'flatRent', 'flatShareSale']
+OFFER_TASK_CREATION_CATEGORIES: List[str] = [
+    'flatSale',
+    'flatRent',
+    'flatShareSale',
+    'officeSale',
+    'warehouseSale',
+    'shoppingAreaSale',
+    'industrySale',
+    'buildingSale',
+    'freeAppointmentObjectSale',
+    'businessSale',
+    'commercialLandSale',
+    'publicCateringSale',
+    'carServiceSale',
+    'domesticServicesSale',
+    'officeRent',
+    'warehouseRent',
+    'shoppingAreaRent',
+    'industryRent',
+    'buildingRent',
+    'freeAppointmentObjectRent',
+    'businessRent',
+    'commercialLandRent',
+    'publicCateringRent',
+    'carServiceRent',
+    'domesticServicesRent'
+]
 COMMERCIAL_OFFER_TASK_CREATION_CATEGORIES: List[str] = [    # Все коммерческие категории, кроме гаража
     'officeSale',
     'warehouseSale',
@@ -188,7 +213,7 @@ PROMOCODE_POLYGONS: List[int] = [2000]
 
 REGIONS_WITH_PAID_PUBLICATION: List[int] = [1, 2, 4588, 4593]
 
-TEST_OPERATOR_IDS = [58116185, 73478905]
+TEST_OPERATOR_IDS = [58116185, 73478905, 73429666]
 
 AVITO_SOURCE_NAME = 'avito'
 YANDEX_SOURCE_NAME = 'yandex'

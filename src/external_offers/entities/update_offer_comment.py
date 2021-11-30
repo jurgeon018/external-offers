@@ -8,6 +8,6 @@ class UpdateOfferCommentRequest:
 
 
 @dataclass
-class UpdateOfferCommentResonse:
+class UpdateOfferCommentResponse:
     success: bool
     message: str

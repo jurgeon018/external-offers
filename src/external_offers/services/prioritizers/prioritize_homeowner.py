@@ -4,7 +4,6 @@ from typing import List, Optional
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
-from simple_settings import settings
 
 from external_offers.entities import HomeownerClientChooseMainProfileResult
 from external_offers.entities.clients import Client
@@ -93,8 +92,10 @@ async def find_homeowner_client_account_priority(
             # Приоритет для незарегистрированных собственников
             if not response.users:
                 statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-                return settings.NO_LK_HOMEOWNER_PRIORITY
-
+                return team_settings.get(
+                    'no_lk_homeowner_priority',
+                    runtime_settings.NO_LK_HOMEOWNER_PRIORITY
+                )
             sanctions_response = await v1_sanctions_get_sanctions(
                 V1SanctionsGetSanctions(
                     user_ids=[user.id for user in response.users],
@@ -115,8 +116,10 @@ async def find_homeowner_client_account_priority(
                 return _CLEAR_CLIENT_PRIORITY
 
             if not result.chosen_profile:
-                return settings.NO_LK_HOMEOWNER_PRIORITY
-
+                return team_settings.get(
+                    'no_lk_homeowner_priority',
+                    runtime_settings.NO_LK_HOMEOWNER_PRIORITY
+                )
             cian_user_id = result.chosen_profile.cian_user_id
 
             # Обновляем идентификатор клиента
@@ -134,8 +137,10 @@ async def find_homeowner_client_account_priority(
             statsd.incr(_METRIC_PRIORITIZE_FAILED)
             return _CLEAR_CLIENT_PRIORITY
 
-    return settings.ACTIVE_LK_HOMEOWNER_PRIORITY
-
+    return team_settings.get(
+        'active_lk_homeowner_priority',
+        runtime_settings.ACTIVE_LK_HOMEOWNER_PRIORITY
+    )
 
 async def prioritize_homeowner_client(
     *,
@@ -153,5 +158,6 @@ async def prioritize_homeowner_client(
 
     return build_waiting_homeowner_priority(
         regions=regions,
-        account_priority=account_priority
+        account_priority=account_priority,
+        team_settings=team_settings
     )
