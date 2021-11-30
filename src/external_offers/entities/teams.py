@@ -11,11 +11,8 @@ class OffersSettings:
     """Категории"""
     regions: Optional[list[str]] = None
     """Регионы"""
-    # todo: https://jira.cian.tech/browse/CD-116914
-    # минимальная дата создания в очереди
-    # todo: https://jira.cian.tech/browse/CD-116914
-    # флаг коллтрекинга
-
+    calltracking: bool = True
+    """Флаг колтрекинга"""
 
 @dataclass
 class ClientsSettings:
@@ -51,10 +48,6 @@ class ClientsSettings:
     """% обьектов с площадки 'yandex'"""
     valid_days_after_call: Optional[int] = None
     """уже был в обзвоне"""
-    # todo: https://jira.cian.tech/browse/CD-116914
-    # Минимальная дата создания в очереди
-    calltracking: bool = True
-    """Флаг колтрекинга"""
 
 
 @dataclass
@@ -63,8 +56,8 @@ class PrioritySettings:
     Настройки приоритетов в очереди
     Приоритет собирается из 7 частей в число равной длины для всех заданий(для сквозной сортировки)
     1-5 - части приоритета для клиента
-    1 часть - тип клиента: добивочный клиент с неактивированым черновиком, новый клиент
     """
+    # 1 часть - тип клиента: добивочный клиент с неактивированым черновиком, новый клиент
     activation_status_position: int = 1
     """Порядок признака 'Статус клиента(добивочный или новый)'"""
     unactivated_client_priority: int = 1
@@ -136,14 +129,17 @@ class PrioritySettings:
 
 @dataclass
 class PromocodeSettings:
+    # TODO: https://jira.cian.tech/browse/CD-116917
     """Настройки промокодов"""
-    promocode_regions: Optional[list[str]] = None
-    """Регионы применения"""
+    promocode_polygons: Optional[list[str]] = None
+    """Регионы применения(айдишники полигонов)"""
+    regions_with_paid_publication: Optional[list[str]] = None
+    """Регионы применения(айдишники регионов)"""
     filling: Optional[list[str]] = None
     """Наполнение"""
     promocode_price: int = 0
     """Стоимость"""
-    promocode_period: int = 30
+    promocode_period: Optional[str] = None
     """Срок действия промокодов"""
     promocode_group_name: Optional[str] = None
     """Название групы промокодов"""
@@ -167,11 +163,11 @@ class Team:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
-    settings: dict[str, Any]
+    settings: str
     """Настройки команды"""
 
-    def get_settings(self) -> TeamSettings:
-        settings = None
+    def get_settings(self) -> dict:
+        settings = {}
         if self.settings:
             json_settings = json.loads(self.settings)
             settings = json_settings
@@ -183,13 +179,15 @@ class StrTeamSettings:
     categories: str = '[]'
     """Категории"""
     regions: str = '[]'
-    """Категории"""
+    """Регионы"""
     segments: str = '[]'
-    """Категории"""
+    """Сегменты"""
     subsegments: str = '[]'
-    """Категории"""
-    promocode_regions: str = '[]'
-    """Категории"""
+    """Субсегменты"""
+    promocode_polygons: str = '[]'
+    """ID полигонов"""
+    regions_with_paid_publication: str = '[]'
+    """ID регионов"""
     filling: str = '[]'
     """Категории"""
     main_regions_priority: str = '{}'
