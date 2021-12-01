@@ -7,7 +7,6 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     BargainTerms,
     Building,
     CommercialSpecialty,
-    Currency as IncomeCurrency,
     GeoCodeAnnouncementResponse,
     Land,
     MonthlyIncome,
@@ -22,6 +21,9 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.bargain
     UtilitiesTerms,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.details import GeoType
+from external_offers.repositories.monolith_cian_announcementapi.entities.monthly_income import (
+    Currency as IncomeCurrency,
+)
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
     FlatType,
