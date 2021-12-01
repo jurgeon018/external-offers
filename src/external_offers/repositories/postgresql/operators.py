@@ -56,12 +56,12 @@ async def get_operator_by_id(operator_id: int) -> Optional[Operator]:
 
 
 async def get_enriched_operator_by_id(operator_id: Union[str, int]) -> Optional[EnrichedOperator]:
-    row = await pg.get().fetchrow(f"""
+    row = await pg.get().fetchrow("""
         SELECT * FROM operators
         LEFT OUTER JOIN teams ON operators.team_id = teams.team_id
-        WHERE operators.operator_id = '$1'
+        WHERE operators.operator_id = $1
         LIMIT 1;
-    """, operator_id)
+    """, str(operator_id))
     return enriched_operators_mapper.map_from(row) if row else None
 
 
