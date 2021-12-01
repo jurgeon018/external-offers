@@ -3,11 +3,14 @@ from typing import Dict, Optional
 from external_offers.entities.save_offer import SaveOfferRequest
 from external_offers.helpers.user_id import get_realty_id_by_cian_id
 from external_offers.helpers.uuid import generate_uppercase_guid
+
+from external_offers.repositories.monolith_cian_announcementapi.entities.monthly_income import (
+    Currency as IncomeCurrency,
+)
 from external_offers.repositories.monolith_cian_announcementapi.entities import (
     BargainTerms,
     Building,
     CommercialSpecialty,
-    Currency as IncomeCurrency,
     GeoCodeAnnouncementResponse,
     Land,
     MonthlyIncome,
