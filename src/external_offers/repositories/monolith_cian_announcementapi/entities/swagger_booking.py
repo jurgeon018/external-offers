@@ -18,13 +18,15 @@ class Status(StrEnum):
     __value_format__ = NoFormat
     free = 'free'
     """Свободна."""
-    booked = 'booked'
-    """Забронировано."""
+    in_reserve = 'inReserve'
+    """В резерве."""
 
 
 @dataclass
-class Booking:
+class SwaggerBooking:
     """Бронирование."""
 
+    cost: Optional[int] = None
+    """Стоимость бронирования."""
     status: Optional[Status] = None
     """Статус бронирования."""

@@ -14,7 +14,6 @@ from cian_http.api_client import Api
 
 from . import entities
 
-
 _api = Api(microservice_name='monolith-cian-announcementapi')
 announcement_references_commercial_get_possible_appointments = _api.make_client(
     path='/announcement-references/commercial/get-possible-appointments/',

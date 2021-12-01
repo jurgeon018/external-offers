@@ -40,5 +40,7 @@ class DealRentData:
     """Откуда было произведено согласие на подключение услуги "Сделка\""""
     apply_deal_rent_version: Optional[ApplyDealRentVersion] = None
     """Версия сделки, которую захотел подключить пользователь"""
+    is_tax_excluded: Optional[bool] = None
+    """Отключить налоги"""
     source: Optional[str] = None
     'Откуда было произведено согласие на подключение услуги "Сделка" в виде строки.\r\nИспользутся взамен {Web.AnnouncementApi.App.Announcements.Models.DealRent.DealRentData.ApplyDealRentSource}, чтобы при добавлении новых значений не менять каждый раз enum'
