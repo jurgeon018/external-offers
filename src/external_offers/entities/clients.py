@@ -28,6 +28,8 @@ class Client:
     """Идентификатор команды, в которой находился оператор"""
     segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    subsegment: Optional[str] = None
+    """Субсегмент пользователя"""
     last_call_id: Optional[str] = None
     """Последний идентификатор звонка"""
     calls_count: int = 0

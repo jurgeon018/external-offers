@@ -51,6 +51,7 @@ CREATE TABLE offers_for_call
     team_priorities jsonb,
     category      varchar,
     last_call_id  varchar,
+    group_id      varchar,
     row_version         bigint                   not null default 0,
     synced_with_kafka   boolean                  not null default false,
     synced_with_grafana boolean                  not null default false,
@@ -70,6 +71,7 @@ CREATE TABLE clients
     operator_user_id bigint,
     status           client_status_type,
     segment          varchar(1),
+    subsegment       varchar,
     next_call        timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar,
@@ -98,16 +100,18 @@ create table parsed_offers
 (
     id                  varchar unique primary key,
     user_segment        varchar,
+    user_subsegment     varchar,
     source_object_id    varchar,
     source_user_id      varchar                  not null,
     source_object_model jsonb                    not null,
+    source_group_id     varchar
     is_calltracking     boolean                  not null,
     timestamp           timestamp with time zone not null,
     created_at          timestamp with time zone not null,
     updated_at          timestamp with time zone not null,
     is_test             boolean                  not null default false,
     synced              boolean                  not null,
-    external_offer_type varchar
+    external_offer_type varchar,
 );
 
 CREATE INDEX ON clients(avito_user_id);

@@ -42,6 +42,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
     )
     assert row['client_phones'] == ['89883325632']
     assert row['segment'] == 'c'
+    assert row['subsegment'] == 'subsegment1'
     assert row['status'] == 'waiting'
 
 
@@ -84,7 +85,6 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
     )
     assert len(rows) == 1
     assert rows[0]['priority'] == _CLEAR_PRIORITY
-    # assert rows is None
 
 
 async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer(
@@ -122,6 +122,7 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     )
     assert row['status'] == 'waiting'
     assert row['parsed_created_at'] == datetime(2020, 10, 27, 11, 59, 1, 123093, tzinfo=pytz.utc)
+    assert row['group_id'] == 'group_id1'
 
 
 async def test_create_offers__exist_suitable_commercial_parsed_offer__creates_waiting_offer(

@@ -24,7 +24,6 @@ async def test_send_offers_for_call_called__non_synced_offers_for_call_exist__is
         count=expected_count
     )
 
-    # SELECT synced_with_kafka, status FROM offers_for_call;
     sql = """
     SELECT synced_with_kafka, status FROM offers_for_call
     WHERE status NOT IN ('waiting', 'inProgress', 'callMissed', 'callLater');
