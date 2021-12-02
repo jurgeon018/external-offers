@@ -71,6 +71,7 @@ CREATE TABLE clients
     status           client_status_type,
     segment          varchar(1),
     next_call        timestamp with time zone,
+    unactivated_at   timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar,
     comment          varchar,

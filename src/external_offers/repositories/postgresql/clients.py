@@ -4,9 +4,9 @@ from typing import AsyncGenerator, List, Optional
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
-from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
+from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update, not_
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql.expression import true
+from sqlalchemy.sql.expression import true, false
 from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
@@ -645,10 +645,12 @@ async def set_client_unactivated_by_offer_cian_id(offer_cian_id: int) -> None:
     и проставляет новую дату для следующего прозвона(+3 дня)
     """
     client_id = await get_client_id_by_offer_cian_id(offer_cian_id)
+    now = datetime.now(pytz.utc)
     query, params = asyncpgsa.compile_query(
         update(
             clients
         ).values(
+            unactivated_at=now,
             unactivated=True,
             calls_count=0,
             next_call=get_next_call_date_when_draft(),
@@ -674,9 +676,42 @@ async def iterate_over_clients_sorted(
     *,
     prefetch: int
 ) -> AsyncGenerator[Client, None]:
+    non_final_statuses = [
+        ClientStatus.waiting.value,
+        ClientStatus.in_progress.value,
+        ClientStatus.call_missed.value,
+        ClientStatus.call_later.value,
+    ]
+
     query, params = asyncpgsa.compile_query(
         select(
             [clients]
+        ).where(
+            and_(
+                clients.c.is_test == false(),
+                or_(
+                    or_(
+                        # все обьявления в нефинальных статусах отправляются в кафку повторно
+                        clients.c.status.in_(non_final_statuses),
+                        # все обьявления с финальным статусом отправляются в кафку единажды
+                        # (отправляются только те, которые еще не были отправлены в кафку)
+                        and_(
+                            clients.c.status.notin_(non_final_statuses),
+                            not_(clients.c.synced_with_kafka),
+                        ),
+                    ),
+                    or_(
+                        # все обьявления в нефинальных статусах публикации отправляются в кафку повторно
+                        clients.c.unactivated.is_(True),
+                        # все обьявления с финальным статусом публикации отправляются в кафку единажды
+                        # (отправляются только те, которые еще не были отправлены в кафку)
+                        and_(
+                            clients.c.unactivated.is_(False),
+                            not_(clients.c.synced_with_kafka),
+                        ),
+                    )
+                )
+            )
         ).order_by(
             clients.c.client_id.asc()
         )

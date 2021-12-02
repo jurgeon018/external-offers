@@ -45,6 +45,7 @@ clients = sa.Table(
     sa.Column('additional_numbers', sa.VARCHAR, nullable=True),
     sa.Column('additional_emails', sa.VARCHAR, nullable=True),
     sa.Column('unactivated', sa.BOOLEAN, nullable=False, default=False),
+    sa.Column('unactivated_at', sa.TIMESTAMP),
 )
 
 offers_for_call = sa.Table(

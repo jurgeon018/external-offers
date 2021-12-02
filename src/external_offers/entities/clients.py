@@ -36,6 +36,8 @@ class Client:
     """Флаг выбора главного аккаунта(аккаунт выбранный при первом сохранении черновика)"""
     unactivated: bool = False
     """Флаг добивочного клиента с неактивированым черновиком(нужен для разделения обычных и добивочных клиентов)"""
+    unactivated_at: Optional[datetime] = None
+    """Время становления клиента добивочным"""
     comment: Optional[str] = None
     """Коментарий к карточке от оператора"""
     reason_of_decline: Optional[ReasonOfDeclineEnum] = None
