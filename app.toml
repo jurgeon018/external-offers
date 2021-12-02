@@ -21,6 +21,7 @@ alias = "default"
 
 [job.web]
 type = "web"
+memory = 2048
 
 [job.save-parsed-offers]
 type = "consumer"
