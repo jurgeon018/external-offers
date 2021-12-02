@@ -102,16 +102,16 @@ create table parsed_offers
     user_segment        varchar,
     user_subsegment     varchar,
     source_object_id    varchar,
+    source_group_id     varchar,
     source_user_id      varchar                  not null,
     source_object_model jsonb                    not null,
-    source_group_id     varchar
     is_calltracking     boolean                  not null,
     timestamp           timestamp with time zone not null,
     created_at          timestamp with time zone not null,
     updated_at          timestamp with time zone not null,
     is_test             boolean                  not null default false,
     synced              boolean                  not null,
-    external_offer_type varchar,
+    external_offer_type varchar
 );
 
 CREATE INDEX ON clients(avito_user_id);
