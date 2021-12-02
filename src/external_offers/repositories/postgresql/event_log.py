@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
@@ -132,7 +132,9 @@ async def iterate_over_event_logs_sorted(
     query, params = asyncpgsa.compile_query(
         select([
             event_log
-        ]).order_by(
+        ]).where(
+            event_log.c.created_at >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
+        ).order_by(
             event_log.c.created_at.asc(),
             event_log.c.id.asc()
         )
