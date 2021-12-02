@@ -855,27 +855,33 @@ async def get_waiting_offer_counts_by_clients(
         priority=_CLEAR_PRIORITY,
         is_test=is_test,
     )
-    options = waiting_offers_counts_cte.c.id.notin_(
-        cleared_offer_ids
-    )
-    if isinstance(is_test, bool):
-        options = and_(
-            waiting_offers_counts_cte.c.is_test == is_test,
-            options,
+    waiting_offers = []
+    for cleared_offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=cleared_offer_ids,
+        chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
+    ):
+        options = waiting_offers_counts_cte.c.id.notin_(
+            cleared_offer_ids_chunk
         )
-    sql = (
-        select(
-            [waiting_offers_counts_cte]
-        ).where(
-            options
-        ).distinct(
-            waiting_offers_counts_cte.c.client_id
+        if isinstance(is_test, bool):
+            options = and_(
+                waiting_offers_counts_cte.c.is_test == is_test,
+                options,
+            )
+        sql = (
+            select(
+                [waiting_offers_counts_cte]
+            ).where(
+                options
+            ).distinct(
+                waiting_offers_counts_cte.c.client_id
+            )
         )
-    )
 
-    query, params = asyncpgsa.compile_query(sql)
-    rows = await pg.get().fetch(query, *params)
-    return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
+        query, params = asyncpgsa.compile_query(sql)
+        rows = await pg.get().fetch(query, *params)
+        waiting_offers.extend(rows)
+    return [client_waiting_offers_count_mapper.map_from(waiting_offer) for waiting_offer in waiting_offers]
 
 
 async def get_offers_for_prioritization_by_client_ids(
