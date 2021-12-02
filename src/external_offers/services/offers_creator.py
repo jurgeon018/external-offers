@@ -8,7 +8,6 @@ import pytz
 from cian_core.context import new_operation_id
 from cian_core.runtime_settings import runtime_settings
 from cian_json import json
-from simple_settings import settings
 from tornado import gen
 
 from external_offers import pg
@@ -35,7 +34,11 @@ from external_offers.repositories.postgresql import (
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
-from external_offers.repositories.postgresql.offers import set_waiting_offers_team_priorities_by_offer_ids
+from external_offers.repositories.postgresql.offers import (
+    delete_calltracking_clients,
+    delete_calltracking_offers,
+    set_waiting_offers_team_priorities_by_offer_ids,
+)
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
@@ -298,7 +301,7 @@ async def prioritize_clients(
 async def sync_offers_for_call_with_parsed() -> None:
     """ Синхронизировать таблицу заданий offers_for_call и parsed_offers """
     last_sync_date = None
-    if settings.ENABLE_LAST_SYNC_DATE_FETCHING:
+    if runtime_settings.ENABLE_LAST_SYNC_DATE_FETCHING:
         last_sync_date = await get_last_sync_date()
 
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
@@ -371,6 +374,9 @@ async def clear_and_prioritize_waiting_offers():
             )
         )
     await asyncio.gather(*team_priorities)
+
+    await delete_calltracking_clients()
+    await delete_calltracking_offers()
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()
