@@ -114,6 +114,7 @@ create table parsed_offers
 CREATE INDEX ON clients(avito_user_id);
 CREATE INDEX ON offers_for_call(offer_cian_id);
 CREATE INDEX ON offers_for_call(client_id); 
+CREATE INDEX ON event_log(created_at); 
 ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);
 
 CREATE TYPE segment_type AS enum (

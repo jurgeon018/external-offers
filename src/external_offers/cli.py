@@ -10,13 +10,17 @@ from external_offers.queue.queues import process_announcements_queue
 from external_offers.queue.schemas import RabbitMQAnnouncementMessageSchema
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
 from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
+from external_offers.services.send_clients_to_kafka import send_clients_to_kafka
+from external_offers.services.send_event_logs_to_kafka import send_event_logs_to_kafka
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
 from external_offers.services.send_offers_and_clients_to_grafana import (
     send_processed_offers_and_clients_amount_to_grafana,
     send_waiting_offers_and_clients_amount_to_grafana,
 )
 from external_offers.services.send_offers_for_call_to_kafka import send_offers_for_call_to_kafka
+from external_offers.services.send_operators_to_kafka import send_operators_to_kafka
 from external_offers.services.send_parsed_offers_to_kafka import send_parsed_offers_to_kafka
+from external_offers.services.send_teams_to_kafka import send_teams_to_kafka
 from external_offers.web.urls import urlpatterns
 
 
@@ -74,6 +78,30 @@ def send_parsed_offers_to_kafka_cron():
 def send_offers_for_call_to_kafka_cron():
     """ Отправить записи из таблицы offers_for_call в кафку """
     IOLoop.current().run_sync(send_offers_for_call_to_kafka)
+
+
+@cli.command()
+def send_operators_to_kafka_cron():
+    """ Отправить записи из таблицы operators в кафку """
+    IOLoop.current().run_sync(send_operators_to_kafka)
+
+
+@cli.command()
+def send_teams_to_kafka_cron():
+    """ Отправить записи из таблицы teams в кафку """
+    IOLoop.current().run_sync(send_teams_to_kafka)
+
+
+@cli.command()
+def send_event_logs_to_kafka_cron():
+    """ Отправить записи из таблицы event_log в кафку """
+    IOLoop.current().run_sync(send_event_logs_to_kafka)
+
+
+@cli.command()
+def send_clients_to_kafka_cron():
+    """ Отправить записи из таблицы clients в кафку """
+    IOLoop.current().run_sync(send_clients_to_kafka)
 
 
 # [ML] сохранение объявлений с внешних площадок

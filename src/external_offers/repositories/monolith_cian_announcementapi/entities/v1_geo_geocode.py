@@ -172,6 +172,8 @@ class Source(StrEnum):
     """Форма подачи"""
     valuation = 'Valuation'
     """Оценка недвижимости"""
+    online_marketing = 'OnlineMarketing'
+    """Онлайн-маркетинг"""
 
 
 @dataclass

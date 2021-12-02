@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from external_offers.entities import Offer, ParsedOffer
+from external_offers.entities import Client, EventLogEntry, Offer, Operator, ParsedOffer, Team
 from external_offers.enums import CallStatus
 
 
@@ -74,6 +74,46 @@ class OfferForCallKafkaMessage:
 class ParsedOfferKafkaMessage:
     offer: ParsedOffer
     """Стороннее объявление (строка в parsed_offers)"""
+    operation_id: str
+    """Operation id"""
+    date: datetime
+    """Время отправки"""
+
+
+@dataclass
+class ClientKafkaMessage:
+    client: Client
+    """Клиент (строка в clients)"""
+    operation_id: str
+    """Operation id"""
+    date: datetime
+    """Время отправки"""
+
+
+@dataclass
+class EventLogKafkaMessage:
+    event_log: EventLogEntry
+    """Событие перевода по статусам (строка в event_log)"""
+    operation_id: str
+    """Operation id"""
+    date: datetime
+    """Время отправки"""
+
+
+@dataclass
+class OperatorKafkaMessage:
+    operator: Operator
+    """Оператор КЦ (строка в operators)"""
+    operation_id: str
+    """Operation id"""
+    date: datetime
+    """Время отправки"""
+
+
+@dataclass
+class TeamKafkaMessage:
+    team: Team
+    """Команда (строка в teams)"""
     operation_id: str
     """Operation id"""
     date: datetime
