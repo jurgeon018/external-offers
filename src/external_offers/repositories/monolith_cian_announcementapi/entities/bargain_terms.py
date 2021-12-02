@@ -116,7 +116,7 @@ class VatType(StrEnum):
     included = 'included'
     """НДС включен"""
     not_included = 'notIncluded'
-    """НДС не включен"""
+    """Без НДС"""
     vat_included = 'vatIncluded'
     """НДС включен"""
     vat_not_included = 'vatNotIncluded'
