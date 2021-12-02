@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
 import pytz
@@ -668,3 +668,23 @@ async def delete_test_clients() -> None:
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def iterate_over_clients_sorted(
+    *,
+    prefetch: int
+) -> AsyncGenerator[Client, None]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients]
+        ).order_by(
+            clients.c.client_id.asc()
+        )
+    )
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield client_mapper.map_from(row)

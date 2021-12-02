@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import AsyncGenerator, List, Optional, Union
 
 import asyncpgsa
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import delete, func, select, update
 
@@ -145,3 +146,23 @@ async def get_operator_team_id(operator_id: int) -> Optional[int]:
     )
     operator_team_id = await pg.get().fetchval(query, *params)
     return int(operator_team_id) if operator_team_id else None
+
+
+async def iterate_over_operators_sorted(
+    *,
+    prefetch: int = runtime_settings.DEFAULT_PREFETCH,
+) -> AsyncGenerator[Operator, None]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [operators]
+        ).order_by(
+            operators.c.operator_id.asc()
+        )
+    )
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield operators_mapper.map_from(row)
