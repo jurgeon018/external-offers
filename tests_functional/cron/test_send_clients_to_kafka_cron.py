@@ -23,7 +23,7 @@ async def test_send_offers_for_call_called__final_offers_for_call_exist__correct
     await runner.run_python_command('send-clients-to-kafka-cron')
 
     await kafka_service.wait_messages(
-        topic='clients.change',
+        topic='external-offers-clients.change',
         timeout=2.5,
         count=expected_count
     )
