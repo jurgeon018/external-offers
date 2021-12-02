@@ -47,6 +47,8 @@ autoscale.max = 10
 type = "cron"
 command = "create-offers-for-call"
 cron = "0 4 * * *"
+memory = 2048
+prod.cpu = 0.1
 
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "cron"
