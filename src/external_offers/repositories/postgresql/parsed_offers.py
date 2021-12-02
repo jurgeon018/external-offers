@@ -139,6 +139,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         po.c.source_object_model['phones'] != [],
         po.c.source_object_model['phones'] != JSON.NULL,
         po.c.source_object_model['phones'] != [''],
+        # po.c.source_user_id != JSON.NULL,
         not_(po.c.is_calltracking),
         not_(po.c.synced),
     ]
