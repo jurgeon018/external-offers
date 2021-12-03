@@ -247,7 +247,7 @@ definitions:
         - usn
         type: string
         x-included: НДС включен
-        x-notIncluded: НДС не включен
+        x-notIncluded: Без НДС
         x-usn: УСН (упрощенная система налогообложения)
         x-vatIncluded: НДС включен
         x-vatNotIncluded: НДС не включен
@@ -269,6 +269,18 @@ definitions:
         type: string
         x-free: Свободна.
         x-inReserve: В резерве.
+    type: object
+  RealtyApi.Models.Announcements.Swagger.BookingSchema2:
+    description: Бронирование.
+    properties:
+      status:
+        description: Статус бронирования.
+        enum:
+        - free
+        - booked
+        type: string
+        x-booked: Забронировано.
+        x-free: Свободна.
     type: object
   RealtyApi.Models.Announcements.Swagger.BuildingSchema:
     description: Здание
@@ -1540,6 +1552,9 @@ definitions:
           \ раздельных комнат.\r\n            \r\nПоле RoomDefinitions имеет приоритет\
           \ - если оно задано, поле AllRoomsArea будет переопределено."
         type: string
+      apartment:
+        description: Номер квартиры
+        type: string
       archivedDate:
         description: Дата переноса объявления в архив.
         format: date-time
@@ -1569,9 +1584,17 @@ definitions:
         description: Количество спальных мест
         format: int64
         type: integer
+      booking:
+        $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.BookingSchema2'
+        description: Бронирование
       building:
         $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.BuildingSchema'
         description: Информация о здании
+      buildingCadastralNumber:
+        description: "Кадастровый номер дома <br />\r\nДля загородной недвижимости\
+          \ в поле <a href=\"https://www.cian.ru/xml_import/doc/#:~:text=%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D1%82%D0%B0%20(Double)-,CadastralNumber,-%D0%9A%D0%B0%D0%B4%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B2%D1%8B%D0%B9%20%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%20(String\"\
+          >Кадастровый номер</a>\r\nуказывается кадастровый номер земельного участка"
+        type: string
       businessShoppingCenter:
         $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.BusinessShoppingCenterSchema'
         description: ТЦ/БЦ, <a href="https://www.cian.ru/cian-api/site/v1/business-shopping-centers-export/to-client-excel/">Скачать
@@ -2016,6 +2039,10 @@ definitions:
         description: ID объявления в Realty
         format: int32
         type: integer
+      imagesCount:
+        description: Количество изображений
+        format: int32
+        type: integer
       inputType:
         description: Вход
         enum:
@@ -2037,8 +2064,15 @@ definitions:
       isByHomeOwner:
         description: Собственник объявления
         type: boolean
+      isCianPartner:
+        description: Флаг, показывающий является ли объявление партнёрским (Суточно
+          Ру)
+        type: boolean
       isCustoms:
         description: Таможня
+        type: boolean
+      isDacha:
+        description: Дом является дачей
         type: boolean
       isEnabledCallTracking:
         description: Флаг, показывающий включен ли calltracking
@@ -2722,9 +2756,6 @@ definitions:
         items:
           $ref: '#/definitions/RealtyApi.Models.Announcements.Swagger.PublishTermSchema'
         type: array
-      usePromotionFromAuction:
-        description: Использовать стоимость аукциона как итоговую стоимость продвижения
-        type: boolean
     type: object
   RealtyApi.Models.Announcements.Swagger.RailwayInfoSchema:
     description: Жд станция
@@ -3009,6 +3040,9 @@ definitions:
         type: string
         x-v1: Сделка V1
         x-v2: Сделка V2
+      isTaxExcluded:
+        description: Отключить налоги
+        type: boolean
       source:
         description: "Откуда было произведено согласие на подключение услуги \"Сделка\"\
           \ в виде строки.\r\nИспользутся взамен {Web.AnnouncementApi.App.Announcements.Models.DealRent.DealRentData.ApplyDealRentSource},\
@@ -3033,11 +3067,15 @@ definitions:
         - District
         - Underground
         - House
+        - EntryIntoRoad
+        - NewObject
         type: string
         x-Country: Страна
         x-District: Район
+        x-EntryIntoRoad: Въезд на шоссе
         x-House: Дом
         x-Location: Локация
+        x-NewObject: ЖК - новостройки
         x-Road: Шоссе
         x-Street: Улица
         x-Underground: Метро
@@ -3347,6 +3385,7 @@ paths:
         - AnnouncementParser
         - AddForm
         - Valuation
+        - OnlineMarketing
         in: query
         name: source
         required: false
@@ -3389,6 +3428,7 @@ paths:
           \nhttps://cianru.atlassian.net/wiki/pages/viewpage.action?pageId=17399972\r\
           \nv1/geo/geocode_location/"
         x-Moderation: Используется при привязке адреса к нашим справочникам гео-модератором
+        x-OnlineMarketing: Онлайн-маркетинг
         x-ProcessGeoCheckItemCommand: Используется сервисом по обработке гео-элементов
           на проверку
         x-Rebind: "Используется сервисом по перепривязке гео у объектов\r\nIRebindByGeoService"

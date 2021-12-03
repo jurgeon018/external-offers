@@ -11,12 +11,12 @@ cian-codegen version: 1.17.0
 from dataclasses import dataclass
 from typing import Optional
 
-from .booking import Booking
+from .swagger_booking import SwaggerBooking
 
 
 @dataclass
 class Flat:
-    booking: Optional[Booking] = None
+    booking: Optional[SwaggerBooking] = None
     """Бронирование квартиры"""
     flat_number: Optional[int] = None
     """Номер на площадке"""

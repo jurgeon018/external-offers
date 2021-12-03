@@ -41,6 +41,7 @@ from .district_info import DistrictInfo
 from .drainage import Drainage
 from .electricity import Electricity
 from .flags import Flags
+from .swagger_booking import SwaggerBooking
 from .flat import Flat
 from .garage import Garage
 from .gas import Gas
@@ -54,7 +55,6 @@ from .kp import Kp
 from .land import Land
 from .location_path import LocationPath
 from .monthly_income import MonthlyIncome
-from .monthly_income import Currency
 from .multiposting import Multiposting
 from .rent_by_parts import RentByParts
 from .railway_info import RailwayInfo

@@ -30,6 +30,10 @@ class GeoType(StrEnum):
     """Метро"""
     house = 'House'
     """Дом"""
+    entry_into_road = 'EntryIntoRoad'
+    """Въезд на шоссе"""
+    new_object = 'NewObject'
+    """ЖК - новостройки"""
 
 
 @dataclass

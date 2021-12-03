@@ -16,6 +16,7 @@ from cian_enum import NoFormat, StrEnum
 
 from .auction import Auction
 from .bargain_terms import BargainTerms
+from .booking import Booking
 from .building import Building
 from .business_shopping_center import BusinessShoppingCenter
 from .commercial_specialty import CommercialSpecialty
@@ -488,6 +489,8 @@ class ObjectModel:
     """Доп. линии"""
     all_rooms_area: Optional[str] = None
     'Площадь комнат, м².\r\n+ для обозначения смежных комнат, - для раздельных комнат.\r\n            \r\nПоле RoomDefinitions имеет приоритет - если оно задано, поле AllRoomsArea будет переопределено.'
+    apartment: Optional[str] = None
+    """Номер квартиры"""
     archived_date: Optional[_datetime] = None
     """Дата переноса объявления в архив."""
     area_parts: Optional[List[RentByParts]] = None
@@ -501,8 +504,12 @@ class ObjectModel:
     """Количество спален"""
     beds_count: Optional[int] = None
     """Количество спальных мест"""
+    booking: Optional[Booking] = None
+    """Бронирование"""
     building: Optional[Building] = None
     """Информация о здании"""
+    building_cadastral_number: Optional[str] = None
+    'Кадастровый номер дома <br />\r\nДля загородной недвижимости в поле <a href="https://www.cian.ru/xml_import/doc/#:~:text=%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D1%82%D0%B0%20(Double)-,CadastralNumber,-%D0%9A%D0%B0%D0%B4%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B2%D1%8B%D0%B9%20%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%20(String">Кадастровый номер</a>\r\nуказывается кадастровый номер земельного участка'
     business_shopping_center: Optional[BusinessShoppingCenter] = None
     """ТЦ/БЦ, <a href="https://www.cian.ru/cian-api/site/v1/business-shopping-centers-export/to-client-excel/">Скачать список ID</a>"""
     cadastral_number: Optional[str] = None
@@ -651,6 +658,8 @@ class ObjectModel:
     """Информация о собственнике"""
     id: Optional[int] = None
     """ID объявления в Realty"""
+    images_count: Optional[int] = None
+    """Количество изображений"""
     input_type: Optional[InputType] = None
     """Вход"""
     is_apartments: Optional[bool] = None
@@ -659,8 +668,12 @@ class ObjectModel:
     """Объявление опубликовано собственником коммерческой"""
     is_by_home_owner: Optional[bool] = None
     """Собственник объявления"""
+    is_cian_partner: Optional[bool] = None
+    """Флаг, показывающий является ли объявление партнёрским (Суточно Ру)"""
     is_customs: Optional[bool] = None
     """Таможня"""
+    is_dacha: Optional[bool] = None
+    """Дом является дачей"""
     is_enabled_call_tracking: Optional[bool] = None
     """Флаг, показывающий включен ли calltracking"""
     is_in_hidden_base: Optional[bool] = None

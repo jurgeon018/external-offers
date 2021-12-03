@@ -78,5 +78,3 @@ class PublishTerms:
     'Пропустить проверку минимальной цены.\r\nТолько для выгрузок, при ручной подаче игнорируем.'
     terms: Optional[List[PublishTerm]] = None
     """Условия размещения"""
-    use_promotion_from_auction: Optional[bool] = None
-    """Использовать стоимость аукциона как итоговую стоимость продвижения"""
