@@ -343,7 +343,6 @@ async def sync_offers_for_call_with_parsed() -> None:
                 client_phones = json.loads(parsed_offer.phones)
                 client_contact = parsed_offer.contact
                 segment = parsed_offer.user_segment
-
                 client_id = generate_guid()
                 client = Client(
                     client_id=client_id,
@@ -351,7 +350,8 @@ async def sync_offers_for_call_with_parsed() -> None:
                     client_name=client_contact,
                     client_phones=client_phones if client_phones else [],
                     status=ClientStatus.waiting,
-                    segment=UserSegment.from_str(segment) if segment else None
+                    segment=UserSegment.from_str(segment) if segment else None,
+                    subsegment=parsed_offer.user_subsegment,
                 )
                 await save_client(
                     client=client
@@ -361,6 +361,7 @@ async def sync_offers_for_call_with_parsed() -> None:
             now = datetime.now(tz=pytz.utc)
             offer = Offer(
                 id=offer_id,
+                group_id=parsed_offer.source_group_id,
                 parsed_id=parsed_offer.id,
                 client_id=client.client_id,
                 status=client.status,
@@ -382,13 +383,14 @@ async def clear_and_prioritize_waiting_offers():
             team=None,
         )
     ]
-    teams = await get_teams()
-    for team in teams:
-        team_priorities.append(
-            prioritize_waiting_offers(
-                team=team,
+    if runtime_settings.get('ENABLE_TEAMS_PRIORITIZATION', False):
+        teams = await get_teams()
+        for team in teams:
+            team_priorities.append(
+                prioritize_waiting_offers(
+                    team=team,
+                )
             )
-        )
     await asyncio.gather(*team_priorities)
 
     await delete_calltracking_clients()
