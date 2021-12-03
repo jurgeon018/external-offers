@@ -35,21 +35,21 @@ parsed_offers_change_producer: EntityKafkaProducer[ParsedOfferKafkaMessage] = ge
 )
 
 clients_change_producer: EntityKafkaProducer[ClientKafkaMessage] = get_kafka_entity_producer(
-    topic='clients.change',
+    topic='external-offers-clients.change',
     message_type=ClientKafkaMessage,
 )
 
 event_logs_change_producer: EntityKafkaProducer[EventLogKafkaMessage] = get_kafka_entity_producer(
-    topic='event-logs.change',
+    topic='external-offers-event-logs.change',
     message_type=EventLogKafkaMessage,
 )
 
 operators_change_producer: EntityKafkaProducer[OperatorKafkaMessage] = get_kafka_entity_producer(
-    topic='operators.change',
+    topic='external-offers-operators.change',
     message_type=OperatorKafkaMessage,
 )
 
 teams_change_producer: EntityKafkaProducer[TeamKafkaMessage] = get_kafka_entity_producer(
-    topic='teams.change',
+    topic='external-offers-teams.change',
     message_type=TeamKafkaMessage,
 )

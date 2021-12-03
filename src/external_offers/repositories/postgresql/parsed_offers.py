@@ -167,10 +167,12 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .returning(
             tables.parsed_offers.c.id,
             tables.parsed_offers.c.source_user_id,
+            tables.parsed_offers.c.source_group_id,
             tables.parsed_offers.c.timestamp,
             tables.parsed_offers.c.external_offer_type,
             tables.parsed_offers.c.created_at,
             tables.parsed_offers.c.user_segment,
+            tables.parsed_offers.c.user_subsegment,
             tables.parsed_offers.c.source_object_model['phones'].label('phones'),
             tables.parsed_offers.c.source_object_model['contact'].label('contact'),
             tables.parsed_offers.c.source_object_model['category'].as_string().label('category')
