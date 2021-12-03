@@ -366,13 +366,14 @@ async def clear_and_prioritize_waiting_offers():
             team=None,
         )
     ]
-    teams = await get_teams()
-    for team in teams:
-        team_priorities.append(
-            prioritize_waiting_offers(
-                team=team,
+    if runtime_settings.get('ENABLE_TEAMS_PRIORITIZATION', False):
+        teams = await get_teams()
+        for team in teams:
+            team_priorities.append(
+                prioritize_waiting_offers(
+                    team=team,
+                )
             )
-        )
     await asyncio.gather(*team_priorities)
 
     await delete_calltracking_clients()
