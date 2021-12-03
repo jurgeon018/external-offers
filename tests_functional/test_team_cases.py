@@ -232,26 +232,20 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     await runner.run_python_command('create-offers-for-call')
 
     # проверить что клиенты создаются
-    client0 = await pg.fetchrow("""
-        SELECT * FROM clients WHERE avito_user_id = 'c42bb598767308327e1dffbe7241486c'
+    clients = await pg.fetch("""
+        SELECT status FROM clients WHERE avito_user_id IN (
+            'c42bb598767308327e1dffbe7241486c',
+            '555bb598767308327e1dffbe7241486c',
+            '29f05f430722c915c498113b16ba0e78',
+            '25f05f430722c915c498113b16ba0e78'
+        )
     """)
-    client1 = await pg.fetchrow("""
-        SELECT * FROM clients WHERE avito_user_id = '555bb598767308327e1dffbe7241486c'
-    """)
-    client2 = await pg.fetchrow("""
-        SELECT * FROM clients WHERE avito_user_id = '29f05f430722c915c498113b16ba0e78'
-    """)
-    client3 = await pg.fetchrow("""
-        SELECT * FROM clients WHERE avito_user_id = '25f05f430722c915c498113b16ba0e78'
-    """)
-    assert client0['status'] == 'waiting'
-    assert client1['status'] == 'waiting'
-    assert client2['status'] == 'waiting'
-    assert client3['status'] == 'waiting'
-    rows = await pg.fetch('select status from offers_for_call')
-    statuses = [row['status'] for row in rows]
-    assert len(set(statuses)) == 1
-    assert statuses[0] == 'waiting'
+    assert [client['status'] for client in clients][0] == 'waiting'
+    assert len({client['status'] for client in clients}) == 1
+    offer_statuses = await pg.fetch('select status from offers_for_call')
+    offer_statuses = [row['status'] for row in offer_statuses]
+    assert len(set(offer_statuses)) == 1
+    assert offer_statuses[0] == 'waiting'
     assert await pg.fetchval("""select count(*) from clients""") == 5
 
     # проверить что задания создаются
@@ -294,9 +288,6 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     ofc13 = await pg.fetchrow(
         'SELECT * FROM offers_for_call WHERE parsed_id = \'821ff03a-573c-4bac-8599-28f17e68a0d8\''
     )
-    # ofc14 = await pg.fetchrow(
-    #     'SELECT * FROM offers_for_call WHERE parsed_id = \'xdd86dec-20f5-4a70-bb3a-077b2754dfe6\''
-    # )
 
     # задание не создалось изза is_calltracking==True
     assert ofc6 is None
@@ -317,8 +308,6 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert ofc11['priority'] == _CLEAR_PRIORITY
     assert ofc12['priority'] == 231120212
     assert ofc13['priority'] == 231115223
-    # TODO: https://jira.cian.tech/browse/CD-123494
-    # assert ofc14['priority'] == ...
     assert json.loads(ofc1['team_priorities']) == {
         '1': -1, '2': -1, '3': 231115211, '4': 231115213, '5': 231115221
     }
@@ -343,10 +332,6 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert json.loads(ofc13['team_priorities']) == {
         '1': -1, '2': -1, '3': 231115223, '4': 231115221, '5': 231115213
     }
-    # TODO: https://jira.cian.tech/browse/CD-123494
-    # assert json.loads(ofc14['team_priorities']) == {
-    #     '1': -1, '2': -1, '3': 231115223, '4': 231115221, '5': 231115213
-    # }
     assert await pg.fetchval("""select count(*) from offers_for_call""") == 9
 
 
@@ -367,20 +352,24 @@ async def assert_offers_updating(*, pg, http, operator_id):
         expected_status=200
     )
     client = await pg.fetchrow("""select * from clients where avito_user_id = '29f05f430722c915c498113b16ba0e78'""")
-    client0 = await pg.fetchrow("""select * from clients where avito_user_id='c42bb598767308327e1dffbe7241486c'""")
-    client1 = await pg.fetchrow("""select * from clients where avito_user_id='555bb598767308327e1dffbe7241486c'""")
-    client2 = await pg.fetchrow("""select * from clients where avito_user_id='25f05f430722c915c498113b16ba0e78'""")
+    clients = await pg.fetchrow("""
+        select status, team_id from clients where avito_user_id in (
+            'c42bb598767308327e1dffbe7241486c',
+            '555bb598767308327e1dffbe7241486c',
+            '25f05f430722c915c498113b16ba0e78'
+        )
+    """)
     ofc = await pg.fetchrow("""
         select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
     """)
     assert resp.data['errors'] == []
     assert resp.data['success']
-    assert client0['status'] == 'waiting'
-    assert client1['status'] == 'waiting'
-    assert client2['status'] == 'waiting'
-    assert client0['team_id'] is None
-    assert client1['team_id'] is None
-    assert client2['team_id'] is None
+    statuses_set = {client['status'] for client in clients}
+    team_ids_set = {client['team_id'] for client in clients}
+    assert len(statuses_set) == 1
+    assert statuses_set == 'waiting'
+    assert len(team_ids_set) == 1
+    assert team_ids_set is None
     assert client['status'] == 'inProgress'
     assert client['team_id'] == team_id
     assert ofc['status'] == 'inProgress'

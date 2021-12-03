@@ -184,28 +184,20 @@ async def prioritize_unactivated_clients(
                 client_count=client_count.draft_offers_count,
                 team_settings=team_settings,
             )
-        if team:
-            if client_priority == _CLEAR_PRIORITY:
-                team_priorities = client_count.team_priorities
-                try:
-                    team_priorities = json.loads(team_priorities)
-                except:
-                    team_priorities = {}
-                team_priority = team_priorities.get(str(team.team_id))
-                if team_priority is None:
-                    continue
-                client_priority = prefix + str(team_priority)[1:-2]
+        if client_priority == _CLEAR_PRIORITY:
+            if team:
+                team_priorities = {}
+                if client_count.team_priorities:
+                    team_priorities = json.loads(client_count.team_priorities)
+                priority = team_priorities.get(str(team.team_id))
             else:
-                client_priority = prefix + str(client_priority)
-            clients_priority[client_count.client_id] = client_priority
+                priority = client_count.priority
+            if priority is None:
+                continue
+            client_priority = prefix + str(priority)[1:-2]
         else:
-            if client_priority == _CLEAR_PRIORITY:
-                if client_count.priority is None:
-                    continue
-                client_priority = prefix + str(client_count.priority)[1:-2]
-            else:
-                client_priority = prefix + str(client_priority)
-            clients_priority[client_count.client_id] = client_priority
+            client_priority = prefix + str(client_priority)
+        clients_priority[client_count.client_id] = client_priority
     return clients_priority
 
 
