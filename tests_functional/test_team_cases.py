@@ -149,27 +149,111 @@ async def prepare_teams(*, http, pg, operator_id):
     await update_team_settings(team_id=5, key='rent_priority', value='1', pg=pg)
 
 
+async def prepare_unactivated_clients(*, runner, pg):
+    await pg.execute("""
+    INSERT INTO public.clients (
+        client_id,
+        avito_user_id,
+        client_name,
+        client_phones,
+        client_email,
+        operator_user_id,
+        status,
+        calls_count,
+        last_call_id,
+        unactivated
+    ) VALUES(
+        'unactivated_client_id_1',
+        '92131321',
+        'АлександрАлександров',
+        '{+79812333237}',
+        'testemail@gmail.com',
+        60024636,
+        'waiting',
+        1,
+        NULL,
+        TRUE
+    );
+    """)
+    await pg.execute("""
+    INSERT INTO public.offers_for_call (
+        id,
+        parsed_id,
+        client_id,
+        status,
+        created_at,
+        started_at,
+        synced_at,
+        priority,
+        last_call_id,
+        synced_with_kafka,
+        category,
+        publication_status
+    ) VALUES(
+        545222,
+        'xdd86dec-20f5-4a70-bb3a-077b2754dfe6',
+        'unactivated_client_id_1',
+        'waiting',
+        '2020-10-11 04:05:06',
+        '2020-10-11 04:05:06',
+        '2020-10-11 04:05:06',
+        1,
+        NULL,
+        false,
+        NULL,
+        'Draft'
+    );
+    """)
+    team_id = '1'
+    priority = '1234'
+    offer_id = 545222
+    query = """
+    UPDATE offers_for_call
+    SET team_priorities = jsonb_set(
+        coalesce(team_priorities, '{}'),
+        '{%s}',
+        '%s'
+    )
+    WHERE id = '%s';
+    """ % (
+        team_id,
+        priority,
+        offer_id,
+    )
+    await pg.execute(query)
+
+
 async def assert_offers_creation(*, runner, pg, cian_user_id):
+    # создать добивочные задания
+    await prepare_unactivated_clients(runner=runner, pg=pg)
+
     # создать задания из спаршеных обьявлений(через крон)
     await runner.run_python_command('create-offers-for-call')
 
-    # проверить что задания создаются
-    ofc = await pg.fetch("""select * from offers_for_call""")
-    assert len(ofc) == 8
-
     # проверить что клиенты создаются
-    clients = await pg.fetch("""select * from clients""")
-    assert len(clients) == 4
-
-    assert clients[0]['status'] == 'waiting'
-    assert clients[1]['status'] == 'waiting'
-    assert clients[2]['status'] == 'waiting'
-    assert clients[3]['status'] == 'waiting'
+    client0 = await pg.fetchrow("""
+        SELECT * FROM clients WHERE avito_user_id = 'c42bb598767308327e1dffbe7241486c'
+    """)
+    client1 = await pg.fetchrow("""
+        SELECT * FROM clients WHERE avito_user_id = '555bb598767308327e1dffbe7241486c'
+    """)
+    client2 = await pg.fetchrow("""
+        SELECT * FROM clients WHERE avito_user_id = '29f05f430722c915c498113b16ba0e78'
+    """)
+    client3 = await pg.fetchrow("""
+        SELECT * FROM clients WHERE avito_user_id = '25f05f430722c915c498113b16ba0e78'
+    """)
+    assert client0['status'] == 'waiting'
+    assert client1['status'] == 'waiting'
+    assert client2['status'] == 'waiting'
+    assert client3['status'] == 'waiting'
     rows = await pg.fetch('select status from offers_for_call')
     statuses = [row['status'] for row in rows]
     assert len(set(statuses)) == 1
     assert statuses[0] == 'waiting'
+    assert 5 == await pg.fetchval("""select count(*) from clients""")
 
+    # проверить что задания создаются
     ofc1 = await pg.fetchrow(
         'SELECT * FROM offers_for_call WHERE parsed_id = \'894ff03a-573c-4bac-8599-28f17e68a0d8\''
     )
@@ -209,6 +293,9 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     ofc13 = await pg.fetchrow(
         'SELECT * FROM offers_for_call WHERE parsed_id = \'821ff03a-573c-4bac-8599-28f17e68a0d8\''
     )
+    ofc14 = await pg.fetchrow(
+        'SELECT * FROM offers_for_call WHERE parsed_id = \'xdd86dec-20f5-4a70-bb3a-077b2754dfe6\''
+    )
 
     # задание не создалось изза is_calltracking==True
     assert ofc6 is None
@@ -229,6 +316,8 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert ofc11['priority'] == _CLEAR_PRIORITY
     assert ofc12['priority'] == 231120212
     assert ofc13['priority'] == 231115223
+    # TODO: https://jira.cian.tech/browse/CD-123494
+    # assert ofc14['priority'] == ...
     assert json.loads(ofc1['team_priorities']) == {
         '1': -1, '2': -1, '3': 231115211, '4': 231115213, '5': 231115221
     }
@@ -253,6 +342,11 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert json.loads(ofc13['team_priorities']) == {
         '1': -1, '2': -1, '3': 231115223, '4': 231115221, '5': 231115213
     }
+    # TODO: https://jira.cian.tech/browse/CD-123494
+    # assert json.loads(ofc14['team_priorities']) == {
+    #     '1': -1, '2': -1, '3': 231115223, '4': 231115221, '5': 231115213
+    # }
+    assert 9 == await pg.fetchval("""select count(*) from offers_for_call""")
 
 
 async def assert_offers_updating(*, pg, http, operator_id):
@@ -271,19 +365,21 @@ async def assert_offers_updating(*, pg, http, operator_id):
         json={},
         expected_status=200
     )
-    clients = await pg.fetch("""select * from clients""")
-    client = clients[3]
+    client = await pg.fetchrow("""select * from clients where avito_user_id = '29f05f430722c915c498113b16ba0e78'""")
+    client0 = await pg.fetchrow("""select * from clients where avito_user_id='c42bb598767308327e1dffbe7241486c'""")
+    client1 = await pg.fetchrow("""select * from clients where avito_user_id='555bb598767308327e1dffbe7241486c'""")
+    client2 = await pg.fetchrow("""select * from clients where avito_user_id='25f05f430722c915c498113b16ba0e78'""")
     ofc = await pg.fetchrow("""
         select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
     """)
     assert resp.data['errors'] == []
     assert resp.data['success']
-    assert clients[0]['status'] == 'waiting'
-    assert clients[1]['status'] == 'waiting'
-    assert clients[2]['status'] == 'waiting'
-    assert clients[0]['team_id'] is None
-    assert clients[1]['team_id'] is None
-    assert clients[2]['team_id'] is None
+    assert client0['status'] == 'waiting'
+    assert client1['status'] == 'waiting'
+    assert client2['status'] == 'waiting'
+    assert client0['team_id'] is None
+    assert client1['team_id'] is None
+    assert client2['team_id'] is None
     assert client['status'] == 'inProgress'
     assert client['team_id'] == team_id
     assert ofc['status'] == 'inProgress'

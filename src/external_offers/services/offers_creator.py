@@ -12,7 +12,7 @@ from tornado import gen
 
 from external_offers import pg
 from external_offers.entities import Offer
-from external_offers.entities.clients import Client, ClientStatus, ClientWaitingOffersCount
+from external_offers.entities.clients import Client, ClientStatus, ClientWaitingOffersCount, ClientDraftOffersCount
 from external_offers.entities.offers import ExternalOfferType
 from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
@@ -129,6 +129,7 @@ async def prioritize_waiting_offers(
         clients_priority=clients_priority,
         unactivated_clients_counts=unactivated_clients_counts,
         team_settings=team_settings,
+        team=team,
     )
     # создает приоритеты для заданий + склеивает с приоритетами заданий
     offers_priority = await prioritize_offers(
@@ -164,8 +165,9 @@ async def prioritize_waiting_offers(
 
 async def prioritize_unactivated_clients(
     clients_priority: list[ClientWaitingOffersCount],
-    unactivated_clients_counts: list,
+    unactivated_clients_counts: list[ClientDraftOffersCount],
     team_settings: dict,
+    team: Optional[Team] = None,
 ) -> list[ClientWaitingOffersCount]:
     """ Просчитать приоритеты для добивочных заданий """
 
@@ -182,13 +184,28 @@ async def prioritize_unactivated_clients(
                 client_count=client_count.draft_offers_count,
                 team_settings=team_settings,
             )
-        if client_priority == _CLEAR_PRIORITY:
-            if client_count.priority is None:
-                continue
-            client_priority = prefix + str(client_count.priority)[1:-2]
+        if team:
+            if client_priority == _CLEAR_PRIORITY:
+                team_priorities = client_count.team_priorities
+                try:
+                    team_priorities = json.loads(team_priorities) 
+                except:
+                    team_priorities = {}
+                team_priority = team_priorities.get(str(team.team_id))
+                if team_priority is None:
+                    continue
+                client_priority = prefix + str(team_priority)[1:-2]
+            else:
+                client_priority = prefix + str(client_priority)
+            clients_priority[client_count.client_id] = client_priority
         else:
-            client_priority = prefix + str(client_priority)
-        clients_priority[client_count.client_id] = client_priority
+            if client_priority == _CLEAR_PRIORITY:
+                if client_count.priority is None:
+                    continue
+                client_priority = prefix + str(client_count.priority)[1:-2]
+            else:
+                client_priority = prefix + str(client_priority)
+            clients_priority[client_count.client_id] = client_priority
     return clients_priority
 
 
@@ -303,7 +320,7 @@ async def sync_offers_for_call_with_parsed() -> None:
     last_sync_date = None
     if runtime_settings.ENABLE_LAST_SYNC_DATE_FETCHING:
         last_sync_date = await get_last_sync_date()
-
+    x = await pg.get().fetch("""SELECT count(*) from parsed_offers where source_user_id='29f05f430722c915c498113b16ba0e78'""")
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
         last_sync_date=last_sync_date
     ):
@@ -358,6 +375,7 @@ async def sync_offers_for_call_with_parsed() -> None:
             await save_offer_for_call(offer=offer)
     await clear_and_prioritize_waiting_offers()
 
+from external_offers import pg
 
 async def clear_and_prioritize_waiting_offers():
     await clear_waiting_offers_and_clients_with_off_count_limits()

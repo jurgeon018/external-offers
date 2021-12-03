@@ -139,7 +139,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         po.c.source_object_model['phones'] != [],
         po.c.source_object_model['phones'] != JSON.NULL,
         po.c.source_object_model['phones'] != [''],
-        # po.c.source_user_id != JSON.NULL,
+        po.c.source_user_id.isnot(None),
         not_(po.c.is_calltracking),
         not_(po.c.synced),
     ]
@@ -179,6 +179,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     )
 
     rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
+    print('rowsrowsrows', rows)
     return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
 
 
