@@ -49,9 +49,11 @@ async def test_external_offer_callback__existing_external_offer__updated_without
     }
     old_data = {
         'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
+        'sourceGroupId': 'source_group_id_example1',
         'sourceObjectId': '1_1986816313',
         'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
         'userSegment': 'c',
+        'userSubsegment': 'subsegment_example_1',
         'isCalltracking': False,
         'sourceObjectModel': old_offer_data,
         'timestamp': '2020-10-26 13:55:00'
@@ -66,9 +68,11 @@ async def test_external_offer_callback__existing_external_offer__updated_without
     }
     new_data = {
         'id': '4c0c865f-3012-4d02-8560-5c644d2c95ba',
+        'sourceGroupId': 'source_group_id_example1',
         'sourceObjectId': '1_1986816313',
         'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
         'userSegment': 'c',
+        'userSubsegment': 'subsegment_example_1',
         'isCalltracking': False,
         'sourceObjectModel': new_offer_data,
         'timestamp': '2020-10-26 13:55:00'
@@ -93,6 +97,7 @@ async def test_external_offer_callback__existing_external_offer__updated_without
     assert row == {
         'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
         'user_segment': 'c',
+        'user_subsegment': 'subsegment_example_1',
         'source_object_id': '1_1986816313',
         'source_user_id': '27d1a87eb7a7cda52167530e424ca317',
         'source_object_model': (
@@ -103,5 +108,6 @@ async def test_external_offer_callback__existing_external_offer__updated_without
         'is_calltracking': False,
         'synced': False,
         'is_test': False,
+        'source_group_id': 'source_group_id_example1',
         'external_offer_type': None,
     }
