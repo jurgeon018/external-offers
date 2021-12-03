@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import AsyncGenerator, List, Optional, Union
 
 import asyncpgsa
 import pytz
+from cian_core.runtime_settings import runtime_settings
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import delete, func, select, update
 
@@ -56,12 +57,12 @@ async def get_operator_by_id(operator_id: int) -> Optional[Operator]:
 
 
 async def get_enriched_operator_by_id(operator_id: Union[str, int]) -> Optional[EnrichedOperator]:
-    row = await pg.get().fetchrow(f"""
+    row = await pg.get().fetchrow("""
         SELECT * FROM operators
         LEFT OUTER JOIN teams ON operators.team_id = teams.team_id
-        WHERE operators.operator_id = '{operator_id}'
+        WHERE operators.operator_id = $1
         LIMIT 1;
-    """)
+    """, str(operator_id))
     return enriched_operators_mapper.map_from(row) if row else None
 
 
@@ -145,3 +146,23 @@ async def get_operator_team_id(operator_id: int) -> Optional[int]:
     )
     operator_team_id = await pg.get().fetchval(query, *params)
     return int(operator_team_id) if operator_team_id else None
+
+
+async def iterate_over_operators_sorted(
+    *,
+    prefetch: int = runtime_settings.DEFAULT_PREFETCH,
+) -> AsyncGenerator[Operator, None]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [operators]
+        ).order_by(
+            operators.c.operator_id.asc()
+        )
+    )
+    cursor = await pg.get().cursor(
+        query,
+        *params,
+        prefetch=prefetch
+    )
+    async for row in cursor:
+        yield operators_mapper.map_from(row)
