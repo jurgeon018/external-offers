@@ -251,7 +251,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     statuses = [row['status'] for row in rows]
     assert len(set(statuses)) == 1
     assert statuses[0] == 'waiting'
-    assert 5 == await pg.fetchval("""select count(*) from clients""")
+    assert await pg.fetchval("""select count(*) from clients""") == 5
 
     # проверить что задания создаются
     ofc1 = await pg.fetchrow(
@@ -293,9 +293,9 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     ofc13 = await pg.fetchrow(
         'SELECT * FROM offers_for_call WHERE parsed_id = \'821ff03a-573c-4bac-8599-28f17e68a0d8\''
     )
-    ofc14 = await pg.fetchrow(
-        'SELECT * FROM offers_for_call WHERE parsed_id = \'xdd86dec-20f5-4a70-bb3a-077b2754dfe6\''
-    )
+    # ofc14 = await pg.fetchrow(
+    #     'SELECT * FROM offers_for_call WHERE parsed_id = \'xdd86dec-20f5-4a70-bb3a-077b2754dfe6\''
+    # )
 
     # задание не создалось изза is_calltracking==True
     assert ofc6 is None
@@ -346,7 +346,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     # assert json.loads(ofc14['team_priorities']) == {
     #     '1': -1, '2': -1, '3': 231115223, '4': 231115221, '5': 231115213
     # }
-    assert 9 == await pg.fetchval("""select count(*) from offers_for_call""")
+    assert await pg.fetchval("""select count(*) from offers_for_call""") == 9
 
 
 async def assert_offers_updating(*, pg, http, operator_id):
