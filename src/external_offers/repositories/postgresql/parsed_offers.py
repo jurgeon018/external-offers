@@ -19,7 +19,7 @@ from external_offers.entities.parsed_offers import (
     ParsedOfferMessage,
 )
 from external_offers.entities.teams import Team
-from external_offers.enums.object_model import Category
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (

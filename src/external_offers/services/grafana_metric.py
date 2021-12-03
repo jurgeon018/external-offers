@@ -65,10 +65,9 @@ async def get_synced_percentage(synced_count: int, processed_synced_count: int) 
     processed_synced_count - количество обработаных в течении дня
     """
     if synced_count == 0 or processed_synced_count == 0:
-        processed_synced_percentage = 0
+        return 0
     else:
-        processed_synced_percentage = processed_synced_count / synced_count * 100
-    return int(processed_synced_percentage)
+        return int(processed_synced_count / synced_count * 100)
 
 
 async def transform_list_into_dict(
@@ -112,7 +111,7 @@ async def get_region_name(region_id: str) -> Optional[str]:
 async def get_region_name_from_api(region_id: str) -> Optional[str]:
     try:
         response = await v1_locations_get(
-            V1LocationsGet(id=region_id),
+            V1LocationsGet(id=int(region_id)),
         )
         region_name = response.name
     except ApiClientException as exc:
@@ -127,11 +126,10 @@ async def get_region_name_from_api(region_id: str) -> Optional[str]:
 
 async def get_region_name_from_dict(region_id: str) -> Optional[str]:
     try:
-        region_name = REGION_NAMES[region_id]
+        return REGION_NAMES[region_id]
     except KeyError:
         logger.warning(
             'Название региона по коду %s небыло найдено в файле с регионами.',
             region_id,
         )
-        region_name = None
-    return region_name
+        return None
