@@ -351,8 +351,7 @@ async def assert_offers_updating(*, pg, http, operator_id):
         json={},
         expected_status=200
     )
-    client = await pg.fetchrow("""select * from clients where avito_user_id = '29f05f430722c915c498113b16ba0e78'""")
-    clients = await pg.fetchrow("""
+    clients = await pg.fetch("""
         select status, team_id from clients where avito_user_id in (
             'c42bb598767308327e1dffbe7241486c',
             '555bb598767308327e1dffbe7241486c',
@@ -362,14 +361,15 @@ async def assert_offers_updating(*, pg, http, operator_id):
     ofc = await pg.fetchrow("""
         select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
     """)
+    client = await pg.fetchrow("""select * from clients where avito_user_id = '29f05f430722c915c498113b16ba0e78'""")
     assert resp.data['errors'] == []
     assert resp.data['success']
-    statuses_set = {client['status'] for client in clients}
-    team_ids_set = {client['team_id'] for client in clients}
-    assert len(statuses_set) == 1
-    assert statuses_set == 'waiting'
-    assert len(team_ids_set) == 1
-    assert team_ids_set is None
+    statuses = [client['status'] for client in clients]
+    team_ids = [client['team_id'] for client in clients]
+    assert len(set(statuses)) == 1
+    assert statuses[0] == 'waiting'
+    assert len(set(team_ids)) == 1
+    assert team_ids[0] is None
     assert client['status'] == 'inProgress'
     assert client['team_id'] == team_id
     assert ofc['status'] == 'inProgress'
