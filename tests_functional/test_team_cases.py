@@ -351,6 +351,7 @@ async def assert_offers_updating(*, pg, http, operator_id):
         json={},
         expected_status=200
     )
+    client = await pg.fetchrow("""select * from clients where avito_user_id = '29f05f430722c915c498113b16ba0e78'""")
     clients = await pg.fetchrow("""
         select status, team_id from clients where avito_user_id in (
             'c42bb598767308327e1dffbe7241486c',
@@ -358,7 +359,6 @@ async def assert_offers_updating(*, pg, http, operator_id):
             '25f05f430722c915c498113b16ba0e78'
         )
     """)
-    client = await pg.fetchrow("""select * from clients where avito_user_id = '29f05f430722c915c498113b16ba0e78'""")
     ofc = await pg.fetchrow("""
         select * from offers_for_call where parsed_id='996c73b8-3057-47cc-b50a-419052da619f'
     """)
