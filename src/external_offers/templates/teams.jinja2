@@ -63,9 +63,6 @@
         </button>
         <br>
         {% endif %}
-        <button onclick="updateOperators()">
-            Обновить список операторов
-        </button>
     </div>
     <hr>
     {# Команды #}
@@ -78,7 +75,6 @@
             <div class="tablerow tablerow-header">
                 <div class="column columnheader">ID</div>
                 <div class="column columnheader">Название</div>
-                <div class="column columnheader">Сегмент</div>
                 <div class="column columnheader">ID лида</div>
             </div>
             {% for team in teams %}
@@ -89,15 +85,12 @@
                 <div class="column column-link" onclick="onClickRedirectToTeamCard('{{team.team_id}}')">
                     {{team.team_name}}
                 </div>
-                <div class="column">
-                    {% if team.segment %}{{team.segment.value}}{% else %}-{% endif %}
-                </div>
                 <div class="column column-link" onclick="onClickRedirectToOperatorCard('{{team.lead_id}}')">
                     {% if team.lead_id %}{{team.lead_id}}{% else %}-{% endif %}
                 </div>
                 <div class=column>
-                    {% if current_operator.is_teamlead %}
-                    <button style="display:inline" onclick="deleteTeam('{{team.team_id}}')">
+                    {% if current_operator.operator_id|string == team.lead_id|string %}
+                    <button style="display:inline" onclick="deleteTeam('{{team.team_id}}')" title="Убирает у выбраного пользователя роль оператора админки">
                         Удалить
                     </button>
                     {% endif %}
@@ -123,6 +116,12 @@
         <div class="table-block-title">
             Операторы
         </div>
+        <br>
+        <button onclick="updateOperators()">
+            Обновить список операторов
+        </button>
+        <br>
+        <br>
         <div class="grid">
             <div class="tablerow tablerow-header">
                 <div class="column columnheader">ID</div>
@@ -199,7 +198,7 @@
         <input id="operatorEmail" type='text' name='email' placeholder='введите email оператора'/>
         <br>
         <br>         #}
-        <button onclick="createOperator()">Создать оператора</button>
+        <button onclick="createOperator()" title="Добавляет пользователю с выбраным ID роль оператора админки">Создать оператора</button>
     </div>
     {% endif %}
     <hr>
