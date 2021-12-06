@@ -23,6 +23,9 @@ alias = "default"
 type = "web"
 memory = 2048
 
+[job.web.prod]
+cpu = 0.05
+
 [job.save-parsed-offers]
 type = "consumer"
 command = "save-parsed-offers"
