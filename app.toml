@@ -21,6 +21,7 @@ alias = "default"
 
 [job.web]
 type = "web"
+memory = 2048
 
 [job.save-parsed-offers]
 type = "consumer"
@@ -47,6 +48,8 @@ autoscale.max = 10
 type = "cron"
 command = "create-offers-for-call"
 cron = "0 4 * * *"
+memory = 2048
+prod.cpu = 0.1
 
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "cron"
@@ -67,6 +70,26 @@ cron = "0 7 * * *"
 type = "cron"
 command = "send-offers-for-call-to-kafka-cron"
 cron = "0 7 * * *"
+
+[job.send-operators-to-kafka-cron]
+type = "cron"
+command = "send-operators-to-kafka-cron"
+cron = "0 5 * * *"
+
+[job.send-teams-to-kafka-cron]
+type = "cron"
+command = "send-teams-to-kafka-cron"
+cron = "0 5 * * *"
+
+[job.send-event-logs-to-kafka-cron]
+type = "cron"
+command = "send-event-logs-to-kafka-cron"
+cron = "0 5 * * *"
+
+[job.send-clients-to-kafka-cron]
+type = "cron"
+command = "send-clients-to-kafka-cron"
+cron = "0 6 * * *"
 
 [job.send-waiting-offers-and-clients-amount-to-grafana-cron]
 type = "cron"

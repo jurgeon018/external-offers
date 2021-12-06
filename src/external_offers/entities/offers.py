@@ -24,6 +24,8 @@ class Offer:
     """Дата последней синхронизации объявления"""
     parsed_created_at: datetime
     """Дата создания спаршенного объявления"""
+    group_id: Optional[str] = None
+    """ID групы обьявлений"""
     priority: Optional[int] = None
     """Приоритет объявления для операторов без команд"""
     team_priorities: Optional[str] = None

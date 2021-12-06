@@ -52,6 +52,7 @@ CREATE TABLE offers_for_call
     category      varchar,
     last_call_id  varchar,
     comment       varchar,
+    group_id      varchar,
     row_version         bigint                   not null default 0,
     synced_with_kafka   boolean                  not null default false,
     synced_with_grafana boolean                  not null default false,
@@ -71,6 +72,7 @@ CREATE TABLE clients
     operator_user_id bigint,
     status           client_status_type,
     segment          varchar(1),
+    subsegment       varchar,
     next_call        timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar,
@@ -99,7 +101,9 @@ create table parsed_offers
 (
     id                  varchar unique primary key,
     user_segment        varchar,
+    user_subsegment     varchar,
     source_object_id    varchar,
+    source_group_id     varchar,
     source_user_id      varchar                  not null,
     source_object_model jsonb                    not null,
     is_calltracking     boolean                  not null,
@@ -114,6 +118,7 @@ create table parsed_offers
 CREATE INDEX ON clients(avito_user_id);
 CREATE INDEX ON offers_for_call(offer_cian_id);
 CREATE INDEX ON offers_for_call(client_id); 
+CREATE INDEX ON event_log(created_at); 
 ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);
 
 CREATE TYPE segment_type AS enum (

@@ -8,7 +8,6 @@ import pytz
 from cian_core.context import new_operation_id
 from cian_core.runtime_settings import runtime_settings
 from cian_json import json
-from simple_settings import settings
 from tornado import gen
 
 from external_offers import pg
@@ -35,7 +34,11 @@ from external_offers.repositories.postgresql import (
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
-from external_offers.repositories.postgresql.offers import set_waiting_offers_team_priorities_by_offer_ids
+from external_offers.repositories.postgresql.offers import (
+    delete_calltracking_clients,
+    delete_calltracking_offers,
+    set_waiting_offers_team_priorities_by_offer_ids,
+)
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
@@ -298,7 +301,7 @@ async def prioritize_clients(
 async def sync_offers_for_call_with_parsed() -> None:
     """ Синхронизировать таблицу заданий offers_for_call и parsed_offers """
     last_sync_date = None
-    if settings.ENABLE_LAST_SYNC_DATE_FETCHING:
+    if runtime_settings.ENABLE_LAST_SYNC_DATE_FETCHING:
         last_sync_date = await get_last_sync_date()
 
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
@@ -324,7 +327,6 @@ async def sync_offers_for_call_with_parsed() -> None:
                 client_phones = json.loads(parsed_offer.phones)
                 client_contact = parsed_offer.contact
                 segment = parsed_offer.user_segment
-
                 client_id = generate_guid()
                 client = Client(
                     client_id=client_id,
@@ -332,7 +334,8 @@ async def sync_offers_for_call_with_parsed() -> None:
                     client_name=client_contact,
                     client_phones=client_phones if client_phones else [],
                     status=ClientStatus.waiting,
-                    segment=UserSegment.from_str(segment) if segment else None
+                    segment=UserSegment.from_str(segment) if segment else None,
+                    subsegment=parsed_offer.user_subsegment,
                 )
                 await save_client(
                     client=client
@@ -340,9 +343,9 @@ async def sync_offers_for_call_with_parsed() -> None:
 
             offer_id = generate_guid()
             now = datetime.now(tz=pytz.utc)
-            external_offer_type = parsed_offer.external_offer_type
             offer = Offer(
                 id=offer_id,
+                group_id=parsed_offer.source_group_id,
                 parsed_id=parsed_offer.id,
                 client_id=client.client_id,
                 status=client.status,
@@ -350,7 +353,7 @@ async def sync_offers_for_call_with_parsed() -> None:
                 synced_at=parsed_offer.timestamp,
                 parsed_created_at=parsed_offer.created_at,
                 category=parsed_offer.category,
-                external_offer_type=ExternalOfferType.from_str(external_offer_type) if external_offer_type else None,
+                external_offer_type=parsed_offer.external_offer_type,
             )
             await save_offer_for_call(offer=offer)
     await clear_and_prioritize_waiting_offers()
@@ -364,14 +367,18 @@ async def clear_and_prioritize_waiting_offers():
             team=None,
         )
     ]
-    teams = await get_teams()
-    for team in teams:
-        team_priorities.append(
-            prioritize_waiting_offers(
-                team=team,
+    if runtime_settings.get('ENABLE_TEAMS_PRIORITIZATION', False):
+        teams = await get_teams()
+        for team in teams:
+            team_priorities.append(
+                prioritize_waiting_offers(
+                    team=team,
+                )
             )
-        )
     await asyncio.gather(*team_priorities)
+
+    await delete_calltracking_clients()
+    await delete_calltracking_offers()
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()

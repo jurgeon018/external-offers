@@ -8,6 +8,7 @@ from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
+from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -294,22 +295,24 @@ async def set_offers_status_and_priority_by_client(
 ) -> list[str]:
     if team_id and priority:
         params = []
-        query = """
-        UPDATE offers_for_call
-        SET status = '%s',
-        team_priorities = jsonb_set(
-            coalesce(team_priorities, '{}'),
-            '{%s}',
-            '%s'
-        )
-        WHERE client_id = '%s' AND status = '%s'
-        RETURNING id;
-        """ % (
-            status.value,
-            team_id,
-            priority,
-            client_id,
-            OfferStatus.in_progress.value,
+        query, params = asyncpgsa.compile_query(
+            update(
+                offers_for_call
+            ).values(
+                status=status.value,
+                team_priorities=func.jsonb_set(
+                    coalesce(offers_for_call.c.team_priorities, '{}'),
+                    [str(team_id)],
+                    str(priority),
+                )
+            ).where(
+                and_(
+                    offers_for_call.c.client_id == client_id,
+                    offers_for_call.c.status == OfferStatus.in_progress.value,
+                )
+            ).returning(
+                offers_for_call.c.id
+            )
         )
     else:
         values = {
@@ -456,20 +459,23 @@ async def set_waiting_offers_team_priorities_by_offer_ids(
         iterable=offer_ids,
         chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
     ):
-        sql = """
-        UPDATE offers_for_call
-        SET team_priorities = jsonb_set(
-            coalesce(team_priorities, '{}'),
-            '{%s}',
-            '%s'
+        query, params = asyncpgsa.compile_query(
+            update(
+                offers_for_call
+            ).values(
+                team_priorities=func.jsonb_set(
+                    coalesce(offers_for_call.c.team_priorities, '{}'),
+                    [str(team_id)],
+                    str(priority),
+                )
+            ).where(
+                and_(
+                    offers_for_call.c.id.in_(offer_ids_chunk),
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                )
+            )
         )
-        WHERE id IN %s AND status = 'waiting';
-        """ % (
-            team_id,
-            priority,
-            remove_comma(offer_ids_chunk),
-        )
-        await pg.get().execute(sql)
+        await pg.get().execute(query, *params)
 
 
 async def set_waiting_offers_priority_by_parsed_ids(
@@ -486,19 +492,23 @@ async def set_waiting_offers_priority_by_parsed_ids(
     ):
         if team:
             params = []
-            query = """
-            UPDATE offers_for_call
-            SET team_priorities = jsonb_set(
-                coalesce(team_priorities, '{}'),
-                '{%s}',
-                '%s'
-            )
-            WHERE parsed_id IN %s AND status = 'waiting'
-            RETURNING id;
-            """ % (
-                team.team_id,
-                priority,
-                remove_comma(parsed_ids_chunk),
+            query, params = asyncpgsa.compile_query(
+                update(
+                    offers_for_call
+                ).values(
+                    team_priorities=func.jsonb_set(
+                        coalesce(offers_for_call.c.team_priorities, '{}'),
+                        [str(team.team_id)],
+                        str(priority),
+                    )
+                ).where(
+                    and_(
+                        offers_for_call.c.parsed_id.in_(parsed_ids_chunk),
+                        offers_for_call.c.status == OfferStatus.waiting.value,
+                    )
+                ).returning(
+                    offers_for_call.c.id
+                )
             )
         else:
             query, params = asyncpgsa.compile_query(
@@ -708,6 +718,38 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
     await pg.get().execute(query, *params)
 
 
+async def delete_calltracking_clients() -> None:
+    query = """
+    WITH calltracking_offers_cte AS (
+        SELECT
+            offers_for_call.client_id AS client_id,
+            offers_for_call.id AS offer_id
+        FROM offers_for_call  
+        JOIN parsed_offers ON parsed_offers.id = offers_for_call.parsed_id
+        WHERE parsed_offers.is_calltracking
+    )
+    DELETE FROM clients
+    WHERE client_id IN (SELECT client_id FROM calltracking_offers_cte);
+    """
+    await pg.get().execute(query)
+
+
+async def delete_calltracking_offers() -> None:
+    query = """
+    WITH calltracking_offers_cte AS (
+        SELECT
+            offers_for_call.client_id AS client_id,
+            offers_for_call.id AS offer_id
+        FROM offers_for_call  
+        JOIN parsed_offers ON parsed_offers.id = offers_for_call.parsed_id
+        WHERE parsed_offers.is_calltracking
+    )
+    DELETE FROM offers_for_call
+    WHERE id IN (SELECT offer_id FROM calltracking_offers_cte);
+    """
+    await pg.get().execute(query)
+
+
 async def delete_waiting_offers_for_call_with_count_off_limit() -> None:
     sql = (
         delete(
@@ -813,27 +855,33 @@ async def get_waiting_offer_counts_by_clients(
         priority=_CLEAR_PRIORITY,
         is_test=is_test,
     )
-    options = waiting_offers_counts_cte.c.id.notin_(
-        cleared_offer_ids
-    )
-    if isinstance(is_test, bool):
-        options = and_(
-            waiting_offers_counts_cte.c.is_test == is_test,
-            options,
+    waiting_offers = []
+    for cleared_offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=cleared_offer_ids,
+        chunk_size=runtime_settings.SET_WAITING_OFFERS_PRIORITY_BY_OFFER_IDS_CHUNK
+    ):
+        options = waiting_offers_counts_cte.c.id.notin_(
+            cleared_offer_ids_chunk
         )
-    sql = (
-        select(
-            [waiting_offers_counts_cte]
-        ).where(
-            options
-        ).distinct(
-            waiting_offers_counts_cte.c.client_id
+        if isinstance(is_test, bool):
+            options = and_(
+                waiting_offers_counts_cte.c.is_test == is_test,
+                options,
+            )
+        sql = (
+            select(
+                [waiting_offers_counts_cte]
+            ).where(
+                options
+            ).distinct(
+                waiting_offers_counts_cte.c.client_id
+            )
         )
-    )
 
-    query, params = asyncpgsa.compile_query(sql)
-    rows = await pg.get().fetch(query, *params)
-    return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
+        query, params = asyncpgsa.compile_query(sql)
+        rows = await pg.get().fetch(query, *params)
+        waiting_offers.extend(rows)
+    return [client_waiting_offers_count_mapper.map_from(waiting_offer) for waiting_offer in waiting_offers]
 
 
 async def get_offers_for_prioritization_by_client_ids(

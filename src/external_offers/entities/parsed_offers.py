@@ -16,6 +16,7 @@ RE_LAND_STATUS_WITHOUT_BRACKETS = re.compile(r'[()]')
 
 @dataclass
 class ParsedOfferMessage:
+    # https://bitbucket.org/cianmedia/ml-content-copying/src/88105246903268c90e21a31c242160cd9a80b3d9/ml_content_copying/core/runner.py#lines-15:48
     id: str
     """Уникальный ключ"""
     source_object_id: str
@@ -30,6 +31,10 @@ class ParsedOfferMessage:
     """ID пользователя на внешней площадке"""
     user_segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    user_subsegment: Optional[str] = None
+    """Субсегмент пользователя"""
+    source_group_id: Optional[str] = None
+    """ID групы обьявлений"""
     is_test: bool = False
     """Флаг тестового обьявления"""
     external_offer_type: Optional[str] = None
@@ -58,6 +63,10 @@ class ParsedOffer:
     """ID пользователя на внешней площадке"""
     user_segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    user_subsegment: Optional[str] = None
+    """Субсегмент пользователя"""
+    source_group_id: Optional[str] = None
+    """ID групы обьявлений"""
     is_test: bool = False
     """Флаг тестового обьявления"""
     external_offer_type: Optional[ExternalOfferType] = None
@@ -385,6 +394,10 @@ class ParsedOfferForCreation:
     """Номера телефонов в виде JSON списка"""
     user_segment: str
     """Сегмент пользователя"""
+    user_subsegment: str
+    """Субсегмент пользователя"""
+    source_group_id: str
+    """ID групы обьявлений"""
     category: str
     """Категория"""
     is_test: bool = False

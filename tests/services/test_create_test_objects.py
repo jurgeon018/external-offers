@@ -514,6 +514,8 @@ async def test_create_test_offer_public__no_errors__returns_success_message(
         phones=['1111'],
         user_segment='c',
         category='flatSale',
+        user_subsegment='subsegment1',
+        source_group_id='groupid1',
     )
     mocker.patch(
         'external_offers.services.test_objects.get_parsed_offer_for_creation_by_id',

@@ -42,6 +42,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
     )
     assert row['client_phones'] == ['89883325632']
     assert row['segment'] == 'c'
+    assert row['subsegment'] == 'subsegment1'
     assert row['status'] == 'waiting'
 
 
@@ -84,7 +85,6 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__do
     )
     assert len(rows) == 1
     assert rows[0]['priority'] == _CLEAR_PRIORITY
-    # assert rows is None
 
 
 async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer(
@@ -122,6 +122,7 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     )
     assert row['status'] == 'waiting'
     assert row['parsed_created_at'] == datetime(2020, 10, 27, 11, 59, 1, 123093, tzinfo=pytz.utc)
+    assert row['group_id'] == 'group_id1'
 
 
 async def test_create_offers__exist_suitable_commercial_parsed_offer__creates_waiting_offer(
@@ -160,6 +161,7 @@ async def test_create_offers__exist_suitable_commercial_parsed_offer__creates_wa
         """
     )
     assert row['status'] == 'waiting'
+
 
 async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_offer(
     pg,
@@ -735,6 +737,42 @@ async def test_create_offers__exist_nonsuitable_parsed_offer_with_maximum_exceed
     row = await pg.fetchrow(
         """
         SELECT * FROM offers_for_call WHERE parsed_id = '1d6c73b8-3057-47cc-b50a-419052da619f'
+        """
+    )
+    assert row is None
+
+
+async def test_create_offers__parsed_offer_with_calltracking__doesnt_create_waiting_offer(
+    pg,
+    runtime_settings,
+    runner,
+    parsed_offers_fixture_for_offers_for_call_test,
+    users_mock
+):
+    # arrange
+    await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
+    await runtime_settings.set({
+        'OFFER_TASK_CREATION_SEGMENTS': ['c'],
+        'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+    })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
+
+    # act
+    await runner.run_python_command('create-offers-for-call')
+
+    # assert
+    row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = '126c73b8-3057-47cc-b50a-419052da619f'
         """
     )
     assert row is None

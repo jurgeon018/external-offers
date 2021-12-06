@@ -1,7 +1,9 @@
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '894ff03a-573c-4bac-8599-28f17e68a0d8',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1932888343',
     '555bb598767308327e1dffbe7241486c',
@@ -12,9 +14,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:03.293283+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '1d6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1931442437',
     '25f05f430722c915c498113b16ba0e78',
@@ -25,9 +29,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '2d6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1931442438',
     '25f05f430722c915c498113b16ba0e78',
@@ -38,9 +44,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '3d6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1931442439',
     '25f05f430722c915c498113b16ba0e78',
@@ -51,9 +59,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '996c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1931442440',
     '29f05f430722c915c498113b16ba0e78',
@@ -64,9 +74,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '7b6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1931442441',
     '35f05f430722c915c498113b16ba0e78',
@@ -77,9 +89,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at, synced
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at, synced
 ) VALUES (
     '126c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'b',
     '1_1931442442',
     '35f05f430722c915c498113b16ba0e78',
@@ -91,9 +105,11 @@ INSERT INTO public.parsed_offers (
     true
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '2e6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_2131442443',
     '48f05f430722c915c498113b16ba0e79',
@@ -104,9 +120,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '3e6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1931442443',
     '48f05f430722c915c498113b16ba0e79',
@@ -117,9 +135,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '4e6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1831442443',
     '48f05f430722c915c498113b16ba0e79',
@@ -130,9 +150,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '575ff03a-573c-4bac-8599-28f17e68a0d8',
+    'group_id1',
+    'subsegment1',
     'b',
     '1_1932888342',
     'c42bb598767308327e1dffbe7241486c',
@@ -143,9 +165,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:03.293283+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at
 ) VALUES (
     '9d6c73b8-3057-47cc-b50a-419052da619f',
+    'group_id1',
+    'subsegment1',
     'd',
     '1_1931552437',
     '95f05f430722c915c498113b16ba0e78',
@@ -156,9 +180,11 @@ INSERT INTO public.parsed_offers (
     '2020-10-27 15:20:02.708205+03'
 );
 INSERT INTO public.parsed_offers (
-    id, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at, external_offer_type
+    id, source_group_id, user_subsegment, user_segment, source_object_id, source_user_id, source_object_model, is_calltracking, "timestamp", created_at, updated_at, external_offer_type
 ) VALUES (
     '821ff03a-573c-4bac-8599-28f17e68a0d8',
+    'group_id1',
+    'subsegment1',
     'c',
     '1_1932888313',
     '555bb598767308327e1dffbe7241486c',
