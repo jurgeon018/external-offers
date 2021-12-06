@@ -118,6 +118,26 @@ async def prioritize_waiting_offers(
         get_waiting_offer_counts_by_clients(team=team, is_test=is_test),
         get_unactivated_clients_counts_by_clients(),
     )
+    if team:
+        logger.warning(
+            'Приоретизация для команды %s для %d клиентов в ожидании запущена.',
+            team.team_id,
+            len(waiting_clients_counts),  
+        )
+        logger.warning(
+            'Приоретизация для команды %s для %d добивочных клиентов запущена.',
+            team.team_id,
+            len(unactivated_clients_counts), 
+        )
+    else:
+        logger.warning(
+            'Приоретизация для %d клиентов в ожидании запущена.',
+            len(waiting_clients_counts),
+        )
+        logger.warning(
+            'Приоретизация для %d добивочных клиентов запущена.',
+            len(unactivated_clients_counts),
+        )        
     # создает приоритеты для заданий в ожидании
     clients_priority = await prioritize_clients(
         waiting_clients_counts=waiting_clients_counts,
