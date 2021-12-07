@@ -8,15 +8,13 @@ from external_offers.repositories.users.entities import AddRoleToUserRequest, V1
 
 async def check_cian_user_id(cian_user_id: int) -> bool:
     try:
-        response = await v1_get_realty_id(
+        realty_id = await v1_get_realty_id(
             V1GetRealtyId(cian_user_id=cian_user_id)
         )
-        realty_id = response
+        return bool(realty_id)
 
     except ApiClientException:
-        realty_id = None
-
-    return bool(realty_id)
+        return False
 
 
 async def add_qa_role_to_user(cian_user_id: int) -> None:
