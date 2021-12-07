@@ -1093,3 +1093,32 @@ async def delete_test_offers_for_call() -> None:
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def update_offer_comment_by_offer_id(
+    *,
+    offer_id: str,
+    comment: str,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            offers_for_call
+        ).values(
+            comment=comment
+        ).where(
+            offers_for_call.c.id == offer_id,
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def get_offer_comment_by_offer_id(offer_id: str) -> Optional[str]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [offers_for_call.c.comment]
+        ).where(
+            offers_for_call.c.id == offer_id
+        ).limit(1)
+    )
+    comment = await pg.get().fetchval(query, *params)
+    return comment
