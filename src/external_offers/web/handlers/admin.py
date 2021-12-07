@@ -20,6 +20,7 @@ from external_offers.repositories.postgresql import (
     get_offer_by_offer_id,
     get_parsed_offer_object_model_by_offer_id,
 )
+from external_offers.repositories.postgresql.offers import get_offer_comment_by_offer_id
 from external_offers.repositories.postgresql.operators import (
     get_enriched_operator_by_id,
     get_enriched_operators,
@@ -63,8 +64,7 @@ class AdminOffersListPageHandler(PublicHandler):
             minute=settings.NEXT_CALL_MINUTES,
             second=settings.NEXT_CALL_SECONDS
         )
-        # operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
-        operator_roles =[]
+        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(
@@ -96,6 +96,7 @@ class AdminOffersCardPageHandler(PublicHandler):
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
+        offer_comment = await get_offer_comment_by_offer_id(offer_id)
 
         if not offer_object_model:
             self.write('Объявление из внешнего источника не найдено'.encode('utf-8'))
@@ -124,6 +125,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             offer_is_draft=offer_is_draft,
             appointments=appointments,
             is_ready_business_enabled=is_ready_business_enabled,
+            offer_comment=offer_comment,
         )
 
         self.write(offer_html)

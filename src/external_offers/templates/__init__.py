@@ -47,6 +47,7 @@ def get_offer_card_html(
     offer_is_draft: bool = False,
     appointments: List[CommercialPossibleAppointmentModel],
     is_ready_business_enabled: bool = False,
+    offer_comment: Optional[str] = None,
 ) -> str:
     template = templates.get_template('offer_card.jinja2')
     # template = templates.get_template('admin_debug.jinja2')
@@ -61,6 +62,7 @@ def get_offer_card_html(
         exist_drafts=exist_drafts,
         offer_is_draft=offer_is_draft,
         is_ready_business_enabled=1 if is_ready_business_enabled is True else 0,
+        offer_comment=offer_comment,
     )
 
 

@@ -28,7 +28,7 @@ async def sync_waiting_objects_with_grafana(table_name: str) -> None:
     """)
 
 
-async def get_processed_synced_objects_count(table_name: str) -> Optional[int]:
+async def get_processed_synced_objects_count(table_name: str) -> int:
     return await pg.get().fetchval(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana
@@ -36,7 +36,7 @@ async def get_processed_synced_objects_count(table_name: str) -> Optional[int]:
     """)
 
 
-async def get_synced_objects_count(table_name: str) -> Optional[int]:
+async def get_synced_objects_count(table_name: str) -> int:
     return await pg.get().fetchval(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana;
