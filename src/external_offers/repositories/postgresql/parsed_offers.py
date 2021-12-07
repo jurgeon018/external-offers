@@ -19,7 +19,6 @@ from external_offers.entities.parsed_offers import (
     ParsedOfferMessage,
 )
 from external_offers.entities.teams import Team
-from external_offers.enums.object_model import Category
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
@@ -27,6 +26,7 @@ from external_offers.mappers.parsed_offers import (
     parsed_offer_mapper,
     parsed_offer_message_mapper,
 )
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 from external_offers.repositories.postgresql import tables
 from external_offers.utils import iterate_over_list_by_chunks
 
@@ -139,6 +139,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         po.c.source_object_model['phones'] != [],
         po.c.source_object_model['phones'] != JSON.NULL,
         po.c.source_object_model['phones'] != [''],
+        po.c.source_user_id.isnot(None),
         not_(po.c.is_calltracking),
         not_(po.c.synced),
     ]

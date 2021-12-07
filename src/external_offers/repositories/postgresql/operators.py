@@ -95,7 +95,7 @@ async def update_operator_by_id(
     *,
     operator_id: Union[str, int],
     full_name: str,
-    team_id: str,
+    team_id: Optional[int],
     is_teamlead: bool = False,
     email: Optional[str] = None,
 ) -> None:
