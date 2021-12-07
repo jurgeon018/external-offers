@@ -985,7 +985,7 @@ async def iterate_over_offers_for_call_sorted(
         yield offer_mapper.map_from(row)
 
 
-async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[int]) -> None:
+async def sync_offers_for_call_with_kafka_by_ids(offer_ids: list[str]) -> None:
     non_final_statuses = [
         OfferStatus.waiting.value,
         OfferStatus.in_progress.value,
