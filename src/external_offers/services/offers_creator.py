@@ -358,20 +358,20 @@ async def prioritize_waiting_offers(
     created_priorities = await asyncio.gather(*client_counts_for_prioritization)
 
     for created_priority in created_priorities:
-        team = created_priority['team_id']
+        team_id = created_priority['team_id']
         offers_priority = created_priority['offers_priority']
-        if team:
+        if team_id:
             for priority, offer_ids in offers_priority.items():
                 logger.warning(
                     'После приоритизации для команды %d для %d обьявлений будет задан приоритет %d',
-                    team.team_id,
+                    team_id,
                     len(offer_ids),
                     priority
                 )
                 await set_waiting_offers_team_priorities_by_offer_ids(
                     offer_ids=offer_ids,
                     priority=priority,
-                    team_id=team.team_id
+                    team_id=team_id
                 )
         else:
             for priority, offer_ids in offers_priority.items():
