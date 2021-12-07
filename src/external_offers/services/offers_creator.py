@@ -331,8 +331,11 @@ async def prioritize_waiting_offers(
 
         if team:
             team_settings = team.get_settings()
+            team_id = team.team_id
+            team_id = team.team_id
         else:
             team_settings = {}
+            team_id = None
 
         # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
         # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
@@ -348,7 +351,7 @@ async def prioritize_waiting_offers(
                 waiting_clients_counts=waiting_clients_counts,
                 unactivated_clients_counts=unactivated_clients_counts,
                 team_settings=team_settings,
-                team_id=team.team_id,
+                team_id=team_id,
             )
         )
 
