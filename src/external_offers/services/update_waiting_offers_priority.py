@@ -18,7 +18,7 @@ async def prioritize_waiting_offers_public(
     else:
         team = None
         message = f'Проставление приоритетов было запущено'
-    asyncio.create_task(prioritize_waiting_offers(team=team, is_test=is_test))
+    asyncio.create_task(prioritize_waiting_offers(teams=[team], is_test=is_test))
     return BasicResponse(
         success=True,
         message=message,

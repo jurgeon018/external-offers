@@ -23,6 +23,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
             'EXTERNAL_OFFERS_READY_BUSINESS_ENABLED': False,
         }
     )
+    comment = 'comment'
     is_ready_business_enabled = runtime_settings.get('EXTERNAL_OFFERS_READY_BUSINESS_ENABLED', False)
     save_offer_msg = 'test'
     offer_id = '1'
@@ -33,7 +34,10 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
     get_parsed_offer_mock = mocker.patch('external_offers.web.handlers.admin.get_parsed_'
                                          'offer_object_model_by_offer_id')
     get_parsed_offer_mock.return_value = future(mocker.sentinel.parsed_offer)
-
+    get_offer_comment_by_offer_id_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_offer_comment_by_offer_id'
+    )
+    get_offer_comment_by_offer_id_mock.return_value = future(comment)
     get_client_mock = mocker.patch('external_offers.web.handlers.admin.get_client_in_progress_by_operator')
     client_mock = mocker.MagicMock()
     get_client_mock.return_value = future(client_mock)
@@ -91,6 +95,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                 exist_drafts=False,
                 offer_is_draft=True,
                 is_ready_business_enabled=1 if is_ready_business_enabled is True else 0,
+                offer_comment=comment,
             )
         ]
     )
