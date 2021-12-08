@@ -9,7 +9,7 @@ from external_offers.queue.consumers import process_announcement_callback, save_
 from external_offers.queue.queues import process_announcements_queue
 from external_offers.queue.schemas import RabbitMQAnnouncementMessageSchema
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
-from external_offers.services.offers_creator import sync_offers_for_call_with_parsed
+from external_offers.services.offers_creator import sync_and_create_offers, create_client_account_priorities
 from external_offers.services.send_clients_to_kafka import send_clients_to_kafka
 from external_offers.services.send_event_logs_to_kafka import send_event_logs_to_kafka
 from external_offers.services.send_latest_timestamp_to_graphite import send_parsed_offers_timestamp_diff_to_graphite
@@ -41,7 +41,13 @@ def serve(debug: bool, host: str, port: int) -> None:
 @cli.command()
 def create_offers_for_call():
     """ Синхронизировать таблицы offers_for_call и clients на основе parsed_offers """
-    IOLoop.current().run_sync(sync_offers_for_call_with_parsed)
+    IOLoop.current().run_sync(sync_and_create_offers)
+
+
+@cli.command
+def create_client_account_priorities_cron():
+    """ Закешировать информацию про ЛК клиентов по номеру телефона """
+    IOLoop.current().run_sync(create_client_account_priorities)
 
 
 @cli.command()

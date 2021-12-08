@@ -109,8 +109,11 @@ async def find_smb_client_account_priority(
     team_settings: dict,
 ) -> int:
     cian_user_id = client.cian_user_id
+    client_id = client.client_id
+    client_phone = client.client_phones[0]
+
     if not cian_user_id:
-        phone = transform_phone_number_to_canonical_format(client.client_phones[0])
+        phone = transform_phone_number_to_canonical_format(client_phone)
 
         try:
             response = await v2_get_users_by_phone(
@@ -122,10 +125,7 @@ async def find_smb_client_account_priority(
             # Приоритет для незарегистрированных smb пользователей
             if not response.users:
                 statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-                return team_settings.get(
-                    'no_lk_smb_priority',
-                    runtime_settings.NO_LK_SMB_PRIORITY
-                )
+                return team_settings['no_lk_smb_priority']
 
             sanctions_response = await v1_sanctions_get_sanctions(
                 V1SanctionsGetSanctions(
@@ -141,14 +141,14 @@ async def find_smb_client_account_priority(
             result = await choose_main_smb_client_profile(
                 user_profiles=user_profiles,
                 client_count=client_count,
-                client_id=client.client_id,
+                client_id=client_id,
             )
             if result.has_bad_account:
                 return _CLEAR_CLIENT_PRIORITY
             if result.has_wrong_user_source_type:
                 return _CLEAR_CLIENT_PRIORITY
             if not result.chosen_profile:
-                return runtime_settings.NO_LK_SMB_PRIORITY
+                return team_settings['no_lk_smb_priority']
             if result.has_bad_offers_proportion:
                 return _CLEAR_CLIENT_PRIORITY
 
@@ -157,12 +157,12 @@ async def find_smb_client_account_priority(
             # Обновляем идентификатор клиента
             await set_cian_user_id_by_client_id(
                 cian_user_id=cian_user_id,
-                client_id=client.client_id
+                client_id=client_id
                 )
         except ApiClientException as exc:
             logger.warning(
                 'Ошибка при получении идентификатора клиента %s для приоритизации: %s',
-                client.client_id,
+                client_id,
                 exc.message
             )
             statsd.incr(_METRIC_PRIORITIZE_FAILED)
@@ -174,29 +174,23 @@ async def find_smb_client_account_priority(
                 user_id=cian_user_id
             )
         )
+        # Приоритет по отсутствию активных объявлений на циане
+        if active_response.count == _NO_ACTIVE:
+            statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
+            return team_settings['no_active_smb_priority']
+        # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
+        if (active_response.count / client_count) <= runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
+            statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
+            return team_settings['keep_proportion_smb_priority']
     except ApiClientException as exc:
         logger.warning(
             'Ошибка при получении количества активных объявлений клиента %s для приоритизации: %s',
-            client.client_id,
+            client_id,
             exc.message
         )
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
         return _CLEAR_CLIENT_PRIORITY
 
-    # Приоритет по отсутствию активных объявлений на циане
-    if active_response.count == _NO_ACTIVE:
-        statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
-        return team_settings.get(
-            'no_active_smb_priority',
-            runtime_settings.NO_ACTIVE_SMB_PRIORITY
-        )
-    # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
-    if (active_response.count / client_count) <= runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
-        statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
-        return team_settings.get(
-            'keep_proportion_smb_priority',
-            runtime_settings.KEEP_PROPORTION_SMB_PRIORITY
-        )
     return _CLEAR_CLIENT_PRIORITY
 
 

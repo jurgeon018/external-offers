@@ -184,6 +184,31 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
 
 
+async def get_parsed_offers_for_account_prioritization() -> list:
+
+    po = tables.parsed_offers.alias()
+
+    selected_non_synced_offers_cte = (
+        select([
+            po,
+        ])
+        .where(
+            and_(
+                po.c.source_object_model['phones'] != [],
+                po.c.source_object_model['phones'] != JSON.NULL,
+                po.c.source_object_model['phones'] != [''],
+                po.c.source_user_id.isnot(None),
+                not_(po.c.is_calltracking),
+                not_(po.c.synced),
+            )
+        )
+        .limit(settings.OFFER_TASK_CREATION_OFFER_FETCH_LIMIT)
+    )
+
+    rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
+    return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
+
+
 async def get_parsed_offer_for_creation_by_id(*, id: int) -> ParsedOfferForCreation:
     fetch_offer_query, fetch_offer_params = asyncpgsa.compile_query(
         select(

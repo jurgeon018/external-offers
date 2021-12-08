@@ -148,3 +148,11 @@ CREATE TABLE operators
     created_at    timestamp with time zone not null,
     updated_at    timestamp with time zone not null
 );
+
+CREATE TABLE account_priorities
+(
+    priority_id SERIAL  NOT NULL PRIMARY KEY,
+    client_id   varchar not null,
+    team_id     INT not null,
+    account_priority INT not null,
+)

@@ -13,7 +13,6 @@ from tornado import gen
 from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
-from external_offers.entities.offers import ExternalOfferType
 from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
 from external_offers.helpers.uuid import generate_guid
@@ -40,7 +39,10 @@ from external_offers.repositories.postgresql.offers import (
     set_waiting_offers_team_priorities_by_offer_ids,
 )
 from external_offers.repositories.postgresql.teams import get_teams
-from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
+from external_offers.services.prioritizers import (
+    prioritize_homeowner_client, prioritize_smb_client,
+    find_smb_client_account_priority, find_homeowner_client_account_priority,
+)
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
 
 
@@ -107,10 +109,8 @@ async def prioritize_unactivated_clients(
 ) -> list[ClientWaitingOffersCount]:
     """ Просчитать приоритеты для добивочных заданий """
 
-    prefix = team_settings.get(
-        'unactivated_client_priority',
-        runtime_settings.UNACTIVATED_CLIENT_PRIORITY
-    )
+    prefix = team_settings['unactivated_client_priority']
+    
     prefix = str(prefix)
 
     for client_count in unactivated_clients_counts:
@@ -224,10 +224,7 @@ async def prioritize_clients(
     waiting_clients_counts: list[ClientWaitingOffersCount],
     team_settings: dict,
 ):
-    prefix = team_settings.get(
-        'new_client_priority',
-        runtime_settings.NEW_CLIENT_PRIORITY
-    )
+    prefix = team_settings['new_client_priority']
     prefix = str(prefix)
     clients_priority: dict[int, int] = {}
     for client_count in waiting_clients_counts:
@@ -300,10 +297,14 @@ async def sync_offers_for_call_with_parsed() -> None:
                 external_offer_type=parsed_offer.external_offer_type,
             )
             await save_offer_for_call(offer=offer)
+
+
+async def sync_and_create_offers() -> None:
+    await sync_offers_for_call_with_parsed()
     await clear_and_prioritize_waiting_offers()
 
 
-async def clear_and_prioritize_waiting_offers():
+async def clear_and_prioritize_waiting_offers() -> None:
     await clear_waiting_offers_and_clients_with_off_count_limits()
 
     # None нужен для того чтобы проставить некомандные приоритеты
@@ -320,22 +321,48 @@ async def clear_and_prioritize_waiting_offers():
         await delete_old_waiting_offers_for_call()
 
 
+def get_default_team_settings():
+    return {
+        'maximum_active_offers_proportion': runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION,
+        'no_lk_smb_priority': runtime_settings.NO_LK_SMB_PRIORITY,
+        'no_active_smb_priority': runtime_settings.NO_ACTIVE_SMB_PRIORITY,
+        'keep_proportion_smb_priority': runtime_settings.KEEP_PROPORTION_SMB_PRIORITY, 
+        'active_lk_homeowner_priority': runtime_settings.ACTIVE_LK_HOMEOWNER_PRIORITY,
+        'no_lk_homeowner_priority': runtime_settings.NO_LK_HOMEOWNER_PRIORITY,
+        'unactivated_client_priority': runtime_settings.UNACTIVATED_CLIENT_PRIORITY,
+        'new_client_priority': runtime_settings.NEW_CLIENT_PRIORITY,
+        'call_missed_priority': runtime_settings.CALL_MISSED_PRIORITY,
+        'call_later_priority': runtime_settings.CALL_LATER_PRIORITY,
+        'waiting_priority': runtime_settings.WAITING_PRIORITY,
+        'smb_priority': runtime_settings.SMB_PRIORITY,
+        'waiting_priority': runtime_settings.WAITING_PRIORITY,
+        'homeowner_priority': runtime_settings.HOMEOWNER_PRIORITY,
+        'main_regions_priority': runtime_settings.MAIN_REGIONS_PRIORITY,
+        'sale_priority': runtime_settings.SALE_PRIORITY,
+        'rent_priority': runtime_settings.RENT_PRIORITY,
+        'flat_priority': runtime_settings.FLAT_PRIORITY,
+        'suburban_priority': runtime_settings.SUBURBAN_PRIORITY,
+        'commercial_priority': runtime_settings.COMMERCIAL_PRIORITY,
+    }
+
+
 async def prioritize_waiting_offers(
     *,
     teams: list[Optional[Team]],
     is_test: bool = None,
-):
+) -> None:
 
     client_counts_for_prioritization = []
     for team in teams:
 
         if team:
+            team_id = team.team_id
             team_settings = team.get_settings()
-            team_id = team.team_id
-            team_id = team.team_id
+            if not team_settings.get('main_regions_priority'):
+                team_settings['main_regions_priority'] = runtime_settings.MAIN_REGIONS_PRIORITY
         else:
-            team_settings = {}
             team_id = None
+            team_settings = get_default_team_settings()
 
         # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
         # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
@@ -434,3 +461,77 @@ async def create_priorities(
         'team_id': team_id,
         'offers_priority': offers_priority,
     }
+
+
+async def create_client_account_priorities():
+    await sync_offers_for_call_with_parsed()
+    teams = [None, ]
+    teams.extend(await get_teams())
+    client_accounts_for_prioritization = []
+    for team in teams:
+        client_accounts_for_prioritization.append(
+            _create_client_account_priorities(team=team)
+        )
+    created_priorities = await asyncio.gather(*client_accounts_for_prioritization)
+    for created_priority in created_priorities:
+        team_id = created_priority['team_id']
+        new_cian_user_id = created_priority['new_cian_user_id']
+        account_priorities = created_priority['account_priorities']
+        client_id = created_priority['client_id']
+        await set_account_priority_by_client_id(
+            account_priority=account_priority,
+            team_id=team_id,
+            client_id=client_id,
+        )
+        await set_cian_user_id_by_client_id(
+            cian_user_id=new_cian_user_id,
+            client_id=client_id
+        )
+
+
+async def _create_client_account_priorities(
+    *,
+    team: Optional[Team],
+) -> dict:
+    if team:
+        team_settings = team.get_settings()
+        if not team_settings.get('main_regions_priority'):
+            team_settings['main_regions_priority'] = runtime_settings.MAIN_REGIONS_PRIORITY
+    else:
+        team_settings = get_default_team_settings()
+    client_account_info = []
+    waiting_clients_counts = await get_waiting_offer_counts_by_clients(team=team, is_test=None),
+    for client_count in waiting_clients_counts:
+    
+        client_id = client_count.client_id
+
+        client: Optional[Client] = await get_client_by_client_id(
+            client_id=client_id
+        )
+        regions = await get_offers_regions_by_client_id(
+            client_id=client_id
+        )
+
+        if regions in ([], [None]):
+            account_priority = _CLEAR_PRIORITY
+        elif client and client.segment and client.segment.is_c:
+            new_cian_user_id, account_priority = await find_smb_client_account_priority(
+                client=client,
+                client_count=client_count.waiting_offers_count,
+                team_settings=team_settings,
+            )
+        elif client and client.segment and client.segment.is_d:
+            new_cian_user_id, account_priority = await find_homeowner_client_account_priority(
+                client=client,
+                team_settings=team_settings,
+            )
+        else:
+            account_priority = _CLEAR_PRIORITY
+
+        client_account_info.append({
+            'team_id': team.team_id,
+            'new_cian_user_id': new_cian_user_id,
+            'account_priority': account_priority,
+            'client_id': client_id,
+        })
+    return client_account_info
