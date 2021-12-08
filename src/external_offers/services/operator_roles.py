@@ -159,6 +159,18 @@ async def update_operators() -> Optional[str]:
                         use_cache=None,
                     )
                 )
+                print()
+                print("operator_id", int(operator_id))
+                print("is_teamlead", is_teamlead)
+                print("teamlead_role_name", teamlead_role_name)
+                print()
+                logger.warning(
+                    'operator_id: %s, is_teamlead: %s, teamlead_role_name: %s',
+                    operator_id,
+                    is_teamlead,
+                    teamlead_role_name,
+                )
+
             except ApiClientException as e:
                 return str(e.message)
             if user.user_name:
@@ -175,6 +187,7 @@ async def update_operators() -> Optional[str]:
                 is_teamlead=is_teamlead,
                 email=email,
             )
+            # return
 
 
 async def get_users_by_role(role_name: str) -> List[UserModel]:
