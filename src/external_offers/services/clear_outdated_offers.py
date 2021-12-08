@@ -22,7 +22,7 @@ async def check_if_was_update() -> bool:
     latest_updated_at = await get_latest_updated_at()
     check_border = now - timedelta(hours=settings.OFFER_UPDATE_CHECK_WINDOW_IN_HOURS)
 
-    return latest_updated_at and latest_updated_at > check_border
+    return bool(latest_updated_at and latest_updated_at > check_border)
 
 
 def get_updated_at_border() -> datetime:
