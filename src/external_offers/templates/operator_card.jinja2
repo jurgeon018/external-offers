@@ -61,7 +61,7 @@
     </select>
     <br>
     <br>
-    {% if current_operator.is_teamlead %}
+    {% if current_operator.is_teamlead or current_operator.operator_id == operator.operator_id %}
     <button onclick="updateOperator()">
         Обновить персональную информацию
     </button>
