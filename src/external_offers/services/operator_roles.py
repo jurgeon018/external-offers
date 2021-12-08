@@ -1,5 +1,5 @@
-from typing import List, NoReturn, Optional, Union
 import logging
+from typing import List, NoReturn, Optional, Union
 
 import backoff
 from cian_core.degradation import DegradationResult, get_degradation_handler
