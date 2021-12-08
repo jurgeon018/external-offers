@@ -306,4 +306,4 @@ DEFAULT_TEST_CLIENT = """{
     "main_account_chosen": false
 }"""
 ADMIN_OPERATOR_ROLE: str = 'Cian.PrepositionAdmin'
-ADMIN_TEAMLEAD_ROLE: str = 'Cian.PrepositionAdminTeamlead'
+ADMIN_TEAMLEAD_ROLE: str = 'Cian.AdminTeamleadRole'

@@ -96,21 +96,25 @@ async def update_operator_by_id(
     operator_id: Union[str, int],
     full_name: str,
     team_id: Optional[int],
-    is_teamlead: bool = False,
     email: Optional[str] = None,
+    is_teamlead: bool = None,
 ) -> None:
     now = datetime.now(tz=pytz.utc)
+    values = {
+        'full_name': full_name,
+        'team_id': team_id,
+        'email': email,
+        'updated_at': now,    
+    }
+    if is_teamlead is not None:
+        values['is_teamlead'] = is_teamlead
     query, params = asyncpgsa.compile_query(
         update(
             operators
         ).where(
             operators.c.operator_id == str(operator_id)
         ).values(
-            full_name=full_name,
-            team_id=team_id,
-            email=email,
-            is_teamlead=is_teamlead,
-            updated_at=now
+            **values
         )
     )
     await pg.get().execute(query, *params)
