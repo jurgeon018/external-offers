@@ -1,4 +1,5 @@
 from typing import List, NoReturn, Optional, Union
+import logging
 
 import backoff
 from cian_core.degradation import DegradationResult, get_degradation_handler
@@ -26,6 +27,9 @@ from external_offers.repositories.users.entities import (
     V1GetUseridsByRolename,
     V1UserHasRole,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 v1_get_user_roles_with_degradation = get_degradation_handler(
@@ -119,25 +123,6 @@ async def create_or_update_operator(
     return current_operator
 
 
-async def user_has_role(
-    *,
-    user_id: int,
-    role_name: str,
-) -> bool:
-    has_role = False
-    try:
-        has_role: bool = await v1_user_has_role(
-            V1UserHasRole(
-                user_id=int(user_id),
-                role_name=role_name,
-                use_cache=None,
-            )
-        )
-    except ApiClientException:
-        has_role = False
-    return has_role
-
-
 async def remove_operator_role(operator_id: str) -> None:
     await v1_remove_role_from_user(
         RemoveRoleFromUserRequest(
@@ -157,13 +142,25 @@ async def add_operator_role_to_user(operator_id: str) -> None:
 
 
 async def update_operators() -> Optional[str]:
+    teamlead_role_name = runtime_settings.ADMIN_TEAMLEAD_ROLE
+    admin_role_name = runtime_settings.ADMIN_OPERATOR_ROLE
     try:
-        users = await get_users_by_role(role_name=runtime_settings.ADMIN_OPERATOR_ROLE)
+        users = await get_users_by_role(role_name=admin_role_name)
     except ApiClientException as e:
         return str(e.message)
     for user in users:
         operator_id = user.id  # or user.cian_user_id
         if operator_id:
+            try:
+                is_teamlead: bool = await v1_user_has_role(
+                    V1UserHasRole(
+                        user_id=int(operator_id),
+                        role_name=teamlead_role_name,
+                        use_cache=None,
+                    )
+                )
+            except ApiClientException as e:
+                return str(e.message)
             if user.user_name:
                 full_name = user.user_name
             elif user.first_name and user.last_name:
@@ -171,10 +168,6 @@ async def update_operators() -> Optional[str]:
             else:
                 full_name = None
             email = user.email
-            is_teamlead: bool = await user_has_role(
-                user_id=operator_id,
-                role_name=runtime_settings.ADMIN_TEAMLEAD_ROLE,
-            )
             await create_or_update_operator(
                 operator_id=operator_id,
                 full_name=full_name,
