@@ -158,6 +158,7 @@
                 {% endif %}
                 </div>
                 <div class="column">
+                    {% if current_operator.is_teamlead %}
                     <select id="operatorTeam" style="width: 80px;" onchange="updateOperator(this)" data-operator_id="{{operator.operator_id}}">
                         <option 
                             value
@@ -174,6 +175,16 @@
                         </option>
                         {% endfor %}
                     </select>
+                    {% else %}
+                            {% if operator.team_id %}
+                                {% for team in teams %}
+                                    {% if team.team_id|string == operator.team_id|string%}
+                                        {{team.team_name}} ({{team.team_id}})
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                            {% endif %}
+                    {% endif %}
                 </div>
                 <div class=column>
                     {% if current_operator.is_teamlead %}

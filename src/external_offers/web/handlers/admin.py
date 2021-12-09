@@ -135,9 +135,7 @@ class AdminTeamsPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id
         )
-        if not current_operator.is_teamlead and self.realty_user_id not in runtime_settings.TEST_OPERATOR_IDS:
-            self.write('У вас нет прав тимлида для просмотра текущей страницы'.encode('utf-8'))
-            return
+
         last_updating = await get_latest_operator_updating()
         if (not last_updating) or (last_updating < datetime.now(tz=pytz.UTC) - timedelta(days=1)):
             await update_operators()
@@ -158,9 +156,7 @@ class AdminOperatorCardPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id
         )
-        if not current_operator.is_teamlead and self.realty_user_id not in runtime_settings.TEST_OPERATOR_IDS:
-            self.write('У вас нет прав тимлида для просмотра текущей страницы'.encode('utf-8'))
-            return
+
         operator = await get_enriched_operator_by_id(operator_id)
         teams = await get_teams()
         self.write(get_operator_card_html(
@@ -235,9 +231,7 @@ class AdminTeamCardPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id
         )
-        if not current_operator.is_teamlead and self.realty_user_id not in runtime_settings.TEST_OPERATOR_IDS:
-            self.write('У вас нет прав тимлида для просмотра текущей страницы'.encode('utf-8'))
-            return
+
 
         team = await get_team_by_id(int(team_id))
         teamleads = await get_enriched_teamleads()
