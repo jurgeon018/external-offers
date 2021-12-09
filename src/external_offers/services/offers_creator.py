@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 import pytz
@@ -16,7 +16,10 @@ from external_offers.entities.clients import Client, ClientDraftOffersCount, Cli
 from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
 from external_offers.helpers.uuid import generate_guid
+from external_offers.repositories.postgresql import account_priorities, set_cian_user_id_by_client_id
+from external_offers.repositories.postgresql.account_priorities import set_account_priority_by_client_id
 from external_offers.repositories.postgresql import (
+    set_cian_user_id_by_client_id,
     delete_old_waiting_offers_for_call,
     delete_waiting_clients_with_count_off_limit,
     delete_waiting_offers_for_call_with_count_off_limit,
@@ -463,46 +466,81 @@ async def create_priorities(
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+from external_offers.repositories.postgresql.account_priorities import (
+    get_latest_updated_at,
+    delete_account_priorities_without_clients,
+)
+
+
 async def create_client_account_priorities():
+
+    if not runtime_settings.get('ENABLE_ACCOUNT_PRIORITIES_CASHING', True):
+        logger.warning('Кеширование приоритетов по ЛК клиентов отключено')
+        return
+
+    if runtime_settings.get('ENABLE_ACCOUNT_PRIORITIES_WAS_UPDATE_CHECK', True):
+        # если эта настройка выключена, то кешироваться будут каждый день
+        now = datetime.now(pytz.utc)
+        latest_updated_at = await get_latest_updated_at()
+        check_border = now - timedelta(days=runtime_settings.get('ACCOUNT_PRIORITIES_UPDATE_CHECK_WINDOW_IN_DAYS', 5))
+        was_update = bool(latest_updated_at and latest_updated_at > check_border)
+
+        if not was_update:
+            logger.warning('Кеширование приоритетов по ЛК не было запущено из-за отстутствия обновлений')
+            return
+    else:
+        logger.warning('Проверка наличия обновления отключена')
+        return
+
+    await delete_account_priorities_without_clients()
     await sync_offers_for_call_with_parsed()
-    teams = [None, ]
-    teams.extend(await get_teams())
-    client_accounts_for_prioritization = []
-    for team in teams:
-        client_accounts_for_prioritization.append(
-            _create_client_account_priorities(team=team)
-        )
-    created_priorities = await asyncio.gather(*client_accounts_for_prioritization)
-    for created_priority in created_priorities:
-        team_id = created_priority['team_id']
-        new_cian_user_id = created_priority['new_cian_user_id']
-        account_priorities = created_priority['account_priorities']
-        client_id = created_priority['client_id']
-        await set_account_priority_by_client_id(
-            account_priority=account_priority,
-            team_id=team_id,
-            client_id=client_id,
-        )
-        await set_cian_user_id_by_client_id(
-            cian_user_id=new_cian_user_id,
-            client_id=client_id
-        )
+    teams = await get_teams()
+    teams.append(None)
+    client_accounts_for_prioritization = [get_account_priorities(team=team) for team in teams]
+    client_accounts_info_for_teams = await asyncio.gather(*client_accounts_for_prioritization)
+    for client_accounts_info_for_team in client_accounts_info_for_teams:
+        for client_account_info in client_accounts_info_for_team:
+            client_id = client_account_info['client_id']
+            await set_account_priority_by_client_id(
+                client_id=client_id,
+                team_id=int(client_account_info['team_id']),
+                account_priority=int(client_account_info['account_priority']),
+            )
+            new_cian_user_id = client_account_info['new_cian_user_id']
+            if new_cian_user_id:
+                await set_cian_user_id_by_client_id(
+                    cian_user_id=new_cian_user_id,
+                    client_id=client_id
+                )
 
 
-async def _create_client_account_priorities(
+async def get_account_priorities(
     *,
     team: Optional[Team],
-) -> dict:
+) -> list[dict]:
     if team:
         team_settings = team.get_settings()
         if not team_settings.get('main_regions_priority'):
             team_settings['main_regions_priority'] = runtime_settings.MAIN_REGIONS_PRIORITY
     else:
         team_settings = get_default_team_settings()
-    client_account_info = []
-    waiting_clients_counts = await get_waiting_offer_counts_by_clients(team=team, is_test=None),
+    client_account_info: list = []
+    is_test = None
+    waiting_clients_counts = await get_waiting_offer_counts_by_clients(team=team, is_test=is_test),
+    account_priorities = await get_accoun
     for client_count in waiting_clients_counts:
-    
+
         client_id = client_count.client_id
 
         client: Optional[Client] = await get_client_by_client_id(
@@ -530,8 +568,8 @@ async def _create_client_account_priorities(
 
         client_account_info.append({
             'team_id': team.team_id,
-            'new_cian_user_id': new_cian_user_id,
             'account_priority': account_priority,
             'client_id': client_id,
+            'new_cian_user_id': new_cian_user_id,
         })
     return client_account_info

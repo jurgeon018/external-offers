@@ -9,7 +9,6 @@ from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, delete, func, not_, or_, select, update
 from sqlalchemy.sql.expression import false, true
-from sqlalchemy.sql.selectable import Alias
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import (

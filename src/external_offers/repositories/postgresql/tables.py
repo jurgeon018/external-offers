@@ -108,3 +108,12 @@ operators = sa.Table(
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )
+
+account_priorities = sa.Table(
+    'account_priorities',
+    metadata,
+    sa.Column('priority_id', sa.BIGINT, autoincrement=True, primary_key=True, nullable=False),
+    sa.Column('client_id', sa.VARCHAR, nullable=False),
+    sa.Column('team_id', sa.INT, nullable=True),
+    sa.Column('account_priority', sa.INT, nullable=False), 
+)

@@ -107,7 +107,7 @@ async def find_smb_client_account_priority(
     client: Client,
     client_count: int,
     team_settings: dict,
-) -> int:
+) -> tuple[int]:
     cian_user_id = client.cian_user_id
     client_id = client.client_id
     client_phone = client.client_phones[0]
@@ -125,7 +125,7 @@ async def find_smb_client_account_priority(
             # Приоритет для незарегистрированных smb пользователей
             if not response.users:
                 statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-                return team_settings['no_lk_smb_priority']
+                return None, team_settings['no_lk_smb_priority']
 
             sanctions_response = await v1_sanctions_get_sanctions(
                 V1SanctionsGetSanctions(
@@ -133,7 +133,7 @@ async def find_smb_client_account_priority(
                 )
             )
             if sanctions_response.items:
-                return _CLEAR_CLIENT_PRIORITY
+                return None, _CLEAR_CLIENT_PRIORITY
 
             # Выбираем основной активный агентский профиль пользователя
             # если нашли заблокированные аккаунты - убираем из очереди
@@ -144,21 +144,16 @@ async def find_smb_client_account_priority(
                 client_id=client_id,
             )
             if result.has_bad_account:
-                return _CLEAR_CLIENT_PRIORITY
+                return None, _CLEAR_CLIENT_PRIORITY
             if result.has_wrong_user_source_type:
-                return _CLEAR_CLIENT_PRIORITY
+                return None, _CLEAR_CLIENT_PRIORITY
             if not result.chosen_profile:
-                return team_settings['no_lk_smb_priority']
+                return None, team_settings['no_lk_smb_priority']
             if result.has_bad_offers_proportion:
-                return _CLEAR_CLIENT_PRIORITY
+                return None, _CLEAR_CLIENT_PRIORITY
 
-            cian_user_id = result.chosen_profile.cian_user_id
+            new_cian_user_id = result.chosen_profile.cian_user_id
 
-            # Обновляем идентификатор клиента
-            await set_cian_user_id_by_client_id(
-                cian_user_id=cian_user_id,
-                client_id=client_id
-                )
         except ApiClientException as exc:
             logger.warning(
                 'Ошибка при получении идентификатора клиента %s для приоритизации: %s',
@@ -166,7 +161,7 @@ async def find_smb_client_account_priority(
                 exc.message
             )
             statsd.incr(_METRIC_PRIORITIZE_FAILED)
-            return _CLEAR_CLIENT_PRIORITY
+            return None, _CLEAR_CLIENT_PRIORITY
 
     try:
         active_response = await v2_get_user_active_announcements_count(
@@ -177,11 +172,11 @@ async def find_smb_client_account_priority(
         # Приоритет по отсутствию активных объявлений на циане
         if active_response.count == _NO_ACTIVE:
             statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
-            return team_settings['no_active_smb_priority']
+            return new_cian_user_id, team_settings['no_active_smb_priority']
         # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
         if (active_response.count / client_count) <= runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
             statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
-            return team_settings['keep_proportion_smb_priority']
+            return new_cian_user_id, team_settings['keep_proportion_smb_priority']
     except ApiClientException as exc:
         logger.warning(
             'Ошибка при получении количества активных объявлений клиента %s для приоритизации: %s',
@@ -189,9 +184,9 @@ async def find_smb_client_account_priority(
             exc.message
         )
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
-        return _CLEAR_CLIENT_PRIORITY
+        return new_cian_user_id, _CLEAR_CLIENT_PRIORITY
 
-    return _CLEAR_CLIENT_PRIORITY
+    return new_cian_user_id, _CLEAR_CLIENT_PRIORITY
 
 
 async def prioritize_smb_client(
@@ -201,11 +196,24 @@ async def prioritize_smb_client(
     regions: List[int],
     team_settings: dict,
 ) -> int:
-    account_priority = await find_smb_client_account_priority(
-        client=client,
-        client_count=client_count,
-        team_settings=team_settings,
-    )
+    cashed_account_priorities = {}
+    cashed_account_priority_row = cashed_account_priorities.get(client.client_id)
+    if cashed_account_priority_row:
+        ...
+        new_cian_user_id, account_priority
+    else:
+]
+        new_cian_user_id, account_priority = await find_smb_client_account_priority(
+            client=client,
+            client_count=client_count,
+            team_settings=team_settings,
+        )
+        if new_cian_user_id:
+            # Обновляем идентификатор клиента
+            await set_cian_user_id_by_client_id(
+                cian_user_id=new_cian_user_id,
+                client_id=client.client_id
+            )
 
     if account_priority == _CLEAR_CLIENT_PRIORITY:
         return account_priority

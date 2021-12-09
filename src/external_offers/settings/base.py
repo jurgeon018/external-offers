@@ -309,3 +309,7 @@ ADMIN_OPERATOR_ROLE: str = 'Cian.PrepositionAdmin'
 # TODO: https://jira.cian.tech/browse/CD-116932
 # вставить правильное название роли тимлида админки
 ADMIN_TEAMLEAD_ROLE: str = 'Cian.AdminTeamleadRole'
+
+ENABLE_ACCOUNT_PRIORITIES_WAS_UPDATE_CHECK: bool = True
+ENABLE_ACCOUNT_PRIORITIES_CASHING: bool = True
+ACCOUNT_PRIORITIES_UPDATE_CHECK_WINDOW_IN_DAYS: int = 5
