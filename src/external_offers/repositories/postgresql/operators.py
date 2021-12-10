@@ -104,7 +104,7 @@ async def update_operator_by_id(
         'full_name': full_name,
         'team_id': team_id,
         'email': email,
-        'updated_at': now,    
+        'updated_at': now,
     }
     if is_teamlead is not None:
         values['is_teamlead'] = is_teamlead
