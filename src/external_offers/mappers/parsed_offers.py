@@ -1,7 +1,11 @@
 from cian_entities import EntityMapper
 from cian_entities.mappers import ValueMapper
 
-from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferForCreation, ParsedOfferMessage
+from external_offers.entities.parsed_offers import (
+    ParsedOffer, ParsedOfferForCreation, ParsedOfferMessage,
+    ParsedOfferForAccountPrioritization,
+)
+
 
 
 parsed_offer_message_mapper = EntityMapper(
@@ -28,4 +32,9 @@ parsed_offer_for_creation_mapper = EntityMapper(
     mappers={
         'timestamp': ValueMapper(),
     }
+)
+
+parsed_offer_for_account_prioritization = EntityMapper(
+    ParsedOfferForAccountPrioritization,
+    without_camelcase=True,
 )

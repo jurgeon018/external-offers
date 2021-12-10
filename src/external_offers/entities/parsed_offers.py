@@ -404,3 +404,11 @@ class ParsedOfferForCreation:
     """Флаг тестового обьявления"""
     external_offer_type: Optional[ExternalOfferType] = None
     """Тип объявления"""
+
+
+@dataclass
+class ParsedOfferForAccountPrioritization:
+    phones: str
+    """Номера телефонов в виде JSON списка"""
+    user_segment: str
+    """Сегмент пользователя"""

@@ -149,13 +149,12 @@ CREATE TABLE operators
     updated_at    timestamp with time zone not null
 );
 
-CREATE TABLE account_priorities
+CREATE TABLE phones_statuses
 (
-    priority_id SERIAL  NOT NULL PRIMARY KEY,
-    client_id   VARCHAR NOT NULL,
-    team_id     INT         NULL,
-    priority    INT     NOT NULL,
+    smb_account_status       VARCHAR NOT NULL,
+    homeowner_account_status VARCHAR NOT NULL,
+    phone         VARCHAR NOT NULL PRIMARY KEY UNIQUE,
+    new_cian_user_id VARCHAR NULL,
     created_at    timestamp with time zone NOT NULL,
-    updated_at    timestamp with time zone NOT NULL,
-    UNIQUE (client_id, team_id)
+    updated_at    timestamp with time zone NOT NULL
 )

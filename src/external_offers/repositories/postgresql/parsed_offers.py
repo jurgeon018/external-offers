@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
@@ -18,12 +19,14 @@ from external_offers.entities.parsed_offers import (
     ParsedOfferMessage,
 )
 from external_offers.entities.teams import Team
+from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
     parsed_offer_for_creation_mapper,
     parsed_offer_mapper,
     parsed_offer_message_mapper,
+    parsed_offer_for_account_prioritization,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 from external_offers.repositories.postgresql import tables
@@ -105,7 +108,6 @@ async def get_parsed_ids_for_cleaning(
     regions = [str(region) for region in regions]
     options = or_(
         po.c.user_segment.notin_(user_segments),
-        # po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
         po.c.source_object_model['region'].as_string().notin_(regions),
         po.c.source_object_model['category'].as_string().notin_(categories),
     )
@@ -177,31 +179,6 @@ async def set_synced_and_fetch_parsed_offers_chunk(
             tables.parsed_offers.c.source_object_model['contact'].label('contact'),
             tables.parsed_offers.c.source_object_model['category'].as_string().label('category')
         )
-    )
-
-    rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
-    return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
-
-
-async def get_parsed_offers_for_account_prioritization() -> list:
-
-    po = tables.parsed_offers.alias()
-
-    selected_non_synced_offers_cte = (
-        select([
-            po,
-        ])
-        .where(
-            and_(
-                po.c.source_object_model['phones'] != [],
-                po.c.source_object_model['phones'] != JSON.NULL,
-                po.c.source_object_model['phones'] != [''],
-                po.c.source_user_id.isnot(None),
-                not_(po.c.is_calltracking),
-                not_(po.c.synced),
-            )
-        )
-        .limit(settings.OFFER_TASK_CREATION_OFFER_FETCH_LIMIT)
     )
 
     rows = await pg.get().fetch(fetch_offers_query, *fetch_offers_params)
@@ -405,3 +382,66 @@ async def delete_test_parsed_offers() -> None:
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def get_parsed_offers_for_phones_statuses() -> list[ParsedOffer, None]:
+    po = tables.parsed_offers.alias()
+    query, params = asyncpgsa.compile_query(
+        select(
+            [po]
+        ).where(
+            po.c.source_object_model >= datetime.now(tz=pytz.UTC) - timedelta(days=1),
+        ).order_by(
+            po.c.created_at.asc(),
+            po.c.id.asc()
+        )
+    )
+    return await pg.get().fetch(query, *params)
+
+
+async def get_parsed_offers_for_account_prioritization() -> list[Optional[ParsedOfferForAccountPrioritization]]:
+    phones_statuses = tables.phones_statuses.alias()
+    po = tables.parsed_offers.alias()
+
+    days = settings.get('PHONES_STATUSES_UPDATE_CHECK_WINDOW_IN_DAYS', 5)
+    updated_at_border = datetime.now(tz=pytz.UTC) - timedelta(days=days)
+    # достает все номера телефонов по которым были обновления за последние 5 дней
+    query, params = asyncpgsa.compile_query(
+        select([
+            phones_statuses.c.phone,
+        ]).where(
+            phones_statuses.c.updated_at > updated_at_border
+        )
+    )
+    rows = await pg.get().fetch(query, *params)
+    recently_cashed_phone_numbers = [row['phone'] for row in rows]
+
+    options = [
+        po.c.source_object_model['phones'] != [],
+        po.c.source_object_model['phones'] != JSON.NULL,
+        po.c.source_object_model['phones'] != [''],
+        po.c.source_object_model['regions'] != [],
+        po.c.source_object_model['regions'] != JSON.NULL,
+        po.c.source_object_model['regions'] != [''],
+        po.c.user_segment.isnot(None),
+        po.c.source_user_id.isnot(None),
+        not_(po.c.is_calltracking),        
+    ]
+    if recently_cashed_phone_numbers:
+        options.append(
+            po.c.source_object_model['phones'].notin(recently_cashed_phone_numbers)
+        )
+    # достает все спаршеные обьявления, кроме тех, по номерам телефонов которых были обновления за последние 5 дней
+    query, params = asyncpgsa.compile_query(
+        select([
+            po.c.source_object_model['phones'],
+            po.c.user_segment,
+        ])
+        .where(
+            and_(
+                *options
+            )
+        )
+    )
+    rows = await pg.get().fetch(query, *params)
+    return [parsed_offer_for_account_prioritization.map_from(row) for row in rows]

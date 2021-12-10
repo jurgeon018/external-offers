@@ -1,2 +1,3 @@
-from external_offers.services.prioritizers.prioritize_homeowner import prioritize_homeowner_client
-from external_offers.services.prioritizers.prioritize_smb import prioritize_smb_client
+from external_offers.services.prioritizers.prioritize_homeowner import prioritize_homeowner_client, find_homeowner_client_account_priority
+from external_offers.services.prioritizers.prioritize_smb import prioritize_smb_client, find_smb_client_account_priority
+ 
