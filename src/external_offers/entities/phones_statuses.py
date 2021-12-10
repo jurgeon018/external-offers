@@ -19,12 +19,10 @@ class SmbAccountStatus(StrEnum):
 @dataclass
 class SmbClientAccount:
     """Используется при приоретизации аккаунтов агентов и при записи статусов телефонов в таблицу phones_statuses"""
-    account_status: SmbAccountStatus
+    account_status: Optional[SmbAccountStatus] = None
     """Статус ЛК агента"""
     new_cian_user_id: Optional[str] = None
     """Идентификатор нового агента на циане"""
-    old_cian_user_id: Optional[str] = None
-    """Идентификатор существующего агента на циане"""
 
 
 class HomeownerAccountStatus(StrEnum):
@@ -41,8 +39,6 @@ class HomeownerAccount:
     """Статус ЛК собственника"""
     new_cian_user_id: Optional[str] = None
     """Идентификатор нового собственника на циане"""
-    old_cian_user_id: Optional[str] = None
-    """Идентификатор существующего собственника на циане"""
 
 
 @dataclass

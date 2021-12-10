@@ -14,7 +14,8 @@ class ClientChooseMainProfileResult:
 
 @dataclass
 class HomeownerClientChooseMainProfileResult(ClientChooseMainProfileResult):
-    has_emls_or_subagent: bool
+    has_wrong_user_source_type: bool
+    """Есть неподходящий тип источника, который нужно отфильтровать"""
 
 
 @dataclass
