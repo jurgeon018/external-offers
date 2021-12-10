@@ -415,17 +415,7 @@ async def get_parsed_offers_for_account_prioritization() -> list[Optional[Parsed
     rows = await pg.get().fetch(query, *params)
     recently_cashed_phone_numbers = [row['phone'] for row in rows]
 
-    options = [
-        po.c.source_object_model['phones'] != [],
-        po.c.source_object_model['phones'] != JSON.NULL,
-        po.c.source_object_model['phones'] != [''],
-        po.c.source_object_model['regions'] != [],
-        po.c.source_object_model['regions'] != JSON.NULL,
-        po.c.source_object_model['regions'] != [''],
-        po.c.user_segment.isnot(None),
-        po.c.source_user_id.isnot(None),
-        not_(po.c.is_calltracking),        
-    ]
+    options = []
     if recently_cashed_phone_numbers:
         options.append(
             po.c.source_object_model['phones'].notin(recently_cashed_phone_numbers)
@@ -438,7 +428,20 @@ async def get_parsed_offers_for_account_prioritization() -> list[Optional[Parsed
         ])
         .where(
             and_(
-                *options
+                po.c.source_object_model['phones'] != [],
+                po.c.source_object_model['phones'] != JSON.NULL,
+                po.c.source_object_model['phones'] != [''],
+                po.c.source_object_model['regions'] != [],
+                po.c.source_object_model['regions'] != JSON.NULL,
+                po.c.source_object_model['regions'] != [''],
+                po.c.user_segment.isnot(None),
+                po.c.user_segment.in_([
+                    'c',
+                    'd',
+                ]),
+                po.c.source_user_id.isnot(None),
+                not_(po.c.is_calltracking),
+                *options,
             )
         )
     )
