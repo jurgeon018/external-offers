@@ -1,8 +1,10 @@
 import logging
+from dataclasses import dataclass
 from typing import List, Optional, Union
 
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
+from cian_enum import NoFormat, StrEnum
 from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import SmbClientChooseMainProfileResult
@@ -29,9 +31,6 @@ _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
 _METRIC_PRIORITIZE_NO_LK = 'prioritize_client.no_lk'
 _METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
 _METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
-
-from dataclasses import dataclass
-from cian_enum import StrEnum, NoFormat
 
 
 async def choose_main_smb_client_profile(
@@ -83,7 +82,7 @@ class SmbAccountStatus(StrEnum):
     __value_format__ = NoFormat
     no_lk_smb = 'no_lk_smb_priority'
     no_active_smb = 'no_active_smb_priority'
-    keep_proportion_smb = 'keep_proportion_smb_priority'    
+    keep_proportion_smb = 'keep_proportion_smb_priority'
     clear_client = str(_CLEAR_CLIENT_PRIORITY)
 
 
@@ -108,7 +107,7 @@ async def find_smb_client_account_priority(
         if not response.users:
             statsd.incr(_METRIC_PRIORITIZE_NO_LK)
             return FindSmbClientAccontPriorityResult(
-                new_cian_user_id=None, 
+                new_cian_user_id=None,
                 account_status=SmbAccountStatus.no_lk_smb,
             )
         sanctions_response = await v1_sanctions_get_sanctions(
@@ -118,7 +117,7 @@ async def find_smb_client_account_priority(
         )
         if sanctions_response.items:
             return FindSmbClientAccontPriorityResult(
-                new_cian_user_id=None, 
+                new_cian_user_id=None,
                 account_status=SmbAccountStatus.clear_client,
             )
         # Выбираем основной активный агентский профиль пользователя
@@ -129,23 +128,23 @@ async def find_smb_client_account_priority(
         )
         if result.has_bad_account:
             return FindSmbClientAccontPriorityResult(
-                new_cian_user_id=None, 
+                new_cian_user_id=None,
                 account_status=SmbAccountStatus.clear_client,
             )
         if result.has_wrong_user_source_type:
             return FindSmbClientAccontPriorityResult(
-                new_cian_user_id=None, 
+                new_cian_user_id=None,
                 account_status=SmbAccountStatus.clear_client,
             )
         if not result.chosen_profile:
             return FindSmbClientAccontPriorityResult(
-                new_cian_user_id=None, 
+                new_cian_user_id=None,
                 account_status=SmbAccountStatus.no_lk_smb,
             )
         # TODO: has_bad_offers_proportion
         # if result.has_bad_offers_proportion:
         #     return FindSmbClientAccontPriorityResult(
-        #         new_cian_user_id=None, 
+        #         new_cian_user_id=None,
         #         account_status=SmbAccountStatus.clear_client,
         #     )
         new_cian_user_id = result.chosen_profile.cian_user_id
@@ -157,7 +156,7 @@ async def find_smb_client_account_priority(
         )
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
         return FindSmbClientAccontPriorityResult(
-            new_cian_user_id=None, 
+            new_cian_user_id=None,
             account_status=SmbAccountStatus.clear_client,
         )
     return FindSmbClientAccontPriorityResult(

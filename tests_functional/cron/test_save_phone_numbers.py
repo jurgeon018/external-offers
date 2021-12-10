@@ -5,7 +5,6 @@ async def test_save_phone_numbers(
     runtime_settings,
     runner,
 ):
-    pass
     # await pg.execute("""
     # INSERT INTO clients (
     #     client_id,avito_user_id,client_phones,status,synced_with_grafana,is_test,main_account_chosen,unactivated

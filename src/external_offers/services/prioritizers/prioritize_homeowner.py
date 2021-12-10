@@ -1,12 +1,15 @@
 import logging
+from dataclasses import dataclass
 from typing import List, Optional
 
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
+from cian_enum import NoFormat, StrEnum
 from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import HomeownerClientChooseMainProfileResult
 from external_offers.entities.clients import Client
+from external_offers.entities.phones_statuses import AccountPriorities
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_profileapi._repo import v1_sanctions_get_sanctions
 from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions_get_sanctions import (
@@ -25,9 +28,6 @@ _CLEAR_CLIENT_PRIORITY = -1
 _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
 _METRIC_PRIORITIZE_NO_LK = 'prioritize_client.no_lk'
 
-from dataclasses import dataclass
-from cian_enum import StrEnum, NoFormat
-
 
 class HomeownerAccountStatus(StrEnum):
     __value_format__ = NoFormat
@@ -36,12 +36,12 @@ class HomeownerAccountStatus(StrEnum):
     no_lk_homeowner = 'no_lk_homeowner_priority'
     active_lk_homeowner = 'active_lk_homeowner_priority'
 
+
 @dataclass
 class HomeownerAccontPriority:
     account_status: HomeownerAccountStatus
     new_cian_user_id: Optional[str] = None
     old_cian_user_id: Optional[str] = None
-
 
 
 def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> HomeownerClientChooseMainProfileResult:

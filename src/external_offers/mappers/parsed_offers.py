@@ -2,10 +2,11 @@ from cian_entities import EntityMapper
 from cian_entities.mappers import ValueMapper
 
 from external_offers.entities.parsed_offers import (
-    ParsedOffer, ParsedOfferForCreation, ParsedOfferMessage,
+    ParsedOffer,
     ParsedOfferForAccountPrioritization,
+    ParsedOfferForCreation,
+    ParsedOfferMessage,
 )
-
 
 
 parsed_offer_message_mapper = EntityMapper(

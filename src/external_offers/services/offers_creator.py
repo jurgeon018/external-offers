@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Union
 
 import pytz
@@ -9,25 +9,15 @@ from cian_core.context import new_operation_id
 from cian_core.runtime_settings import runtime_settings
 from cian_json import json
 from tornado import gen
-from external_offers.entities.account_priorities import AccountPriorities
 
-
-from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
-
-from external_offers.repositories.postgresql.parsed_offers import (
-    get_parsed_offers_for_account_prioritization,
-)
-from external_offers.entities.phones_statuses import AccountPriorities
 from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
+from external_offers.entities.phones_statuses import AccountPriorities
 from external_offers.entities.teams import Team
-from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
 from external_offers.enums import UserSegment
+from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.helpers.uuid import generate_guid
-from external_offers.repositories.postgresql.phones_statuses import (
-    set_phone_statuses, get_phones_statuses
-)
 from external_offers.repositories.postgresql import (
     delete_old_waiting_offers_for_call,
     delete_waiting_clients_with_count_off_limit,
@@ -50,12 +40,18 @@ from external_offers.repositories.postgresql.offers import (
     delete_calltracking_offers,
     set_waiting_offers_team_priorities_by_offer_ids,
 )
+from external_offers.repositories.postgresql.parsed_offers import get_parsed_offers_for_account_prioritization
+from external_offers.repositories.postgresql.phones_statuses import get_phones_statuses, set_phone_statuses
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import (
-    prioritize_homeowner_client, prioritize_smb_client,
-    find_smb_client_account_priority, find_homeowner_client_account_priority
+    find_homeowner_client_account_priority,
+    find_smb_client_account_priority,
+    prioritize_homeowner_client,
+    prioritize_smb_client,
 )
+from external_offers.services.prioritizers.prioritize_homeowner import HomeownerAccontPriority
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
+from external_offers.services.prioritizers.prioritize_smb import FindSmbClientAccontPriorityResult
 
 
 logger = logging.getLogger(__name__)
@@ -343,7 +339,7 @@ def get_default_team_settings():
         'maximum_active_offers_proportion': runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION,
         'no_lk_smb_priority': runtime_settings.NO_LK_SMB_PRIORITY,
         'no_active_smb_priority': runtime_settings.NO_ACTIVE_SMB_PRIORITY,
-        'keep_proportion_smb_priority': runtime_settings.KEEP_PROPORTION_SMB_PRIORITY, 
+        'keep_proportion_smb_priority': runtime_settings.KEEP_PROPORTION_SMB_PRIORITY,
         'active_lk_homeowner_priority': runtime_settings.ACTIVE_LK_HOMEOWNER_PRIORITY,
         'no_lk_homeowner_priority': runtime_settings.NO_LK_HOMEOWNER_PRIORITY,
         'unactivated_client_priority': runtime_settings.UNACTIVATED_CLIENT_PRIORITY,
@@ -499,12 +495,7 @@ async def create_phones_statuses() -> None:
         'Кеширование приоритетов по ЛК для %s обьявлений запущено.',
         len(parsed_offers_for_account_prioritization),
     )
-    from external_offers.services.prioritizers.prioritize_smb import (
-        FindSmbClientAccontPriorityResult,
-    )
-    from external_offers.services.prioritizers.prioritize_homeowner import (
-        HomeownerAccontPriority,
-    )
+
     for parsed_offer_for_account_prioritization in parsed_offers_for_account_prioritization:
         user_segment = parsed_offer_for_account_prioritization.user_segment
         phones = parsed_offer_for_account_prioritization.phones
@@ -533,4 +524,3 @@ async def create_phones_statuses() -> None:
             homeowner_account_status=homeowner_account_status,
             new_cian_user_id=new_cian_user_id,
         )
- 

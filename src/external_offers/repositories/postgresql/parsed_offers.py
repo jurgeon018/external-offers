@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
@@ -15,18 +14,18 @@ from external_offers import pg
 from external_offers.entities.parsed_offers import (
     ParsedObjectModel,
     ParsedOffer,
+    ParsedOfferForAccountPrioritization,
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
 from external_offers.entities.teams import Team
-from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
+    parsed_offer_for_account_prioritization,
     parsed_offer_for_creation_mapper,
     parsed_offer_mapper,
     parsed_offer_message_mapper,
-    parsed_offer_for_account_prioritization,
 )
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 from external_offers.repositories.postgresql import tables

@@ -1,18 +1,17 @@
-from external_offers.entities import parsed_offers
-from external_offers.repositories.postgresql.tables import phones_statuses, clients
-from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
-from external_offers import pg
-from sqlalchemy.sql import and_, delete, func, not_, or_, select, update
-from sqlalchemy.dialects.postgresql import insert
-from datetime import datetime, timedelta
-from typing import AsyncGenerator, List, Optional
-from external_offers.entities.phones_statuses import (
-    AccountPriorities,
-)
-import pytz
+from datetime import datetime
+from typing import Optional
+
 import asyncpgsa
-from external_offers.services.prioritizers.prioritize_smb import SmbAccountStatus
+import pytz
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql import select
+
+from external_offers import pg
+from external_offers.entities.phones_statuses import AccountPriorities
+from external_offers.repositories.postgresql.tables import phones_statuses
 from external_offers.services.prioritizers.prioritize_homeowner import HomeownerAccountStatus
+from external_offers.services.prioritizers.prioritize_smb import SmbAccountStatus
+
 
 async def set_phone_statuses(
     *,
@@ -32,7 +31,7 @@ async def set_phone_statuses(
     values['smb_account_status'] = smb_account_status
     values['homeowner_account_status'] = homeowner_account_status
     values['new_cian_user_id'] = new_cian_user_id
-    
+
     query, params = asyncpgsa.compile_query(
         insert_query.values(
             [values]
@@ -57,13 +56,12 @@ async def get_phones_statuses() -> dict[str, AccountPriorities]:
         select([phones_statuses])
     ))
     rows = await pg.get().fetch(query, *params)
-    # TODO: переделать цикл на запрос
     phones_statuses = {}
     for row in rows:
         phones_statuses[row['phone']] = AccountPriorities(
-            smb_account_status = row['smb_account_status'],
-            homeowner_account_status = row['homeowner_account_status'],
-            new_cian_user_id = row['new_cian_user_id'],
+            smb_account_status=row['smb_account_status'],
+            homeowner_account_status=row['homeowner_account_status'],
+            new_cian_user_id=row['new_cian_user_id'],
         )
     return phones_statuses
 
