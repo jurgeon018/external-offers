@@ -169,9 +169,14 @@ async def test_teams(pg, http, runtime_settings):
 
 
 async def test_render_teams(
-    http, users_mock,
+    pg, http, users_mock,
 ):
     # arrange
+    await pg.execute("""
+    INSERT INTO teams (team_id, team_name, lead_id) VALUES
+    ('1', 'team1', '1'),
+    ('2', 'team2', '2');
+    """)
     await users_mock.add_stub(
         method='GET',
         path='/v1/get-userids-by-rolename/',
