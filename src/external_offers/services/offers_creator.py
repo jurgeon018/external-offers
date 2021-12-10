@@ -45,8 +45,8 @@ from external_offers.repositories.postgresql.parsed_offers import get_parsed_off
 from external_offers.repositories.postgresql.phones_statuses import get_phones_statuses, set_phone_statuses
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import (
-    find_homeowner_client_account_priority,
-    find_smb_client_account_priority,
+    find_homeowner_client_account_status,
+    find_smb_client_account_status,
     prioritize_homeowner_client,
     prioritize_smb_client,
 )
@@ -501,7 +501,7 @@ async def create_phones_statuses() -> None:
         user_segment = parsed_offer.user_segment
         phone = transform_phone_number_to_canonical_format(json.loads(parsed_offer.phones)[0])
         if user_segment == UserSegment.c.value:
-            smb_result: SmbClientAccountPriority = await find_smb_client_account_priority(phone=phone)
+            smb_result: SmbClientAccountPriority = await find_smb_client_account_status(phone=phone)
             await set_phone_statuses(
                 phone=phone,
                 smb_account_status=smb_result.account_status,
@@ -509,7 +509,7 @@ async def create_phones_statuses() -> None:
                 new_cian_user_id=homeowner_result.new_cian_user_id,
             )
         elif user_segment == UserSegment.d.value:
-            homeowner_result: HomeownerAccountPriority = await find_homeowner_client_account_priority(phone=phone)
+            homeowner_result: HomeownerAccountPriority = await find_homeowner_client_account_status(phone=phone)
             await set_phone_statuses(
                 phone=phone,
                 smb_account_status=_CLEAR_PRIORITY,

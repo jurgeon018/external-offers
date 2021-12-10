@@ -17,7 +17,7 @@ class SmbAccountStatus(StrEnum):
 
 
 @dataclass
-class SmbClientAccountPriority:
+class SmbClientAccount:
     """Используется при приоретизации аккаунтов агентов и при записи статусов телефонов в таблицу phones_statuses"""
     account_status: SmbAccountStatus
     """Статус ЛК агента"""
@@ -35,7 +35,7 @@ class HomeownerAccountStatus(StrEnum):
 
 
 @dataclass
-class HomeownerAccountPriority:
+class HomeownerAccount:
     """Используется при приоретизации аккаунтов собственников и при записи статусов телефонов в phones_statuses"""
     account_status: HomeownerAccountStatus
     """Статус ЛК собственника"""

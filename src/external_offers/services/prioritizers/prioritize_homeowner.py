@@ -6,7 +6,10 @@ from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import HomeownerClientChooseMainProfileResult
 from external_offers.entities.clients import Client
-from external_offers.entities.phones_statuses import HomeownerAccountPriority, HomeownerAccountStatus, PhoneStatuses
+from external_offers.entities.phones_statuses import (
+    HomeownerAccountStatus, PhoneStatuses,
+    HomeownerAccount
+)
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_profileapi._repo import v1_sanctions_get_sanctions
 from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions_get_sanctions import (
@@ -64,7 +67,7 @@ def choose_main_homeowner_client_profile(user_profiles: list[UserModelV2]) -> Ho
     )
 
 
-async def find_homeowner_client_account_priority(phone: str) -> HomeownerAccountPriority:
+async def find_homeowner_client_account_status(phone: str) -> HomeownerAccount:
 
     try:
         response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
@@ -79,7 +82,7 @@ async def find_homeowner_client_account_priority(phone: str) -> HomeownerAccount
             # проверяет есть ли по номеру телефона такой аккаунт на циан.
             # если есть - задание пропускается
             # если нет - задание выдается оператору
-            return HomeownerAccountPriority(
+            return HomeownerAccount(
                 new_cian_user_id=None,
                 account_status=HomeownerAccountStatus.clear_client,
             )
@@ -87,7 +90,7 @@ async def find_homeowner_client_account_priority(phone: str) -> HomeownerAccount
         # Приоритет для незарегистрированных собственников
         if not response.users:
             statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-            return HomeownerAccountPriority(
+            return HomeownerAccount(
                 new_cian_user_id=None,
                 account_status=HomeownerAccountStatus.no_lk_homeowner,
             )
@@ -97,7 +100,7 @@ async def find_homeowner_client_account_priority(phone: str) -> HomeownerAccount
             )
         )
         if sanctions_response.items:
-            return HomeownerAccountPriority(
+            return HomeownerAccount(
                 new_cian_user_id=None,
                 account_status=HomeownerAccountStatus.clear_client,
             )
@@ -108,19 +111,19 @@ async def find_homeowner_client_account_priority(phone: str) -> HomeownerAccount
         result = choose_main_homeowner_client_profile(response.users)
 
         if result.has_bad_account:
-            return HomeownerAccountPriority(
+            return HomeownerAccount(
                 new_cian_user_id=None,
                 account_status=HomeownerAccountStatus.clear_client,
             )
 
         if not result.chosen_profile and result.has_emls_or_subagent:
-            return HomeownerAccountPriority(
+            return HomeownerAccount(
                 new_cian_user_id=None,
                 account_status=HomeownerAccountStatus.clear_client,
             )
 
         if not result.chosen_profile:
-            return HomeownerAccountPriority(
+            return HomeownerAccount(
                 new_cian_user_id=None,
                 account_status=HomeownerAccountStatus.no_lk_homeowner,
             )
@@ -133,21 +136,20 @@ async def find_homeowner_client_account_priority(phone: str) -> HomeownerAccount
             exc.message
         )
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
-        return HomeownerAccountPriority(
+        return HomeownerAccount(
             new_cian_user_id=None,
             account_status=HomeownerAccountStatus.clear_client,
         )
 
-    return HomeownerAccountPriority(
+    return HomeownerAccount(
         new_cian_user_id=new_cian_user_id,
         account_status=HomeownerAccountStatus.active_lk_homeowner,
     )
 
 
-async def prioritize_homeowner_client(
+async def find_homeowner_client_account_priority(
     *,
     client: Client,
-    regions: list[int],
     team_settings: dict,
     phones_statuses: dict[str, PhoneStatuses] = None,
 ) -> int:
@@ -158,74 +160,59 @@ async def prioritize_homeowner_client(
     phone = transform_phone_number_to_canonical_format(client.client_phones[0])
     phone_statuses = phones_statuses.get(phone)
     if phone_statuses:
+        phone_statuses: PhoneStatuses
+        # в таблице phones_statuses есть закешированый статус ЛК клиента,
+        # и можно не ходить в шарповые ручки, а достать статусы из базы
+
         new_cian_user_id = phone_statuses.new_cian_user_id
         homeowner_account_priority = phone_statuses.homeowner_account_priority
         # TODO:
         ...
 
     else:
-        ...
+        if not cian_user_id:
+            # в таблице phones_statuses закешированного статуса ЛК клиента,
+            # и нужно сходить в шарповые ручки и достать из них статус,
+            # только если у клиента еще нет cian_user_id
+            homeowner_priority = await find_homeowner_client_account_priority(
+                phone=phone,
+            )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    if not cian_user_id:
-
-        new_cian_user_id, account_priority = await find_homeowner_client_account_priority(
-            phone
-        )
-    else:
-        ...
-
-
-
-
-
-
+            # new_cian_user_id, account_priority = await find_homeowner_client_account_status(
+            #     phone
+            # )
+        else:
+            # если у клиента уже есть cian_user_id, то ???
+            pass
+        
 
 
 
     if not old_cian_user_id and new_cian_user_id:
         # TODO: понять когда обновлять
+        # TODO: возможно перенести в крон кеширования
         # Обновляем идентификатор клиента
         await set_cian_user_id_by_client_id(
             cian_user_id=new_cian_user_id,
             client_id=client.client_id
         )
+    return account_priority
+    
 
 
+async def prioritize_homeowner_client(
+    *,
+    client: Client,
+    regions: list[int],
+    team_settings: dict,
+    phones_statuses: dict[str, PhoneStatuses] = None,
+) -> int:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    account_priority = await find_homeowner_client_account_priority(
+        client=client,
+        team_settings=team_settings,
+        phones_statuses=phones_statuses,        
+    )
 
     if account_priority == _CLEAR_CLIENT_PRIORITY:
         return account_priority
