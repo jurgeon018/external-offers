@@ -66,7 +66,7 @@ segment_types_to_field_names_mapper = {
     GrafanaSegmentType.user_segment: 'parsed_offers.user_segment',
     GrafanaSegmentType.category: 'ofc.category',
 }
-metric_to_status_query_mapper = {
+metric_to_status_query_mapper: dict = {
     GrafanaMetric.waiting_offers_count: (
         f"""
         WHERE ofc.synced_with_grafana IS NOT TRUE
@@ -143,7 +143,7 @@ async def fetch_segmented_objects(
         rows = await pg.get().fetch(segmentation_query)
 
         # создает словарь со списками клиентов из сегментов
-        dct = defaultdict(list)
+        dct: dict = defaultdict(list)
         for row in rows:
             segment_name = row['segment_name']
             client_id = row['client_id']

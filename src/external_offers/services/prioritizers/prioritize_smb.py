@@ -7,7 +7,7 @@ from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import SmbClientChooseMainProfileResult
 from external_offers.entities.clients import Client
-from external_offers.entities.phones_statuses import PhoneStatuses, SmbAccountStatus, SmbClientAccount
+from external_offers.entities.phones_statuses import ClientAccountStatus, SmbAccountStatus, SmbClientAccount
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
 from external_offers.repositories.announcements.entities import V2GetUserActiveAnnouncementsCount
@@ -146,7 +146,7 @@ async def find_smb_client_account_priority(
     client_count: int,
     client: Client,
     team_settings: dict,
-    phones_statuses: dict[str, PhoneStatuses] = None,
+    phones_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
 
     if client.cian_user_id:
@@ -162,12 +162,12 @@ async def find_smb_client_account_priority(
         if phones_statuses is None:
             phones_statuses = {}
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
-        phone_statuses: Optional[PhoneStatuses] = phones_statuses.get(phone)
+        phone_statuses: Optional[ClientAccountStatus] = phones_statuses.get(phone)
 
         if phone_statuses:
             # в таблице phones_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы
-            phone_statuses: PhoneStatuses
+            phone_statuses: ClientAccountStatus
             account_status = phone_statuses.smb_account_status
             new_cian_user_id = phone_statuses.new_cian_user_id
         else:
@@ -204,7 +204,7 @@ async def prioritize_smb_client(
     client: Client,
     regions: list[int],
     team_settings: dict,
-    phones_statuses: dict[str, PhoneStatuses] = None,
+    phones_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
 
     account_priority = await find_smb_client_account_priority(

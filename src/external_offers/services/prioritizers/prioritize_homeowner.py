@@ -7,7 +7,7 @@ from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import HomeownerClientChooseMainProfileResult
 from external_offers.entities.clients import Client
-from external_offers.entities.phones_statuses import HomeownerAccount, HomeownerAccountStatus, PhoneStatuses
+from external_offers.entities.phones_statuses import HomeownerAccount, HomeownerAccountStatus, ClientAccountStatus
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_profileapi._repo import v1_sanctions_get_sanctions
 from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions_get_sanctions import (
@@ -139,7 +139,7 @@ async def find_homeowner_client_account_priority(
     *,
     client: Client,
     team_settings: dict,
-    phones_statuses: dict[str, PhoneStatuses] = None,
+    phones_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
 
     if client.cian_user_id:
@@ -151,7 +151,7 @@ async def find_homeowner_client_account_priority(
 
     # если у клиента еще нет cian_user_id
     phone = transform_phone_number_to_canonical_format(client.client_phones[0])
-    phone_statuses: Optional[PhoneStatuses] = phones_statuses.get(phone)
+    phone_statuses: Optional[ClientAccountStatus] = phones_statuses.get(phone)
 
     if phone_statuses:
         # в таблице phones_statuses есть закешированый статус ЛК клиента,
@@ -182,7 +182,7 @@ async def prioritize_homeowner_client(
     client: Client,
     regions: list[int],
     team_settings: dict,
-    phones_statuses: dict[str, PhoneStatuses] = None,
+    phones_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
 
     account_priority = await find_homeowner_client_account_priority(

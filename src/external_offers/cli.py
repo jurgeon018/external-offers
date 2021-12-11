@@ -44,7 +44,7 @@ def create_offers_for_call():
     IOLoop.current().run_sync(sync_and_create_offers)
 
 
-@cli.command
+@cli.command()
 def create_phones_statuses_cron():
     """ Закешировать информацию про ЛК клиентов по номеру телефона """
     IOLoop.current().run_sync(create_phones_statuses)

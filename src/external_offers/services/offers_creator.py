@@ -14,7 +14,7 @@ from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
 from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
-from external_offers.entities.phones_statuses import HomeownerAccount, PhoneStatuses, SmbClientAccount
+from external_offers.entities.phones_statuses import HomeownerAccount, ClientAccountStatus, SmbClientAccount
 from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
@@ -42,7 +42,10 @@ from external_offers.repositories.postgresql.offers import (
     set_waiting_offers_team_priorities_by_offer_ids,
 )
 from external_offers.repositories.postgresql.parsed_offers import get_parsed_offers_for_account_prioritization
-from external_offers.repositories.postgresql.phones_statuses import get_phones_statuses, set_phone_statuses
+from external_offers.repositories.postgresql.phones_statuses import (
+    get_phones_statuses, set_phone_statuses,
+    get_recently_cashed_phone_numbers,
+)
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import (
     find_homeowner_client_account_status,
@@ -75,7 +78,7 @@ async def prioritize_client(
     client_id: str,
     client_count: int,
     team_settings: dict,
-    phones_statuses: dict[str, PhoneStatuses] = None,
+    phones_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_PRIORITY """
 
@@ -233,7 +236,7 @@ async def prioritize_clients(
     *,
     waiting_clients_counts: list[ClientWaitingOffersCount],
     team_settings: dict,
-    phones_statuses: dict[str, PhoneStatuses],
+    phones_statuses: dict[str, ClientAccountStatus],
 ):
     prefix = team_settings['new_client_priority']
     prefix = str(prefix)
@@ -377,7 +380,7 @@ async def prioritize_waiting_offers(
 ) -> None:
 
     client_counts_for_prioritization = []
-    phones_statuses: dict[str, PhoneStatuses] = await get_phones_statuses()
+    phones_statuses: dict[str, ClientAccountStatus] = await get_phones_statuses()
     for team in teams:
         team_id, team_settings = get_team_info(team)
         # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
@@ -437,7 +440,7 @@ async def create_priorities(
     unactivated_clients_counts,
     team_settings: dict,
     team_id: Optional[int] = None,
-    phones_statuses: dict[str, PhoneStatuses],
+    phones_statuses: dict[str, ClientAccountStatus],
 ) -> dict[int, dict[int, list[str]]]:
     if team_id:
         logger.warning(
@@ -483,41 +486,58 @@ async def create_priorities(
     }
 
 
+
 async def create_phones_statuses() -> None:
     if not runtime_settings.get('ENABLE_PHONES_STATUSES_CASHING', True):
         logger.warning('Кеширование приоритетов по ЛК клиентов отключено')
         return False
-
     # TODO: поделить parsed_offers на чанки
     parsed_offers = await get_parsed_offers_for_account_prioritization()
+    recently_cashed_phone_numbers = await get_recently_cashed_phone_numbers()
     logger.warning(
         'Кеширование приоритетов по ЛК для %s обьявлений запущено.',
         len(parsed_offers),
     )
+    print('\n recently_cashed_phone_numbers: ', recently_cashed_phone_numbers)
+    # достает все спаршеные обьявления, кроме тех, по номерам телефонов которых были обновления за последние 5 дней
     for parsed_offer in parsed_offers:
         parsed_offer: ParsedOfferForAccountPrioritization
-        user_segment = parsed_offer.user_segment
-        phone = transform_phone_number_to_canonical_format(json.loads(parsed_offer.phones)[0])
-        if user_segment == UserSegment.c.value:
-            smb_result: SmbClientAccount = await find_smb_client_account_status(phone=phone)
-            await set_phone_statuses(
-                phone=phone,
-                smb_account_status=smb_result.account_status,
-                homeowner_account_status=_CLEAR_PRIORITY,
-                new_cian_user_id=homeowner_result.new_cian_user_id,
-            )
-        elif user_segment == UserSegment.d.value:
-            homeowner_result: HomeownerAccount = await find_homeowner_client_account_status(phone=phone)
-            await set_phone_statuses(
-                phone=phone,
-                smb_account_status=_CLEAR_PRIORITY,
-                homeowner_account_status=homeowner_result.account_status,
-                new_cian_user_id=homeowner_result.new_cian_user_id,
-            )
-        else:
-            await set_phone_statuses(
-                phone=phone,
-                smb_account_status=_CLEAR_PRIORITY,
-                homeowner_account_status=_CLEAR_PRIORITY,
-                new_cian_user_id=None,
-            )
+        # TODO: разобраться с форматами номеров телефонов. понять где какие используются.
+
+        print('\n parsed_offer: ', parsed_offer)
+
+        raw_phone = json.loads(parsed_offer.phones)[0]
+        if raw_phone in recently_cashed_phone_numbers:
+            continue
+
+        phone = transform_phone_number_to_canonical_format(raw_phone)
+        if phone in recently_cashed_phone_numbers:
+            continue
+
+        now = datetime.now(tz=pytz.UTC)
+        with new_operation_id():
+            if parsed_offer.user_segment == UserSegment.c.value:
+                smb_account: SmbClientAccount = await find_smb_client_account_status(phone=phone)
+                await set_phone_statuses({
+                    'created_at': now,
+                    'updated_at': now,
+                    'phone': phone,
+                    'smb_account_status': smb_account.account_status.value,
+                    'homeowner_account_status': SmbClientAccount.clear_client,
+                    'new_cian_user_id': smb_account.new_cian_user_id,
+                })
+            elif parsed_offer.user_segment == UserSegment.d.value:
+                homeowner_account: HomeownerAccount = await find_homeowner_client_account_status(phone=phone)
+                await set_phone_statuses({
+                    'created_at': now,
+                    'updated_at': now,
+                    'phone': phone,
+                    'smb_account_status': str(_CLEAR_PRIORITY),
+                    'homeowner_account_status': homeowner_account.account_status.value,
+                    'new_cian_user_id': homeowner_account.new_cian_user_id,
+                })
+            else:
+                logger.warning(
+                    'Невалидный user_segment у обьявления с номером %s',
+                    raw_phone,
+                )

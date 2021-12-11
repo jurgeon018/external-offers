@@ -44,7 +44,7 @@ class HomeownerAccount:
 
 
 @dataclass
-class PhoneStatuses:
+class ClientAccountStatus:
     """Используется в мапинге при селекте статусов телефонов из phones_statuses"""
     homeowner_account_status: HomeownerAccountStatus
     """Статус аккаунта агента"""
