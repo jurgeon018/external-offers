@@ -68,7 +68,7 @@ def choose_main_homeowner_client_profile(user_profiles: list[UserModelV2]) -> Ho
     )
 
 
-async def find_homeowner_client_account_status(phone: str) -> HomeownerAccount:
+async def find_homeowner_account(phone: str) -> HomeownerAccount:
     try:
         response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
             V2GetUsersByPhone(
@@ -165,7 +165,7 @@ async def find_homeowner_client_account_priority(
     else:
         # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
         # и нужно сходить в шарповые ручки и достать из них статус,
-        account = await find_homeowner_client_account_status(phone=phone)
+        account = await find_homeowner_account(phone=phone)
         account_status = account.account_status
         new_cian_user_id = account.new_cian_user_id
 
@@ -203,14 +203,3 @@ async def prioritize_homeowner_client(
         account_priority=account_priority,
         team_settings=team_settings
     )
-
-
-def get_account_priority(
-    account_status: str,
-    team_settings: dict,
-) -> int:
-    if account_status == HomeownerAccountStatus.clear_client.value:
-        account_priority = int(account_status)
-    else:
-        account_priority = int(team_settings[account_status])
-    return account_priority

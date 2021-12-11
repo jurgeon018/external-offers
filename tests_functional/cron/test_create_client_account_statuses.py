@@ -55,15 +55,15 @@ async def test_create_client_account_statuses__statuses_are_created(
 ):
     # arrange
     parsed_offers_count_query, parsed_offers_count_params = """
-    SELECT COUNT(*)
-    FROM parsed_offers
-    WHERE (parsed_offers.source_object_model -> 'phones') != $1
-    AND (parsed_offers.source_object_model -> 'phones') != $2
-    AND (parsed_offers.source_object_model -> 'phones') != $3
-    AND parsed_offers.user_segment IS NOT NULL
-    AND parsed_offers.user_segment IN ('c', 'd')
-    AND parsed_offers.source_user_id IS NOT NULL
-    AND NOT parsed_offers.is_calltracking
+        SELECT COUNT(*)
+        FROM parsed_offers
+        WHERE (parsed_offers.source_object_model -> 'phones') != $1
+        AND (parsed_offers.source_object_model -> 'phones') != $2
+        AND (parsed_offers.source_object_model -> 'phones') != $3
+        AND parsed_offers.user_segment IS NOT NULL
+        AND parsed_offers.user_segment IN ('c', 'd')
+        AND parsed_offers.source_user_id IS NOT NULL
+        AND NOT parsed_offers.is_calltracking
     """, [
         '[]',
         'null',
@@ -74,9 +74,17 @@ async def test_create_client_account_statuses__statuses_are_created(
         'ENABLE_client_account_statuses_CASHING': True,
     })
     await pg.execute_scripts(parsed_offers_and_numbers_for_account_prioritization_fixture)
+    # 'c' - smb
+    # parsed_offer1 = await pg.fetchrow('select * from parsed_offers where id=1')
+    # parsed_offer2 = await pg.fetchrow('select * from parsed_offers where id=2')
+    # parsed_offer3 = await pg.fetchrow('select * from parsed_offers where id=3')
+    # parsed_offer4 = await pg.fetchrow('select * from parsed_offers where id=4')
+    # 'd' - homeowner
+    # parsed_offer12 = await pg.fetchrow('select * from parsed_offers where id=12')
+    # parsed_offer13 = await pg.fetchrow('select * from parsed_offers where id=13')
+    # parsed_offer14 = await pg.fetchrow('select * from parsed_offers where id=14')
 
-
-    # TODO: arrange stubs for find_smb_client_account_status
+    # TODO: arrange stubs for find_smb_account
     # TODO: v2_get_users_by_phone
     await v2_get_users_by_phone_add_stub(users_mock)
     await v2_get_users_by_phone_add_stub(users_mock, cian_user_ids=[1, 2], phone='12345')
@@ -84,7 +92,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     # TODO: v1_sanctions_get_sanctions
     # TODO: v2_get_user_active_announcements_count
 
-    # TODO: arrange stubs for find_homeowner_client_account_status
+    # TODO: arrange stubs for find_homeowner_account
         # TODO: v2_get_users_by_phone
         # TODO: v1_sanctions_get_sanctions
 
@@ -100,16 +108,6 @@ async def test_create_client_account_statuses__statuses_are_created(
     assert parsed_offers_count == 7
 
     # TODO: assert client_account_statuses
-
-
-
-
-
-
-
-
-
-
 
 
 # async def test_create_client_account_statuses__statuses_are_used_in_prioritization(

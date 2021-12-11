@@ -75,7 +75,7 @@ async def choose_main_smb_client_profile(user_profiles: list[UserModelV2]) -> Sm
     )
 
 
-async def find_smb_client_account_status(phone: str) -> SmbAccount:
+async def find_smb_account(phone: str) -> SmbAccount:
     """
     Возвращает
     либо new_cian_user_id=None и account_status=SmbAccountStatus.clear_client,
@@ -173,7 +173,7 @@ async def find_smb_client_account_priority(
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
-            account = await find_smb_client_account_status(phone=phone)
+            account = await find_smb_account(phone=phone)
             account_status = account.account_status
             new_cian_user_id = account.new_cian_user_id
 
@@ -192,10 +192,10 @@ async def find_smb_client_account_priority(
             )
 
     if account_status == SmbAccountStatus.clear_client:
-        account_status = int(account_status.value)
+        account_priority = int(account_status.value)
     else:
-        account_status = int(team_settings[account_status.value])
-    return account_status
+        account_priority = int(team_settings[account_status.value])
+    return account_priority
 
 
 async def prioritize_smb_client(

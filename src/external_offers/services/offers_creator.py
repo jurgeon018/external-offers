@@ -12,11 +12,7 @@ from tornado import gen
 
 from external_offers import pg
 from external_offers.entities import Offer
-from external_offers.entities.client_account_statuses import (
-    ClientAccountStatus,
-    HomeownerAccount,
-    SmbAccount,
-)
+from external_offers.entities.client_account_statuses import ClientAccountStatus, HomeownerAccount, SmbAccount
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
 from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
 from external_offers.entities.teams import Team
@@ -42,7 +38,7 @@ from external_offers.repositories.postgresql import (
 )
 from external_offers.repositories.postgresql.client_account_statuses import (
     get_client_account_statuses,
-    get_recently_cashed_phone_numbers,
+    get_recently_cashed_client_account_statuses,
     set_client_account_status,
 )
 from external_offers.repositories.postgresql.offers import (
@@ -53,8 +49,8 @@ from external_offers.repositories.postgresql.offers import (
 from external_offers.repositories.postgresql.parsed_offers import get_parsed_offers_for_account_prioritization
 from external_offers.repositories.postgresql.teams import get_teams
 from external_offers.services.prioritizers import (
-    find_homeowner_client_account_status,
-    find_smb_client_account_status,
+    find_homeowner_account,
+    find_smb_account,
     prioritize_homeowner_client,
     prioritize_smb_client,
 )
@@ -490,19 +486,18 @@ async def create_priorities(
     }
 
 
-
 async def create_client_account_statuses() -> None:
     if not runtime_settings.get('ENABLE_client_account_statuses_CASHING', True):
         logger.warning('Кеширование приоритетов по ЛК клиентов отключено')
         return False
     # TODO: поделить parsed_offers на чанки
     parsed_offers = await get_parsed_offers_for_account_prioritization()
-    recently_cashed_phone_numbers = await get_recently_cashed_phone_numbers()
+    recently_cashed_client_account_statuses = await get_recently_cashed_client_account_statuses()
     logger.warning(
         'Кеширование приоритетов по ЛК для %s обьявлений запущено.',
         len(parsed_offers),
     )
-    print('\n recently_cashed_phone_numbers: ', recently_cashed_phone_numbers)
+    print('\n recently_cashed_client_account_statuses: ', recently_cashed_client_account_statuses)
     # достает все спаршеные обьявления, кроме тех, по номерам телефонов которых были обновления за последние 5 дней
     for parsed_offer in parsed_offers:
         parsed_offer: ParsedOfferForAccountPrioritization
@@ -511,17 +506,17 @@ async def create_client_account_statuses() -> None:
         print('\n parsed_offer: ', parsed_offer)
 
         raw_phone = json.loads(parsed_offer.phones)[0]
-        if raw_phone in recently_cashed_phone_numbers:
+        if raw_phone in recently_cashed_client_account_statuses:
             continue
 
         phone = transform_phone_number_to_canonical_format(raw_phone)
-        if phone in recently_cashed_phone_numbers:
+        if phone in recently_cashed_client_account_statuses:
             continue
 
         now = datetime.now(tz=pytz.UTC)
         with new_operation_id():
             if parsed_offer.user_segment == UserSegment.c.value:
-                account: SmbAccount = await find_smb_client_account_status(phone=phone)
+                account: SmbAccount = await find_smb_account(phone=phone)
                 await set_client_account_status({
                     'created_at': now,
                     'updated_at': now,
@@ -531,7 +526,7 @@ async def create_client_account_statuses() -> None:
                     'new_cian_user_id': account.new_cian_user_id,
                 })
             elif parsed_offer.user_segment == UserSegment.d.value:
-                account: HomeownerAccount = await find_homeowner_client_account_status(phone=phone)
+                account: HomeownerAccount = await find_homeowner_account(phone=phone)
                 await set_client_account_status({
                     'created_at': now,
                     'updated_at': now,

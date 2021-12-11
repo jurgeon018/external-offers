@@ -60,7 +60,7 @@ async def set_client_account_status(
     await pg.get().execute(query, *params)
 
 
-async def get_recently_cashed_phone_numbers() -> list[int]:
+async def get_recently_cashed_client_account_statuses() -> list[int]:
     """достает все номера телефонов по которым были обновления за последние 5 дней"""
     client_account_statuses = tables.client_account_statuses.alias()
     days = runtime_settings.get('client_account_statuses_UPDATE_CHECK_WINDOW_IN_DAYS', 5)

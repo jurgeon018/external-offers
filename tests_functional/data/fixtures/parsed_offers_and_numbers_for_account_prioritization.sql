@@ -44,7 +44,7 @@ INSERT INTO parsed_offers (
     '{"region":"4150", "phones":["+700000004"]}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
--- user_segment = 'в'
+-- user_segment = 'd'
 (
     '12',
     'd', NULL,
