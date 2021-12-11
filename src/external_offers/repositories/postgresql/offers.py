@@ -261,13 +261,16 @@ async def set_offers_promo_given_by_client(*, client_id: str) -> list[str]:
 async def set_offers_call_missed_by_client(
     *,
     client_id: str,
-    team_settings: dict,
+    call_missed_priority: int,
     team_id: Optional[int],
 ) -> list[str]:
     return await set_offers_status_and_priority_by_client(
         client_id=client_id,
         status=OfferStatus.call_missed,
-        priority=build_call_missed_priority(team_settings=team_settings),
+
+        priority=build_call_missed_priority(
+            call_missed_priority=call_missed_priority,
+        ),
         team_id=team_id,
     )
 

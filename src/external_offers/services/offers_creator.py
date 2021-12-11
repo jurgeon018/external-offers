@@ -2,7 +2,7 @@ import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional
 
 import pytz
 from cian_core.context import new_operation_id
@@ -14,7 +14,7 @@ from external_offers import pg
 from external_offers.entities import Offer
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
 from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
-from external_offers.entities.phones_statuses import PhoneStatuses
+from external_offers.entities.phones_statuses import HomeownerAccount, PhoneStatuses, SmbClientAccount
 from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
@@ -50,9 +50,7 @@ from external_offers.services.prioritizers import (
     prioritize_homeowner_client,
     prioritize_smb_client,
 )
-from external_offers.services.prioritizers.prioritize_homeowner import HomeownerAccountPriority
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
-from external_offers.services.prioritizers.prioritize_smb import SmbClientAccountPriority
 
 
 logger = logging.getLogger(__name__)
@@ -77,7 +75,7 @@ async def prioritize_client(
     client_id: str,
     client_count: int,
     team_settings: dict,
-    phones_statuses: dict[str, PhoneStatuses],
+    phones_statuses: dict[str, PhoneStatuses] = None,
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_PRIORITY """
 
@@ -360,7 +358,7 @@ def get_default_team_settings():
     }
 
 
-def get_team_info(team: Optional[Team]) -> tuple(Union[int, dict]):
+def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
     if team:
         team_id = team.team_id
         team_settings = team.get_settings()
@@ -501,7 +499,7 @@ async def create_phones_statuses() -> None:
         user_segment = parsed_offer.user_segment
         phone = transform_phone_number_to_canonical_format(json.loads(parsed_offer.phones)[0])
         if user_segment == UserSegment.c.value:
-            smb_result: SmbClientAccountPriority = await find_smb_client_account_status(phone=phone)
+            smb_result: SmbClientAccount = await find_smb_client_account_status(phone=phone)
             await set_phone_statuses(
                 phone=phone,
                 smb_account_status=smb_result.account_status,
@@ -509,7 +507,7 @@ async def create_phones_statuses() -> None:
                 new_cian_user_id=homeowner_result.new_cian_user_id,
             )
         elif user_segment == UserSegment.d.value:
-            homeowner_result: HomeownerAccountPriority = await find_homeowner_client_account_status(phone=phone)
+            homeowner_result: HomeownerAccount = await find_homeowner_client_account_status(phone=phone)
             await set_phone_statuses(
                 phone=phone,
                 smb_account_status=_CLEAR_PRIORITY,

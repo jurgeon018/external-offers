@@ -93,9 +93,9 @@ def build_call_later_priority(
 
 
 def build_call_missed_priority(
-    team_settings: dict,
+    call_missed_priority: int,
 ) -> int:
     """ Не ранжируем недозвоны по регионам, сегментами и аккаунтам, их мало """
     return build_priority_from_blocks(
-        call_status_priority=team_settings['call_missed_priority'],
+        call_status_priority=call_missed_priority,
     )

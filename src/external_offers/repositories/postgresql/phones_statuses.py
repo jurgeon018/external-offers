@@ -8,12 +8,14 @@ from sqlalchemy.sql import select
 
 from external_offers import pg
 from external_offers.entities.phones_statuses import PhoneStatuses
-from external_offers.repositories.postgresql.tables import phones_statuses
+from external_offers.repositories.postgresql import tables
 from external_offers.services.prioritizers.prioritize_homeowner import HomeownerAccountStatus
 from external_offers.services.prioritizers.prioritize_smb import SmbAccountStatus
 
 
 async def get_phones_statuses() -> dict[str, PhoneStatuses]:
+    phones_statuses = tables.phones_statuses.alias()
+
     query, params = asyncpgsa.compile_query((
         select([phones_statuses])
     ))
@@ -21,7 +23,7 @@ async def get_phones_statuses() -> dict[str, PhoneStatuses]:
     phones_statuses = {}
     for row in rows:
         # такая вложеность нужна для того чтобы при приоретизации клиента по номеру телефона
-        # не ходить в базу на каждой итерации, 
+        # не ходить в базу на каждой итерации,
         # а доставать инфу про статусы акаунтов из словаря за O(1) по номеру телефона(ключ)
         phones_statuses[row['phone']] = PhoneStatuses(
             smb_account_status=row['smb_account_status'],
@@ -38,6 +40,7 @@ async def set_phone_statuses(
     homeowner_account_status: HomeownerAccountStatus,
     new_cian_user_id: Optional[int],
 ) -> None:
+    phones_statuses = tables.phones_statuses.alias()
     insert_query = insert(phones_statuses)
 
     now = datetime.now(tz=pytz.UTC)

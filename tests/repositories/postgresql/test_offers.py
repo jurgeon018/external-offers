@@ -118,7 +118,9 @@ async def test_set_offers_set_call_missed_by_client():
     # act
     await postgresql.set_offers_call_missed_by_client(
         client_id=client_id,
-        team_settings={},
+        team_settings={
+            'call_missed_priority': 2
+        },
         team_id=None,
     )
 

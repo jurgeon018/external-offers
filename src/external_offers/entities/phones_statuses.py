@@ -21,8 +21,10 @@ class SmbClientAccount:
     """Используется при приоретизации аккаунтов агентов и при записи статусов телефонов в таблицу phones_statuses"""
     account_status: Optional[SmbAccountStatus] = None
     """Статус ЛК агента"""
-    new_cian_user_id: Optional[str] = None
+    new_cian_user_id: Optional[int] = None
     """Идентификатор нового агента на циане"""
+    # has_bad_offer_proportion: bool = False
+    # """В одном из аккаунтов клиента есть больше активных обьявлений чем позволено"""
 
 
 class HomeownerAccountStatus(StrEnum):
@@ -37,16 +39,16 @@ class HomeownerAccount:
     """Используется при приоретизации аккаунтов собственников и при записи статусов телефонов в phones_statuses"""
     account_status: HomeownerAccountStatus
     """Статус ЛК собственника"""
-    new_cian_user_id: Optional[str] = None
+    new_cian_user_id: Optional[int] = None
     """Идентификатор нового собственника на циане"""
 
 
 @dataclass
 class PhoneStatuses:
     """Используется в мапинге при селекте статусов телефонов из phones_statuses"""
-    smb_account_status: SmbAccountStatus
-    """Статус аккаунта агента"""
     homeowner_account_status: HomeownerAccountStatus
+    """Статус аккаунта агента"""
+    smb_account_status: Optional[SmbAccountStatus] = None
     """Статус аккаунта агента"""
     new_cian_user_id: Optional[int] = None
     """Идентификатор нового пользователя на циане"""
