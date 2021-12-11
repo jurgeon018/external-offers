@@ -115,7 +115,7 @@ client_account_statuses = sa.Table(
     sa.Column('phone', sa.VARCHAR, nullable=False, unique=True, primary_key=True),
     sa.Column('smb_account_status', sa.VARCHAR, nullable=True),
     sa.Column('homeowner_account_status', sa.VARCHAR, nullable=True),
-    sa.Column('new_cian_user_id', sa.VARCHAR, nullable=True),
+    sa.Column('new_cian_user_id', sa.BIGINT, nullable=True),
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )

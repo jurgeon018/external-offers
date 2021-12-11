@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 import asyncpgsa
 import pytz
@@ -63,7 +63,7 @@ async def set_client_account_status(
 async def get_recently_cashed_client_account_statuses() -> list[int]:
     """достает все номера телефонов по которым были обновления за последние 5 дней"""
     client_account_statuses = tables.client_account_statuses.alias()
-    days = runtime_settings.get('client_account_statuses_UPDATE_CHECK_WINDOW_IN_DAYS', 5)
+    days = runtime_settings.get('CLIENT_ACCOUNT_STATUSES_UPDATE_CHECK_WINDOW_IN_DAYS', 5)
     updated_at_border = datetime.now(tz=pytz.UTC) - timedelta(days=days)
     query, params = asyncpgsa.compile_query(
         select([

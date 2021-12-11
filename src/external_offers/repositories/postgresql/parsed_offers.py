@@ -405,6 +405,5 @@ async def get_parsed_offers_for_account_prioritization() -> list[Optional[Parsed
             )
         )
     )
-    print(query, params)
     rows = await pg.get().fetch(query, *params)
     return [parsed_offer_for_account_prioritization.map_from(row) for row in rows]

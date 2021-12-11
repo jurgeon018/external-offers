@@ -76,12 +76,6 @@ async def choose_main_smb_client_profile(user_profiles: list[UserModelV2]) -> Sm
 
 
 async def find_smb_account(phone: str) -> SmbAccount:
-    """
-    Возвращает
-    либо new_cian_user_id=None и account_status=SmbAccountStatus.clear_client,
-    либо new_cian_user_id=None и account_status=SmbAccountStatus.no_lk_smb,
-    либо new_cian_user_id: int и account_status=None,
-    """
     try:
         response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
             V2GetUsersByPhone(
@@ -104,7 +98,7 @@ async def find_smb_account(phone: str) -> SmbAccount:
         if sanctions_response.items:
             return SmbAccount(
                 new_cian_user_id=None,
-                account_status=SmbAccountStatus.clear_client,
+                account_status=SmbAccountStatus.has_sanctions,
             )
         # Выбираем основной активный агентский профиль пользователя
         # если нашли заблокированные аккаунты - убираем из очереди
@@ -112,12 +106,12 @@ async def find_smb_account(phone: str) -> SmbAccount:
         if result.has_bad_account:
             return SmbAccount(
                 new_cian_user_id=None,
-                account_status=SmbAccountStatus.clear_client,
+                account_status=SmbAccountStatus.has_bad_account,
             )
         if result.has_wrong_user_source_type:
             return SmbAccount(
                 new_cian_user_id=None,
-                account_status=SmbAccountStatus.clear_client,
+                account_status=SmbAccountStatus.has_wrong_user_source_type,
             )
         if not result.chosen_profile:
             return SmbAccount(
@@ -137,7 +131,7 @@ async def find_smb_account(phone: str) -> SmbAccount:
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
         return SmbAccount(
             new_cian_user_id=None,
-            account_status=SmbAccountStatus.clear_client,
+            account_status=SmbAccountStatus.api_client_exception,
         )
 
 
@@ -168,16 +162,15 @@ async def find_smb_client_account_priority(
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы
             client_account_status: ClientAccountStatus
-            account_status = client_account_status.smb_account_status
+            account_status: Optional[SmbAccountStatus] = client_account_status.smb_account_status
             new_cian_user_id = client_account_status.new_cian_user_id
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
             account = await find_smb_account(phone=phone)
-            account_status = account.account_status
+            account_status: Optional[SmbAccountStatus] = account.account_status
             new_cian_user_id = account.new_cian_user_id
 
-        # TODO: has_bad_offer_proportion
         if account_status is None:
             # если статуса ЛК нет, то нужно сохранить новый cian_user_id и посчитать активные обьявления
             # (ответ ручки можно будет потом закешировать)
@@ -191,10 +184,23 @@ async def find_smb_client_account_priority(
                 client_id=client.client_id
             )
 
-    if account_status == SmbAccountStatus.clear_client:
-        account_priority = int(account_status.value)
-    else:
+    if account_status in [
+        SmbAccountStatus.has_sanctions,
+        SmbAccountStatus.has_bad_account,
+        SmbAccountStatus.has_wrong_user_source_type,
+        SmbAccountStatus.api_client_exception,
+        SmbAccountStatus.has_bad_proportion_smb,
+        SmbAccountStatus.announcements_api_client_exception,
+    ]:
+        account_priority = _CLEAR_CLIENT_PRIORITY
+    elif account_status in [
+        SmbAccountStatus.no_lk_smb,
+        SmbAccountStatus.no_active_smb,
+        SmbAccountStatus.keep_proportion_smb,
+    ]:
         account_priority = int(team_settings[account_status.value])
+    else:
+        raise Exception(f'Unhandled account status: {account_status}')
     return account_priority
 
 
@@ -243,7 +249,7 @@ async def find_smb_client_account_status_by_announcements_count(
             # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
             statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
             return SmbAccountStatus.keep_proportion_smb
-        return SmbAccountStatus.clear_client
+        return SmbAccountStatus.has_bad_proportion_smb
     except ApiClientException as exc:
         logger.warning(
             'Ошибка при получении количества активных объявлений клиента %s для приоритизации: %s',
@@ -251,7 +257,7 @@ async def find_smb_client_account_status_by_announcements_count(
             exc.message
         )
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
-        return SmbAccountStatus.clear_client
+        return SmbAccountStatus.announcements_api_client_exception
 
 
 # async def has_bad_offer_proportion(

@@ -122,11 +122,8 @@ async def prioritize_unactivated_clients(
     team: Optional[Team] = None,
 ) -> list[ClientWaitingOffersCount]:
     """ Просчитать приоритеты для добивочных заданий """
-
     prefix = team_settings['unactivated_client_priority']
-    
     prefix = str(prefix)
-
     for client_count in unactivated_clients_counts:
         with new_operation_id():
             client_priority = await prioritize_client(
@@ -487,23 +484,18 @@ async def create_priorities(
 
 
 async def create_client_account_statuses() -> None:
-    if not runtime_settings.get('ENABLE_client_account_statuses_CASHING', True):
+    if not runtime_settings.get('ENABLE_CLIENT_ACCOUNT_STATUSES_CASHING', True):
         logger.warning('Кеширование приоритетов по ЛК клиентов отключено')
         return False
-    # TODO: поделить parsed_offers на чанки
     parsed_offers = await get_parsed_offers_for_account_prioritization()
     recently_cashed_client_account_statuses = await get_recently_cashed_client_account_statuses()
     logger.warning(
         'Кеширование приоритетов по ЛК для %s обьявлений запущено.',
         len(parsed_offers),
     )
-    print('\n recently_cashed_client_account_statuses: ', recently_cashed_client_account_statuses)
     # достает все спаршеные обьявления, кроме тех, по номерам телефонов которых были обновления за последние 5 дней
     for parsed_offer in parsed_offers:
         parsed_offer: ParsedOfferForAccountPrioritization
-        # TODO: разобраться с форматами номеров телефонов. понять где какие используются.
-
-        print('\n parsed_offer: ', parsed_offer)
 
         raw_phone = json.loads(parsed_offer.phones)[0]
         if raw_phone in recently_cashed_client_account_statuses:
@@ -521,8 +513,9 @@ async def create_client_account_statuses() -> None:
                     'created_at': now,
                     'updated_at': now,
                     'phone': phone,
-                    'smb_account_status': account.account_status.value,
-                    'homeowner_account_status': str(_CLEAR_PRIORITY),
+                    'smb_account_status': getattr(account.account_status, 'value', None),
+                    # account_status может быть None в случае если из функции возвращается new_cian_user_id
+                    'homeowner_account_status': None,
                     'new_cian_user_id': account.new_cian_user_id,
                 })
             elif parsed_offer.user_segment == UserSegment.d.value:
@@ -531,7 +524,7 @@ async def create_client_account_statuses() -> None:
                     'created_at': now,
                     'updated_at': now,
                     'phone': phone,
-                    'smb_account_status': str(_CLEAR_PRIORITY),
+                    'smb_account_status': None,
                     'homeowner_account_status': account.account_status.value,
                     'new_cian_user_id': account.new_cian_user_id,
                 })

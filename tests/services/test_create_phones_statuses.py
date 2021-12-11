@@ -6,7 +6,7 @@ async def test_create_client_account_statuses(mocker):
     mocker.patch(
         'external_offers.services.offers_creator.runtime_settings',
         new={
-            'ENABLE_client_account_statuses_CASHING': False,
+            'ENABLE_CLIENT_ACCOUNT_STATUSES_CASHING': False,
         }
     )
     get_parsed_offers_for_account_prioritization_mock = mocker.patch(

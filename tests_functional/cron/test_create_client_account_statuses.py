@@ -1,45 +1,42 @@
+from unittest.mock import ANY
+
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
 async def v2_get_users_by_phone_add_stub(
+    users: list,
+    phone: str,
     users_mock,
-    cian_user_ids: list[str] = None,
-    phone: str = None,
 ) -> None:
-    if cian_user_ids is None:
-        cian_user_ids = [1000000]
-    if phone is None:
-        query = None
-    else:
-        query = {
-            'phone': phone,
-        }
     await users_mock.add_stub(
         method='GET',
         path='/v2/get-users-by-phone/',
-        query=query,
+        query={
+            'phone': phone,
+        },
         response=MockResponse(
             body={
-                'users': [
-                    {
-                        'id': None,
-                        'cianUserId': cian_user_id,
-                        'mainAnnouncementsRegionId': None,
-                        'email': None,
-                        'state': None,
-                        'stateChangeReason': None,
-                        'secretCode': None,
-                        'birthday': None,
-                        'firstName': None,
-                        'lastName': None,
-                        'city': None,
-                        'userName': None,
-                        'creationDate': None,
-                        'ip': None,
-                        'externalUserSourceType': None,
-                        'isAgent': None,
-                    } for cian_user_id in cian_user_ids
-                ]
+                'users': users
+            }
+        )
+    )
+
+
+async def v1_sanctions_get_sanctions_add_stub(
+    items: list,
+    user_ids: list,
+    monolith_cian_profileapi_mock,
+) -> None:
+    await monolith_cian_profileapi_mock.add_stub(
+        method='GET',
+        path='/v1/sanctions/get-sanctions/',
+        query={
+            'user_ids': user_ids,
+            # 'userIds': user_ids,
+        },
+        response=MockResponse(
+            body={
+                'items': items
             }
         )
     )
@@ -49,12 +46,243 @@ async def test_create_client_account_statuses__statuses_are_created(
     pg,
     runtime_settings,
     runner,
+    monolith_cian_profileapi_mock,
     users_mock,
     logs,
     parsed_offers_and_numbers_for_account_prioritization_fixture,
 ):
     # arrange
-    parsed_offers_count_query, parsed_offers_count_params = """
+    await monolith_cian_profileapi_mock.add_stub(
+        method='GET',
+        path='/v1/sanctions/get-sanctions/',
+        response=MockResponse(body={'items': []})
+    )
+    await runtime_settings.set({
+        'CLIENT_ACCOUNT_STATUSES_UPDATE_CHECK_WINDOW_IN_DAYS': 5,
+        'ENABLE_CLIENT_ACCOUNT_STATUSES_CASHING': True,
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False
+    })
+    await pg.execute_scripts(parsed_offers_and_numbers_for_account_prioritization_fixture)
+
+    account_1_c_phone = '+70000001'
+    expected_account_1_c = {
+        'smb_account_status': 'no_lk_smb_priority',  # not user_profiles
+        'phone': account_1_c_phone,
+        'new_cian_user_id': None,
+        'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    }
+    await v2_get_users_by_phone_add_stub([], account_1_c_phone, users_mock)
+
+    # account_2_c_phone = '+70000002'
+    # account_2_c_cian_user_id = 2
+    # expected_account_2_c = {
+    #     'smb_account_status': 'has_sanctions',
+    #     'phone': account_2_c_phone,
+    #     'new_cian_user_id': None,
+    #     'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    # }
+    # await v2_get_users_by_phone_add_stub([{
+    #     'id': account_2_c_cian_user_id,
+    #     'cianUserId': account_2_c_cian_user_id,
+    #     'state': 'active',
+    # }], account_2_c_phone, users_mock)
+    # await v1_sanctions_get_sanctions_add_stub([{
+    #     'userId': account_2_c_cian_user_id,
+    #     'sanctions': [{
+    #         'sanctionId': 9072881,
+    #         'sanctionName': 'Запрет на публикацию объявлений',
+    #         'sanctionEnd': None
+    #     }]  # -> has_sanctions
+    # }], [account_2_c_cian_user_id], monolith_cian_profileapi_mock)
+
+    account_3_c_phone = '+70000003'
+    account_3_c_cian_user_id = 3
+    expected_account_3_c = {
+        'smb_account_status': 'has_bad_account',
+        'phone': account_3_c_phone,
+        'new_cian_user_id': None,
+        'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_3_c_cian_user_id,
+        'cianUserId': account_3_c_cian_user_id,
+        'state': 'blocked',  # -> has_bad_account
+    }], account_3_c_phone, users_mock)
+
+    account_4_c_phone = '+70000004'
+    account_4_c_cian_user_id = 4
+    expected_account_4_c = {
+        'smb_account_status': 'has_wrong_user_source_type',
+        'phone': account_4_c_phone,
+        'new_cian_user_id': None,
+        'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_4_c_cian_user_id,
+        'cianUserId': account_4_c_cian_user_id,
+        'state': 'active',
+        'externalUserSourceType': 'subAgents',  # -> has_wrong_user_source_type
+    }], account_4_c_phone, users_mock)
+
+    account_5_c_phone = '+70000005'
+    account_5_c_cian_user_id = 5
+    expected_account_5_c = {
+        'smb_account_status': 'no_lk_smb_priority',  # not result.chosen_profile
+        'phone': account_5_c_phone,
+        'new_cian_user_id': None,
+        'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_5_c_cian_user_id,
+        'cianUserId': account_5_c_cian_user_id,
+        'state': 'active',
+        'externalUserSourceType': None,
+        'isAgent': False,  # -> no_lk_smb_priority
+    }], account_5_c_phone, users_mock)
+
+    account_6_c_phone = '+70000006'
+    expected_account_6_c = {
+        'smb_account_status': 'api_client_exception',
+        'phone': account_6_c_phone,
+        'new_cian_user_id': None,
+        'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    }
+
+    account_7_c_phone = '+70000007'
+    account_7_c_cian_user_id = 7
+    expected_account_7_c = {
+        'smb_account_status': None,
+        'phone': account_7_c_phone,
+        'new_cian_user_id': account_7_c_cian_user_id,
+        'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_7_c_cian_user_id,
+        'cianUserId': account_7_c_cian_user_id,
+        'state': 'active',
+        'externalUserSourceType': None,
+        'isAgent': True,
+    }], account_7_c_phone, users_mock)
+
+    account_11_d_phone = '+70000011'
+    account_11_d_cian_user_id = 11
+    expected_account_11_d = {
+        'phone': account_11_d_phone,
+        'homeowner_account_status': 'active_lk_homeowner_priority',
+        'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+        'new_cian_user_id': account_11_d_cian_user_id,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_11_d_cian_user_id,
+        'cianUserId': account_11_d_cian_user_id,
+        'state': 'active',
+        'externalUserSourceType': None,
+        'isAgent': False,
+    }], account_11_d_phone, users_mock)
+
+    account_12_d_phone = '+70000012'
+    expected_account_12_d = {
+        'phone': account_12_d_phone,
+        'homeowner_account_status': 'no_lk_homeowner_priority',  # not user_profiles
+        'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+        'new_cian_user_id': None,
+    }
+    await v2_get_users_by_phone_add_stub([], account_12_d_phone, users_mock)
+
+    account_13_d_phone = '+70000013'
+    account_13_d_cian_user_id = 13
+    expected_account_13_d = {
+        'phone': account_13_d_phone,
+        'homeowner_account_status': 'no_lk_homeowner_priority',  # not result.chosen_profile
+        'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+        'new_cian_user_id': None,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_13_d_cian_user_id,
+        'cianUserId': account_13_d_cian_user_id,
+        'state': 'active',
+        'externalUserSourceType': None,
+        'isAgent': True,
+    }], account_13_d_phone, users_mock)
+
+    # account_14_d_phone = '+70000014'
+    # account_14_d_cian_user_id = 14
+    # expected_account_14_d = {
+    #     'phone': account_14_d_phone,
+    #     'homeowner_account_status': 'has_existing_accounts',
+    #     'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    #     'new_cian_user_id': None,
+    # }
+    # await v2_get_users_by_phone_add_stub([{
+    #     'id': account_14_d_cian_user_id,
+    # }], account_14_d_phone, users_mock)
+
+    # account_15_d_phone = '+70000015'
+    # account_15_d_cian_user_id = 15
+    # expected_account_15_d = {
+    #     'phone': account_15_d_phone,
+    #     'homeowner_account_status': 'has_sanctions',
+    #     'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+    #     'new_cian_user_id': None,
+    # }
+    # await v2_get_users_by_phone_add_stub([{
+    #     'id': account_15_d_cian_user_id,
+    #     'cianUserId': account_15_d_cian_user_id,
+    #     'state': 'active',
+    # }], account_15_d_phone, users_mock)
+    # await v1_sanctions_get_sanctions_add_stub([{
+    #     'userId': account_15_d_cian_user_id,
+    #     'sanctions': [{
+    #         'sanctionId': 9072881,
+    #         'sanctionName': 'Запрет на публикацию объявлений',
+    #         'sanctionEnd': None
+    #     }]  # -> has_sanctions
+    # }], [account_15_d_cian_user_id], monolith_cian_profileapi_mock)
+
+    account_16_d_phone = '+70000016'
+    account_16_c_cian_user_id = 16
+    expected_account_16_d = {
+        'phone': account_16_d_phone,
+        'homeowner_account_status': 'has_bad_account',
+        'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+        'new_cian_user_id': None,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_16_c_cian_user_id,
+        'cianUserId': account_16_c_cian_user_id,
+        'state': 'blocked',  # -> has_bad_account
+    }], account_16_d_phone, users_mock)
+
+    account_17_d_phone = '+70000017'
+    account_17_c_cian_user_id = 17
+    expected_account_17_d = {
+        'phone': account_17_d_phone,
+        'homeowner_account_status': 'has_wrong_user_source_type',
+        'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+        'new_cian_user_id': None,
+    }
+    await v2_get_users_by_phone_add_stub([{
+        'id': account_17_c_cian_user_id,
+        'cianUserId': account_17_c_cian_user_id,
+        'state': 'active',
+        'externalUserSourceType': 'subAgents',  # -> has_wrong_user_source_type
+    }], account_17_d_phone, users_mock)
+
+    account_18_d_phone = '+70000018'
+    expected_account_18_d = {
+        'phone': account_18_d_phone,
+        'homeowner_account_status': 'api_client_exception',
+        'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
+        'new_cian_user_id': None,
+    }
+
+    # 'c' - smb v2_get_user_active_announcements_count stub
+
+    # act
+    await runner.run_python_command('create-client-account-statuses-cron')
+
+    # assert
+    parsed_offers_count = await pg.fetchval("""
         SELECT COUNT(*)
         FROM parsed_offers
         WHERE (parsed_offers.source_object_model -> 'phones') != $1
@@ -64,50 +292,32 @@ async def test_create_client_account_statuses__statuses_are_created(
         AND parsed_offers.user_segment IN ('c', 'd')
         AND parsed_offers.source_user_id IS NOT NULL
         AND NOT parsed_offers.is_calltracking
-    """, [
-        '[]',
-        'null',
-        '[""]',
-    ]
-    await runtime_settings.set({
-        'client_account_statuses_UPDATE_CHECK_WINDOW_IN_DAYS': 5,
-        'ENABLE_client_account_statuses_CASHING': True,
-    })
-    await pg.execute_scripts(parsed_offers_and_numbers_for_account_prioritization_fixture)
-    # 'c' - smb
-    # parsed_offer1 = await pg.fetchrow('select * from parsed_offers where id=1')
-    # parsed_offer2 = await pg.fetchrow('select * from parsed_offers where id=2')
-    # parsed_offer3 = await pg.fetchrow('select * from parsed_offers where id=3')
-    # parsed_offer4 = await pg.fetchrow('select * from parsed_offers where id=4')
-    # 'd' - homeowner
-    # parsed_offer12 = await pg.fetchrow('select * from parsed_offers where id=12')
-    # parsed_offer13 = await pg.fetchrow('select * from parsed_offers where id=13')
-    # parsed_offer14 = await pg.fetchrow('select * from parsed_offers where id=14')
-
-    # TODO: arrange stubs for find_smb_account
-    # TODO: v2_get_users_by_phone
-    await v2_get_users_by_phone_add_stub(users_mock)
-    await v2_get_users_by_phone_add_stub(users_mock, cian_user_ids=[1, 2], phone='12345')
-    await v2_get_users_by_phone_add_stub(users_mock, cian_user_ids=[3, 4], phone='54321')
-    # TODO: v1_sanctions_get_sanctions
-    # TODO: v2_get_user_active_announcements_count
-
-    # TODO: arrange stubs for find_homeowner_account
-        # TODO: v2_get_users_by_phone
-        # TODO: v1_sanctions_get_sanctions
-
-    # act
-    await runner.run_python_command('create-client-account-statuses-cron')
-
-    # assert
-    parsed_offers_count = await pg.fetchval(parsed_offers_count_query, parsed_offers_count_params)
+    """, ['[]', 'null', '[""]'])
+    client_account_statuses = await pg.fetch("""
+    select * from client_account_statuses
+    """)
+    # 6 - количество записей из фикстуры
+    assert len(client_account_statuses) == 6 + parsed_offers_count
     assert any([
         f'Кеширование приоритетов по ЛК для {parsed_offers_count} обьявлений запущено.'
         in line for line in logs.get_lines()
     ])
-    assert parsed_offers_count == 7
+    assert parsed_offers_count == 15
 
-    # TODO: assert client_account_statuses
+    query = 'select * from client_account_statuses where phone = \'%s\''
+    assert expected_account_1_c == await pg.fetchrow(query % account_1_c_phone)
+    assert expected_account_3_c == await pg.fetchrow(query % account_3_c_phone)
+    assert expected_account_4_c == await pg.fetchrow(query % account_4_c_phone)
+    assert expected_account_5_c == await pg.fetchrow(query % account_5_c_phone)
+    assert expected_account_6_c == await pg.fetchrow(query % account_6_c_phone)
+    assert expected_account_7_c == await pg.fetchrow(query % account_7_c_phone)
+
+    assert expected_account_11_d == await pg.fetchrow(query % account_11_d_phone)
+    assert expected_account_12_d == await pg.fetchrow(query % account_12_d_phone)
+    assert expected_account_13_d == await pg.fetchrow(query % account_13_d_phone)
+    assert expected_account_16_d == await pg.fetchrow(query % account_16_d_phone)
+    assert expected_account_17_d == await pg.fetchrow(query % account_17_d_phone)
+    assert expected_account_18_d == await pg.fetchrow(query % account_18_d_phone)
 
 
 # async def test_create_client_account_statuses__statuses_are_used_in_prioritization(
@@ -117,11 +327,9 @@ async def test_create_client_account_statuses__statuses_are_created(
 #     runner,
 # ):
 #     # arrange
-
-
+#     # TODO: создать спаршеные обьявления
 #     # act
 #     await runner.run_python_command('create-phones-statuses-cron')
-#     await runner.run_python_command('create-offers-for-call-from-parsed')
+#     # await runner.run_python_command('create-offers-for-call-from-parsed')
 
 #     # assert
-
