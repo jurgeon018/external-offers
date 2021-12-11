@@ -17,8 +17,8 @@ class SmbAccountStatus(StrEnum):
 
 
 @dataclass
-class SmbClientAccount:
-    """Используется при приоретизации аккаунтов агентов и при записи статусов телефонов в таблицу phones_statuses"""
+class SmbAccount:
+    """Используется при приоретизации аккаунтов агентов и при записи статусов телефонов в таблицу client_account_statuses"""
     account_status: Optional[SmbAccountStatus] = None
     """Статус ЛК агента"""
     new_cian_user_id: Optional[int] = None
@@ -36,7 +36,7 @@ class HomeownerAccountStatus(StrEnum):
 
 @dataclass
 class HomeownerAccount:
-    """Используется при приоретизации аккаунтов собственников и при записи статусов телефонов в phones_statuses"""
+    """Используется при приоретизации аккаунтов собственников и при записи статусов телефонов в client_account_statuses"""
     account_status: HomeownerAccountStatus
     """Статус ЛК собственника"""
     new_cian_user_id: Optional[int] = None
@@ -45,7 +45,7 @@ class HomeownerAccount:
 
 @dataclass
 class ClientAccountStatus:
-    """Используется в мапинге при селекте статусов телефонов из phones_statuses"""
+    """Используется в мапинге при селекте статусов телефонов из client_account_statuses"""
     homeowner_account_status: HomeownerAccountStatus
     """Статус аккаунта агента"""
     smb_account_status: Optional[SmbAccountStatus] = None

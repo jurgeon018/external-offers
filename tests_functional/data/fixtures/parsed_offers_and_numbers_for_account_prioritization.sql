@@ -1,4 +1,4 @@
-INSERT INTO phones_statuses (
+INSERT INTO client_account_statuses (
     phone, smb_account_status, homeowner_account_status, new_cian_user_id, updated_at, created_at    
 ) VALUES
 ('+70000', '-1', '-1', NULL, now() - interval '10 day', now() - interval '100 days'),

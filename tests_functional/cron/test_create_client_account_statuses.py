@@ -45,7 +45,7 @@ async def v2_get_users_by_phone_add_stub(
     )
 
 
-async def test_create_phones_statuses__statuses_are_created(
+async def test_create_client_account_statuses__statuses_are_created(
     pg,
     runtime_settings,
     runner,
@@ -70,8 +70,8 @@ async def test_create_phones_statuses__statuses_are_created(
         '[""]',
     ]
     await runtime_settings.set({
-        'PHONES_STATUSES_UPDATE_CHECK_WINDOW_IN_DAYS': 5,
-        'ENABLE_PHONES_STATUSES_CASHING': True,
+        'client_account_statuses_UPDATE_CHECK_WINDOW_IN_DAYS': 5,
+        'ENABLE_client_account_statuses_CASHING': True,
     })
     await pg.execute_scripts(parsed_offers_and_numbers_for_account_prioritization_fixture)
 
@@ -89,20 +89,17 @@ async def test_create_phones_statuses__statuses_are_created(
         # TODO: v1_sanctions_get_sanctions
 
     # act
-    await runner.run_python_command('create-phones-statuses-cron')
+    await runner.run_python_command('create-client-account-statuses-cron')
 
     # assert
     parsed_offers_count = await pg.fetchval(parsed_offers_count_query, parsed_offers_count_params)
-    assert parsed_offers_count == 4
     assert any([
         f'Кеширование приоритетов по ЛК для {parsed_offers_count} обьявлений запущено.'
         in line for line in logs.get_lines()
     ])
+    assert parsed_offers_count == 7
 
-    # TODO: assert phones_statuses
-
-
-
+    # TODO: assert client_account_statuses
 
 
 
@@ -112,7 +109,10 @@ async def test_create_phones_statuses__statuses_are_created(
 
 
 
-# async def test_create_phones_statuses__statuses_are_used_in_prioritization(
+
+
+
+# async def test_create_client_account_statuses__statuses_are_used_in_prioritization(
 #     pg,
 #     kafka_service,
 #     runtime_settings,

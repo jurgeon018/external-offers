@@ -6,8 +6,8 @@ from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import SmbClientChooseMainProfileResult
+from external_offers.entities.client_account_statuses import ClientAccountStatus, SmbAccount, SmbAccountStatus
 from external_offers.entities.clients import Client
-from external_offers.entities.phones_statuses import ClientAccountStatus, SmbAccountStatus, SmbClientAccount
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
 from external_offers.repositories.announcements.entities import V2GetUserActiveAnnouncementsCount
@@ -75,7 +75,7 @@ async def choose_main_smb_client_profile(user_profiles: list[UserModelV2]) -> Sm
     )
 
 
-async def find_smb_client_account_status(phone: str) -> SmbClientAccount:
+async def find_smb_client_account_status(phone: str) -> SmbAccount:
     """
     Возвращает
     либо new_cian_user_id=None и account_status=SmbAccountStatus.clear_client,
@@ -92,7 +92,7 @@ async def find_smb_client_account_status(phone: str) -> SmbClientAccount:
         # Приоритет для незарегистрированных smb пользователей
         if not user_profiles:
             statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-            return SmbClientAccount(
+            return SmbAccount(
                 new_cian_user_id=None,
                 account_status=SmbAccountStatus.no_lk_smb,
             )
@@ -102,7 +102,7 @@ async def find_smb_client_account_status(phone: str) -> SmbClientAccount:
             )
         )
         if sanctions_response.items:
-            return SmbClientAccount(
+            return SmbAccount(
                 new_cian_user_id=None,
                 account_status=SmbAccountStatus.clear_client,
             )
@@ -110,21 +110,21 @@ async def find_smb_client_account_status(phone: str) -> SmbClientAccount:
         # если нашли заблокированные аккаунты - убираем из очереди
         result = await choose_main_smb_client_profile(user_profiles)
         if result.has_bad_account:
-            return SmbClientAccount(
+            return SmbAccount(
                 new_cian_user_id=None,
                 account_status=SmbAccountStatus.clear_client,
             )
         if result.has_wrong_user_source_type:
-            return SmbClientAccount(
+            return SmbAccount(
                 new_cian_user_id=None,
                 account_status=SmbAccountStatus.clear_client,
             )
         if not result.chosen_profile:
-            return SmbClientAccount(
+            return SmbAccount(
                 new_cian_user_id=None,
                 account_status=SmbAccountStatus.no_lk_smb,
             )
-        return SmbClientAccount(
+        return SmbAccount(
             new_cian_user_id=result.chosen_profile.cian_user_id,
             account_status=None,
         )
@@ -135,7 +135,7 @@ async def find_smb_client_account_status(phone: str) -> SmbClientAccount:
             exc.message
         )
         statsd.incr(_METRIC_PRIORITIZE_FAILED)
-        return SmbClientAccount(
+        return SmbAccount(
             new_cian_user_id=None,
             account_status=SmbAccountStatus.clear_client,
         )
@@ -146,7 +146,7 @@ async def find_smb_client_account_priority(
     client_count: int,
     client: Client,
     team_settings: dict,
-    phones_statuses: dict[str, ClientAccountStatus] = None,
+    client_account_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
 
     if client.cian_user_id:
@@ -159,19 +159,19 @@ async def find_smb_client_account_priority(
 
     else:
 
-        if phones_statuses is None:
-            phones_statuses = {}
+        if client_account_statuses is None:
+            client_account_statuses = {}
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
-        phone_statuses: Optional[ClientAccountStatus] = phones_statuses.get(phone)
+        client_account_status: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
 
-        if phone_statuses:
-            # в таблице phones_statuses есть закешированый статус ЛК клиента,
+        if client_account_status:
+            # в таблице client_account_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы
-            phone_statuses: ClientAccountStatus
-            account_status = phone_statuses.smb_account_status
-            new_cian_user_id = phone_statuses.new_cian_user_id
+            client_account_status: ClientAccountStatus
+            account_status = client_account_status.smb_account_status
+            new_cian_user_id = client_account_status.new_cian_user_id
         else:
-            # в таблице phones_statuses нет закешированного статуса ЛК клиента,
+            # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
             account = await find_smb_client_account_status(phone=phone)
             account_status = account.account_status
@@ -204,14 +204,14 @@ async def prioritize_smb_client(
     client: Client,
     regions: list[int],
     team_settings: dict,
-    phones_statuses: dict[str, ClientAccountStatus] = None,
+    client_account_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
 
-    account_priority = await find_smb_client_account_priority(
+    account_priority: int = await find_smb_client_account_priority(
         client_count=client_count,
         client=client,
         team_settings=team_settings,
-        phones_statuses=phones_statuses,        
+        client_account_statuses=client_account_statuses,
     )
 
     if account_priority == _CLEAR_CLIENT_PRIORITY:

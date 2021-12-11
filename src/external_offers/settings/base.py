@@ -310,5 +310,5 @@ ADMIN_OPERATOR_ROLE: str = 'Cian.PrepositionAdmin'
 # вставить правильное название роли тимлида админки
 ADMIN_TEAMLEAD_ROLE: str = 'Cian.AdminTeamleadRole'
 
-ENABLE_PHONES_STATUSES_CASHING: bool = True
-PHONES_STATUSES_UPDATE_CHECK_WINDOW_IN_DAYS: int = 5
+ENABLE_client_account_statuses_CASHING: bool = True
+client_account_statuses_UPDATE_CHECK_WINDOW_IN_DAYS: int = 5

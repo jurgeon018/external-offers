@@ -1,4 +1,4 @@
-CREATE TABLE phones_statuses
+CREATE TABLE client_account_statuses
 (
     phone         VARCHAR NOT NULL PRIMARY KEY UNIQUE,
     smb_account_status       VARCHAR,

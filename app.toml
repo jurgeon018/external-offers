@@ -104,7 +104,7 @@ type = "cron"
 command = "send-processed-offers-and-clients-amount-to-grafana-cron"
 cron = "0 21 * * *"
 
-[job.create-phones-statuses-cron]
+[job.create-client-account-statuses-cron]
 type = "cron"
-command = "create-phones-statuses-cron"
+command = "create-client-account-statuses-cron"
 cron = "0 1 * * *"

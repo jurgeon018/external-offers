@@ -109,8 +109,8 @@ operators = sa.Table(
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )
 
-phones_statuses = sa.Table(
-    'phones_statuses',
+client_account_statuses = sa.Table(
+    'client_account_statuses',
     metadata,
     sa.Column('phone', sa.VARCHAR, nullable=False, unique=True, primary_key=True),
     sa.Column('smb_account_status', sa.VARCHAR, nullable=True),

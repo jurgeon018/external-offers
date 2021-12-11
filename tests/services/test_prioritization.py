@@ -40,7 +40,7 @@ async def test__find_homeowner_client_account_priority__clear_homeowners_with_ex
     result = await find_homeowner_client_account_priority(
         client=client,
         team_settings=team_settings,
-        phones_statuses=None,
+        client_account_statuses=None,
     )
     # assert
     assert result == _CLEAR_CLIENT_PRIORITY

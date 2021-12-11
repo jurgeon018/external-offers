@@ -149,7 +149,7 @@ CREATE TABLE operators
     updated_at    timestamp with time zone not null
 );
 
-CREATE TABLE phones_statuses
+CREATE TABLE client_account_statuses
 (
     phone         VARCHAR NOT NULL PRIMARY KEY UNIQUE,
     smb_account_status       VARCHAR,
