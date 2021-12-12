@@ -23,6 +23,20 @@ class SmbAccountStatus(StrEnum):
     has_bad_proportion_smb = 'has_bad_proportion_smb'
     announcements_api_client_exception = 'announcements_api_client_exception'
 
+    @classmethod
+    def from_str(cls, value: str):
+        return {
+            'no_lk_smb_priority': cls.no_lk_smb,
+            'no_active_smb_priority': cls.no_active_smb,
+            'keep_proportion_smb_priority': cls.keep_proportion_smb,
+            'has_sanctions': cls.has_sanctions,
+            'has_bad_account': cls.has_bad_account,
+            'has_wrong_user_source_type': cls.has_wrong_user_source_type,
+            'api_client_exception': cls.api_client_exception,
+            'has_bad_proportion_smb': cls.has_bad_proportion_smb,
+            'announcements_api_client_exception': cls.announcements_api_client_exception,
+        }[value]
+
 
 @dataclass
 class SmbAccount:
@@ -46,6 +60,18 @@ class HomeownerAccountStatus(StrEnum):
     has_bad_account = 'has_bad_account'
     has_wrong_user_source_type = 'has_wrong_user_source_type'
     api_client_exception = 'api_client_exception'
+
+    @classmethod
+    def from_str(cls, value: str):
+        return {
+            'no_lk_homeowner_priority': cls.no_lk_homeowner,
+            'active_lk_homeowner_priority': cls.active_lk_homeowner,
+            'has_existing_accounts': cls.has_existing_accounts,
+            'has_sanctions': cls.has_sanctions,
+            'has_bad_account': cls.has_bad_account,
+            'has_wrong_user_source_type': cls.has_wrong_user_source_type,
+            'api_client_exception': cls.api_client_exception,
+        }[value]
 
 
 @dataclass

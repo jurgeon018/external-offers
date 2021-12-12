@@ -142,7 +142,6 @@ async def find_smb_client_account_priority(
     team_settings: dict,
     client_account_statuses: dict[str, ClientAccountStatus] = None,
 ) -> int:
-
     if client.cian_user_id:
         # если у клиента уже есть cian_user_id, то нужно посчитать активные обьявления
         account_status = await find_smb_client_account_status_by_announcements_count(
@@ -150,9 +149,7 @@ async def find_smb_client_account_priority(
             client_count=client_count,
             client_id=client.client_id,
         )
-
     else:
-
         if client_account_statuses is None:
             client_account_statuses = {}
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
@@ -167,7 +164,7 @@ async def find_smb_client_account_priority(
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
-            account = await find_smb_account(phone=phone)
+            account: SmbAccount = await find_smb_account(phone=phone)
             account_status: Optional[SmbAccountStatus] = account.account_status
             new_cian_user_id = account.new_cian_user_id
 
@@ -183,7 +180,6 @@ async def find_smb_client_account_priority(
                 cian_user_id=new_cian_user_id,
                 client_id=client.client_id
             )
-
     if account_status in [
         SmbAccountStatus.has_sanctions,
         SmbAccountStatus.has_bad_account,
@@ -200,7 +196,7 @@ async def find_smb_client_account_priority(
     ]:
         account_priority = int(team_settings[account_status.value])
     else:
-        raise Exception(f'Unhandled account status: {account_status}')
+        raise Exception(f'Unhandled account status: {account_status}, {type(account_status)}')
     return account_priority
 
 

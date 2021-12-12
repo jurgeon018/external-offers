@@ -20,49 +20,49 @@ INSERT INTO parsed_offers (
     '1',
     'c', NULL,
     '1', '1',
-    '{"region":"4150", "phones":["+70000001"]}', NULL,
+    '{"region":"4150", "phones":["80000001"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '2',
     'c', NULL,
     '2', '2',
-    '{"region":"4150", "phones":["+70000002"]}', NULL,
+    '{"region":"4150", "phones":["80000002"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '3',
     'c', NULL,
     '3', '3',
-    '{"region":"4150", "phones":["+70000003"]}', NULL,
+    '{"region":"4150", "phones":["80000003"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '4',
     'c', NULL,
     '4', '4',
-    '{"region":"4150", "phones":["+70000004"]}', NULL,
+    '{"region":"4150", "phones":["80000004"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '5',
     'c', NULL,
     '5', '5',
-    '{"region":"4150", "phones":["+70000005"]}', NULL,
+    '{"region":"4150", "phones":["80000005"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '6',
     'c', NULL,
     '6', '6',
-    '{"region":"4150", "phones":["+70000006"]}', NULL,
+    '{"region":"4150", "phones":["80000006"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '7',
     'c', NULL,
     '7', '7',
-    '{"region":"4150", "phones":["+70000007"]}', NULL,
+    '{"region":"4150", "phones":["80000007"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 -- user_segment = 'd'
@@ -70,56 +70,56 @@ INSERT INTO parsed_offers (
     '11',
     'd', NULL,
     '11', '11',
-    '{"region":"4150", "phones":["+70000011"]}', NULL,
+    '{"region":"4150", "phones":["80000011"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '12',
     'd', NULL,
     '12', '12',
-    '{"region":"4150", "phones":["+70000012"]}', NULL,
+    '{"region":"4150", "phones":["80000012"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '13',
     'd', NULL,
     '13', '13',
-    '{"region":"4150", "phones":["+70000013"]}', NULL,
+    '{"region":"4150", "phones":["80000013"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '14',
     'd', NULL,
     '14', '14',
-    '{"region":"4150", "phones":["+70000014"]}', NULL,
+    '{"region":"4150", "phones":["80000014"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '15',
     'd', NULL,
     '15', '15',
-    '{"region":"4150", "phones":["+70000015"]}', NULL,
+    '{"region":"4150", "phones":["80000015"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '16',
     'd', NULL,
     '16', '16',
-    '{"region":"4150", "phones":["+70000016"]}', NULL,
+    '{"region":"4150", "phones":["80000016"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '17',
     'd', NULL,
     '17', '17',
-    '{"region":"4150", "phones":["+70000017"]}', NULL,
+    '{"region":"4150", "phones":["80000017"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 (
     '18',
     'd', NULL,
     '18', '18',
-    '{"region":"4150", "phones":["+70000018"]}', NULL,
+    '{"region":"4150", "phones":["80000018"], "category": "flatSale"}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
 ),
 -- невалидные значения

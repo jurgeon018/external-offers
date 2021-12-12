@@ -370,67 +370,6 @@ def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
     return team_id, team_settings
 
 
-async def prioritize_waiting_offers(
-    *,
-    teams: list[Optional[Team]],
-    is_test: Optional[bool] = None,
-) -> None:
-
-    client_counts_for_prioritization = []
-    client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
-    for team in teams:
-        team_id, team_settings = get_team_info(team)
-        # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
-        # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
-        # (задания фильтруются в assign_suitable_client_to_operator по приоритету _CLEAR_PRIORITY)
-        waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
-            # достает задания в ожидании(фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
-            get_waiting_offer_counts_by_clients(team=team, is_test=is_test),
-            # достает добивочные задания
-            get_unactivated_clients_counts_by_clients(),
-        )
-
-        client_counts_for_prioritization.append(
-            create_priorities(
-                waiting_clients_counts=waiting_clients_counts,
-                unactivated_clients_counts=unactivated_clients_counts,
-                team_settings=team_settings,
-                team_id=team_id,
-                client_account_statuses=client_account_statuses,
-            )
-        )
-
-    created_priorities = await asyncio.gather(*client_counts_for_prioritization)
-
-    for created_priority in created_priorities:
-        team_id = created_priority['team_id']
-        offers_priority = created_priority['offers_priority']
-        if team_id:
-            for priority, offer_ids in offers_priority.items():
-                logger.warning(
-                    'После приоритизации для команды %d для %d обьявлений будет задан приоритет %d',
-                    team_id,
-                    len(offer_ids),
-                    priority
-                )
-                await set_waiting_offers_team_priorities_by_offer_ids(
-                    offer_ids=offer_ids,
-                    priority=priority,
-                    team_id=team_id
-                )
-        else:
-            for priority, offer_ids in offers_priority.items():
-                logger.warning(
-                    'После приоритизации для %d обьявлений будет задан приоритет %d',
-                    len(offer_ids),
-                    priority
-                )
-                await set_waiting_offers_priority_by_offer_ids(
-                    offer_ids=offer_ids,
-                    priority=priority,
-                )
-
-
 async def create_priorities(
     *,
     waiting_clients_counts,
@@ -481,6 +420,67 @@ async def create_priorities(
         'team_id': team_id,
         'offers_priority': offers_priority,
     }
+
+
+async def prioritize_waiting_offers(
+    *,
+    teams: list[Optional[Team]],
+    is_test: Optional[bool] = None,
+) -> None:
+
+    client_counts_for_prioritization = []
+    client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
+    # client_account_statuses = {}
+    for team in teams:
+        team_id, team_settings = get_team_info(team)
+        # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
+        # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
+        # (задания фильтруются в assign_suitable_client_to_operator по приоритету _CLEAR_PRIORITY)
+        waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
+            # достает задания в ожидании(фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
+            get_waiting_offer_counts_by_clients(team=team, is_test=is_test),
+            # достает добивочные задания
+            get_unactivated_clients_counts_by_clients(),
+        )
+        client_counts_for_prioritization.append(
+            create_priorities(
+                waiting_clients_counts=waiting_clients_counts,
+                unactivated_clients_counts=unactivated_clients_counts,
+                team_settings=team_settings,
+                team_id=team_id,
+                client_account_statuses=client_account_statuses,
+            )
+        )
+
+    created_priorities = await asyncio.gather(*client_counts_for_prioritization)
+
+    for created_priority in created_priorities:
+        team_id = created_priority['team_id']
+        offers_priority = created_priority['offers_priority']
+        if team_id:
+            for priority, offer_ids in offers_priority.items():
+                logger.warning(
+                    'После приоритизации для команды %d для %d обьявлений будет задан приоритет %d',
+                    team_id,
+                    len(offer_ids),
+                    priority
+                )
+                await set_waiting_offers_team_priorities_by_offer_ids(
+                    offer_ids=offer_ids,
+                    priority=priority,
+                    team_id=team_id
+                )
+        else:
+            for priority, offer_ids in offers_priority.items():
+                logger.warning(
+                    'После приоритизации для %d обьявлений будет задан приоритет %d',
+                    len(offer_ids),
+                    priority
+                )
+                await set_waiting_offers_priority_by_offer_ids(
+                    offer_ids=offer_ids,
+                    priority=priority,
+                )
 
 
 async def create_client_account_statuses() -> None:
