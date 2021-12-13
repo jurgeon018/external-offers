@@ -91,7 +91,7 @@ async def save_test_parsed_offer(
 
 async def get_parsed_ids_for_cleaning(
     *,
-    team: Optional[Team],
+    team: Optional[Team] = None,
     is_test: Optional[bool] = None,
 ) -> list[str]:
     po = tables.parsed_offers.alias()

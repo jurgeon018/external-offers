@@ -154,7 +154,6 @@ async def find_smb_client_account_priority(
             client_account_statuses = {}
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
         client_account_status: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
-
         if client_account_status:
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы

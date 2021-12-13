@@ -296,52 +296,32 @@ async def set_offers_status_and_priority_by_client(
     priority: Optional[int] = None,
     team_id: Optional[int] = None,
 ) -> list[str]:
-    if team_id and priority:
-        params = []
-        query, params = asyncpgsa.compile_query(
-            update(
-                offers_for_call
-            ).values(
-                status=status.value,
-                team_priorities=func.jsonb_set(
-                    coalesce(offers_for_call.c.team_priorities, '{}'),
-                    [str(team_id)],
-                    str(priority),
-                )
-            ).where(
-                and_(
-                    offers_for_call.c.client_id == client_id,
-                    offers_for_call.c.status == OfferStatus.in_progress.value,
-                )
-            ).returning(
-                offers_for_call.c.id
+    values = {
+        'status': status.value
+    }
+    if priority:
+        if team_id:
+            values['team_priorities'] = func.jsonb_set(
+                coalesce(offers_for_call.c.team_priorities, '{}'),
+                [str(team_id)],
+                str(priority),
             )
-        )
-    else:
-        values = {
-            'status': status.value
-        }
-
-        if priority:
+        else:
             values['priority'] = priority
-
-        sql = (
-            update(
-                offers_for_call
-            ).values(
-                **values
-            ).where(
-                and_(
-                    offers_for_call.c.client_id == client_id,
-                    offers_for_call.c.status == OfferStatus.in_progress.value
-                )
-            ).returning(
-                offers_for_call.c.id
+    query, params = asyncpgsa.compile_query(
+        update(
+            offers_for_call
+        ).values(
+            **values
+        ).where(
+            and_(
+                offers_for_call.c.client_id == client_id,
+                offers_for_call.c.status == OfferStatus.in_progress.value,
             )
+        ).returning(
+            offers_for_call.c.id
         )
-
-        query, params = asyncpgsa.compile_query(sql)
-
+    )
     result = await pg.get().fetch(query, *params)
     return [r['id'] for r in result]
 

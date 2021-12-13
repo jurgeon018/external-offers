@@ -77,7 +77,7 @@ async def find_homeowner_account(phone: str) -> HomeownerAccount:
         )
         user_profiles: list[UserModelV2] = response.users
         if (
-            runtime_settings.CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS
+            runtime_settings.get('CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS', False)
             and user_profiles
         ):
             # проверяет есть ли по номеру телефона такой аккаунт на циан.
@@ -149,7 +149,6 @@ async def find_homeowner_client_account_priority(
     if client.cian_user_id:
         # если у клиента уже есть cian_user_id, то выдаем ему приоритет активного собственника
         account_status = HomeownerAccountStatus.active_lk_homeowner
-        # return int(team_settings[HomeownerAccountStatus.active_lk_homeowner.value])
     else:
         if client_account_statuses is None:
             client_account_statuses = {}
@@ -191,7 +190,7 @@ async def find_homeowner_client_account_priority(
     ]:
         account_priority = int(team_settings[account_status.value])
     else:
-        raise Exception(f'Unhandled account status: {account_status}')
+        raise Exception(f'Unhandled account status: {account_status}, {type(account_status)}')
     return account_priority
 
 

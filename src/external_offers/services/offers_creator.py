@@ -336,25 +336,25 @@ async def clear_and_prioritize_waiting_offers() -> None:
 
 def get_default_team_settings():
     return {
-        'maximum_active_offers_proportion': runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION,
-        'no_lk_smb_priority': runtime_settings.NO_LK_SMB_PRIORITY,
-        'no_active_smb_priority': runtime_settings.NO_ACTIVE_SMB_PRIORITY,
-        'keep_proportion_smb_priority': runtime_settings.KEEP_PROPORTION_SMB_PRIORITY,
-        'active_lk_homeowner_priority': runtime_settings.ACTIVE_LK_HOMEOWNER_PRIORITY,
-        'no_lk_homeowner_priority': runtime_settings.NO_LK_HOMEOWNER_PRIORITY,
-        'unactivated_client_priority': runtime_settings.UNACTIVATED_CLIENT_PRIORITY,
-        'new_client_priority': runtime_settings.NEW_CLIENT_PRIORITY,
-        'call_missed_priority': runtime_settings.CALL_MISSED_PRIORITY,
-        'call_later_priority': runtime_settings.CALL_LATER_PRIORITY,
-        'waiting_priority': runtime_settings.WAITING_PRIORITY,
-        'smb_priority': runtime_settings.SMB_PRIORITY,
-        'homeowner_priority': runtime_settings.HOMEOWNER_PRIORITY,
-        'main_regions_priority': runtime_settings.MAIN_REGIONS_PRIORITY,
-        'sale_priority': runtime_settings.SALE_PRIORITY,
-        'rent_priority': runtime_settings.RENT_PRIORITY,
-        'flat_priority': runtime_settings.FLAT_PRIORITY,
-        'suburban_priority': runtime_settings.SUBURBAN_PRIORITY,
-        'commercial_priority': runtime_settings.COMMERCIAL_PRIORITY,
+        'maximum_active_offers_proportion': runtime_settings.get('MAXIMUM_ACTIVE_OFFERS_PROPORTION'),
+        'no_lk_smb_priority': runtime_settings.get('NO_LK_SMB_PRIORITY'),
+        'no_active_smb_priority': runtime_settings.get('NO_ACTIVE_SMB_PRIORITY'),
+        'keep_proportion_smb_priority': runtime_settings.get('KEEP_PROPORTION_SMB_PRIORITY'),
+        'active_lk_homeowner_priority': runtime_settings.get('ACTIVE_LK_HOMEOWNER_PRIORITY'),
+        'no_lk_homeowner_priority': runtime_settings.get('NO_LK_HOMEOWNER_PRIORITY'),
+        'unactivated_client_priority': runtime_settings.get('UNACTIVATED_CLIENT_PRIORITY'),
+        'new_client_priority': runtime_settings.get('NEW_CLIENT_PRIORITY'),
+        'call_missed_priority': runtime_settings.get('CALL_MISSED_PRIORITY'),
+        'call_later_priority': runtime_settings.get('CALL_LATER_PRIORITY'),
+        'waiting_priority': runtime_settings.get('WAITING_PRIORITY'),
+        'smb_priority': runtime_settings.get('SMB_PRIORITY'),
+        'homeowner_priority': runtime_settings.get('HOMEOWNER_PRIORITY'),
+        'main_regions_priority': runtime_settings.get('MAIN_REGIONS_PRIORITY'),
+        'sale_priority': runtime_settings.get('SALE_PRIORITY'),
+        'rent_priority': runtime_settings.get('RENT_PRIORITY'),
+        'flat_priority': runtime_settings.get('FLAT_PRIORITY'),
+        'suburban_priority': runtime_settings.get('SUBURBAN_PRIORITY'),
+        'commercial_priority': runtime_settings.get('COMMERCIAL_PRIORITY'),
     }
 
 
@@ -363,7 +363,7 @@ def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
         team_id = team.team_id
         team_settings = team.get_settings()
         if not team_settings.get('main_regions_priority'):
-            team_settings['main_regions_priority'] = runtime_settings.MAIN_REGIONS_PRIORITY
+            team_settings['main_regions_priority'] = get_default_team_settings()['main_regions_priority']
     else:
         team_id = None
         team_settings = get_default_team_settings()
@@ -528,8 +528,3 @@ async def create_client_account_statuses() -> None:
                     'homeowner_account_status': account.account_status.value,
                     'new_cian_user_id': account.new_cian_user_id,
                 })
-            else:
-                logger.warning(
-                    'Невалидный user_segment у обьявления с номером %s',
-                    raw_phone,
-                )
