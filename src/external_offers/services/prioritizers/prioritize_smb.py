@@ -140,7 +140,7 @@ async def find_smb_client_account_priority(
     client_count: int,
     client: Client,
     team_settings: dict,
-    client_account_statuses: dict[str, ClientAccountStatus] = None,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
     if client.cian_user_id:
         # если у клиента уже есть cian_user_id, то нужно посчитать активные обьявления
@@ -205,7 +205,7 @@ async def prioritize_smb_client(
     client: Client,
     regions: list[int],
     team_settings: dict,
-    client_account_statuses: dict[str, ClientAccountStatus] = None,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
 
     account_priority: int = await find_smb_client_account_priority(

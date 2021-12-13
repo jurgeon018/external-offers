@@ -2,7 +2,7 @@ import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 import pytz
 from cian_core.context import new_operation_id
@@ -79,7 +79,7 @@ async def prioritize_client(
     client_id: str,
     client_count: int,
     team_settings: dict,
-    client_account_statuses: dict[str, ClientAccountStatus] = None,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_PRIORITY """
 
@@ -337,9 +337,10 @@ async def clear_and_prioritize_waiting_offers() -> None:
         await delete_old_waiting_offers_for_call()
 
 
-def get_default_team_settings():
+def get_default_team_settings() -> dict[str, Union[str, int]]:
     return {
         'maximum_active_offers_proportion': runtime_settings.get('MAXIMUM_ACTIVE_OFFERS_PROPORTION'),
+        # приоритеты
         'no_lk_smb_priority': runtime_settings.get('NO_LK_SMB_PRIORITY'),
         'no_active_smb_priority': runtime_settings.get('NO_ACTIVE_SMB_PRIORITY'),
         'keep_proportion_smb_priority': runtime_settings.get('KEEP_PROPORTION_SMB_PRIORITY'),
@@ -358,7 +359,7 @@ def get_default_team_settings():
         'flat_priority': runtime_settings.get('FLAT_PRIORITY'),
         'suburban_priority': runtime_settings.get('SUBURBAN_PRIORITY'),
         'commercial_priority': runtime_settings.get('COMMERCIAL_PRIORITY'),
-        #
+        # настройки фильтрации
         'regions': runtime_settings.get('OFFER_TASK_CREATION_REGIONS'),
         'segments': runtime_settings.get('OFFER_TASK_CREATION_SEGMENTS'),
         'categories': runtime_settings.get('OFFER_TASK_CREATION_CATEGORIES'),
@@ -379,8 +380,8 @@ def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
 
 async def create_priorities(
     *,
-    waiting_clients_counts,
-    unactivated_clients_counts,
+    waiting_clients_counts: list[Optional[ClientWaitingOffersCount]],
+    unactivated_clients_counts: list[Optional[ClientDraftOffersCount]],
     team_settings: dict,
     team_id: Optional[int] = None,
     client_account_statuses: dict[str, ClientAccountStatus],

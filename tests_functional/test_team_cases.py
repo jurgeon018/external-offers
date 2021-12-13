@@ -302,7 +302,7 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert ofc11['priority'] == _CLEAR_PRIORITY
     assert ofc12['priority'] == 231120212
     assert ofc13['priority'] == 231115223
-    assert await pg.fetchval("""select count(*) from offers_for_call""") == 9
+    assert await pg.fetchval('select count(*) from offers_for_call') == 9
     assert json.loads(ofc1['team_priorities']) == {
         '1': -1, '2': -1, '3': 231115211, '4': 231115213, '5': 231115221
     }

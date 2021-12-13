@@ -738,7 +738,7 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_unactivated_clients_counts_by_clients() -> Optional[list[ClientDraftOffersCount]]:
+async def get_unactivated_clients_counts_by_clients() -> list[Optional[ClientDraftOffersCount]]:
     query, params = asyncpgsa.compile_query(
         select(
             [
@@ -771,7 +771,7 @@ async def get_waiting_offer_counts_by_clients(
     team_settings: dict,
     team_id: Optional[int] = None,
     is_test: bool,
-) -> list[ClientWaitingOffersCount]:
+) -> list[Optional[ClientWaitingOffersCount]]:
     """Достает клиентов для приоретизации и фильтрует из очереди клиентов с невалидными обьявлениями"""
     segments = team_settings['segments']
     regions = team_settings['regions']
@@ -791,6 +791,15 @@ async def get_waiting_offer_counts_by_clients(
             )
         ).cte('valid_parsed_offers_cte')
     )
+    # TODO: переделать на exists() или count()
+    po_query, po_params = asyncpgsa.compile_query(
+        select([
+            parsed_offers.c.id
+        ]).where(
+            parsed_offers.c.id == valid_parsed_offers_cte.c.id
+        )
+    )
+    po_rows = await pg.get().fetch(po_query, *po_params)
     # clear ofc
     _CLEAR_PRIORITY = -1
     if team_id:
@@ -805,6 +814,14 @@ async def get_waiting_offer_counts_by_clients(
         values = {
             'priority': _CLEAR_PRIORITY
         }
+    update_options = [
+        offers_for_call.c.is_test == is_test,
+        offers_for_call.c.status == OfferStatus.waiting.value,
+    ]
+    if po_rows == []:
+        update_options.append(
+            offers_for_call.c.parsed_id != valid_parsed_offers_cte.c.id,
+        )
     update_query, update_params = asyncpgsa.compile_query(
         update(
             offers_for_call
@@ -812,27 +829,34 @@ async def get_waiting_offer_counts_by_clients(
             **values
         ).where(
             and_(
-                offers_for_call.c.is_test == is_test,
-                offers_for_call.c.parsed_id != valid_parsed_offers_cte.c.id,
-                offers_for_call.c.status == OfferStatus.waiting.value,
+                *update_options
             )
+        ).returning(
+            offers_for_call.c.id,
+            offers_for_call.c.parsed_id,
         )
     )
+    select_options = [
+        waiting_offers_counts_cte.c.is_test == is_test,
+    ]
+    if po_rows != []:
+        select_options.append(
+            waiting_offers_counts_cte.c.parsed_id == valid_parsed_offers_cte.c.id
+        )
     select_query, select_params = asyncpgsa.compile_query(
         select(
             [waiting_offers_counts_cte]
         ).where(
             and_(
-                waiting_offers_counts_cte.c.is_test == is_test,
-                waiting_offers_counts_cte.c.parsed_id == valid_parsed_offers_cte.c.id,
+                *select_options
             )
         ).distinct(
             waiting_offers_counts_cte.c.client_id
         )
     )
-    await pg.get().execute(update_query, *update_params)
-    rows = await pg.get().fetch(select_query, *select_params)
-    return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
+    updated_rows = await pg.get().fetch(update_query, *update_params)
+    selected_rows = await pg.get().fetch(select_query, *select_params)
+    return [client_waiting_offers_count_mapper.map_from(row) for row in selected_rows]
 
 
 async def get_offers_for_prioritization_by_client_ids(

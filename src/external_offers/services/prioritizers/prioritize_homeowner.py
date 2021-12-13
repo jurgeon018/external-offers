@@ -143,7 +143,7 @@ async def find_homeowner_client_account_priority(
     *,
     client: Client,
     team_settings: dict,
-    client_account_statuses: dict[str, ClientAccountStatus] = None,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
 
     if client.cian_user_id:
@@ -199,7 +199,7 @@ async def prioritize_homeowner_client(
     client: Client,
     regions: list[int],
     team_settings: dict,
-    client_account_statuses: dict[str, ClientAccountStatus] = None,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
 
     account_priority = await find_homeowner_client_account_priority(
