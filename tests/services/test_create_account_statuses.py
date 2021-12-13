@@ -1,12 +1,26 @@
-from external_offers.entities.client_account_statuses import ClientAccountStatus, HomeownerAccount, HomeownerAccountStatus
+import pytest
+from cian_test_utils import future
+
+from external_offers.entities.client_account_statuses import (
+    ClientAccountStatus,
+    HomeownerAccount,
+    HomeownerAccountStatus,
+)
 from external_offers.entities.clients import Client
 from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
 from external_offers.entities.teams import Team
+from external_offers.repositories.monolith_cian_profileapi.entities.get_sanctions_response import (
+    GetSanctionsResponse,
+    UserSanctions,
+)
 from external_offers.services.offers_creator import create_client_account_statuses, get_team_info
+from external_offers.services.prioritizers.prioritize_homeowner import (
+    GetUsersByPhoneResponseV2,
+    UserModelV2,
+    find_homeowner_account,
+    find_homeowner_client_account_priority,
+)
 from external_offers.services.prioritizers.prioritize_smb import find_smb_client_account_priority
-from external_offers.services.prioritizers.prioritize_homeowner import find_homeowner_account, find_homeowner_client_account_priority
-import pytest
-from cian_test_utils import future
 
 
 async def test_create_client_account_statuses(mocker):
@@ -95,6 +109,7 @@ async def test_get_team_info(mocker):
     assert team_id == 1
     assert team_settings['main_regions_priority'] == {'1': 1, '2': 2}
 
+
 async def test_create_client_account_statuses__phones_are_cashed_phonens(
     mocker,
 ):
@@ -156,14 +171,6 @@ async def test_find_homeowner_client_account_priority__client_has_cian_user_id()
 
 async def test_find_homeowner_account(mocker):
     # arrange
-    from external_offers.repositories.monolith_cian_profileapi.entities.get_sanctions_response import (
-        GetSanctionsResponse,
-        UserSanctions,
-    )
-    from external_offers.services.prioritizers.prioritize_homeowner import (
-        GetUsersByPhoneResponseV2,
-        UserModelV2,
-    )
     mocker.patch(
         'external_offers.services.prioritizers.prioritize_homeowner.runtime_settings',
         new={
