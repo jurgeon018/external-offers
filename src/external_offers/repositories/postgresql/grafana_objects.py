@@ -127,7 +127,7 @@ async def fetch_segmented_objects(
     processed: bool = None,
 ) -> List[SegmentedObject]:
     field_name = segment_types_to_field_names_mapper[segment_type]
-    status_query: dict = metric_to_status_query_mapper[metric]
+    status_query = metric_to_status_query_mapper[metric]
     if processed is not None:
         status_query = status_query[processed]
     if metric in client_metrics:

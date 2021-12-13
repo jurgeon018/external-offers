@@ -1,6 +1,6 @@
 from typing import List
 
-from cian_core.degradation import get_degradation_handler
+from cian_core.degradation import degradation as get_degradation_handler
 
 from external_offers.entities import ClientAccountInfo
 from external_offers.helpers import transform_phone_number_to_canonical_format

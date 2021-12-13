@@ -1,6 +1,6 @@
 from typing import List
 
-from cian_core.degradation import DegradationResult, get_degradation_handler
+from cian_core.degradation import DegradationResult, degradation as get_degradation_handler
 
 from external_offers.repositories.monolith_cian_announcementapi import (
     announcement_references_commercial_get_possible_appointments,

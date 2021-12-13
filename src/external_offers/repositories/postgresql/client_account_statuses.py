@@ -9,6 +9,7 @@ from sqlalchemy.sql import select
 
 from external_offers import pg
 from external_offers.entities.client_account_statuses import ClientAccountStatus
+from external_offers.mappers.client_account_statuses import client_account_status_mapper
 from external_offers.repositories.postgresql import tables
 from external_offers.services.prioritizers.prioritize_homeowner import HomeownerAccountStatus
 from external_offers.services.prioritizers.prioritize_smb import SmbAccountStatus
@@ -26,7 +27,7 @@ async def get_client_account_statuses() -> dict[str, ClientAccountStatus]:
         # такая вложеность нужна для того чтобы при приоретизации клиента по номеру телефона
         # не ходить в базу на каждой итерации,
         # а доставать инфу про статусы акаунтов из словаря за O(1) по номеру телефона(ключ)
-        client_account_statuses[row['phone']] = ClientAccountStatus.map_from(row)
+        client_account_statuses[row['phone']] = client_account_status_mapper.map_from(row)
     return client_account_statuses
 
 
