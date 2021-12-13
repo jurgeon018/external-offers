@@ -11,8 +11,13 @@ NO_EVENTS_TIMESTAMP = 0
 
 async def send_parsed_offers_timestamp_diff_to_graphite():
     event_timestamp = await get_lastest_event_timestamp() or NO_EVENTS_TIMESTAMP
+    now = datetime.now(pytz.utc)
+    if event_timestamp == NO_EVENTS_TIMESTAMP:
+        value = 0
+    else:
+        value = (now - event_timestamp).total_seconds()
     send_to_graphite(
         key='parsed_offers.seconds_since_last_timestamp',
-        value=(datetime.now(pytz.utc) - event_timestamp).total_seconds(),
-        timestamp=datetime.now(pytz.utc).timestamp()
+        value=value,
+        timestamp=now.timestamp()
     )

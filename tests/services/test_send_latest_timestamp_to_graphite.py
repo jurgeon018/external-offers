@@ -31,3 +31,30 @@ async def test_send_parsed_offers_timestamp_diff_to_graphite__when_called__send_
         value=(freezed_now - last_timestamp).total_seconds(),
         timestamp=freezed_now.timestamp()
     )
+
+
+@freezegun.freeze_time('2020-12-10 09:57:30.303690+00:00')
+async def test_send_parsed_offers_timestamp_diff_to_graphite__no_events_timestamp(mocker):
+    # arrange
+    last_timestamp = None
+    freezed_now = FakeDatetime.now(pytz.UTC)
+
+    get_timestamp_mock = mocker.patch(
+        'external_offers.services.send_latest_timestamp_to_graphite.get_lastest_event_timestamp',
+        return_value=future(last_timestamp)
+    )
+    send_to_graphite_mock = mocker.patch(
+        'external_offers.services.send_latest_timestamp_to_graphite.send_to_graphite',
+        return_value=None
+    )
+
+    # act
+    await send_parsed_offers_timestamp_diff_to_graphite()
+
+    # assert
+    assert get_timestamp_mock.called
+    send_to_graphite_mock.assert_called_once_with(
+        key='parsed_offers.seconds_since_last_timestamp',
+        value=0,
+        timestamp=freezed_now.timestamp()
+    )

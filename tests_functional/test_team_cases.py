@@ -109,19 +109,13 @@ async def prepare_teams(*, http, pg, operator_id):
     # создать несколько операторов(по 1 оператору на каждую команду)
     teams_amount = 5
     for i in range(teams_amount):
-        await http.request(
-            'POST',
-            '/api/admin/v1/create-operator-public/',
-            json={
-                'operatorId': str(i),
-                'fullName': f'Оператор №{i+1}',
-                'teamId': str(i),
-            },
-            headers={
-                'X-Real-UserId': operator_id
-            },
-            expected_status=200
+        await pg.execute("""
+        INSERT INTO operators (
+            operator_id, full_name, team_id, is_teamlead, created_at, updated_at
+        ) VALUES (
+            $1, $2, $3, 't', 'now()', 'now()'
         )
+        """, [str(i), f'Оператор №{i+1}', i])
 
     # создать несколько команд через ручку
     # (если делать через pg.execute то придется руками прописывать большое количество дефолтных параметров)

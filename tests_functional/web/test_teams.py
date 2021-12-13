@@ -169,9 +169,14 @@ async def test_teams(pg, http, runtime_settings):
 
 
 async def test_render_teams(
-    http, users_mock,
+    pg, http, users_mock,
 ):
     # arrange
+    await pg.execute("""
+    INSERT INTO teams (team_id, team_name, lead_id) VALUES
+    ('1', 'team1', '1'),
+    ('2', 'team2', '2');
+    """)
     await users_mock.add_stub(
         method='GET',
         path='/v1/get-userids-by-rolename/',
@@ -213,7 +218,7 @@ async def test_render_teams(
     )
 
     # act
-    resp = await http.request(
+    teams_response = await http.request(
         'GET',
         '/admin/teams/',
         headers={
@@ -221,6 +226,16 @@ async def test_render_teams(
         },
         expected_status=200
     )
-    html = resp.body.decode('utf-8')
+    team_response = await http.request(
+        'GET',
+        '/admin/team-card/1/',
+        headers={
+            'X-Real-UserId': 100,
+        },
+        expected_status=200
+    )
+    teams_html = teams_response.body.decode('utf-8')
+    team_html = team_response.body.decode('utf-8')
     # assert
-    assert html is not None
+    assert teams_html is not None
+    assert team_html is not None

@@ -228,6 +228,13 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.BasicResponse,
         base_handler_cls=PublicHandler,
     )),
+    url('/api/admin/v1/update-operators-public/$', get_handler(
+        service=operators.update_operators_public,
+        method='POST',
+        request_schema=entities.UpdateOperatorsRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
     # teams
     url('/api/admin/v1/create-team-public/$', get_handler(
         service=teams.create_team_public,
