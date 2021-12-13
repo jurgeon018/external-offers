@@ -81,28 +81,6 @@ async def test_create_client_account_statuses__statuses_are_created(
 
     await v2_get_users_by_phone_add_stub([], account_1_c_phone, users_mock)
 
-    # account_2_c_phone = '+70000002'
-    # account_2_c_cian_user_id = 2
-    # expected_account_2_c = {
-    #     'smb_account_status': 'has_sanctions',
-    #     'phone': account_2_c_phone,
-    #     'new_cian_user_id': None,
-    #     'homeowner_account_status': None, 'created_at': ANY, 'updated_at': ANY,
-    # }
-    # await v2_get_users_by_phone_add_stub([{
-    #     'id': account_2_c_cian_user_id,
-    #     'cianUserId': account_2_c_cian_user_id,
-    #     'state': 'active',
-    # }], account_2_c_phone, users_mock)
-    # await v1_sanctions_get_sanctions_add_stub([{
-    #     'userId': account_2_c_cian_user_id,
-    #     'sanctions': [{
-    #         'sanctionId': 9072881,
-    #         'sanctionName': 'Запрет на публикацию объявлений',
-    #         'sanctionEnd': None
-    #     }]  # -> has_sanctions
-    # }], [account_2_c_cian_user_id], monolith_cian_profileapi_mock)
-
     account_3_c_phone = '+70000003'
     account_3_c_inner_phone = '80000003'
     account_3_c_cian_user_id = 3
@@ -298,39 +276,6 @@ async def test_create_client_account_statuses__statuses_are_created(
         users_mock,
     )
 
-    # account_14_d_phone = '+70000014'
-    # account_14_d_cian_user_id = 14
-    # expected_account_14_d = {
-    #     'phone': account_14_d_phone,
-    #     'homeowner_account_status': 'has_existing_accounts',
-    #     'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
-    #     'new_cian_user_id': None,
-    # }
-    # await v2_get_users_by_phone_add_stub([{
-    #     'id': account_14_d_cian_user_id,
-    # }], account_14_d_phone, users_mock)
-
-    # account_15_d_phone = '+70000015'
-    # account_15_d_cian_user_id = 15
-    # expected_account_15_d = {
-    #     'phone': account_15_d_phone,
-    #     'homeowner_account_status': 'has_sanctions',
-    #     'smb_account_status': None, 'created_at': ANY, 'updated_at': ANY,
-    #     'new_cian_user_id': None,
-    # }
-    # await v2_get_users_by_phone_add_stub([{
-    #     'id': account_15_d_cian_user_id,
-    #     'cianUserId': account_15_d_cian_user_id,
-    #     'state': 'active',
-    # }], account_15_d_phone, users_mock)
-    # await v1_sanctions_get_sanctions_add_stub([{
-    #     'userId': account_15_d_cian_user_id,
-    #     'sanctions': [{
-    #         'sanctionId': 9072881,
-    #         'sanctionName': 'Запрет на публикацию объявлений',
-    #         'sanctionEnd': None
-    #     }]  # -> has_sanctions
-    # }], [account_15_d_cian_user_id], monolith_cian_profileapi_mock)
 
     account_16_d_phone = '+70000016'
     account_16_d_inner_phone = '80000016'
@@ -460,13 +405,6 @@ async def test_create_client_account_statuses__statuses_are_created(
     offers_query = """
     select
         priority
-        -- user_segment,
-        -- segment,
-        -- source_object_model->'phones' as phones,
-        -- client_phones,
-        -- clients.status as clients_status,
-        -- offers_for_call.status as offers_for_call_status,
-        -- cian_user_id
     from offers_for_call
     join clients on clients.client_id = offers_for_call.client_id
     join parsed_offers on parsed_offers.id = offers_for_call.parsed_id

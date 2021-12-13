@@ -23,27 +23,10 @@ async def get_client_account_statuses() -> dict[str, ClientAccountStatus]:
     rows = await pg.get().fetch(query, *params)
     client_account_statuses = {}
     for row in rows:
-
-        new_cian_user_id = row['new_cian_user_id']
-        if new_cian_user_id:
-            new_cian_user_id = int(new_cian_user_id)
-
-        smb_account_status = row['smb_account_status']
-        if smb_account_status:
-            smb_account_status = SmbAccountStatus.from_str(smb_account_status)
-
-        homeowner_account_status = row['homeowner_account_status']
-        if homeowner_account_status:
-            homeowner_account_status = HomeownerAccountStatus.from_str(homeowner_account_status)
-
         # такая вложеность нужна для того чтобы при приоретизации клиента по номеру телефона
         # не ходить в базу на каждой итерации,
         # а доставать инфу про статусы акаунтов из словаря за O(1) по номеру телефона(ключ)
-        client_account_statuses[row['phone']] = ClientAccountStatus(
-            smb_account_status=smb_account_status,
-            homeowner_account_status=homeowner_account_status,
-            new_cian_user_id=new_cian_user_id,
-        )
+        client_account_statuses[row['phone']] = ClientAccountStatus.map_from(row)
     return client_account_statuses
 
 
@@ -73,7 +56,7 @@ async def set_client_account_status(
     await pg.get().execute(query, *params)
 
 
-async def get_recently_cashed_client_account_statuses() -> list[int]:
+async def get_recently_cached_client_account_statuses() -> list[str]:
     """достает все номера телефонов по которым были обновления за последние 5 дней"""
     client_account_statuses = tables.client_account_statuses.alias()
     days = runtime_settings.get('CLIENT_ACCOUNT_STATUSES_UPDATE_CHECK_WINDOW_IN_DAYS', 5)

@@ -38,7 +38,7 @@ from external_offers.repositories.postgresql import (
 )
 from external_offers.repositories.postgresql.client_account_statuses import (
     get_client_account_statuses,
-    get_recently_cashed_client_account_statuses,
+    get_recently_cached_client_account_statuses,
     set_client_account_status,
 )
 from external_offers.repositories.postgresql.offers import (
@@ -495,7 +495,7 @@ async def create_client_account_statuses() -> None:
         logger.warning('Кеширование приоритетов по ЛК клиентов отключено')
         return False
     parsed_offers = await get_parsed_offers_for_account_prioritization()
-    recently_cashed_client_account_statuses = await get_recently_cashed_client_account_statuses()
+    recently_cached_client_account_statuses = await get_recently_cached_client_account_statuses()
     logger.warning(
         'Кеширование приоритетов по ЛК для %s обьявлений запущено.',
         len(parsed_offers),
@@ -505,11 +505,11 @@ async def create_client_account_statuses() -> None:
         parsed_offer: ParsedOfferForAccountPrioritization
 
         raw_phone = json.loads(parsed_offer.phones)[0]
-        if raw_phone in recently_cashed_client_account_statuses:
+        if raw_phone in recently_cached_client_account_statuses:
             continue
 
         phone = transform_phone_number_to_canonical_format(raw_phone)
-        if phone in recently_cashed_client_account_statuses:
+        if phone in recently_cached_client_account_statuses:
             continue
 
         now = datetime.now(tz=pytz.UTC)

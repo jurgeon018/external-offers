@@ -110,7 +110,7 @@ async def test_get_team_info(mocker):
     assert team_settings['main_regions_priority'] == {'1': 1, '2': 2}
 
 
-async def test_create_client_account_statuses__phones_are_cashed_phonens(
+async def test_create_client_account_statuses__phones_are_cached_phonens(
     mocker,
 ):
     # arrange
@@ -137,7 +137,7 @@ async def test_create_client_account_statuses__phones_are_cashed_phonens(
         ])
     )
     mocker.patch(
-        'external_offers.services.offers_creator.get_recently_cashed_client_account_statuses',
+        'external_offers.services.offers_creator.get_recently_cached_client_account_statuses',
         return_value=future([
             '+780834434',
             '+780834431',

@@ -66,7 +66,7 @@ segment_types_to_field_names_mapper = {
     GrafanaSegmentType.user_segment: 'parsed_offers.user_segment',
     GrafanaSegmentType.category: 'ofc.category',
 }
-metric_to_status_query_mapper: dict = {
+metric_to_status_query_mapper: dict[GrafanaMetric, str] = {
     GrafanaMetric.waiting_offers_count: (
         f"""
         WHERE ofc.synced_with_grafana IS NOT TRUE
