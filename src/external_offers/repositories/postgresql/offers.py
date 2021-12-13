@@ -9,7 +9,6 @@ from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, u
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
-from sqlalchemy.sql.selectable import CTE
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -766,10 +765,14 @@ async def get_unactivated_clients_counts_by_clients() -> list[Optional[ClientDra
     return [client_draft_offers_count_mapper.map_from(row) for row in rows]
 
 
-def get_valid_parsed_offers_cte(
+async def get_waiting_offer_counts_by_clients(
+    *,
     team_settings: dict,
+    team_id: Optional[int] = None,
     is_test: bool,
-) -> CTE:
+) -> list[Optional[ClientWaitingOffersCount]]:
+    """Достает клиентов для приоретизации и фильтрует из очереди клиентов с невалидными обьявлениями"""
+
     segments = team_settings['segments']
     regions = team_settings['regions']
     categories = team_settings['categories']
@@ -788,16 +791,31 @@ def get_valid_parsed_offers_cte(
             )
         ).cte('valid_parsed_offers_cte')
     )
-    return valid_parsed_offers_cte
 
+    valid_parsed_offers_query, valid_parsed_offers_params = asyncpgsa.compile_query(
+        select([valid_parsed_offers_cte])
+    )
+    valid_parsed_offers_rows = await pg.get().fetch(valid_parsed_offers_query, *valid_parsed_offers_params)
 
-async def clear_invalid_waiting_offers(
-    *,
-    team_id: Optional[int],
-    is_test: bool,
-    po_rows: list[dict],
-    valid_parsed_offers_cte: CTE,
-) -> list[dict]:
+    if valid_parsed_offers_rows == []:
+        # если нет валидных спаршеных обьявлений, то ничего не достаем
+        selected_rows = []
+    else:
+        # если есть валидные спаршеные обьявления, то фильтруем клиентов в ожидании
+        select_query, select_params = asyncpgsa.compile_query(
+            select(
+                [waiting_offers_counts_cte]
+            ).where(
+                and_(
+                    waiting_offers_counts_cte.c.is_test == is_test,
+                    waiting_offers_counts_cte.c.parsed_id == valid_parsed_offers_cte.c.id
+                )
+            ).distinct(
+                waiting_offers_counts_cte.c.client_id
+            )
+        )
+        selected_rows = await pg.get().fetch(select_query, *select_params)
+
     _CLEAR_PRIORITY = -1
     if team_id:
         values = {
@@ -815,7 +833,7 @@ async def clear_invalid_waiting_offers(
         offers_for_call.c.is_test == is_test,
         offers_for_call.c.status == OfferStatus.waiting.value,
     ]
-    if po_rows == []:
+    if valid_parsed_offers_rows != []:
         update_options.append(
             offers_for_call.c.parsed_id != valid_parsed_offers_cte.c.id,
         )
@@ -833,61 +851,7 @@ async def clear_invalid_waiting_offers(
             offers_for_call.c.parsed_id,
         )
     )
-    updated_rows = await pg.get().fetch(update_query, *update_params)
-    return updated_rows
-
-
-async def get_vaild_parsed_offers_for_prioritization(
-    valid_parsed_offers_cte: CTE,
-) -> list[dict]:
-    po_query, po_params = asyncpgsa.compile_query(
-        select([
-            parsed_offers.c.id
-        ]).where(
-            parsed_offers.c.id == valid_parsed_offers_cte.c.id
-        )
-    )
-    po_rows = await pg.get().fetch(po_query, *po_params)
-    return po_rows
-
-
-async def get_waiting_offer_counts_by_clients(
-    *,
-    team_settings: dict,
-    team_id: Optional[int] = None,
-    is_test: bool,
-) -> list[Optional[ClientWaitingOffersCount]]:
-    """Достает клиентов для приоретизации и фильтрует из очереди клиентов с невалидными обьявлениями"""
-    valid_parsed_offers_cte = get_valid_parsed_offers_cte(team_settings, is_test)
-    po_rows = await get_vaild_parsed_offers_for_prioritization(
-        valid_parsed_offers_cte=valid_parsed_offers_cte
-    )
-    await clear_invalid_waiting_offers(
-        team_id=team_id,
-        is_test=is_test,
-        po_rows=po_rows,
-        valid_parsed_offers_cte=valid_parsed_offers_cte
-    )
-
-    select_options = [
-        waiting_offers_counts_cte.c.is_test == is_test,
-    ]
-    if po_rows != []:
-        select_options.append(
-            waiting_offers_counts_cte.c.parsed_id == valid_parsed_offers_cte.c.id
-        )
-    select_query, select_params = asyncpgsa.compile_query(
-        select(
-            [waiting_offers_counts_cte]
-        ).where(
-            and_(
-                *select_options
-            )
-        ).distinct(
-            waiting_offers_counts_cte.c.client_id
-        )
-    )
-    selected_rows = await pg.get().fetch(select_query, *select_params)
+    await pg.get().execute(update_query, *update_params)
     return [client_waiting_offers_count_mapper.map_from(row) for row in selected_rows]
 
 
