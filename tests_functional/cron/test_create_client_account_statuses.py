@@ -276,7 +276,6 @@ async def test_create_client_account_statuses__statuses_are_created(
         users_mock,
     )
 
-
     account_16_d_phone = '+70000016'
     account_16_d_inner_phone = '80000016'
     account_16_c_cian_user_id = 16

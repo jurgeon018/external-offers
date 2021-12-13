@@ -344,7 +344,7 @@ async def delete_test_parsed_offers() -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_parsed_offers_for_account_prioritization() -> list[Optional[ParsedOfferForAccountPrioritization]]:
+async def get_parsed_offers_for_account_prioritization() -> list[ParsedOfferForAccountPrioritization]:
     po = tables.parsed_offers.alias()
     query, params = asyncpgsa.compile_query(
         select([

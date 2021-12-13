@@ -862,7 +862,7 @@ async def get_waiting_offer_counts_by_clients(
     po_rows = await get_vaild_parsed_offers_for_prioritization(
         valid_parsed_offers_cte=valid_parsed_offers_cte
     )
-    updated_rows = await clear_invalid_waiting_offers(
+    await clear_invalid_waiting_offers(
         team_id=team_id,
         is_test=is_test,
         po_rows=po_rows,

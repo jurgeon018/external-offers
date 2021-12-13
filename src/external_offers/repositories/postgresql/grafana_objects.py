@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from external_offers import pg
 from external_offers.entities.grafana_metric import SegmentedObject
@@ -66,7 +66,7 @@ segment_types_to_field_names_mapper = {
     GrafanaSegmentType.user_segment: 'parsed_offers.user_segment',
     GrafanaSegmentType.category: 'ofc.category',
 }
-metric_to_status_query_mapper: dict[GrafanaMetric, str] = {
+metric_to_status_query_mapper: dict[GrafanaMetric, Union[dict[bool, str], str]] = {
     GrafanaMetric.waiting_offers_count: (
         f"""
         WHERE ofc.synced_with_grafana IS NOT TRUE
