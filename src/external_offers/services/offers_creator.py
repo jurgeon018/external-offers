@@ -324,7 +324,10 @@ async def clear_and_prioritize_waiting_offers() -> None:
     teams = [None, ]
     if runtime_settings.get('ENABLE_TEAMS_PRIORITIZATION', False):
         teams.extend(await get_teams())
-    await prioritize_waiting_offers(teams=teams)
+    await prioritize_waiting_offers(
+        teams=teams,
+        is_test=False,
+    )
 
     await delete_calltracking_clients()
 
@@ -355,6 +358,10 @@ def get_default_team_settings():
         'flat_priority': runtime_settings.get('FLAT_PRIORITY'),
         'suburban_priority': runtime_settings.get('SUBURBAN_PRIORITY'),
         'commercial_priority': runtime_settings.get('COMMERCIAL_PRIORITY'),
+        #
+        'regions': runtime_settings.get('OFFER_TASK_CREATION_REGIONS'),
+        'segments': runtime_settings.get('OFFER_TASK_CREATION_SEGMENTS'),
+        'categories': runtime_settings.get('OFFER_TASK_CREATION_CATEGORIES'),
     }
 
 
@@ -425,7 +432,7 @@ async def create_priorities(
 async def prioritize_waiting_offers(
     *,
     teams: list[Optional[Team]],
-    is_test: Optional[bool] = None,
+    is_test: bool,
 ) -> None:
 
     client_counts_for_prioritization = []
@@ -438,7 +445,7 @@ async def prioritize_waiting_offers(
         # (задания фильтруются в assign_suitable_client_to_operator по приоритету _CLEAR_PRIORITY)
         waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
             # достает задания в ожидании(фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
-            get_waiting_offer_counts_by_clients(team=team, is_test=is_test),
+            get_waiting_offer_counts_by_clients(team_id=team_id, team_settings=team_settings, is_test=is_test),
             # достает добивочные задания
             get_unactivated_clients_counts_by_clients(),
         )
@@ -453,7 +460,6 @@ async def prioritize_waiting_offers(
         )
 
     created_priorities = await asyncio.gather(*client_counts_for_prioritization)
-
     for created_priority in created_priorities:
         team_id = created_priority['team_id']
         offers_priority = created_priority['offers_priority']

@@ -6,7 +6,7 @@ from cian_json import json
 
 
 @pytest.mark.parametrize('is_test_request, is_test_value', [
-    (None, 'f'),
+    (False, 'f'),
     (True, 't'),
 ])
 async def test_update_team_priorities(
@@ -129,7 +129,7 @@ async def test_update_team_priorities(
 
 
 @pytest.mark.parametrize('is_test_request, is_test_value', [
-    (None, 'f'),
+    (False, 'f'),
     (True, 't'),
 ])
 async def test_update_priorities(

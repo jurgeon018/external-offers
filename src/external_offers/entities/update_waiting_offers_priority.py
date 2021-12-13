@@ -5,4 +5,4 @@ from typing import Optional
 @dataclass
 class PrioritizeWaitingOffersRequest:
     team_id: Optional[str] = None
-    is_test: Optional[bool] = None
+    is_test: bool = True

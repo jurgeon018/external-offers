@@ -56,6 +56,8 @@ class Client:
 class ClientWaitingOffersCount:
     client_id: str
     """Идентификатор клиента"""
+    parsed_id: str
+    """Идентификатор обьявления"""
     waiting_offers_count: int
     """Количество объявлений в ожидании"""
 
