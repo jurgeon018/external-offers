@@ -596,19 +596,14 @@ async def test_call_missed_client__operator_and_in_progress__next_call_and_call_
     })
 
     # act
-    await http.request(
-        'POST',
-        '/api/admin/v1/create-operator-public/',
-        json={
-            'operatorId': str(operator),
-            'fullName': 'Оператор №1',
-            'teamId': '1',
-        },
-        headers={
-            'X-Real-UserId': operator
-        },
-        expected_status=200
+    await pg.execute("""
+    INSERT INTO operators (
+        operator_id, full_name, team_id, is_teamlead, created_at, updated_at
+    ) VALUES (
+        $1, $2, $3, 't', 'now()', 'now()'
     )
+    """, [str(operator), 'Оператор №1', 1])
+
     await http.request(
         'POST',
         '/api/admin/v1/create-team-public/',
