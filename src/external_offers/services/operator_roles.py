@@ -2,7 +2,7 @@ import logging
 from typing import List, NoReturn, Optional, Union
 
 import backoff
-from cian_core.degradation import DegradationResult, get_degradation_handler
+from cian_core.degradation import DegradationResult, degradation as get_degradation_handler
 from cian_core.runtime_settings import runtime_settings
 from cian_http.exceptions import ApiClientException
 

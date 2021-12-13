@@ -36,13 +36,8 @@ def build_region_priority_from_region(
     Ищем самый приоритетный из регионов. Для основных  - разделение по приоритетам, неосновные - все 1 приоритетом.
     Затем отступом в 100 доводим до 3-значного числа для соблюдения длины финального приоритета для всех регионов
     """
-    region_settings = team_settings.get(
-        'main_regions_priority',
-    )
-    if not region_settings:
-        region_settings = runtime_settings.MAIN_REGIONS_PRIORITY
     regions_priorities = [
-        region_settings.get(
+        team_settings['main_regions_priority'].get(
             str(region),
             _SECONDARY_REGION_PRIORITY
         )
@@ -60,19 +55,13 @@ def build_waiting_homeowner_priority(
     account_priority: int,
     team_settings: dict,
 ) -> int:
-    call_status_priority = team_settings.get(
-        'waiting_priority', runtime_settings.WAITING_PRIORITY
-    )
-    client_type_priority = team_settings.get(
-        'homeowner_priority', runtime_settings.HOMEOWNER_PRIORITY
-    )
     return build_priority_from_blocks(
-        call_status_priority=call_status_priority,
+        call_status_priority=team_settings['waiting_priority'],
         region_priority=build_region_priority_from_region(
             regions=regions,
             team_settings=team_settings,
         ),
-        client_type_priority=client_type_priority,
+        client_type_priority=team_settings['homeowner_priority'],
         account_priority=account_priority
     )
 
@@ -83,15 +72,9 @@ def build_waiting_smb_priority(
     account_priority: int,
     team_settings: dict,
 ) -> int:
-    call_status_priority = team_settings.get(
-        'waiting_priority', runtime_settings.WAITING_PRIORITY
-    )
-    client_type_priority = team_settings.get(
-        'smb_priority', runtime_settings.SMB_PRIORITY
-    )
     return build_priority_from_blocks(
-        call_status_priority=call_status_priority,
-        client_type_priority=client_type_priority,
+        call_status_priority=team_settings['waiting_priority'],
+        client_type_priority=team_settings['smb_priority'],
         region_priority=build_region_priority_from_region(
             regions=regions,
             team_settings=team_settings,
@@ -104,24 +87,15 @@ def build_call_later_priority(
     team_settings: dict,
 ) -> int:
     """ Не ранжируем недозвоны по регионам, сегментами и аккаунтам, их мало """
-    call_status_priority = team_settings.get(
-        'call_later_priority',
-        runtime_settings.CALL_LATER_PRIORITY
-    )
     return build_priority_from_blocks(
-        call_status_priority=call_status_priority,
+        call_status_priority=team_settings['call_later_priority'],
     )
 
 
 def build_call_missed_priority(
-    team_settings: dict,
+    call_missed_priority: int,
 ) -> int:
     """ Не ранжируем недозвоны по регионам, сегментами и аккаунтам, их мало """
-
-    call_status_priority = team_settings.get(
-        'call_missed_priority',
-        runtime_settings.CALL_MISSED_PRIORITY
-    )
     return build_priority_from_blocks(
-        call_status_priority=call_status_priority,
+        call_status_priority=call_missed_priority,
     )

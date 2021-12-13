@@ -1,13 +1,13 @@
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import SmbClientChooseMainProfileResult
+from external_offers.entities.client_account_statuses import ClientAccountStatus, SmbAccount, SmbAccountStatus
 from external_offers.entities.clients import Client
-from external_offers.entities.teams import TeamSettings
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
 from external_offers.repositories.announcements.entities import V2GetUserActiveAnnouncementsCount
@@ -17,7 +17,7 @@ from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions
 )
 from external_offers.repositories.postgresql import set_cian_user_id_by_client_id
 from external_offers.repositories.users import v2_get_users_by_phone
-from external_offers.repositories.users.entities import UserModelV2, V2GetUsersByPhone
+from external_offers.repositories.users.entities import GetUsersByPhoneResponseV2, UserModelV2, V2GetUsersByPhone
 from external_offers.services.prioritizers.build_priority import build_waiting_smb_priority
 
 
@@ -32,16 +32,11 @@ _METRIC_PRIORITIZE_NO_ACTIVE = 'prioritize_client.no_active'
 _METRIC_PRIORITIZE_KEEP_PROPORTION = 'prioritize_client.keep_proportion'
 
 
-async def choose_main_smb_client_profile(
-    user_profiles: List[UserModelV2],
-    client_count: int,
-    client_id: int,
-) -> SmbClientChooseMainProfileResult:
+async def choose_main_smb_client_profile(user_profiles: list[UserModelV2]) -> SmbClientChooseMainProfileResult:
     """Ищем активный профиль smb.Ставим метки заблокированных пользователей,типов источников и активных обьявлений"""
     has_bad_account = False
     has_wrong_user_source_type = False
     chosen_profile = None
-    has_bad_offers_proportion = False
     for profile in user_profiles:
         user_source_type = profile.external_user_source_type
 
@@ -73,144 +68,151 @@ async def choose_main_smb_client_profile(
         ):
             chosen_profile = profile
 
-        try:
-            # Получаем количество активных объявлений для каждого аккаунта пользователя,
-            # если хоть в одном не подходит - убираем из очереди.
-            active_response = await v2_get_user_active_announcements_count(
-                V2GetUserActiveAnnouncementsCount(
-                    user_id=profile.cian_user_id
-                )
-            )
-            if (active_response.count / client_count) > runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
-                has_bad_offers_proportion = True
-                break
-        except ApiClientException as exc:
-            logger.warning(
-                ('Ошибка при получении количества активных объявлений клиента %s'
-                    'в аккаунте с cian_user_id %s для приоритизации: %s'),
-                client_id,
-                profile.cian_user_id,
-                exc.message
-            )
-            has_bad_offers_proportion = True
-            break
     return SmbClientChooseMainProfileResult(
         has_bad_account=has_bad_account,
         chosen_profile=chosen_profile,
         has_wrong_user_source_type=has_wrong_user_source_type,
-        has_bad_offers_proportion=has_bad_offers_proportion,
     )
+
+
+async def find_smb_account(phone: str) -> SmbAccount:
+    try:
+        response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
+            V2GetUsersByPhone(
+                phone=phone
+            )
+        )
+        user_profiles: list[UserModelV2] = response.users
+        # Приоритет для незарегистрированных smb пользователей
+        if not user_profiles:
+            statsd.incr(_METRIC_PRIORITIZE_NO_LK)
+            return SmbAccount(
+                new_cian_user_id=None,
+                account_status=SmbAccountStatus.no_lk_smb,
+            )
+        sanctions_response = await v1_sanctions_get_sanctions(
+            V1SanctionsGetSanctions(
+                user_ids=[user.id for user in user_profiles],
+            )
+        )
+        if sanctions_response.items:
+            return SmbAccount(
+                new_cian_user_id=None,
+                account_status=SmbAccountStatus.has_sanctions,
+            )
+        # Выбираем основной активный агентский профиль пользователя
+        # если нашли заблокированные аккаунты - убираем из очереди
+        result = await choose_main_smb_client_profile(user_profiles)
+        if result.has_bad_account:
+            return SmbAccount(
+                new_cian_user_id=None,
+                account_status=SmbAccountStatus.has_bad_account,
+            )
+        if result.has_wrong_user_source_type:
+            return SmbAccount(
+                new_cian_user_id=None,
+                account_status=SmbAccountStatus.has_wrong_user_source_type,
+            )
+        if not result.chosen_profile:
+            return SmbAccount(
+                new_cian_user_id=None,
+                account_status=SmbAccountStatus.no_lk_smb,
+            )
+        return SmbAccount(
+            new_cian_user_id=result.chosen_profile.cian_user_id,
+            account_status=None,
+        )
+    except ApiClientException as exc:
+        logger.warning(
+            'Ошибка при получении идентификатора клиента с номером %s для приоритизации: %s',
+            phone,
+            exc.message
+        )
+        statsd.incr(_METRIC_PRIORITIZE_FAILED)
+        return SmbAccount(
+            new_cian_user_id=None,
+            account_status=SmbAccountStatus.api_client_exception,
+        )
 
 
 async def find_smb_client_account_priority(
     *,
-    client: Client,
     client_count: int,
+    client: Client,
     team_settings: dict,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
-    cian_user_id = client.cian_user_id
-    if not cian_user_id:
+    if client.cian_user_id:
+        # если у клиента уже есть cian_user_id, то нужно посчитать активные обьявления
+        account_status = await find_smb_client_account_status_by_announcements_count(
+            cian_user_id=client.cian_user_id,
+            client_count=client_count,
+            client_id=client.client_id,
+        )
+    else:
+        if client_account_statuses is None:
+            client_account_statuses = {}
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
+        client_account_status: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
+        if client_account_status:
+            # в таблице client_account_statuses есть закешированый статус ЛК клиента,
+            # и можно не ходить в шарповые ручки, а достать статусы из базы
+            client_account_status: ClientAccountStatus
+            account_status: Optional[SmbAccountStatus] = client_account_status.smb_account_status
+            new_cian_user_id = client_account_status.new_cian_user_id
+        else:
+            # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
+            # и нужно сходить в шарповые ручки и достать из них статус,
+            account: SmbAccount = await find_smb_account(phone=phone)
+            account_status: Optional[SmbAccountStatus] = account.account_status
+            new_cian_user_id = account.new_cian_user_id
 
-        try:
-            response = await v2_get_users_by_phone(
-                V2GetUsersByPhone(
-                    phone=phone
-                )
-            )
-
-            # Приоритет для незарегистрированных smb пользователей
-            if not response.users:
-                statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-                return team_settings.get(
-                    'no_lk_smb_priority',
-                    runtime_settings.NO_LK_SMB_PRIORITY
-                )
-
-            sanctions_response = await v1_sanctions_get_sanctions(
-                V1SanctionsGetSanctions(
-                    user_ids=[user.id for user in response.users],
-                )
-            )
-            if sanctions_response.items:
-                return _CLEAR_CLIENT_PRIORITY
-
-            # Выбираем основной активный агентский профиль пользователя
-            # если нашли заблокированные аккаунты - убираем из очереди
-            user_profiles: List[UserModelV2] = response.users
-            result = await choose_main_smb_client_profile(
-                user_profiles=user_profiles,
+        if account_status is None:
+            # если статуса ЛК нет, то нужно сохранить новый cian_user_id и посчитать активные обьявления
+            # (ответ ручки можно будет потом закешировать)
+            account_status = await find_smb_client_account_status_by_announcements_count(
+                cian_user_id=client.cian_user_id,
                 client_count=client_count,
                 client_id=client.client_id,
             )
-            if result.has_bad_account:
-                return _CLEAR_CLIENT_PRIORITY
-            if result.has_wrong_user_source_type:
-                return _CLEAR_CLIENT_PRIORITY
-            if not result.chosen_profile:
-                return runtime_settings.NO_LK_SMB_PRIORITY
-            if result.has_bad_offers_proportion:
-                return _CLEAR_CLIENT_PRIORITY
-
-            cian_user_id = result.chosen_profile.cian_user_id
-
-            # Обновляем идентификатор клиента
             await set_cian_user_id_by_client_id(
-                cian_user_id=cian_user_id,
+                cian_user_id=new_cian_user_id,
                 client_id=client.client_id
-                )
-        except ApiClientException as exc:
-            logger.warning(
-                'Ошибка при получении идентификатора клиента %s для приоритизации: %s',
-                client.client_id,
-                exc.message
             )
-            statsd.incr(_METRIC_PRIORITIZE_FAILED)
-            return _CLEAR_CLIENT_PRIORITY
-
-    try:
-        active_response = await v2_get_user_active_announcements_count(
-            V2GetUserActiveAnnouncementsCount(
-                user_id=cian_user_id
-            )
-        )
-    except ApiClientException as exc:
-        logger.warning(
-            'Ошибка при получении количества активных объявлений клиента %s для приоритизации: %s',
-            client.client_id,
-            exc.message
-        )
-        statsd.incr(_METRIC_PRIORITIZE_FAILED)
-        return _CLEAR_CLIENT_PRIORITY
-
-    # Приоритет по отсутствию активных объявлений на циане
-    if active_response.count == _NO_ACTIVE:
-        statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
-        return team_settings.get(
-            'no_active_smb_priority',
-            runtime_settings.NO_ACTIVE_SMB_PRIORITY
-        )
-    # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
-    if (active_response.count / client_count) <= runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
-        statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
-        return team_settings.get(
-            'keep_proportion_smb_priority',
-            runtime_settings.KEEP_PROPORTION_SMB_PRIORITY
-        )
-    return _CLEAR_CLIENT_PRIORITY
+    if account_status in [
+        SmbAccountStatus.has_sanctions,
+        SmbAccountStatus.has_bad_account,
+        SmbAccountStatus.has_wrong_user_source_type,
+        SmbAccountStatus.api_client_exception,
+        SmbAccountStatus.has_bad_proportion_smb,
+        SmbAccountStatus.announcements_api_client_exception,
+    ]:
+        account_priority = _CLEAR_CLIENT_PRIORITY
+    elif account_status in [
+        SmbAccountStatus.no_lk_smb,
+        SmbAccountStatus.no_active_smb,
+        SmbAccountStatus.keep_proportion_smb,
+    ]:
+        account_priority = int(team_settings[account_status.value])
+    else:
+        raise Exception(f'Unhandled account status: {account_status}, {type(account_status)}')
+    return account_priority
 
 
 async def prioritize_smb_client(
     *,
-    client: Client,
     client_count: int,
-    regions: List[int],
+    client: Client,
+    regions: list[int],
     team_settings: dict,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
-    account_priority = await find_smb_client_account_priority(
-        client=client,
+
+    account_priority: int = await find_smb_client_account_priority(
         client_count=client_count,
+        client=client,
         team_settings=team_settings,
+        client_account_statuses=client_account_statuses,
     )
 
     if account_priority == _CLEAR_CLIENT_PRIORITY:
@@ -221,3 +223,33 @@ async def prioritize_smb_client(
         account_priority=account_priority,
         team_settings=team_settings,
     )
+
+
+async def find_smb_client_account_status_by_announcements_count(
+    cian_user_id: int,
+    client_count: int,
+    client_id: str,
+) -> SmbAccountStatus:
+    try:
+        active_response = await v2_get_user_active_announcements_count(
+            V2GetUserActiveAnnouncementsCount(
+                user_id=cian_user_id
+            )
+        )
+        if active_response.count == _NO_ACTIVE:
+            # Приоритет по отсутствию активных объявлений на циане
+            statsd.incr(_METRIC_PRIORITIZE_NO_ACTIVE)
+            return SmbAccountStatus.no_active_smb
+        if (active_response.count / client_count) <= runtime_settings.MAXIMUM_ACTIVE_OFFERS_PROPORTION:
+            # Приоритет по доле активных объявлений на циане к спаршенным с других площадок
+            statsd.incr(_METRIC_PRIORITIZE_KEEP_PROPORTION)
+            return SmbAccountStatus.keep_proportion_smb
+        return SmbAccountStatus.has_bad_proportion_smb
+    except ApiClientException as exc:
+        logger.warning(
+            'Ошибка при получении количества активных объявлений клиента %s для приоритизации: %s',
+            client_id,
+            exc.message
+        )
+        statsd.incr(_METRIC_PRIORITIZE_FAILED)
+        return SmbAccountStatus.announcements_api_client_exception

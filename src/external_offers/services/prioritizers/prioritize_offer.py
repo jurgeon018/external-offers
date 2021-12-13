@@ -6,36 +6,11 @@ from external_offers.enums.object_model import Category
 def get_mapping_offer_categories_to_priority(
     team_settings: dict
 ) -> dict[Category, str]:
-    SALE_PRIORITY = str(
-        team_settings.get(
-            'sale_priority',
-            runtime_settings.SALE_PRIORITY
-        )
-    )
-    RENT_PRIORITY = str(
-        team_settings.get(
-            'rent_priority',
-            runtime_settings.RENT_PRIORITY
-        )
-    )
-    FLAT_PRIORITY = str(
-        team_settings.get(
-            'flat_priority',
-            runtime_settings.FLAT_PRIORITY
-        )
-    )
-    SUBURBAN_PRIORITY = str(
-        team_settings.get(
-            'suburban_priority',
-            runtime_settings.SUBURBAN_PRIORITY
-        )
-    )
-    COMMERCIAL_PRIORITY = str(
-        team_settings.get(
-            'commercial_priority',
-            runtime_settings.COMMERCIAL_PRIORITY
-        )
-    )
+    SALE_PRIORITY = str(team_settings['sale_priority'])
+    RENT_PRIORITY = str(team_settings['rent_priority'])
+    FLAT_PRIORITY = str(team_settings['flat_priority'])
+    SUBURBAN_PRIORITY = str(team_settings['suburban_priority'])
+    COMMERCIAL_PRIORITY = str(team_settings['commercial_priority'])
 
     RENT_FLAT_PRIORITY = RENT_PRIORITY + FLAT_PRIORITY
     RENT_COMMERCIAL_PRIORITY = RENT_PRIORITY + COMMERCIAL_PRIORITY

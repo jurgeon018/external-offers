@@ -9,12 +9,12 @@ from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, delete, func, not_, or_, select, update
 from sqlalchemy.sql.expression import false, true
-from sqlalchemy.sql.selectable import Alias
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import (
     ParsedObjectModel,
     ParsedOffer,
+    ParsedOfferForAccountPrioritization,
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
@@ -22,6 +22,7 @@ from external_offers.entities.teams import Team
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
+    parsed_offer_for_account_prioritization,
     parsed_offer_for_creation_mapper,
     parsed_offer_mapper,
     parsed_offer_message_mapper,
@@ -86,46 +87,6 @@ async def save_test_parsed_offer(
     )
 
     await pg.get().execute(query, *params)
-
-
-async def get_parsed_ids_for_cleaning(
-    *,
-    team: Optional[Team],
-    is_test: Optional[bool] = None,
-) -> list[str]:
-    po = tables.parsed_offers.alias()
-    if team:
-        team_settings = team.get_settings()
-        regions = team_settings['regions']
-        user_segments = team_settings['segments']
-        categories = team_settings['categories']
-    else:
-        regions = settings.OFFER_TASK_CREATION_REGIONS
-        user_segments = settings.OFFER_TASK_CREATION_SEGMENTS
-        categories = settings.OFFER_TASK_CREATION_CATEGORIES
-    regions = [str(region) for region in regions]
-    options = or_(
-        po.c.user_segment.notin_(user_segments),
-        # po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
-        po.c.source_object_model['region'].as_string().notin_(regions),
-        po.c.source_object_model['category'].as_string().notin_(categories),
-    )
-    if isinstance(is_test, bool):
-        options = and_(
-            po.c.is_test == is_test,
-            options,
-        )
-    query, params = asyncpgsa.compile_query(
-        select([
-            po.c.id,
-        ])
-        .where(
-            options
-        )
-    )
-    rows = await pg.get().fetch(query, *params)
-    parsed_ids = [row['id'] for row in rows]
-    return parsed_ids
 
 
 async def set_synced_and_fetch_parsed_offers_chunk(
@@ -381,3 +342,29 @@ async def delete_test_parsed_offers() -> None:
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def get_parsed_offers_for_account_prioritization() -> list[ParsedOfferForAccountPrioritization]:
+    po = tables.parsed_offers.alias()
+    query, params = asyncpgsa.compile_query(
+        select([
+            po.c.source_object_model['phones'].as_string().label('phones'),
+            po.c.user_segment,
+        ])
+        .where(
+            and_(
+                po.c.source_object_model['phones'] != [],
+                po.c.source_object_model['phones'] != JSON.NULL,
+                po.c.source_object_model['phones'] != [''],
+                po.c.user_segment.isnot(None),
+                po.c.user_segment.in_([
+                    'c',
+                    'd',
+                ]),
+                po.c.source_user_id.isnot(None),
+                not_(po.c.is_calltracking),
+            )
+        )
+    )
+    rows = await pg.get().fetch(query, *params)
+    return [parsed_offer_for_account_prioritization.map_from(row) for row in rows]

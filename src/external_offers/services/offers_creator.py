@@ -2,7 +2,7 @@ import asyncio
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 import pytz
 from cian_core.context import new_operation_id
@@ -12,10 +12,12 @@ from tornado import gen
 
 from external_offers import pg
 from external_offers.entities import Offer
+from external_offers.entities.client_account_statuses import ClientAccountStatus, HomeownerAccount, SmbAccount
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
-from external_offers.entities.offers import ExternalOfferType
+from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
 from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
+from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql import (
     delete_old_waiting_offers_for_call,
@@ -34,13 +36,24 @@ from external_offers.repositories.postgresql import (
     set_synced_and_fetch_parsed_offers_chunk,
     set_waiting_offers_priority_by_offer_ids,
 )
+from external_offers.repositories.postgresql.client_account_statuses import (
+    get_client_account_statuses,
+    get_recently_cached_client_account_statuses,
+    set_client_account_status,
+)
 from external_offers.repositories.postgresql.offers import (
     delete_calltracking_clients,
     delete_calltracking_offers,
     set_waiting_offers_team_priorities_by_offer_ids,
 )
+from external_offers.repositories.postgresql.parsed_offers import get_parsed_offers_for_account_prioritization
 from external_offers.repositories.postgresql.teams import get_teams
-from external_offers.services.prioritizers import prioritize_homeowner_client, prioritize_smb_client
+from external_offers.services.prioritizers import (
+    find_homeowner_account,
+    find_smb_account,
+    prioritize_homeowner_client,
+    prioritize_smb_client,
+)
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
 
 
@@ -66,6 +79,7 @@ async def prioritize_client(
     client_id: str,
     client_count: int,
     team_settings: dict,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_PRIORITY """
 
@@ -85,6 +99,7 @@ async def prioritize_client(
             client_count=client_count,
             regions=regions,
             team_settings=team_settings,
+            client_account_statuses=client_account_statuses,
         )
         return priority
 
@@ -93,6 +108,7 @@ async def prioritize_client(
             client=client,
             regions=regions,
             team_settings=team_settings,
+            client_account_statuses=client_account_statuses,
         )
         return priority
 
@@ -106,13 +122,8 @@ async def prioritize_unactivated_clients(
     team: Optional[Team] = None,
 ) -> list[ClientWaitingOffersCount]:
     """ Просчитать приоритеты для добивочных заданий """
-
-    prefix = team_settings.get(
-        'unactivated_client_priority',
-        runtime_settings.UNACTIVATED_CLIENT_PRIORITY
-    )
+    prefix = team_settings['unactivated_client_priority']
     prefix = str(prefix)
-
     for client_count in unactivated_clients_counts:
         with new_operation_id():
             client_priority = await prioritize_client(
@@ -223,11 +234,9 @@ async def prioritize_clients(
     *,
     waiting_clients_counts: list[ClientWaitingOffersCount],
     team_settings: dict,
+    client_account_statuses: dict[str, ClientAccountStatus],
 ):
-    prefix = team_settings.get(
-        'new_client_priority',
-        runtime_settings.NEW_CLIENT_PRIORITY
-    )
+    prefix = team_settings['new_client_priority']
     prefix = str(prefix)
     clients_priority: dict[int, int] = {}
     for client_count in waiting_clients_counts:
@@ -236,6 +245,7 @@ async def prioritize_clients(
                 client_id=client_count.client_id,
                 client_count=client_count.waiting_offers_count,
                 team_settings=team_settings,
+                client_account_statuses=client_account_statuses,
             )
         if client_priority != _CLEAR_PRIORITY:
             client_priority = prefix + str(client_priority)
@@ -300,17 +310,24 @@ async def sync_offers_for_call_with_parsed() -> None:
                 external_offer_type=parsed_offer.external_offer_type,
             )
             await save_offer_for_call(offer=offer)
+
+
+async def sync_and_create_offers() -> None:
+    await sync_offers_for_call_with_parsed()
     await clear_and_prioritize_waiting_offers()
 
 
-async def clear_and_prioritize_waiting_offers():
+async def clear_and_prioritize_waiting_offers() -> None:
     await clear_waiting_offers_and_clients_with_off_count_limits()
 
     # None нужен для того чтобы проставить некомандные приоритеты
     teams = [None, ]
     if runtime_settings.get('ENABLE_TEAMS_PRIORITIZATION', False):
         teams.extend(await get_teams())
-    await prioritize_waiting_offers(teams=teams)
+    await prioritize_waiting_offers(
+        teams=teams,
+        is_test=False,
+    )
 
     await delete_calltracking_clients()
 
@@ -320,29 +337,116 @@ async def clear_and_prioritize_waiting_offers():
         await delete_old_waiting_offers_for_call()
 
 
+def get_default_team_settings() -> dict[str, Union[str, int]]:
+    return {
+        'maximum_active_offers_proportion': runtime_settings.get('MAXIMUM_ACTIVE_OFFERS_PROPORTION'),
+        # приоритеты
+        'no_lk_smb_priority': runtime_settings.get('NO_LK_SMB_PRIORITY'),
+        'no_active_smb_priority': runtime_settings.get('NO_ACTIVE_SMB_PRIORITY'),
+        'keep_proportion_smb_priority': runtime_settings.get('KEEP_PROPORTION_SMB_PRIORITY'),
+        'active_lk_homeowner_priority': runtime_settings.get('ACTIVE_LK_HOMEOWNER_PRIORITY'),
+        'no_lk_homeowner_priority': runtime_settings.get('NO_LK_HOMEOWNER_PRIORITY'),
+        'unactivated_client_priority': runtime_settings.get('UNACTIVATED_CLIENT_PRIORITY'),
+        'new_client_priority': runtime_settings.get('NEW_CLIENT_PRIORITY'),
+        'call_missed_priority': runtime_settings.get('CALL_MISSED_PRIORITY'),
+        'call_later_priority': runtime_settings.get('CALL_LATER_PRIORITY'),
+        'waiting_priority': runtime_settings.get('WAITING_PRIORITY'),
+        'smb_priority': runtime_settings.get('SMB_PRIORITY'),
+        'homeowner_priority': runtime_settings.get('HOMEOWNER_PRIORITY'),
+        'main_regions_priority': runtime_settings.get('MAIN_REGIONS_PRIORITY'),
+        'sale_priority': runtime_settings.get('SALE_PRIORITY'),
+        'rent_priority': runtime_settings.get('RENT_PRIORITY'),
+        'flat_priority': runtime_settings.get('FLAT_PRIORITY'),
+        'suburban_priority': runtime_settings.get('SUBURBAN_PRIORITY'),
+        'commercial_priority': runtime_settings.get('COMMERCIAL_PRIORITY'),
+        # настройки фильтрации
+        'regions': runtime_settings.get('OFFER_TASK_CREATION_REGIONS'),
+        'segments': runtime_settings.get('OFFER_TASK_CREATION_SEGMENTS'),
+        'categories': runtime_settings.get('OFFER_TASK_CREATION_CATEGORIES'),
+    }
+
+
+def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
+    if team:
+        team_id = team.team_id
+        team_settings = team.get_settings()
+        if not team_settings.get('main_regions_priority'):
+            team_settings['main_regions_priority'] = get_default_team_settings()['main_regions_priority']
+    else:
+        team_id = None
+        team_settings = get_default_team_settings()
+    return team_id, team_settings
+
+
+async def create_priorities(
+    *,
+    waiting_clients_counts: list[Optional[ClientWaitingOffersCount]],
+    unactivated_clients_counts: list[Optional[ClientDraftOffersCount]],
+    team_settings: dict,
+    team_id: Optional[int] = None,
+    client_account_statuses: dict[str, ClientAccountStatus],
+) -> dict[int, dict[int, list[str]]]:
+    if team_id:
+        logger.warning(
+            'Приоретизация для команды %s для %d клиентов в ожидании запущена.',
+            team_id,
+            len(waiting_clients_counts),
+        )
+        logger.warning(
+            'Приоретизация для команды %s для %d добивочных клиентов запущена.',
+            team_id,
+            len(unactivated_clients_counts),
+        )
+    else:
+        logger.warning(
+            'Приоретизация для %d клиентов в ожидании запущена.',
+            len(waiting_clients_counts),
+        )
+        logger.warning(
+            'Приоретизация для %d добивочных клиентов запущена.',
+            len(unactivated_clients_counts),
+        )
+
+    # создает часть приоритета для клиентов в ожидании
+    clients_priority = await prioritize_clients(
+        waiting_clients_counts=waiting_clients_counts,
+        team_settings=team_settings,
+        client_account_statuses=client_account_statuses,
+    )
+    # создает часть приоритета для добивочных клиентов
+    clients_priority = await prioritize_unactivated_clients(
+        clients_priority=clients_priority,
+        unactivated_clients_counts=unactivated_clients_counts,
+        team_settings=team_settings,
+    )
+    # создает часть приоритета для заданий + склеивает с приоритетами клиентов
+    offers_priority = await prioritize_offers(
+        clients_priority=clients_priority,
+        team_settings=team_settings,
+    )
+    return {
+        'team_id': team_id,
+        'offers_priority': offers_priority,
+    }
+
+
 async def prioritize_waiting_offers(
     *,
     teams: list[Optional[Team]],
-    is_test: bool = None,
-):
+    is_test: bool,
+) -> None:
 
     client_counts_for_prioritization = []
+    client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
+    # client_account_statuses = {}
     for team in teams:
-
-        if team:
-            team_settings = team.get_settings()
-            team_id = team.team_id
-            team_id = team.team_id
-        else:
-            team_settings = {}
-            team_id = None
-
+        team_id, team_settings = get_team_info(team)
         # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
         # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
         # (задания фильтруются в assign_suitable_client_to_operator по приоритету _CLEAR_PRIORITY)
         waiting_clients_counts, unactivated_clients_counts = await asyncio.gather(
             # достает задания в ожидании(фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
-            get_waiting_offer_counts_by_clients(team=team, is_test=is_test),
+            get_waiting_offer_counts_by_clients(team_id=team_id, team_settings=team_settings, is_test=is_test),
             # достает добивочные задания
             get_unactivated_clients_counts_by_clients(),
         )
@@ -352,11 +456,11 @@ async def prioritize_waiting_offers(
                 unactivated_clients_counts=unactivated_clients_counts,
                 team_settings=team_settings,
                 team_id=team_id,
+                client_account_statuses=client_account_statuses,
             )
         )
 
     created_priorities = await asyncio.gather(*client_counts_for_prioritization)
-
     for created_priority in created_priorities:
         team_id = created_priority['team_id']
         offers_priority = created_priority['offers_priority']
@@ -386,51 +490,48 @@ async def prioritize_waiting_offers(
                 )
 
 
-async def create_priorities(
-    *,
-    waiting_clients_counts,
-    unactivated_clients_counts,
-    team_settings: dict,
-    team_id: Optional[int] = None,
-) -> dict[int, dict[int, list[str]]]:
-    if team_id:
-        logger.warning(
-            'Приоретизация для команды %s для %d клиентов в ожидании запущена.',
-            team_id,
-            len(waiting_clients_counts),
-        )
-        logger.warning(
-            'Приоретизация для команды %s для %d добивочных клиентов запущена.',
-            team_id,
-            len(unactivated_clients_counts),
-        )
-    else:
-        logger.warning(
-            'Приоретизация для %d клиентов в ожидании запущена.',
-            len(waiting_clients_counts),
-        )
-        logger.warning(
-            'Приоретизация для %d добивочных клиентов запущена.',
-            len(unactivated_clients_counts),
-        )
+async def create_client_account_statuses() -> None:
+    if not runtime_settings.get('ENABLE_CLIENT_ACCOUNT_STATUSES_CASHING', True):
+        logger.warning('Кеширование приоритетов по ЛК клиентов отключено')
+        return False
+    parsed_offers = await get_parsed_offers_for_account_prioritization()
+    recently_cached_client_account_statuses = await get_recently_cached_client_account_statuses()
+    logger.warning(
+        'Кеширование приоритетов по ЛК для %s обьявлений запущено.',
+        len(parsed_offers),
+    )
+    # достает все спаршеные обьявления, кроме тех, по номерам телефонов которых были обновления за последние 5 дней
+    for parsed_offer in parsed_offers:
+        parsed_offer: ParsedOfferForAccountPrioritization
 
-    # создает часть приоритета для клиентов в ожидании
-    clients_priority = await prioritize_clients(
-        waiting_clients_counts=waiting_clients_counts,
-        team_settings=team_settings,
-    )
-    # создает часть приоритета для добивочных клиентов
-    clients_priority = await prioritize_unactivated_clients(
-        clients_priority=clients_priority,
-        unactivated_clients_counts=unactivated_clients_counts,
-        team_settings=team_settings,
-    )
-    # создает часть приоритета для заданий + склеивает с приоритетами клиентов
-    offers_priority = await prioritize_offers(
-        clients_priority=clients_priority,
-        team_settings=team_settings,
-    )
-    return {
-        'team_id': team_id,
-        'offers_priority': offers_priority,
-    }
+        raw_phone = json.loads(parsed_offer.phones)[0]
+        if raw_phone in recently_cached_client_account_statuses:
+            continue
+
+        phone = transform_phone_number_to_canonical_format(raw_phone)
+        if phone in recently_cached_client_account_statuses:
+            continue
+
+        now = datetime.now(tz=pytz.UTC)
+        with new_operation_id():
+            if parsed_offer.user_segment == UserSegment.c.value:
+                account: SmbAccount = await find_smb_account(phone=phone)
+                await set_client_account_status({
+                    'created_at': now,
+                    'updated_at': now,
+                    'phone': phone,
+                    'smb_account_status': getattr(account.account_status, 'value', None),
+                    # account_status может быть None в случае если из функции возвращается new_cian_user_id
+                    'homeowner_account_status': None,
+                    'new_cian_user_id': account.new_cian_user_id,
+                })
+            elif parsed_offer.user_segment == UserSegment.d.value:
+                account: HomeownerAccount = await find_homeowner_account(phone=phone)
+                await set_client_account_status({
+                    'created_at': now,
+                    'updated_at': now,
+                    'phone': phone,
+                    'smb_account_status': None,
+                    'homeowner_account_status': account.account_status.value,
+                    'new_cian_user_id': account.new_cian_user_id,
+                })

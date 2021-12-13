@@ -30,6 +30,11 @@ def database_fixture_folder():
 
 
 @pytest.fixture
+def parsed_offers_and_numbers_for_account_prioritization_fixture(database_fixture_folder):
+    return database_fixture_folder / 'parsed_offers_and_numbers_for_account_prioritization.sql'
+
+
+@pytest.fixture
 def offers_and_clients_fixture(database_fixture_folder):
     return database_fixture_folder / 'offers_and_clients.sql'
 

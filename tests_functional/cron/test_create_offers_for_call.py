@@ -46,7 +46,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
     assert row['status'] == 'waiting'
 
 
-async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__doesnt_create_waiting_client(
+async def test_create_offers__exist_parsed_offer_with_nonsuitable_new_client__doesnt_create_waiting_client(
     pg,
     runtime_settings,
     runner,
@@ -225,7 +225,7 @@ async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_
     assert row is None
 
 
-async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__doesnt_create_offer(
+async def test_create_offers__exist_parsed_offer_with_nonsuitable_regions__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,

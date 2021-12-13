@@ -1,13 +1,17 @@
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import HomeownerClientChooseMainProfileResult
+from external_offers.entities.client_account_statuses import (
+    ClientAccountStatus,
+    HomeownerAccount,
+    HomeownerAccountStatus,
+)
 from external_offers.entities.clients import Client
-from external_offers.entities.teams import TeamSettings
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.monolith_cian_profileapi._repo import v1_sanctions_get_sanctions
 from external_offers.repositories.monolith_cian_profileapi.entities.v1_sanctions_get_sanctions import (
@@ -27,29 +31,28 @@ _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
 _METRIC_PRIORITIZE_NO_LK = 'prioritize_client.no_lk'
 
 
-def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> HomeownerClientChooseMainProfileResult:
+def choose_main_homeowner_client_profile(user_profiles: list[UserModelV2]) -> HomeownerClientChooseMainProfileResult:
     """ Ищем активный профиль собственника. Ставим метки заблокированных пользователей """
     has_bad_account = False
-    has_emls_or_subagent = False
+    has_wrong_user_source_type = False
     chosen_profile = None
-
     for profile in user_profiles:
-        source_user_type = profile.external_user_source_type
+        user_source_type = profile.external_user_source_type
 
         if profile.state.is_blocked:
             has_bad_account = True
             break
 
         if (
-            source_user_type
+            user_source_type
             and (
-                source_user_type.is_emls
-                or source_user_type.is_sub_agents
-                or source_user_type.is_n1
-                or source_user_type.is_mlsn
+                user_source_type.is_emls
+                or user_source_type.is_sub_agents
+                or user_source_type.is_n1
+                or user_source_type.is_mlsn
                 )
         ):
-            has_emls_or_subagent = True
+            has_wrong_user_source_type = True
             continue
 
         if (
@@ -61,96 +64,148 @@ def choose_main_homeowner_client_profile(user_profiles: List[UserModelV2]) -> Ho
     return HomeownerClientChooseMainProfileResult(
         has_bad_account=has_bad_account,
         chosen_profile=chosen_profile,
-        has_emls_or_subagent=has_emls_or_subagent,
+        has_wrong_user_source_type=has_wrong_user_source_type,
     )
+
+
+async def find_homeowner_account(phone: str) -> HomeownerAccount:
+    try:
+        response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
+            V2GetUsersByPhone(
+                phone=phone
+            )
+        )
+        user_profiles: list[UserModelV2] = response.users
+        if (
+            runtime_settings.get('CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS', False)
+            and user_profiles
+        ):
+            # проверяет есть ли по номеру телефона такой аккаунт на циан.
+            # если есть - задание пропускается
+            # если нет - задание выдается оператору
+            return HomeownerAccount(
+                new_cian_user_id=None,
+                account_status=HomeownerAccountStatus.has_existing_accounts,
+            )
+        # Приоритет для незарегистрированных собственников
+        if not user_profiles:
+            statsd.incr(_METRIC_PRIORITIZE_NO_LK)
+            return HomeownerAccount(
+                new_cian_user_id=None,
+                account_status=HomeownerAccountStatus.no_lk_homeowner,
+            )
+        sanctions_response = await v1_sanctions_get_sanctions(
+            V1SanctionsGetSanctions(
+                user_ids=[user.id for user in user_profiles],
+            )
+        )
+        if sanctions_response.items:
+            return HomeownerAccount(
+                new_cian_user_id=None,
+                account_status=HomeownerAccountStatus.has_sanctions,
+            )
+        # Выбираем основной активный профиль собственника,
+        # если нашли заблокированные аккаунты - убираем из очереди
+        result = choose_main_homeowner_client_profile(user_profiles)
+        if result.has_bad_account:
+            return HomeownerAccount(
+                new_cian_user_id=None,
+                account_status=HomeownerAccountStatus.has_bad_account,
+            )
+        if not result.chosen_profile and result.has_wrong_user_source_type:
+            return HomeownerAccount(
+                new_cian_user_id=None,
+                account_status=HomeownerAccountStatus.has_wrong_user_source_type,
+            )
+        if not result.chosen_profile:
+            return HomeownerAccount(
+                new_cian_user_id=None,
+                account_status=HomeownerAccountStatus.no_lk_homeowner,
+            )
+        return HomeownerAccount(
+            new_cian_user_id=result.chosen_profile.cian_user_id,
+            account_status=HomeownerAccountStatus.active_lk_homeowner,
+        )
+    except ApiClientException as exc:
+        logger.warning(
+            'Ошибка при получении идентификатора клиента с номером %s для приоритизации: %s',
+            phone,
+            exc.message
+        )
+        statsd.incr(_METRIC_PRIORITIZE_FAILED)
+        return HomeownerAccount(
+            new_cian_user_id=None,
+            account_status=HomeownerAccountStatus.api_client_exception,
+        )
 
 
 async def find_homeowner_client_account_priority(
     *,
     client: Client,
-    team_settings: Optional[TeamSettings] = None,
+    team_settings: dict,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
-    cian_user_id = client.cian_user_id
-    if not cian_user_id:
+
+    if client.cian_user_id:
+        # если у клиента уже есть cian_user_id, то выдаем ему приоритет активного собственника
+        account_status = HomeownerAccountStatus.active_lk_homeowner
+    else:
+        if client_account_statuses is None:
+            client_account_statuses = {}
+
+        # если у клиента еще нет cian_user_id
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
+        account: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
 
-        try:
-            response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
-                V2GetUsersByPhone(
-                    phone=phone
-                )
-            )
-            if (
-                runtime_settings.CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS
-                and response.users
-            ):
-                # проверяет есть ли по номеру телефона такой аккаунт на циан.
-                # если есть - задание пропускается
-                # если нет - задание выдается оператору
-                return _CLEAR_CLIENT_PRIORITY
+        if account:
+            # в таблице client_account_statuses есть закешированый статус ЛК клиента,
+            # и можно не ходить в шарповые ручки, а достать статусы из базы
+            account_status: HomeownerAccountStatus = account.homeowner_account_status
+            new_cian_user_id = account.new_cian_user_id
+        else:
+            # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
+            # и нужно сходить в шарповые ручки и достать из них статус,
+            account = await find_homeowner_account(phone=phone)
+            account_status: HomeownerAccountStatus = account.account_status
+            new_cian_user_id = account.new_cian_user_id
 
-            # Приоритет для незарегистрированных собственников
-            if not response.users:
-                statsd.incr(_METRIC_PRIORITIZE_NO_LK)
-                return team_settings.get(
-                    'no_lk_homeowner_priority',
-                    runtime_settings.NO_LK_HOMEOWNER_PRIORITY
-                )
-            sanctions_response = await v1_sanctions_get_sanctions(
-                V1SanctionsGetSanctions(
-                    user_ids=[user.id for user in response.users],
-                )
-            )
-            if sanctions_response.items:
-                return _CLEAR_CLIENT_PRIORITY
-
-            # Выбираем основной активный профиль собственника,
-            # если нашли заблокированные аккаунты - убираем из очереди
-
-            result = choose_main_homeowner_client_profile(response.users)
-
-            if result.has_bad_account:
-                return _CLEAR_CLIENT_PRIORITY
-
-            if not result.chosen_profile and result.has_emls_or_subagent:
-                return _CLEAR_CLIENT_PRIORITY
-
-            if not result.chosen_profile:
-                return team_settings.get(
-                    'no_lk_homeowner_priority',
-                    runtime_settings.NO_LK_HOMEOWNER_PRIORITY
-                )
-            cian_user_id = result.chosen_profile.cian_user_id
-
+        if new_cian_user_id:
             # Обновляем идентификатор клиента
             await set_cian_user_id_by_client_id(
-                cian_user_id=cian_user_id,
+                cian_user_id=new_cian_user_id,
                 client_id=client.client_id
             )
 
-        except ApiClientException as exc:
-            logger.warning(
-                'Ошибка при получении идентификатора клиента %s для приоритизации: %s',
-                client.client_id,
-                exc.message
-            )
-            statsd.incr(_METRIC_PRIORITIZE_FAILED)
-            return _CLEAR_CLIENT_PRIORITY
+    if account_status in [
+        HomeownerAccountStatus.has_existing_accounts,
+        HomeownerAccountStatus.has_sanctions,
+        HomeownerAccountStatus.has_bad_account,
+        HomeownerAccountStatus.has_wrong_user_source_type,
+        HomeownerAccountStatus.api_client_exception,
+    ]:
+        account_priority = _CLEAR_CLIENT_PRIORITY
+    elif account_status in [
+        HomeownerAccountStatus.no_lk_homeowner,
+        HomeownerAccountStatus.active_lk_homeowner,
+    ]:
+        account_priority = int(team_settings[account_status.value])
+    else:
+        raise Exception(f'Unhandled account status: {account_status}, {type(account_status)}')
+    return account_priority
 
-    return team_settings.get(
-        'active_lk_homeowner_priority',
-        runtime_settings.ACTIVE_LK_HOMEOWNER_PRIORITY
-    )
 
 async def prioritize_homeowner_client(
     *,
     client: Client,
-    regions: List[int],
-    team_settings: Optional[TeamSettings] = None,
+    regions: list[int],
+    team_settings: dict,
+    client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
+
     account_priority = await find_homeowner_client_account_priority(
         client=client,
         team_settings=team_settings,
+        client_account_statuses=client_account_statuses,
     )
 
     if account_priority == _CLEAR_CLIENT_PRIORITY:
