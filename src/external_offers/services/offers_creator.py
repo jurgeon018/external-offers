@@ -255,13 +255,14 @@ async def prioritize_clients(
 
 async def sync_offers_for_call_with_parsed() -> None:
     """ Синхронизировать таблицу заданий offers_for_call и parsed_offers """
+    logger.warning('Создание заданий и клиентов было запущено')
     last_sync_date = None
     if runtime_settings.ENABLE_LAST_SYNC_DATE_FETCHING:
         last_sync_date = await get_last_sync_date()
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
         last_sync_date=last_sync_date
     ):
-        logger.info('Fetched %d parsed offers', len(parsed_offers))
+        logger.warning('Fetched %d parsed offers', len(parsed_offers))
 
         rows = await get_offers_parsed_ids_by_parsed_ids(
             parsed_ids=[offer.id for offer in parsed_offers]
@@ -313,11 +314,13 @@ async def sync_offers_for_call_with_parsed() -> None:
 
 
 async def sync_and_create_offers() -> None:
+    logger.warning('Наполнение очереди заданиями было запущено')
     await sync_offers_for_call_with_parsed()
     await clear_and_prioritize_waiting_offers()
 
 
 async def clear_and_prioritize_waiting_offers() -> None:
+    logger.warning('Очистка и приоретизация заданий была запущена')
     await clear_waiting_offers_and_clients_with_off_count_limits()
 
     # None нужен для того чтобы проставить некомандные приоритеты
@@ -435,7 +438,7 @@ async def prioritize_waiting_offers(
     teams: list[Optional[Team]],
     is_test: bool,
 ) -> None:
-
+    logger.warning('Приоретизация заданий была запущена')
     client_counts_for_prioritization = []
     client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
     # client_account_statuses = {}
