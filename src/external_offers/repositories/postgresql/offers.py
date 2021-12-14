@@ -803,11 +803,6 @@ async def get_valid_parsed_offers_exists(
             parsed_offers.c.id == valid_parsed_offers_cte.c.id
         ).limit(1)
     )
-    print()
-    print('get_valid_parsed_offers_exists')
-    print(query)
-    print(params)
-    print()
     exists = await pg.get().fetchval(query, *params)
     return bool(exists)
 
@@ -854,11 +849,6 @@ async def clear_invalid_waiting_offers(
             offers_for_call.c.id,
         )
     )
-    print()
-    print('clear_invalid_waiting_offers')
-    print(query)
-    print(params)
-    print()
     rows = await pg.get().fetch(query, *params)
     if rows:
         amount = len(rows)
@@ -885,11 +875,6 @@ async def get_waiting_offer_counts_by_clients(
             waiting_offers_counts_cte.c.client_id
         )
     )
-    print()
-    print('get_waiting_offer_counts_by_clients')
-    print(query)
-    print(params)
-    print()
     rows = await pg.get().fetch(query, *params)
     return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
 
