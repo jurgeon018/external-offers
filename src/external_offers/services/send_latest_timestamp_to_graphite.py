@@ -15,7 +15,10 @@ async def send_parsed_offers_timestamp_diff_to_graphite():
     if event_timestamp == NO_EVENTS_TIMESTAMP:
         value = 0
     else:
-        value = (now - event_timestamp).total_seconds()
+        if isinstance(event_timestamp, int):
+            value = int(now.timestamp() - event_timestamp)
+        else:
+            value = int((now - event_timestamp).total_seconds())
     send_to_graphite(
         key='parsed_offers.seconds_since_last_timestamp',
         value=value,

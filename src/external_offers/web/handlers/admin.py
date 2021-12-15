@@ -98,6 +98,9 @@ class AdminOffersCardPageHandler(PublicHandler):
             self.write('Объявление из внешнего источника не найдено'.encode('utf-8'))
             return
 
+        if not client:
+            return
+
         client_accounts_result = await get_client_accounts_by_phone_number_degradation_handler(
             phone=client.client_phones[0]
         )
@@ -107,6 +110,9 @@ class AdminOffersCardPageHandler(PublicHandler):
             client_id=client.client_id
         )
         offer = await get_offer_by_offer_id(offer_id=offer_id)
+        if not offer:
+            return
+
         offer_is_draft = offer.publication_status == PublicationStatus.draft
         # Настройка для корректной работы обновленного ГБ коммерческой недвижимости
         # https://conf.cian.tech/pages/viewpage.action?pageId=1305332955
@@ -191,15 +197,15 @@ def _get_categories() -> list[str]:
     return [category.value for category in Category]
 
 
-def _get_segments():
+def _get_segments() -> list[str]:
     return [segment.value for segment in UserSegment]
 
 
-def _get_regions():
+def _get_regions() -> dict[str, str]:
     return REGION_NAMES
 
 
-def _get_subsegments():
+def _get_subsegments() -> list[str]:
     return [
         'commercial',
         'a > 1000',
@@ -241,7 +247,7 @@ class AdminTeamCardPageHandler(PublicHandler):
         segments = _get_segments()
         regions = _get_regions()
         subsegments = _get_subsegments()
-        team_settings = _get_team_settings(team)
+        team_settings = _get_team_settings(team) if team else {}
         self.write(get_team_card_html(
             current_operator=current_operator,
             team=team,

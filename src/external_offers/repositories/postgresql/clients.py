@@ -606,7 +606,7 @@ async def update_clients_operator(
             clients.c.operator_user_id == old_operator_id,
         )
     )
-    return await pg.get().execute(query, *params)
+    await pg.get().execute(query, *params)
 
 
 async def get_client_id_by_offer_cian_id(offer_cian_id: int) -> str:
