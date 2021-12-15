@@ -258,12 +258,19 @@ async def prioritize_clients(
 
 async def sync_offers_for_call_with_parsed() -> None:
     """ Синхронизировать таблицу заданий offers_for_call и parsed_offers """
-    logger.warning('Создание заданий и клиентов было запущено')
+    max_updated_at_date = None
+    if runtime_settings.get('ENABLE_UPDATED_AT_DATE_FETCHING', True):
+        max_updated_at_date = datetime.now(tz=pytz.utc)
+    logger.warning(
+        'Создание заданий и клиентов было запущено для всех обьявлений обновленных не позже %s',
+        max_updated_at_date
+    )
     last_sync_date = None
     if runtime_settings.ENABLE_LAST_SYNC_DATE_FETCHING:
         last_sync_date = await get_last_sync_date()
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
-        last_sync_date=last_sync_date
+        last_sync_date=last_sync_date,
+        max_updated_at_date=max_updated_at_date,
     ):
         logger.warning('Fetched %d parsed offers', len(parsed_offers))
 
