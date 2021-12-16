@@ -159,6 +159,15 @@ async def find_smb_client_account_priority(
             # и можно не ходить в шарповые ручки, а достать статусы из базы
             client_account_status: ClientAccountStatus
             account_status: Optional[SmbAccountStatus] = client_account_status.smb_account_status
+            if account_status is None:
+                account_status = client_account_status.homeowner_account_status
+                if account_status is None:
+                    logger.warning(
+                        'account_status %s doesnt have smb_account_status nor homeowner_account_status',
+                        account_status
+                    )
+                    return _CLEAR_CLIENT_PRIORITY
+            
             new_cian_user_id = client_account_status.new_cian_user_id
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,

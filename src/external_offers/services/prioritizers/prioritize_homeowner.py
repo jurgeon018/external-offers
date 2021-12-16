@@ -160,8 +160,16 @@ async def find_homeowner_client_account_priority(
         if account:
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы
-            account_status: HomeownerAccountStatus = account.homeowner_account_status
             new_cian_user_id = account.new_cian_user_id
+            account_status: HomeownerAccountStatus = account.homeowner_account_status
+            if account_status is None:
+                account_status = account.smb_account_status
+                if account_status is None:
+                    logger.warning(
+                        'account_status %s doesnt have smb_account_status nor homeowner_account_status',
+                        account_status
+                    )
+                    return _CLEAR_CLIENT_PRIORITY
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
