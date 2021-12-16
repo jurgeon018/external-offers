@@ -6,7 +6,12 @@ from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import SmbClientChooseMainProfileResult
-from external_offers.entities.client_account_statuses import ClientAccountStatus, SmbAccount, SmbAccountStatus
+from external_offers.entities.client_account_statuses import (
+    ClientAccountStatus,
+    HomeownerAccountStatus,
+    SmbAccount,
+    SmbAccountStatus,
+)
 from external_offers.entities.clients import Client
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
@@ -189,15 +194,24 @@ async def find_smb_client_account_priority(
                 client_id=client.client_id
             )
     if account_status in [
+        HomeownerAccountStatus.has_existing_accounts,
+        HomeownerAccountStatus.has_sanctions,
+        HomeownerAccountStatus.has_bad_account,
+        HomeownerAccountStatus.has_wrong_user_source_type,
+        HomeownerAccountStatus.api_client_exception,
+        #
         SmbAccountStatus.has_sanctions,
         SmbAccountStatus.has_bad_account,
         SmbAccountStatus.has_wrong_user_source_type,
         SmbAccountStatus.api_client_exception,
         SmbAccountStatus.has_bad_proportion_smb,
-        SmbAccountStatus.announcements_api_client_exception,
+        SmbAccountStatus.announcements_api_client_exception,        
     ]:
         account_priority = _CLEAR_CLIENT_PRIORITY
     elif account_status in [
+        HomeownerAccountStatus.no_lk_homeowner,
+        HomeownerAccountStatus.active_lk_homeowner,
+        #
         SmbAccountStatus.no_lk_smb,
         SmbAccountStatus.no_active_smb,
         SmbAccountStatus.keep_proportion_smb,

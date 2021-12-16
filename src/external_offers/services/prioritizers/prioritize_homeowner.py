@@ -10,6 +10,7 @@ from external_offers.entities.client_account_statuses import (
     ClientAccountStatus,
     HomeownerAccount,
     HomeownerAccountStatus,
+    SmbAccountStatus,
 )
 from external_offers.entities.clients import Client
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
@@ -190,11 +191,22 @@ async def find_homeowner_client_account_priority(
         HomeownerAccountStatus.has_bad_account,
         HomeownerAccountStatus.has_wrong_user_source_type,
         HomeownerAccountStatus.api_client_exception,
+        # 
+        SmbAccountStatus.has_sanctions,
+        SmbAccountStatus.has_bad_account,
+        SmbAccountStatus.has_wrong_user_source_type,
+        SmbAccountStatus.api_client_exception,
+        SmbAccountStatus.has_bad_proportion_smb,
+        SmbAccountStatus.announcements_api_client_exception,        
     ]:
         account_priority = _CLEAR_CLIENT_PRIORITY
     elif account_status in [
         HomeownerAccountStatus.no_lk_homeowner,
         HomeownerAccountStatus.active_lk_homeowner,
+        # 
+        SmbAccountStatus.no_lk_smb,
+        SmbAccountStatus.no_active_smb,
+        SmbAccountStatus.keep_proportion_smb,
     ]:
         account_priority = int(team_settings[account_status.value])
     else:
