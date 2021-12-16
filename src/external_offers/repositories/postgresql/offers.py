@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional
 
@@ -30,6 +31,8 @@ from external_offers.utils import iterate_over_list_by_chunks
 
 
 _REGION_FIELD = 'region'
+logger = logging.getLogger(__name__)
+
 
 
 waiting_offers_counts_cte = (
@@ -766,55 +769,59 @@ async def get_unactivated_clients_counts_by_clients() -> list[Optional[ClientDra
     return [client_draft_offers_count_mapper.map_from(row) for row in rows]
 
 
-async def get_valid_parsed_offers_cte(
+async def get_invalid_offer_ids(
     team_settings: dict,
     is_test: bool,
-) -> CTE:
+) -> list[str]:
     segments = team_settings['segments']
     regions = team_settings['regions']
     categories = team_settings['categories']
     regions = [str(region) for region in regions]
-    valid_parsed_offers_cte = (
-        select([
-            parsed_offers.c.id
-        ]).where(
-            and_(
-                parsed_offers.c.is_test == is_test,
-                and_(
-                    parsed_offers.c.user_segment.in_(segments),
-                    parsed_offers.c.source_object_model['region'].as_string().in_(regions),
-                    parsed_offers.c.source_object_model['category'].as_string().in_(categories),
-                )
-            )
-        ).cte('valid_parsed_offers_cte')
-    )
-    return valid_parsed_offers_cte
-
-
-async def get_valid_parsed_offers_exists(
-    valid_parsed_offers_cte: CTE,
-) -> bool:
     query, params = asyncpgsa.compile_query(
         select(
-            [1]
+            [
+                offers_for_call.c.id
+            ]
         ).select_from(
-            parsed_offers
+            parsed_offers.join(
+                offers_for_call,
+                offers_for_call.c.parsed_id == parsed_offers.c.id
+            )
         ).where(
-            parsed_offers.c.id == valid_parsed_offers_cte.c.id
-        ).limit(1)
+            and_(
+                parsed_offers.c.is_test == is_test,
+                offers_for_call.c.is_test == is_test,
+                or_(
+                    parsed_offers.c.user_segment.notin_(segments),
+                    parsed_offers.c.source_object_model['region'].as_string().notin_(regions),
+                    parsed_offers.c.source_object_model['category'].as_string().notin_(categories),
+                )
+            )
+        )
     )
-    exists = await pg.get().fetchval(query, *params)
-    return bool(exists)
+    rows = await pg.get().fetch(query, *params)
+    return [row['id'] for row in rows]
 
 
-async def clear_invalid_waiting_offers(
+async def clear_invalid_waiting_offers_by_offer_ids(
     *,
     team_id: int,
+    team_settings: dict,
     is_test: bool,
-    valid_parsed_offers_cte: CTE,
-    valid_parsed_offers_exists: bool,
-) -> int:
+) -> list[str]:
+    logger.warning('Очистка заданий для команды %s была запущена', team_id)
+
     _CLEAR_PRIORITY = -1
+    invalid_offer_ids = await get_invalid_offer_ids(
+        team_settings=team_settings,
+        is_test=is_test,
+    )
+    logger.warning(
+        'Количество невалидных спаршеных обьявлений для команды %s: %s',
+        team_id,
+        len(invalid_offer_ids),
+    )
+
     if team_id:
         values = {
             'team_priorities': func.jsonb_set(
@@ -827,56 +834,107 @@ async def clear_invalid_waiting_offers(
         values = {
             'priority': _CLEAR_PRIORITY
         }
-    options = [
-        offers_for_call.c.is_test == is_test,
-        offers_for_call.c.status == OfferStatus.waiting.value,
-    ]
-
-    if valid_parsed_offers_exists:
-        options.append(
-            offers_for_call.c.parsed_id != valid_parsed_offers_cte.c.id,
+    offer_ids = []
+    for invalid_offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=invalid_offer_ids,
+        chunk_size=runtime_settings.get('ITERATE_OVER_OFFERS_FOR_PRIORITIZATION_BY_CLIENT_IDS_CHUNK', 15000),
+    ):
+        logger.warning('Для команды %s будет очищено %s заданий', team_id, len(invalid_offer_ids_chunk))
+        query, params = asyncpgsa.compile_query(
+            update(
+                offers_for_call
+            ).values(
+                **values
+            ).where(
+                and_(
+                    offers_for_call.c.is_test == is_test,
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    offers_for_call.c.id.in_(invalid_offer_ids_chunk),
+                )
+            ).returning(
+                offers_for_call.c.id,
+            )
         )
+        rows = await pg.get().fetch(query, *params)
+        offer_ids.extend([str(row['id']) for row in rows])
+    return list(set(offer_ids))
+
+
+async def get_valid_offer_ids(
+    team_settings: dict,
+    is_test: bool,
+) -> list[str]:
+    segments = team_settings['segments']
+    regions = team_settings['regions']
+    categories = team_settings['categories']
+    regions = [str(region) for region in regions]
     query, params = asyncpgsa.compile_query(
-        update(
-            offers_for_call
-        ).values(
-            **values
+        select(
+            [
+                offers_for_call.c.id
+            ]
+        ).select_from(
+            parsed_offers.join(
+                offers_for_call,
+                offers_for_call.c.parsed_id == parsed_offers.c.id
+            )
         ).where(
             and_(
-                *options
+                parsed_offers.c.is_test == is_test,
+                offers_for_call.c.is_test == is_test,
+                and_(
+                    parsed_offers.c.user_segment.in_(segments),
+                    parsed_offers.c.source_object_model['region'].as_string().in_(regions),
+                    parsed_offers.c.source_object_model['category'].as_string().in_(categories),
+                )
             )
-        ).returning(
-            offers_for_call.c.id,
         )
     )
     rows = await pg.get().fetch(query, *params)
-    if rows:
-        amount = len(rows)
-    else:
-        amount = 0
-    return amount
+    return [row['id'] for row in rows]
 
 
 async def get_waiting_offer_counts_by_clients(
     *,
-    valid_parsed_offers_cte: CTE,
+    team_settings: dict,
     is_test: bool,
-) -> list[Optional[ClientWaitingOffersCount]]:
-    """Достает клиентов для приоретизации и фильтрует из очереди клиентов с невалидными обьявлениями"""
-    query, params = asyncpgsa.compile_query(
-        select(
-            [waiting_offers_counts_cte]
-        ).where(
-            and_(
-                waiting_offers_counts_cte.c.is_test == is_test,
-                waiting_offers_counts_cte.c.parsed_id == valid_parsed_offers_cte.c.id
-            )
-        ).distinct(
-            waiting_offers_counts_cte.c.client_id
-        )
+    team_id: Optional[str] = None,
+) -> list[ClientWaitingOffersCount]:
+    valid_offer_ids = await get_valid_offer_ids(
+        team_settings=team_settings,
+        is_test=is_test,
     )
-    rows = await pg.get().fetch(query, *params)
-    return [client_waiting_offers_count_mapper.map_from(row) for row in rows]
+    logger.warning(
+        'Количество валидных спаршеных обьявлений для команды %s: %s',
+        team_id,
+        len(valid_offer_ids),
+    )
+
+    waiting_offer_counts = []
+    for valid_offer_ids_chunk in iterate_over_list_by_chunks(
+        iterable=valid_offer_ids,
+        chunk_size=runtime_settings.get('ITERATE_OVER_OFFERS_FOR_PRIORITIZATION_BY_CLIENT_IDS_CHUNK', 15000),
+    ):
+        query, params = asyncpgsa.compile_query(
+            # waiting_offers_counts_cte
+            select([
+                offers_for_call.c.id,
+                offers_for_call.c.client_id,
+                offers_for_call.c.is_test,
+                over(func.count(), partition_by=offers_for_call.c.client_id).label('waiting_offers_count')
+            ]).where(
+                and_(
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    offers_for_call.c.is_test == is_test,
+                    offers_for_call.c.id.in_(valid_offer_ids_chunk),
+                )
+            ).distinct(
+                offers_for_call.c.client_id
+            )
+        )
+        rows = await pg.get().fetch(query, *params)
+        waiting_offer_counts.extend([client_waiting_offers_count_mapper.map_from(row) for row in rows])
+    return waiting_offer_counts
 
 
 async def get_offers_for_prioritization_by_client_ids(
