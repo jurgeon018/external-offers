@@ -77,6 +77,19 @@ class AdminOffersCardPageHandler(PublicHandler):
 
     async def get(self, offer_id: str) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
+
+        client = await get_client_in_progress_by_operator(
+            operator_id=self.realty_user_id
+        )
+        if not client:
+            self.write('Клиент не найден'.encode('utf-8'))
+            return
+
+        offer = await get_offer_by_offer_id(offer_id=offer_id)
+        if not offer:
+            self.write('Объявление не найдено'.encode('utf-8'))
+            return
+
         exists = await exists_offers_in_progress_by_operator_and_offer_id(
             operator_id=self.realty_user_id,
             offer_id=offer_id
@@ -89,16 +102,10 @@ class AdminOffersCardPageHandler(PublicHandler):
             offer_id=offer_id
         )
 
-        client = await get_client_in_progress_by_operator(
-            operator_id=self.realty_user_id
-        )
         offer_comment = await get_offer_comment_by_offer_id(offer_id)
 
         if not offer_object_model:
             self.write('Объявление из внешнего источника не найдено'.encode('utf-8'))
-            return
-
-        if not client:
             return
 
         client_accounts_result = await get_client_accounts_by_phone_number_degradation_handler(
@@ -109,9 +116,6 @@ class AdminOffersCardPageHandler(PublicHandler):
         exist_drafts = await exists_offers_draft_by_client(
             client_id=client.client_id
         )
-        offer = await get_offer_by_offer_id(offer_id=offer_id)
-        if not offer:
-            return
 
         offer_is_draft = offer.publication_status == PublicationStatus.draft
         # Настройка для корректной работы обновленного ГБ коммерческой недвижимости

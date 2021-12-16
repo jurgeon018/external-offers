@@ -310,7 +310,7 @@ async def update_offer_categories_by_offer_id(
     )
     parsed_offer = await pg.get().fetchrow(query, *params)
     if not parsed_offer:
-        return
+        raise Exception('Parsed Offer not found!')
 
     parsed_offer_id = parsed_offer['id']
 
