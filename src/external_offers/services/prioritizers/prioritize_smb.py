@@ -158,29 +158,23 @@ async def find_smb_client_account_priority(
         if client_account_statuses is None:
             client_account_statuses = {}
         phone = transform_phone_number_to_canonical_format(client.client_phones[0])
-        client_account_status: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
-        if client_account_status:
+        account: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
+        if account:
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы
-            client_account_status: ClientAccountStatus
-            account_status: Optional[SmbAccountStatus] = client_account_status.smb_account_status
+            account_status: Optional[SmbAccountStatus] = account.smb_account_status
             if account_status is None:
-                account_status = client_account_status.homeowner_account_status
-                if account_status is None:
-                    logger.warning(
-                        'account_status %s doesnt have smb_account_status nor homeowner_account_status',
-                        account_status
-                    )
-                    return _CLEAR_CLIENT_PRIORITY
-            
-            new_cian_user_id = client_account_status.new_cian_user_id
+                account_status = account.homeowner_account_status
+                logger.warning(
+                    'account %s(%s) doesnt have smb_account_status',
+                    account,
+                    phone,
+                )
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
             account: SmbAccount = await find_smb_account(phone=phone)
             account_status: Optional[SmbAccountStatus] = account.account_status
-            new_cian_user_id = account.new_cian_user_id
-
         if account_status is None:
             # если статуса ЛК нет, то нужно сохранить новый cian_user_id и посчитать активные обьявления
             # (ответ ручки можно будет потом закешировать)
@@ -189,8 +183,9 @@ async def find_smb_client_account_priority(
                 client_count=client_count,
                 client_id=client.client_id,
             )
+        if account.new_cian_user_id:
             await set_cian_user_id_by_client_id(
-                cian_user_id=new_cian_user_id,
+                cian_user_id=account.new_cian_user_id,
                 client_id=client.client_id
             )
     if account_status in [
