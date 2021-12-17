@@ -28,7 +28,7 @@ from external_offers.services.prioritizers.build_priority import build_waiting_s
 
 logger = logging.getLogger(__name__)
 
-_CLEAR_CLIENT_PRIORITY = -1
+_CLEAR_PRIORITY = -1
 _NO_ACTIVE = 0
 
 _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
@@ -81,6 +81,7 @@ async def choose_main_smb_client_profile(user_profiles: list[UserModelV2]) -> Sm
 
 
 async def find_smb_account(phone: str) -> SmbAccount:
+    phone = transform_phone_number_to_canonical_format(phone)
     try:
         response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
             V2GetUsersByPhone(
@@ -157,7 +158,7 @@ async def find_smb_client_account_priority(
     else:
         if client_account_statuses is None:
             client_account_statuses = {}
-        phone = transform_phone_number_to_canonical_format(client.client_phones[0])
+        phone = client.client_phones[0]
         account: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
         if account:
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
@@ -202,7 +203,7 @@ async def find_smb_client_account_priority(
         SmbAccountStatus.has_bad_proportion_smb,
         SmbAccountStatus.announcements_api_client_exception,        
     ]:
-        account_priority = _CLEAR_CLIENT_PRIORITY
+        account_priority = _CLEAR_PRIORITY
     elif account_status in [
         HomeownerAccountStatus.no_lk_homeowner,
         HomeownerAccountStatus.active_lk_homeowner,
@@ -233,7 +234,7 @@ async def prioritize_smb_client(
         client_account_statuses=client_account_statuses,
     )
 
-    if account_priority == _CLEAR_CLIENT_PRIORITY:
+    if account_priority == _CLEAR_PRIORITY:
         return account_priority
 
     return build_waiting_smb_priority(

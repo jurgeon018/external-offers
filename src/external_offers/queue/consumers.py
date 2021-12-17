@@ -43,7 +43,7 @@ async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[
 
         source = extract_source_from_source_object_id(source_object_id)
         if source not in runtime_settings.SUITABLE_EXTERNAL_SOURCES_FOR_SAVE:
-            return
+            continue
 
         logger.info('Save parsed offer: %s', offer_event.id)
         await save_parsed_offer(offer=offer_event)

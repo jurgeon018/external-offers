@@ -1,9 +1,6 @@
 import json
 
-import pytest
 
-
-@pytest.mark.gen_test
 async def test_update_client_reason_of_decline(
         http,
         pg,

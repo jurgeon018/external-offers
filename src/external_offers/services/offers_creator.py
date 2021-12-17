@@ -551,12 +551,12 @@ async def create_client_account_statuses() -> None:
     for parsed_offer in parsed_offers:
         parsed_offer: ParsedOfferForAccountPrioritization
 
-        raw_phone = json.loads(parsed_offer.phones)[0]
-        if raw_phone in recently_cached_client_account_statuses:
+        phone = json.loads(parsed_offer.phones)[0]
+        if phone in recently_cached_client_account_statuses:
             continue
 
-        phone = transform_phone_number_to_canonical_format(raw_phone)
-        if phone in recently_cached_client_account_statuses:
+        canonical_phone = transform_phone_number_to_canonical_format(phone)
+        if canonical_phone in recently_cached_client_account_statuses:
             continue
 
         now = datetime.now(tz=pytz.UTC)
@@ -568,7 +568,6 @@ async def create_client_account_statuses() -> None:
                     'updated_at': now,
                     'phone': phone,
                     'smb_account_status': getattr(account.account_status, 'value', None),
-                    # account_status может быть None в случае если из функции возвращается new_cian_user_id
                     'homeowner_account_status': None,
                     'new_cian_user_id': account.new_cian_user_id,
                 })

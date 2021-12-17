@@ -5,9 +5,6 @@ from typing import Optional
 from cian_enum import NoFormat, StrEnum
 
 
-_CLEAR_CLIENT_PRIORITY = -1
-
-
 class SmbAccountStatus(StrEnum):
     __value_format__ = NoFormat
     # statuses for prioritization

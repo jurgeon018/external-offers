@@ -2,7 +2,7 @@ import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-_CLEAR_CLIENT_PRIORITY = -1
+_CLEAR_PRIORITY = -1
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_blocked__creates_waiting_offer(
@@ -73,7 +73,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_agent_block
         """
     )
     assert row is not None
-    assert row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_active_not_agent__prioritize_as_no_lk(
@@ -223,7 +223,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_sub_
         """
     )
     assert row is not None
-    assert row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls__creates_offer_with_clear_priority(
@@ -294,7 +294,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_active_emls
         """
     )
     assert row is not None
-    assert row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_active_agent_with_0_active__creates_waiting_offer(
@@ -516,7 +516,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_many_a
     )
 
     assert offer_row is not None
-    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_not_many_active__creates_waiting_offer(
@@ -641,7 +641,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     )
 
     assert offer_row is not None
-    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_multiple_accounts__creates_waiting_offer(
@@ -827,7 +827,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     )
 
     assert offer_row is not None
-    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_homeowner__prioritize_as_no_lk(
@@ -985,7 +985,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
     )
 
     assert offer_row is not None
-    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__profile_is_blocked___offers_with_cleared_priority_created(
@@ -1074,7 +1074,7 @@ async def test_create_offers__profile_is_blocked___offers_with_cleared_priority_
     )
 
     assert offer_row is not None
-    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
 @pytest.mark.parametrize('source_type', [
@@ -1153,7 +1153,7 @@ async def test_create_offers__client_has_wrong_source_type___offers_with_cleared
     )
 
     assert offer_row is not None
-    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
 async def test_create_offers__client_exceeds_maximum_active_offers_proportion___offers_has_clear_priority(
@@ -1227,4 +1227,4 @@ async def test_create_offers__client_exceeds_maximum_active_offers_proportion___
     )
 
     assert offer_row is not None
-    assert offer_row['priority'] == _CLEAR_CLIENT_PRIORITY
+    assert offer_row['priority'] == _CLEAR_PRIORITY
