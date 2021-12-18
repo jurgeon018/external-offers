@@ -6,7 +6,7 @@ import pytz
 from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, select
+from sqlalchemy.sql import or_, select
 
 from external_offers import pg
 from external_offers.entities.client_account_statuses import ClientAccountStatus
@@ -23,7 +23,7 @@ async def get_client_account_statuses() -> dict[str, ClientAccountStatus]:
         select([
             client_account_statuses
         ]).where(
-            and_(
+            or_(
                 client_account_statuses.c.smb_account_status.isnot(None),
                 client_account_statuses.c.homeowner_account_status.isnot(None),
             )
