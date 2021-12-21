@@ -148,6 +148,7 @@ async def find_smb_client_account_priority(
     team_settings: dict,
     client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
+    phone = client.client_phones[0]
     if client.cian_user_id:
         # если у клиента уже есть cian_user_id, то нужно посчитать активные обьявления
         account_status = await find_smb_client_account_status_by_announcements_count(
@@ -158,7 +159,6 @@ async def find_smb_client_account_priority(
     else:
         if client_account_statuses is None:
             client_account_statuses = {}
-        phone = client.client_phones[0]
         account: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
         if account:
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
@@ -189,6 +189,12 @@ async def find_smb_client_account_priority(
                 cian_user_id=account.new_cian_user_id,
                 client_id=client.client_id
             )
+    logger.warning(
+        'У клиента %s(%s) статус аккаунта %s',
+        client.client_id,
+        phone,
+        account_status
+    )
     if account_status in [
         HomeownerAccountStatus.has_existing_accounts,
         HomeownerAccountStatus.has_sanctions,
