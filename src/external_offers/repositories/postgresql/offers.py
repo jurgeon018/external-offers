@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Union
 
 import asyncpgsa
 import pytz
@@ -298,7 +298,7 @@ async def set_offers_status_and_priority_by_client(
     priority: Optional[int] = None,
     team_id: Optional[int] = None,
 ) -> list[str]:
-    values = {
+    values:  dict[str, Union[str, int]] = {
         'status': status.value
     }
     if priority:

@@ -1,4 +1,4 @@
-from typing import Generator, Iterable, TypeVar
+from typing import Collection, Generator, TypeVar
 
 from simple_settings import settings
 
@@ -8,9 +8,9 @@ T = TypeVar('T')
 
 def iterate_over_list_by_chunks(
     *,
-    iterable: Iterable[T],
+    iterable: Collection[T],
     chunk_size: int = settings.ITERATE_OVER_LIST_DEFAULT_CHUNK
-) -> Generator[Iterable[T], None, None]:
+) -> Generator[Collection[T], None, None]:
     iterator = iter(iterable)
     while True:
         chunk = []

@@ -85,6 +85,47 @@ async def test_update_offer_category__non_valid_parameters__categories_not_chang
     assert source_object_model_before_api_call['category'] == source_object_model_after_api_call['category']
 
 
+@pytest.mark.parametrize(
+    'offer_params', list(mapping_offer_params_to_category.keys())
+)
+async def test_update_offer_category__not_exist_parsed_offer__success_false(
+    http,
+    pg,
+    offers_and_clients_fixture,
+    parsed_offers_fixture,
+    offer_params,
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_fixture)
+    offer_id = '100500'
+    user_id = 1
+    term_type = offer_params[0]
+    category_type = offer_params[1]
+    deal_type = offer_params[2]
+    offer_type = offer_params[3]
+
+    # act
+    response = await http.request(
+        'POST',
+        '/api/admin/v1/update-offer-category/',
+        json={
+            'offerId': offer_id,
+            'termType': term_type,
+            'categoryType': category_type,
+            'dealType': deal_type,
+            'offerType': offer_type,
+        },
+        headers={
+            'X-Real-UserId': user_id
+        },
+        expected_status=200
+    )
+
+    body = json.loads(response.body.decode('utf-8'))
+    assert not body['success']
+
+
 @pytest.mark.parametrize('offer_params, expected_category',
     [(k, v) for k, v in mapping_offer_params_to_category.items()]
 )

@@ -150,7 +150,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
 
 
-async def get_parsed_offer_for_creation_by_id(*, id: int) -> ParsedOfferForCreation:
+async def get_parsed_offer_for_creation_by_id(*, id: int) -> Optional[ParsedOfferForCreation]:
     fetch_offer_query, fetch_offer_params = asyncpgsa.compile_query(
         select(
             [tables.parsed_offers]
@@ -159,7 +159,7 @@ async def get_parsed_offer_for_creation_by_id(*, id: int) -> ParsedOfferForCreat
         ).limit(1)
     )
     row = await pg.get().fetchrow(fetch_offer_query, *fetch_offer_params)
-    return parsed_offer_for_creation_mapper.map_from(row)
+    return parsed_offer_for_creation_mapper.map_from(row) if row else None
 
 
 async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optional[ParsedObjectModel]:
@@ -314,6 +314,9 @@ async def update_offer_categories_by_offer_id(
         )
     )
     parsed_offer = await pg.get().fetchrow(query, *params)
+    if not parsed_offer:
+        raise Exception('Parsed Offer not found!')
+
     parsed_offer_id = parsed_offer['id']
 
     query = f"""

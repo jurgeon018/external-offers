@@ -1,7 +1,8 @@
 from os import getenv
 from typing import List, Type
 
-from cian_core.rabbitmq.consumer import Exchange, QueueBinding
+from aioamqp_consumer_best.records import QueueBinding
+from cian_core.rabbitmq.consumer import Exchange
 from cian_core.runtime_settings import runtime_settings
 from cian_enum import StrEnum
 

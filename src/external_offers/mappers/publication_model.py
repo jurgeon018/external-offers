@@ -79,6 +79,37 @@ save_offer_sale_type_to_sale_type: Dict[str, SaleType] = {
 }
 
 
+def get_swagger_geo(
+    *,
+    request: SaveOfferRequest,
+    geocode_response: GeoCodeAnnouncementResponse,
+) -> SwaggerGeo:
+    swagger_geo = SwaggerGeo(
+        country_id=geocode_response.country_id,
+        user_input=request.address,
+    )
+    if geocode_response.geo and geocode_response.geo.lat is not None and geocode_response.geo.lng is not None:
+        coordinates = Coordinates(
+            lat=geocode_response.geo.lat,
+            lng=geocode_response.geo.lng
+        )
+        swagger_geo.coordinates = coordinates
+
+    if geocode_response.details:
+        address = [
+            AddressInfo(
+                id=detail.id,
+                type=geo_type_to_type_mapping[detail.geo_type.value] if detail.geo_type else None,
+            ) for detail in geocode_response.details
+        ]
+        swagger_geo.address = address
+    return swagger_geo
+
+
+def get_flat_type(request: SaveOfferRequest) -> FlatType:
+    return rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms) if request.rooms_count else FlatType.rooms
+
+
 def map_save_request_to_publication_model(
     *,
     request: SaveOfferRequest,
@@ -95,7 +126,7 @@ def map_save_request_to_publication_model(
                 currency=Currency.rur,
                 deposit=request.deposit,
                 prepay_months=request.prepay_months if request.prepay_months else None,
-                sale_type=save_offer_sale_type_to_sale_type.get(request.sale_type, None),
+                sale_type=save_offer_sale_type_to_sale_type.get(request.sale_type) if request.sale_type else None,
                 utilities_terms=UtilitiesTerms(
                     included_in_price=True
                 )
@@ -106,9 +137,9 @@ def map_save_request_to_publication_model(
                 total_area=request.total_area,
             ),
             total_area=request.total_area,
-            is_apartments=realty_type_to_is_aparments.get(request.realty_type, None),
+            is_apartments=realty_type_to_is_aparments.get(request.realty_type) if request.realty_type else None,
             property_type=PropertyType.building,
-            rooms_count=rooms_count_to_num.get(request.rooms_count, 1),
+            rooms_count=rooms_count_to_num.get(request.rooms_count, 1) if request.rooms_count else 1,
             floor_number=request.floor_number,
             category=category,
             cian_user_id=cian_user_id,
@@ -119,23 +150,10 @@ def map_save_request_to_publication_model(
                     country_code=phone_number[:2]
                 )
             ],
-            geo=SwaggerGeo(
-                country_id=geocode_response.country_id,
-                coordinates=Coordinates(
-                    lat=geocode_response.geo.lat,
-                    lng=geocode_response.geo.lng
-                ),
-                user_input=request.address,
-                address=[
-                    AddressInfo(
-                        id=detail.id,
-                        type=geo_type_to_type_mapping[detail.geo_type.value]
-                    ) for detail in geocode_response.details
-                ]
-            ),
+            geo=get_swagger_geo(request=request, geocode_response=geocode_response),
             description=request.description,
             object_guid=generate_uppercase_guid(),
-            flat_type=rooms_count_to_flat_type.get(request.rooms_count, FlatType.rooms),
+            flat_type=get_flat_type(request),
             is_by_home_owner=is_by_home_owner,
             is_enabled_call_tracking=False,  # если этот параметр не слать, шарп 500ит
             row_version=0,  # если этот параметр не слать, шарп 500ит

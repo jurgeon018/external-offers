@@ -59,7 +59,7 @@ def create_calls_kafka_message(
     now = datetime.now(pytz.utc)
 
     return CallsKafkaMessage(
-        manager_id=client.operator_user_id,
+        manager_id=int(client.operator_user_id) if client.operator_user_id else None,
         source_user_id=client.avito_user_id,
         user_id=client.cian_user_id,
         phone=client.client_phones[0],
