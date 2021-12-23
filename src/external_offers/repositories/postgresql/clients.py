@@ -23,7 +23,7 @@ _NO_CALLS = 0
 _ONE_CALL = 1
 
 _NO_OFFER_CATEGORY = ''
-_CLEAR_CLIENT_PRIORITY = -1
+_CLEAR_PRIORITY = -1
 
 
 async def get_client_in_progress_by_operator(
@@ -62,7 +62,7 @@ async def assign_suitable_client_to_operator(
             nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
         )
         priority_clause = [
-            offers_for_call.c.team_priorities[str(operator_team_id)] != str(_CLEAR_CLIENT_PRIORITY)
+            offers_for_call.c.team_priorities[str(operator_team_id)] != str(_CLEAR_PRIORITY)
         ]
         offer_category_clause = []
     else:
@@ -79,7 +79,7 @@ async def assign_suitable_client_to_operator(
         ]
         priority_ordering = nullslast(offers_for_call.c.priority.asc())
         priority_clause = [
-            offers_for_call.c.priority != _CLEAR_CLIENT_PRIORITY
+            offers_for_call.c.priority != _CLEAR_PRIORITY
         ]
 
     first_suitable_offer_client_cte = (

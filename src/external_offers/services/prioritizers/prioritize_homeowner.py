@@ -10,6 +10,7 @@ from external_offers.entities.client_account_statuses import (
     ClientAccountStatus,
     HomeownerAccount,
     HomeownerAccountStatus,
+    SmbAccountStatus,
 )
 from external_offers.entities.clients import Client
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
@@ -25,7 +26,7 @@ from external_offers.services.prioritizers.build_priority import build_waiting_h
 
 logger = logging.getLogger(__name__)
 
-_CLEAR_CLIENT_PRIORITY = -1
+_CLEAR_PRIORITY = -1
 
 _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
 _METRIC_PRIORITIZE_NO_LK = 'prioritize_client.no_lk'
@@ -69,6 +70,7 @@ def choose_main_homeowner_client_profile(user_profiles: list[UserModelV2]) -> Ho
 
 
 async def find_homeowner_account(phone: str) -> HomeownerAccount:
+    phone = transform_phone_number_to_canonical_format(phone)
     try:
         response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
             V2GetUsersByPhone(
@@ -145,48 +147,63 @@ async def find_homeowner_client_account_priority(
     team_settings: dict,
     client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
-
+    phone = client.client_phones[0]
     if client.cian_user_id:
         # если у клиента уже есть cian_user_id, то выдаем ему приоритет активного собственника
         account_status = HomeownerAccountStatus.active_lk_homeowner
     else:
         if client_account_statuses is None:
             client_account_statuses = {}
-
-        # если у клиента еще нет cian_user_id
-        phone = transform_phone_number_to_canonical_format(client.client_phones[0])
         account: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
-
         if account:
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы
-            account_status: HomeownerAccountStatus = account.homeowner_account_status
-            new_cian_user_id = account.new_cian_user_id
+            account_status: Optional[HomeownerAccountStatus] = account.homeowner_account_status
+            if account_status is None:
+                account_status = account.smb_account_status
+                logger.warning(
+                    'account %s(%s) doesnt have homeowner_account_status',
+                    account,
+                    phone,
+                )
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
-            account = await find_homeowner_account(phone=phone)
-            account_status: HomeownerAccountStatus = account.account_status
-            new_cian_user_id = account.new_cian_user_id
-
-        if new_cian_user_id:
-            # Обновляем идентификатор клиента
+            account: HomeownerAccount = await find_homeowner_account(phone=phone)
+            account_status: Optional[HomeownerAccountStatus] = account.account_status
+        if account.new_cian_user_id:
             await set_cian_user_id_by_client_id(
-                cian_user_id=new_cian_user_id,
+                cian_user_id=account.new_cian_user_id,
                 client_id=client.client_id
             )
-
+    logger.warning(
+        'У клиента %s(%s) статус аккаунта %s',
+        client.client_id,
+        phone,
+        account_status
+    )
     if account_status in [
         HomeownerAccountStatus.has_existing_accounts,
         HomeownerAccountStatus.has_sanctions,
         HomeownerAccountStatus.has_bad_account,
         HomeownerAccountStatus.has_wrong_user_source_type,
         HomeownerAccountStatus.api_client_exception,
+        # 
+        SmbAccountStatus.has_sanctions,
+        SmbAccountStatus.has_bad_account,
+        SmbAccountStatus.has_wrong_user_source_type,
+        SmbAccountStatus.api_client_exception,
+        SmbAccountStatus.has_bad_proportion_smb,
+        SmbAccountStatus.announcements_api_client_exception,        
     ]:
-        account_priority = _CLEAR_CLIENT_PRIORITY
+        account_priority = _CLEAR_PRIORITY
     elif account_status in [
         HomeownerAccountStatus.no_lk_homeowner,
         HomeownerAccountStatus.active_lk_homeowner,
+        #
+        SmbAccountStatus.no_lk_smb,
+        SmbAccountStatus.no_active_smb,
+        SmbAccountStatus.keep_proportion_smb,
     ]:
         account_priority = int(team_settings[account_status.value])
     else:
@@ -208,7 +225,7 @@ async def prioritize_homeowner_client(
         client_account_statuses=client_account_statuses,
     )
 
-    if account_priority == _CLEAR_CLIENT_PRIORITY:
+    if account_priority == _CLEAR_PRIORITY:
         return account_priority
 
     return build_waiting_homeowner_priority(

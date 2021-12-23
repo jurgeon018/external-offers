@@ -10,13 +10,13 @@ async def test_prioritize_unactivated_clients(
     runner,
 ):
     # arrange
-    # приоретизация обьявления 1 должна вернуть _CLEAR_CLIENT_PRIORITY, т.к у него нет сегмента
+    # приоретизация обьявления 1 должна вернуть _CLEAR_PRIORITY, т.к у него нет сегмента
     priority_1 = 223456789
     priority_2 = "NULL"
     priority_3 = "NULL"
     priority_4 = "NULL"
     priority_5 = "NULL"
-    # приоретизация обьявления 6 должна вернуть _CLEAR_CLIENT_PRIORITY, т.к у него нет региона
+    # приоретизация обьявления 6 должна вернуть _CLEAR_PRIORITY, т.к у него нет региона
     priority_6 = "NULL"
     await pg.execute("""
         INSERT INTO clients (

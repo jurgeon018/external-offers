@@ -42,11 +42,11 @@ from external_offers.repositories.postgresql.client_account_statuses import (
     set_client_account_status,
 )
 from external_offers.repositories.postgresql.offers import (
-    clear_invalid_waiting_offers,
+    clear_invalid_waiting_offers_by_offer_ids,
     delete_calltracking_clients,
     delete_calltracking_offers,
-    get_valid_parsed_offers_cte,
-    get_valid_parsed_offers_exists,
+    get_invalid_offer_ids,
+    get_valid_offer_ids,
     set_waiting_offers_team_priorities_by_offer_ids,
 )
 from external_offers.repositories.postgresql.parsed_offers import get_parsed_offers_for_account_prioritization
@@ -85,6 +85,7 @@ async def prioritize_client(
     client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_PRIORITY """
+
 
     client: Optional[Client] = await get_client_by_client_id(
         client_id=client_id
@@ -258,12 +259,19 @@ async def prioritize_clients(
 
 async def sync_offers_for_call_with_parsed() -> None:
     """ Синхронизировать таблицу заданий offers_for_call и parsed_offers """
-    logger.warning('Создание заданий и клиентов было запущено')
+    max_updated_at_date = None
+    if runtime_settings.get('ENABLE_UPDATED_AT_DATE_FETCHING', True):
+        max_updated_at_date = datetime.now(tz=pytz.utc)
+    logger.warning(
+        'Создание заданий и клиентов было запущено для всех обьявлений обновленных не позже %s',
+        max_updated_at_date
+    )
     last_sync_date = None
     if runtime_settings.ENABLE_LAST_SYNC_DATE_FETCHING:
         last_sync_date = await get_last_sync_date()
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
-        last_sync_date=last_sync_date
+        last_sync_date=last_sync_date,
+        max_updated_at_date=max_updated_at_date,
     ):
         logger.warning('Fetched %d parsed offers', len(parsed_offers))
 
@@ -445,57 +453,25 @@ async def prioritize_waiting_offers(
     client_counts_for_prioritization = []
     client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
     logger.warning('Количество закешированых статусов клиентов: %s', len(client_account_statuses))
-    # client_account_statuses = {}
+
     for team in teams:
 
         team_id, team_settings = get_team_info(team)
         logger.warning('Приоретизация заданий для команды %s была запущена', team_id)
 
-        # достает добивочные задания
         unactivated_clients_counts = await get_unactivated_clients_counts_by_clients()
         logger.warning('Количество добивочных заданий для приоретизации: %s', len(unactivated_clients_counts))
 
-        # Подзапрос для получения валидных обьявлений для настроек текущей команды
-        valid_parsed_offers_cte = await get_valid_parsed_offers_cte(
+        waiting_clients_counts = await get_waiting_offer_counts_by_clients(
             team_settings=team_settings,
             is_test=is_test,
-        )
-        valid_parsed_offers_exists = await get_valid_parsed_offers_exists(
-            valid_parsed_offers_cte=valid_parsed_offers_cte
-        )
-        logger.warning('Есть валидные спаршеные обьявления: %s', valid_parsed_offers_exists)
-
-        # достает спаршеные обьявления с невалидными для текущих настроек полями(категория, сегмент, регион)
-        # и связаным с обьявлениями заданиям проставляет _CLEAR_PRIORITY, чтобы задания не выдавались
-        # (задания фильтруются в assign_suitable_client_to_operator по приоритету _CLEAR_PRIORITY)
-        cleared_amount = await clear_invalid_waiting_offers(
             team_id=team_id,
-            is_test=is_test,
-            valid_parsed_offers_cte=valid_parsed_offers_cte,
-            valid_parsed_offers_exists=valid_parsed_offers_exists,
         )
         logger.warning(
-            'Количество заданий в ожидании для очистки: %s для команды %s',
-            cleared_amount,
+            'Количество заданий в ожидании для приоретизации для команды %s: %s',
             team_id,
-        )
-
-        # достает задания в ожидании(фильтрует задания которыми выше был проставлен приоритет _CLEAR_PRIORITY)
-        if valid_parsed_offers_exists:
-            # если есть валидные спаршеные обьявления, то фильтруем клиентов в ожидании
-            waiting_clients_counts = await get_waiting_offer_counts_by_clients(
-                valid_parsed_offers_cte=valid_parsed_offers_cte,
-                is_test=is_test
-            )
-        else:
-            # если нет валидных спаршеных обьявлений, то ничего не достаем
-            waiting_clients_counts = []
-        logger.warning(
-            'Количество заданий в ожидании для приоретизации: %s для команды %s',
             len(waiting_clients_counts),
-            team_id
         )
-
         client_counts_for_prioritization.append(
             create_priorities(
                 waiting_clients_counts=waiting_clients_counts,
@@ -505,6 +481,17 @@ async def prioritize_waiting_offers(
                 client_account_statuses=client_account_statuses,
             )
         )
+
+        # cleared_offer_ids = await clear_invalid_waiting_offers_by_offer_ids(
+        #     team_id=team_id,
+        #     is_test=is_test,
+        #     team_settings=team_settings,
+        # )
+        # logger.warning(
+        #     'Количество заданий в ожидании для очистки для команды %s: %s ',
+        #     team_id,
+        #     len(cleared_offer_ids),
+        # )
 
     created_priorities = await asyncio.gather(*client_counts_for_prioritization)
     for created_priority in created_priorities:
@@ -535,6 +522,20 @@ async def prioritize_waiting_offers(
                     priority=priority,
                 )
 
+    for team in teams:
+        team_id, team_settings = get_team_info(team)
+        logger.warning('Очистка заданий для команды %s была запущена', team_id)
+        cleared_offer_ids = await clear_invalid_waiting_offers_by_offer_ids(
+            team_id=team_id,
+            is_test=is_test,
+            team_settings=team_settings,
+        )
+        logger.warning(
+            'Количество заданий в ожидании для очистки для команды %s: %s ',
+            team_id,
+            len(cleared_offer_ids),
+        )
+
 
 async def create_client_account_statuses() -> None:
     if not runtime_settings.get('ENABLE_CLIENT_ACCOUNT_STATUSES_CASHING', True):
@@ -550,12 +551,12 @@ async def create_client_account_statuses() -> None:
     for parsed_offer in parsed_offers:
         parsed_offer: ParsedOfferForAccountPrioritization
 
-        raw_phone = json.loads(parsed_offer.phones)[0]
-        if raw_phone in recently_cached_client_account_statuses:
+        phone = json.loads(parsed_offer.phones)[0]
+        if phone in recently_cached_client_account_statuses:
             continue
 
-        phone = transform_phone_number_to_canonical_format(raw_phone)
-        if phone in recently_cached_client_account_statuses:
+        canonical_phone = transform_phone_number_to_canonical_format(phone)
+        if canonical_phone in recently_cached_client_account_statuses:
             continue
 
         now = datetime.now(tz=pytz.UTC)
@@ -567,7 +568,6 @@ async def create_client_account_statuses() -> None:
                     'updated_at': now,
                     'phone': phone,
                     'smb_account_status': getattr(account.account_status, 'value', None),
-                    # account_status может быть None в случае если из функции возвращается new_cian_user_id
                     'homeowner_account_status': None,
                     'new_cian_user_id': account.new_cian_user_id,
                 })

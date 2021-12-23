@@ -1,12 +1,12 @@
 INSERT INTO client_account_statuses (
     phone, smb_account_status, homeowner_account_status, new_cian_user_id, updated_at, created_at    
 ) VALUES
-('+70000', NULL, NULL, NULL, now() - interval '10 day', now() - interval '100 days'),
-('+70001', NULL, NULL, NULL, now() - interval '7 day',  now() - interval '70 days'),
-('+70002', NULL, NULL, NULL, now() - interval '4 day',  now() - interval '40 days'),
-('+70003', NULL, NULL, NULL, now() - interval '2 day',  now() - interval '100 days'),
-('+70004', NULL, NULL, NULL, now() - interval '1 day',  now() - interval '100 days'),
-('+70005', NULL, NULL, NULL, now(),                     now() - interval '100 days');
+('80000', NULL, NULL, NULL, now() - interval '10 day', now() - interval '100 days'),
+('80001', NULL, NULL, NULL, now() - interval '7 day',  now() - interval '70 days'),
+('80002', NULL, NULL, NULL, now() - interval '4 day',  now() - interval '40 days'),
+('80003', NULL, NULL, NULL, now() - interval '2 day',  now() - interval '100 days'),
+('80004', NULL, NULL, NULL, now() - interval '1 day',  now() - interval '100 days'),
+('80005', NULL, NULL, NULL, now(),                     now() - interval '100 days');
 
 INSERT INTO parsed_offers (
     id,
@@ -127,7 +127,7 @@ INSERT INTO parsed_offers (
     '95',
     NULL, NULL,
     '95', '95',
-    '{"region":"4150", "phones":["+790000005"]}', NULL,
+    '{"region":"4150", "phones":["890000005"]}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
     --user_segment is NULL - невалидное значение
 ),
@@ -135,7 +135,7 @@ INSERT INTO parsed_offers (
     '96',
     'b', NULL,
     '96', '96',
-    '{"region":"4150", "phones":["+790000006"]}', NULL,
+    '{"region":"4150", "phones":["890000006"]}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
     --user_segment == 'b' - невалидное значение
 ),
@@ -167,7 +167,7 @@ INSERT INTO parsed_offers (
     '910',
     'c', NULL,
     '910', NULL,
-    '{"region":"4150", "phones":["+790000910"]}', NULL,
+    '{"region":"4150", "phones":["890000910"]}', NULL,
     'f', 'f', 'f', 'now()', 'now()', 'now()', NULL
     --source_user_id NULL - невалидное значение
 ),
@@ -175,7 +175,7 @@ INSERT INTO parsed_offers (
     '911',
     'c', NULL,
     '911', '911',
-    '{"region":"4150", "phones":["+790000911"]}', NULL,
+    '{"region":"4150", "phones":["890000911"]}', NULL,
     't', 'f', 'f', 'now()', 'now()', 'now()', NULL
     --is_calltrackng = 't' - невалидное значение
 );
