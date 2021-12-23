@@ -3,7 +3,7 @@ from cian_test_utils import future
 from external_offers.entities.clients import Client, ClientStatus
 from external_offers.repositories.users.entities.user_model_v2 import UserModelV2
 from external_offers.services.prioritizers.prioritize_homeowner import (
-    _CLEAR_CLIENT_PRIORITY,
+    _CLEAR_PRIORITY,
     GetUsersByPhoneResponseV2,
     find_homeowner_client_account_priority,
 )
@@ -43,4 +43,4 @@ async def test__find_homeowner_client_account_priority__clear_homeowners_with_ex
         client_account_statuses=None,
     )
     # assert
-    assert result == _CLEAR_CLIENT_PRIORITY
+    assert result == _CLEAR_PRIORITY

@@ -65,23 +65,21 @@ async def test_create_client_account_statuses__statuses_are_created(
         method='GET', path='/v1/sanctions/get-sanctions/', response=MockResponse(body={'items': []})
     )
 
-    account_1_c_phone = '+70000001'
     account_1_c_inner_phone = '80000001'
     expected_offer_1_c = {
         'priority': 231200111
     }
     expected_account_1_c = {
         'smb_account_status': 'no_lk_smb_priority',  # not user_profiles
-        'phone': account_1_c_phone,
+        'phone': account_1_c_inner_phone,
         'new_cian_user_id': None,
         'homeowner_account_status': None,
         'created_at': ANY,
         'updated_at': ANY,
     }
 
-    await v2_get_users_by_phone_add_stub([], account_1_c_phone, users_mock)
+    await v2_get_users_by_phone_add_stub([], '+70000001', users_mock)
 
-    account_3_c_phone = '+70000003'
     account_3_c_inner_phone = '80000003'
     account_3_c_cian_user_id = 3
     expected_offer_3_c = {
@@ -89,7 +87,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     }
     expected_account_3_c = {
         'smb_account_status': 'has_bad_account',
-        'phone': account_3_c_phone,
+        'phone': account_3_c_inner_phone,
         'new_cian_user_id': None,
         'homeowner_account_status': None,
         'created_at': ANY,
@@ -103,11 +101,10 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'state': 'blocked',  # -> has_bad_account
             }
         ],
-        account_3_c_phone,
+        '+70000003',
         users_mock,
     )
 
-    account_4_c_phone = '+70000004'
     account_4_c_inner_phone = '80000004'
     account_4_c_cian_user_id = 4
     expected_offer_4_c = {
@@ -115,7 +112,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     }
     expected_account_4_c = {
         'smb_account_status': 'has_wrong_user_source_type',
-        'phone': account_4_c_phone,
+        'phone': account_4_c_inner_phone,
         'new_cian_user_id': None,
         'homeowner_account_status': None,
         'created_at': ANY,
@@ -130,11 +127,10 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'externalUserSourceType': 'subAgents',  # -> has_wrong_user_source_type
             }
         ],
-        account_4_c_phone,
+        '+70000004',
         users_mock,
     )
 
-    account_5_c_phone = '+70000005'
     account_5_c_inner_phone = '80000005'
     account_5_c_cian_user_id = 5
     expected_offer_5_c = {
@@ -142,7 +138,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     }
     expected_account_5_c = {
         'smb_account_status': 'no_lk_smb_priority',  # not result.chosen_profile
-        'phone': account_5_c_phone,
+        'phone': account_5_c_inner_phone,
         'new_cian_user_id': None,
         'homeowner_account_status': None,
         'created_at': ANY,
@@ -158,11 +154,10 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'isAgent': False,  # -> no_lk_smb_priority
             }
         ],
-        account_5_c_phone,
+        '+70000005',
         users_mock,
     )
 
-    account_6_c_phone = '+70000006'
     account_6_c_inner_phone = '80000006'
 
     expected_offer_6_c = {
@@ -170,14 +165,13 @@ async def test_create_client_account_statuses__statuses_are_created(
     }
     expected_account_6_c = {
         'smb_account_status': 'api_client_exception',
-        'phone': account_6_c_phone,
+        'phone': account_6_c_inner_phone,
         'new_cian_user_id': None,
         'homeowner_account_status': None,
         'created_at': ANY,
         'updated_at': ANY,
     }
 
-    account_7_c_phone = '+70000007'
     account_7_c_inner_phone = '80000007'
     account_7_c_cian_user_id = 7
     expected_offer_7_c = {
@@ -185,7 +179,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     }
     expected_account_7_c = {
         'smb_account_status': None,
-        'phone': account_7_c_phone,
+        'phone': account_7_c_inner_phone,
         'new_cian_user_id': account_7_c_cian_user_id,
         'homeowner_account_status': None,
         'created_at': ANY,
@@ -201,18 +195,17 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'isAgent': True,
             }
         ],
-        account_7_c_phone,
+        '+70000007',
         users_mock,
     )
 
-    account_11_d_phone = '+70000011'
     account_11_d_inner_phone = '80000011'
     account_11_d_cian_user_id = 11
     expected_offer_11_d = {
         'priority': 232200211
     }
     expected_account_11_d = {
-        'phone': account_11_d_phone,
+        'phone': account_11_d_inner_phone,
         'homeowner_account_status': 'active_lk_homeowner_priority',
         'smb_account_status': None,
         'created_at': ANY,
@@ -229,33 +222,31 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'isAgent': False,
             }
         ],
-        account_11_d_phone,
+        '+70000011',
         users_mock,
     )
 
-    account_12_d_phone = '+70000012'
     account_12_d_inner_phone = '80000012'
     expected_offer_12_d = {
         'priority': 232200111
     }
     expected_account_12_d = {
-        'phone': account_12_d_phone,
+        'phone': account_12_d_inner_phone,
         'homeowner_account_status': 'no_lk_homeowner_priority',  # not user_profiles
         'smb_account_status': None,
         'created_at': ANY,
         'updated_at': ANY,
         'new_cian_user_id': None,
     }
-    await v2_get_users_by_phone_add_stub([], account_12_d_phone, users_mock)
+    await v2_get_users_by_phone_add_stub([], '+70000012', users_mock)
 
-    account_13_d_phone = '+70000013'
     account_13_d_inner_phone = '80000013'
     account_13_d_cian_user_id = 13
     expected_offer_13_d = {
         'priority': 232200111
     }
     expected_account_13_d = {
-        'phone': account_13_d_phone,
+        'phone': account_13_d_inner_phone,
         'homeowner_account_status': 'no_lk_homeowner_priority',  # not result.chosen_profile
         'smb_account_status': None,
         'created_at': ANY,
@@ -272,18 +263,17 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'isAgent': True,
             }
         ],
-        account_13_d_phone,
+        '+70000013',
         users_mock,
     )
 
-    account_16_d_phone = '+70000016'
     account_16_d_inner_phone = '80000016'
     account_16_c_cian_user_id = 16
     expected_offer_16_d = {
         'priority': -1
     }
     expected_account_16_d = {
-        'phone': account_16_d_phone,
+        'phone': account_16_d_inner_phone,
         'homeowner_account_status': 'has_bad_account',
         'smb_account_status': None,
         'created_at': ANY,
@@ -298,18 +288,17 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'state': 'blocked',  # -> has_bad_account
             }
         ],
-        account_16_d_phone,
+        '+70000016',
         users_mock,
     )
 
-    account_17_d_phone = '+70000017'
     account_17_d_inner_phone = '80000017'
     account_17_c_cian_user_id = 17
     expected_offer_17_d = {
         'priority': -1
     }
     expected_account_17_d = {
-        'phone': account_17_d_phone,
+        'phone': account_17_d_inner_phone,
         'homeowner_account_status': 'has_wrong_user_source_type',
         'smb_account_status': None,
         'created_at': ANY,
@@ -325,17 +314,16 @@ async def test_create_client_account_statuses__statuses_are_created(
                 'externalUserSourceType': 'subAgents',  # -> has_wrong_user_source_type
             }
         ],
-        account_17_d_phone,
+        '+70000017',
         users_mock,
     )
 
-    account_18_d_phone = '+70000018'
     account_18_d_inner_phone = '80000018'
     expected_offer_18_d = {
         'priority': -1
     }
     expected_account_18_d = {
-        'phone': account_18_d_phone,
+        'phone': account_18_d_inner_phone,
         'homeowner_account_status': 'api_client_exception',
         'smb_account_status': None,
         'created_at': ANY,
@@ -387,19 +375,19 @@ async def test_create_client_account_statuses__statuses_are_created(
         where phone = '%s'
         """
 
-        assert expected_account_1_c == await pg.fetchrow(accounts_query % account_1_c_phone)
-        assert expected_account_3_c == await pg.fetchrow(accounts_query % account_3_c_phone)
-        assert expected_account_4_c == await pg.fetchrow(accounts_query % account_4_c_phone)
-        assert expected_account_5_c == await pg.fetchrow(accounts_query % account_5_c_phone)
-        assert expected_account_6_c == await pg.fetchrow(accounts_query % account_6_c_phone)
-        assert expected_account_7_c == await pg.fetchrow(accounts_query % account_7_c_phone)
+        assert expected_account_1_c == await pg.fetchrow(accounts_query % account_1_c_inner_phone)
+        assert expected_account_3_c == await pg.fetchrow(accounts_query % account_3_c_inner_phone)
+        assert expected_account_4_c == await pg.fetchrow(accounts_query % account_4_c_inner_phone)
+        assert expected_account_5_c == await pg.fetchrow(accounts_query % account_5_c_inner_phone)
+        assert expected_account_6_c == await pg.fetchrow(accounts_query % account_6_c_inner_phone)
+        assert expected_account_7_c == await pg.fetchrow(accounts_query % account_7_c_inner_phone)
 
-        assert expected_account_11_d == await pg.fetchrow(accounts_query % account_11_d_phone)
-        assert expected_account_12_d == await pg.fetchrow(accounts_query % account_12_d_phone)
-        assert expected_account_13_d == await pg.fetchrow(accounts_query % account_13_d_phone)
-        assert expected_account_16_d == await pg.fetchrow(accounts_query % account_16_d_phone)
-        assert expected_account_17_d == await pg.fetchrow(accounts_query % account_17_d_phone)
-        assert expected_account_18_d == await pg.fetchrow(accounts_query % account_18_d_phone)
+        assert expected_account_11_d == await pg.fetchrow(accounts_query % account_11_d_inner_phone)
+        assert expected_account_12_d == await pg.fetchrow(accounts_query % account_12_d_inner_phone)
+        assert expected_account_13_d == await pg.fetchrow(accounts_query % account_13_d_inner_phone)
+        assert expected_account_16_d == await pg.fetchrow(accounts_query % account_16_d_inner_phone)
+        assert expected_account_17_d == await pg.fetchrow(accounts_query % account_17_d_inner_phone)
+        assert expected_account_18_d == await pg.fetchrow(accounts_query % account_18_d_inner_phone)
 
     offers_query = """
     select

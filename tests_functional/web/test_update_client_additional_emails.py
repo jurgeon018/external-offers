@@ -3,7 +3,6 @@ import json
 import pytest
 
 
-@pytest.mark.gen_test
 async def test_update_client_additional_emails(
         http,
         pg,

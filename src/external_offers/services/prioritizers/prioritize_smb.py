@@ -6,7 +6,12 @@ from cian_core.statsd import statsd
 from cian_http.exceptions import ApiClientException
 
 from external_offers.entities import SmbClientChooseMainProfileResult
-from external_offers.entities.client_account_statuses import ClientAccountStatus, SmbAccount, SmbAccountStatus
+from external_offers.entities.client_account_statuses import (
+    ClientAccountStatus,
+    HomeownerAccountStatus,
+    SmbAccount,
+    SmbAccountStatus,
+)
 from external_offers.entities.clients import Client
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.repositories.announcements import v2_get_user_active_announcements_count
@@ -23,7 +28,7 @@ from external_offers.services.prioritizers.build_priority import build_waiting_s
 
 logger = logging.getLogger(__name__)
 
-_CLEAR_CLIENT_PRIORITY = -1
+_CLEAR_PRIORITY = -1
 _NO_ACTIVE = 0
 
 _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
@@ -76,6 +81,7 @@ async def choose_main_smb_client_profile(user_profiles: list[UserModelV2]) -> Sm
 
 
 async def find_smb_account(phone: str) -> SmbAccount:
+    phone = transform_phone_number_to_canonical_format(phone)
     try:
         response: GetUsersByPhoneResponseV2 = await v2_get_users_by_phone(
             V2GetUsersByPhone(
@@ -142,6 +148,7 @@ async def find_smb_client_account_priority(
     team_settings: dict,
     client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
 ) -> int:
+    phone = client.client_phones[0]
     if client.cian_user_id:
         # если у клиента уже есть cian_user_id, то нужно посчитать активные обьявления
         account_status = await find_smb_client_account_status_by_announcements_count(
@@ -152,21 +159,23 @@ async def find_smb_client_account_priority(
     else:
         if client_account_statuses is None:
             client_account_statuses = {}
-        phone = transform_phone_number_to_canonical_format(client.client_phones[0])
-        client_account_status: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
-        if client_account_status:
+        account: Optional[ClientAccountStatus] = client_account_statuses.get(phone)
+        if account:
             # в таблице client_account_statuses есть закешированый статус ЛК клиента,
             # и можно не ходить в шарповые ручки, а достать статусы из базы
-            client_account_status: ClientAccountStatus
-            account_status: Optional[SmbAccountStatus] = client_account_status.smb_account_status
-            new_cian_user_id = client_account_status.new_cian_user_id
+            account_status: Optional[SmbAccountStatus] = account.smb_account_status
+            if account_status is None:
+                account_status = account.homeowner_account_status
+                logger.warning(
+                    'account %s(%s) doesnt have smb_account_status',
+                    account,
+                    phone,
+                )
         else:
             # в таблице client_account_statuses нет закешированного статуса ЛК клиента,
             # и нужно сходить в шарповые ручки и достать из них статус,
             account: SmbAccount = await find_smb_account(phone=phone)
             account_status: Optional[SmbAccountStatus] = account.account_status
-            new_cian_user_id = account.new_cian_user_id
-
         if account_status is None:
             # если статуса ЛК нет, то нужно сохранить новый cian_user_id и посчитать активные обьявления
             # (ответ ручки можно будет потом закешировать)
@@ -175,20 +184,36 @@ async def find_smb_client_account_priority(
                 client_count=client_count,
                 client_id=client.client_id,
             )
+        if account.new_cian_user_id:
             await set_cian_user_id_by_client_id(
-                cian_user_id=new_cian_user_id,
+                cian_user_id=account.new_cian_user_id,
                 client_id=client.client_id
             )
+    logger.warning(
+        'У клиента %s(%s) статус аккаунта %s',
+        client.client_id,
+        phone,
+        account_status
+    )
     if account_status in [
+        HomeownerAccountStatus.has_existing_accounts,
+        HomeownerAccountStatus.has_sanctions,
+        HomeownerAccountStatus.has_bad_account,
+        HomeownerAccountStatus.has_wrong_user_source_type,
+        HomeownerAccountStatus.api_client_exception,
+        #
         SmbAccountStatus.has_sanctions,
         SmbAccountStatus.has_bad_account,
         SmbAccountStatus.has_wrong_user_source_type,
         SmbAccountStatus.api_client_exception,
         SmbAccountStatus.has_bad_proportion_smb,
-        SmbAccountStatus.announcements_api_client_exception,
+        SmbAccountStatus.announcements_api_client_exception,        
     ]:
-        account_priority = _CLEAR_CLIENT_PRIORITY
+        account_priority = _CLEAR_PRIORITY
     elif account_status in [
+        HomeownerAccountStatus.no_lk_homeowner,
+        HomeownerAccountStatus.active_lk_homeowner,
+        #
         SmbAccountStatus.no_lk_smb,
         SmbAccountStatus.no_active_smb,
         SmbAccountStatus.keep_proportion_smb,
@@ -215,7 +240,7 @@ async def prioritize_smb_client(
         client_account_statuses=client_account_statuses,
     )
 
-    if account_priority == _CLEAR_CLIENT_PRIORITY:
+    if account_priority == _CLEAR_PRIORITY:
         return account_priority
 
     return build_waiting_smb_priority(

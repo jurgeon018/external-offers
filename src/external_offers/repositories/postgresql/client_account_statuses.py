@@ -4,8 +4,9 @@ from typing import Optional, Union
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
+from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import select
+from sqlalchemy.sql import or_, select
 
 from external_offers import pg
 from external_offers.entities.client_account_statuses import ClientAccountStatus
@@ -19,7 +20,14 @@ async def get_client_account_statuses() -> dict[str, ClientAccountStatus]:
     client_account_statuses = tables.client_account_statuses.alias()
 
     query, params = asyncpgsa.compile_query((
-        select([client_account_statuses])
+        select([
+            client_account_statuses
+        ]).where(
+            or_(
+                client_account_statuses.c.smb_account_status.isnot(None),
+                client_account_statuses.c.homeowner_account_status.isnot(None),
+            )
+        )
     ))
     rows = await pg.get().fetch(query, *params)
     client_account_statuses = {}
