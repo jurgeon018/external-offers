@@ -1,4 +1,4 @@
-from typing import Generator, TypeVar, Collection
+from typing import Collection, Generator, TypeVar
 
 from simple_settings import settings
 
