@@ -567,6 +567,7 @@
     async function prioritizeReal(teamId){
         let obj = {
             "teamId": teamId,
+            "isTest": false,
         }
         const response = await fetch("/api/admin/v1/prioritize-waiting-offers-public/", {
             method: 'POST',
