@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
@@ -7,7 +8,7 @@ from cian_core.runtime_settings import runtime_settings as settings
 from cian_json import json
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, delete, func, not_, or_, select, update
+from sqlalchemy.sql import and_, delete, func, not_, select, update
 from sqlalchemy.sql.expression import false, true
 
 from external_offers import pg
@@ -18,7 +19,6 @@ from external_offers.entities.parsed_offers import (
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
-from external_offers.entities.teams import Team
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
@@ -30,6 +30,9 @@ from external_offers.mappers.parsed_offers import (
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 from external_offers.repositories.postgresql import tables
 from external_offers.utils import iterate_over_list_by_chunks
+
+
+logger = logging.getLogger(__name__)
 
 
 async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
@@ -214,6 +217,12 @@ async def delete_outdated_parsed_offers(
 ) -> None:
     po = tables.parsed_offers.alias()
     ofc = tables.offers_for_call.alias()
+
+    query, params = asyncpgsa.compile_query(select([func.count()]).where(po.c.updated_at > updated_at_border))
+    new_parsed_offers_count = await pg.get().fetchval(query, *params)
+    if new_parsed_offers_count < settings.NEW_PARSED_OFFERS_COUNT_FOR_DELETE_OLD:
+        logger.warning('Очистка устаревших объявлений не была запущена из-за отстутствия новых объявлений')
+        return
 
     query, params = asyncpgsa.compile_query(
         select([
