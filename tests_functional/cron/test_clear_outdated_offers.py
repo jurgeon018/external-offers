@@ -47,6 +47,58 @@ async def test_clear_offers__clearing_disabled__clear_nothing(
                 for line in logs.get_lines()])
 
 
+async def test_clear_offers__new_offers_count_less_than_necessary___clear_nothing(
+    pg,
+    runtime_settings,
+    runner,
+    logs
+):
+    # arrange
+    await pg.execute(
+        """
+        INSERT INTO public.parsed_offers (
+            id,
+            user_segment,
+            source_object_id,
+            source_user_id, source_object_model,
+            is_calltracking,
+            "timestamp",
+            created_at,
+            updated_at
+        ) VALUES (
+            '2e6c73b8-3057-47cc-b50a-419052da619f',
+            'b',
+            '1_1931442443',
+            '48f05f430722c915c498113b16ba0e79',
+            '{}',
+            false,
+            now() - interval '3 day',
+            now() - interval '3 day',
+            now() - interval '3 day'
+        );
+        """
+    )
+    await runtime_settings.set({
+        'ENABLE_OUTDATED_OFFERS_CLEARING': True,
+        'ENABLE_WAS_UPDATE_CHECK': False,
+        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 1,
+        'NEW_PARSED_OFFERS_COUNT_FOR_DELETE_OLD': 1000,
+    })
+
+    # act
+    await runner.run_python_command('clear-outdated-offers-cron')
+
+    # assert
+    row = await pg.fetchrow(
+        """
+        SELECT * FROM parsed_offers WHERE id = '2e6c73b8-3057-47cc-b50a-419052da619f'
+        """
+    )
+    assert row is not None
+    assert any('Очистка устаревших объявлений не была запущена из-за отстутствия новых объявлений' in line
+               for line in logs.get_lines())
+
+
 async def test_clear_offers__none_updated_in_window__clear_nothing(
     pg,
     runtime_settings,
@@ -109,7 +161,8 @@ async def test_clear_offers__none_updated_in_window_but_check_disabled__clear(
     await runtime_settings.set({
         'ENABLE_OUTDATED_OFFERS_CLEARING': True,
         'ENABLE_WAS_UPDATE_CHECK': False,
-        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 1
+        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 1,
+        'NEW_PARSED_OFFERS_COUNT_FOR_DELETE_OLD': 0,
     })
 
     await pg.execute(
@@ -236,7 +289,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only(
         'ENABLE_OUTDATED_OFFERS_CLEARING': True,
         'ENABLE_WAS_UPDATE_CHECK': True,
         'OFFER_UPDATE_CHECK_WINDOW_IN_HOURS': 24,
-        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 2
+        'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 2,
+        'NEW_PARSED_OFFERS_COUNT_FOR_DELETE_OLD': 0,
     })
 
     await pg.execute(
@@ -321,6 +375,7 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
         'OFFER_UPDATE_CHECK_WINDOW_IN_HOURS': 24,
         'OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS': 2,
         'DELETE_OLD_OFFERS_CHUNK': 1,
+        'NEW_PARSED_OFFERS_COUNT_FOR_DELETE_OLD': 0,
     })
 
     await pg.execute(
