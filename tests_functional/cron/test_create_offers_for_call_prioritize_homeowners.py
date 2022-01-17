@@ -1,16 +1,19 @@
+import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
 _CLEAR_PRIORITY = -1
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_emls__clears_client(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
-    announcements_mock
+    announcements_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -24,7 +27,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_emls__
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
         'WAITING_PRIORITY': 3,
-
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
@@ -73,6 +76,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_emls__
     assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_lk__creates_waiting_offer(
     pg,
     runtime_settings,
@@ -80,7 +84,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
     announcements_mock,
-    monolith_cian_profileapi_mock
+    monolith_cian_profileapi_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -96,7 +101,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
         'WAITING_PRIORITY': 3,
-
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
@@ -161,13 +166,15 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     assert client_row['cian_user_id'] == 12835367
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_blocked_lk__clears_client(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
-    announcements_mock
+    announcements_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -179,7 +186,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_blocke
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5
+        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
@@ -229,6 +237,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_blocke
     assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_agent__prioritize_as_no_lk(
     pg,
     runtime_settings,
@@ -236,7 +245,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
     announcements_mock,
-    monolith_cian_profileapi_mock
+    monolith_cian_profileapi_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -252,8 +262,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'NO_LK_HOMEOWNER_PRIORITY': 4,
         'WAITING_PRIORITY': 3,
-        'HOMEOWNER_PRIORITY': 2
-
+        'HOMEOWNER_PRIORITY': 2,
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
@@ -318,12 +328,14 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     assert client_row['cian_user_id'] is None
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_get_users__cleares_waiting_offer(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -335,6 +347,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
@@ -357,12 +370,14 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_g
     assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_without_lk__creates_waiting_offer(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -377,7 +392,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'NO_LK_HOMEOWNER_PRIORITY': 4,
         'WAITING_PRIORITY': 3,
-        'HOMEOWNER_PRIORITY': 2
+        'HOMEOWNER_PRIORITY': 2,
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
@@ -409,13 +425,15 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
     assert client_row['cian_user_id'] is None
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sanctions__clears_client(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
-    monolith_cian_profileapi_mock
+    monolith_cian_profileapi_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -427,7 +445,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5
+        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
@@ -483,12 +502,14 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_sancti
     assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
+@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_create_offers__clear_homeowners_with_existing_accounts_is_true__clients_cleared(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
+    use_gather_for_priority_clients,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -500,7 +521,8 @@ async def test_create_offers__clear_homeowners_with_existing_accounts_is_true__c
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
-        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5
+        'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
+        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
