@@ -7,6 +7,7 @@ from typing import Optional, Union
 import pytz
 from cian_core.context import new_operation_id
 from cian_core.runtime_settings import runtime_settings
+from cian_core.statsd import statsd
 from cian_json import json
 from tornado import gen
 
@@ -452,7 +453,8 @@ async def sync_and_create_offers() -> None:
     logger.warning('Наполнение очереди заданиями было запущено')
     await sync_offers_for_call_with_parsed()
     logger.info('Начало процесса приоритезации')
-    await clear_and_prioritize_waiting_offers()
+    with statsd.timer('offers_prioritization'):
+        await clear_and_prioritize_waiting_offers()
     logger.info('Конец процесса приоритезации')
 
 
