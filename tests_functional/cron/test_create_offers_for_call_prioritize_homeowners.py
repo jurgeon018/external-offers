@@ -1,3 +1,6 @@
+from unittest.mock import ANY
+
+import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
@@ -24,7 +27,6 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_emls__
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
         'WAITING_PRIORITY': 3,
-
     })
     await users_mock.add_stub(
         method='GET',
@@ -73,6 +75,10 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_emls__
     assert offer_row['priority'] == _CLEAR_PRIORITY
 
 
+@pytest.mark.parametrize('USE_CACHED_CLIENTS_PRIORITY', [
+    True,
+    False,
+])
 async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active_lk__creates_waiting_offer(
     pg,
     runtime_settings,
@@ -80,7 +86,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
     announcements_mock,
-    monolith_cian_profileapi_mock
+    monolith_cian_profileapi_mock,
+    USE_CACHED_CLIENTS_PRIORITY,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -96,7 +103,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
         'WAITING_PRIORITY': 3,
-
+        'USE_CACHED_CLIENTS_PRIORITY': USE_CACHED_CLIENTS_PRIORITY,
     })
     await users_mock.add_stub(
         method='GET',
@@ -236,7 +243,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     parsed_offers_fixture_for_offers_for_call_test,
     users_mock,
     announcements_mock,
-    monolith_cian_profileapi_mock
+    monolith_cian_profileapi_mock,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
@@ -252,8 +259,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'NO_LK_HOMEOWNER_PRIORITY': 4,
         'WAITING_PRIORITY': 3,
-        'HOMEOWNER_PRIORITY': 2
-
+        'HOMEOWNER_PRIORITY': 2,
+        'USE_CACHED_CLIENTS_PRIORITY': True,
     })
     await users_mock.add_stub(
         method='GET',
@@ -296,6 +303,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         ),
     )
 
+    cached_priorities_before_cron = await pg.fetch("""
+        SELECT * FROM clients_priorities;
+    """)
     # act
     await runner.run_python_command('create-offers-for-call')
 
@@ -312,10 +322,27 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         """,
         [offer_row['client_id']]
     )
-
+    offer_priority_part = '12'
+    client_priority_part = '2321204'
+    priority = client_priority_part + offer_priority_part
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == 232120412
+    assert offer_row['priority'] == int(priority)
     assert client_row['cian_user_id'] is None
+
+    cached_priorities = await pg.fetch("""
+        SELECT * FROM clients_priorities;
+    """)
+
+    # До запуска крона в базе небыло закешированых приоритетов
+    assert len(cached_priorities_before_cron) == 0
+    # После запуска крона в базе закешировались приоритеты
+    assert len(cached_priorities) == 1
+    assert cached_priorities[0] == {
+        'team_id': None,
+        'priorities': '{"%s": "%s"}' % (client_row['client_id'], int(client_priority_part)),
+        'created_at': ANY,
+        'updated_at': ANY,
+    }
 
 
 async def test_create_offers__exist_suitable_parsed_offer_and_client_failed_to_get_users__cleares_waiting_offer(
@@ -377,7 +404,8 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_homeowner_w
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
         'NO_LK_HOMEOWNER_PRIORITY': 4,
         'WAITING_PRIORITY': 3,
-        'HOMEOWNER_PRIORITY': 2
+        'HOMEOWNER_PRIORITY': 2,
+        'USE_CACHED_CLIENTS_PRIORITY': True
     })
     await users_mock.add_stub(
         method='GET',

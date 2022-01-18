@@ -93,6 +93,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     *,
     last_sync_date: Optional[datetime],
     max_updated_at_date: Optional[datetime],
+    is_test: bool,
 ) -> Optional[List[ParsedOfferForCreation]]:
 
     po = tables.parsed_offers.alias()
@@ -104,6 +105,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         po.c.source_user_id.isnot(None),
         not_(po.c.is_calltracking),
         not_(po.c.synced),
+        po.c.is_test == is_test,
     ]
 
     if max_updated_at_date:
@@ -133,6 +135,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .values(synced=True)
         .returning(
             tables.parsed_offers.c.id,
+            tables.parsed_offers.c.is_test,
             tables.parsed_offers.c.source_user_id,
             tables.parsed_offers.c.source_group_id,
             tables.parsed_offers.c.timestamp,
