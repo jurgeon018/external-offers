@@ -458,16 +458,11 @@ async def sync_offers_for_call_with_parsed(is_test: bool) -> None:
 
 async def sync_and_create_offers(is_test: bool) -> None:
     logger.warning('Наполнение очереди заданиями было запущено')
-<<<<<<< HEAD
     await sync_offers_for_call_with_parsed(is_test=is_test)
-    await clear_and_prioritize_waiting_offers(is_test=is_test)
-=======
-    await sync_offers_for_call_with_parsed()
     logger.info('Начало процесса приоритезации')
     with statsd.timer('offers_prioritization'):
-        await clear_and_prioritize_waiting_offers()
+        await clear_and_prioritize_waiting_offers(is_test=is_test)
     logger.info('Конец процесса приоритезации')
->>>>>>> 790202d5237343376a5677e8c9f887348f663f03
 
 
 async def clear_and_prioritize_waiting_offers(is_test: bool) -> None:
