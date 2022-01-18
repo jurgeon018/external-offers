@@ -11,7 +11,6 @@ from cian_http.exceptions import ApiClientException
 from external_offers.entities.clients import Client, UserSegment
 from external_offers.entities.offers import Offer
 from external_offers.entities.parsed_offers import ParsedOfferMessage
-from external_offers.entities.response import BasicResponse
 from external_offers.entities.test_objects import (
     CreateTestClientRequest,
     CreateTestClientResponse,
@@ -60,10 +59,6 @@ async def get_default_test_offer():
 
 async def get_default_test_client():
     return runtime_settings.DEFAULT_TEST_CLIENT
-
-
-async def get_default_test_parsed_offer():
-    return runtime_settings.DEFAULT_TEST_PARSED_OFFER
 
 
 def get_attr(
@@ -165,7 +160,9 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
     )
 
 
-async def create_test_parsed_offer_public(request: CreateTestParsedOfferRequest, user_id: int) -> BasicResponse:
+async def create_test_parsed_offer_public(
+        request: CreateTestParsedOfferRequest, user_id: int
+) -> CreateTestParsedOfferResponse:
     """
     Создать тестовое спаршеное обьявление по sourceUserId.
     """
@@ -185,12 +182,6 @@ async def create_test_parsed_offer_public(request: CreateTestParsedOfferRequest,
             message=f'Обьявление с source_object_id {source_object_id} уже существует.',
         )
 
-    lat = request.lat
-    if request.lat:
-        lat = float(request.lat)
-    lng = request.lng
-    if request.lng:
-        lng = float(request.lng)
     parsed_id = request.id or generate_guid()
     user_segment = request.user_segment
     parsed_offer_message = ParsedOfferMessage(
@@ -218,8 +209,8 @@ async def create_test_parsed_offer_public(request: CreateTestParsedOfferRequest,
             'isDeveloper': request.is_developer,
             'isStudio': request.is_studio,
             'town': request.town,
-            'lat': lat,
-            'lng': lng,
+            'lat': float(request.lat) if request.lat else None,
+            'lng': float(request.lng) if request.lng else None,
             'livingArea': request.living_area,
             'description': request.description,
         },

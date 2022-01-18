@@ -350,9 +350,10 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     assert len(cached_priorities_before_cron) == 0
     # После запуска крона в базе закешировались приоритеты
     assert len(cached_priorities) == 1
+    client_id = client_row['client_id']
     assert cached_priorities[0] == {
         'team_id': None,
-        'priorities': '{"%s": "%s"}' % (client_row['client_id'], int(client_priority_part)),
+        'priorities': f'{{"{client_id}": "{int(client_priority_part)}"}}',
         'created_at': ANY,
         'updated_at': ANY,
     }

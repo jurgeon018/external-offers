@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import Optional, Union
 
 import pytz
-from asyncpg.exceptions import PostgresError
 from cian_core.context import new_operation_id
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd
@@ -594,15 +593,8 @@ async def get_cached_clients_priority(
     client_account_statuses: dict[str, ClientAccountStatus],
     team_id: Optional[int] = None,
 ) -> dict[int, int]:
-    try:
-        # достает закешированную часть приоритета для клиентов в ожидании
-        clients_priority = await get_clients_priority_by_team_id(team_id)
-    except Exception as error:
-        clients_priority = None
-        logger.warning(
-            'Во время использования закешированых приоритетов произошла ошибка: %s',
-            error,
-        )
+    # достает закешированную часть приоритета для клиентов в ожидании
+    clients_priority = await get_clients_priority_by_team_id(team_id)
     if not clients_priority:
         # создает часть приоритета для клиентов в ожидании
         clients_priority = await prioritize_clients(
@@ -610,17 +602,11 @@ async def get_cached_clients_priority(
             team_settings=team_settings,
             client_account_statuses=client_account_statuses,
         )
-        try:
-            # кеширует часть приоритета для клиентов в ожидании
-            await save_clients_priority(
-                clients_priority=clients_priority,
-                team_id=team_id,
-            )
-        except PostgresError as error:
-            logger.warning(
-                'Во время кеширования приоритетов произошла ошибка: %s',
-                error,
-            )
+        # кеширует часть приоритета для клиентов в ожидании
+        await save_clients_priority(
+            clients_priority=clients_priority,
+            team_id=team_id,
+        )
     return clients_priority
 
 

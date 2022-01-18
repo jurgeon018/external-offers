@@ -1,7 +1,111 @@
+import asyncio
 import json
 
 from cian_functional_test_utils.data_fixtures import load_json_data
 from cian_functional_test_utils.pytest_plugin import MockResponse, mock_request
+from cian_json import json
+
+
+async def test_create_test_parsed_offers_and_run_offers_creation_cron(
+    pg,
+    http,
+    runtime_settings,
+    users_mock,
+):
+    # arrange
+    await runtime_settings.set({
+        'CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS': False,
+        'OFFER_TASK_CREATION_SEGMENTS': ['d'],
+        'OFFER_TASK_CREATION_CATEGORIES': [
+            'flatSale', 'flatRent', 'officeRent', 'houseRent', 'officeSale', 'houseSale'
+        ],
+        'OFFER_TASK_CREATION_REGIONS': [4580],
+        'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
+        'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+        'NO_LK_HOMEOWNER_PRIORITY': 4,
+        'WAITING_PRIORITY': 3,
+        'HOMEOWNER_PRIORITY': 2,
+    })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v2/get-users-by-phone/',
+        response=MockResponse(
+            body={'users': []}
+        ),
+    )
+
+    # act
+    result = await http.request(
+        'POST',
+        '/qa/v1/create-test-parsed-offer/',
+        json={
+            'sourceObjectId': '1_1931552437',
+            'sourceUserId': '95f05f430722c915c498113b16ba0e78',
+            'isCalltracking': False,
+            'userSegment': 'd',
+            'userSubsegment': 'subsegment1',
+            'sourceGroupId': 'group_id1',
+            'externalOfferType': None,
+            # source_object_model
+            'phone': '89516137979',
+            'category': 'houseSale',
+            'title': 'Название обьявки',
+            'address': 'Адрес',
+            'region': 4580,
+            'price': None,
+            'priceType': None,
+            'contact': None,
+            'totalArea': None,
+            'floorNumber': None,
+            'floorsCount': None,
+            'roomsCount': None,
+            'url': None,
+            'isAgency': None,
+            'isDeveloper': None,
+            'isStudio': None,
+            'town': None,
+            'lat': None,
+            'lng': None,
+            'livingArea': None,
+            'description': None,
+        },
+        headers={
+            'X-Real-UserId': 1
+        },
+        expected_status=200
+    )
+    resp = json.loads(result.body.decode('utf-8'))
+    parsed_id = resp['parsedId']
+
+    result = await http.request(
+        'POST',
+        '/api/admin/v1/create-test-offers-for-call/',
+        headers={
+            'X-Real-UserId': 1
+        },
+        expected_status=200
+    )
+    await asyncio.sleep(2)
+
+    # assert
+    offer_row = await pg.fetchrow(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = $1
+        """,
+        [parsed_id]
+    )
+
+    client_row = await pg.fetchrow(
+        """
+        SELECT * FROM clients WHERE client_id = $1
+        """,
+        [offer_row['client_id']]
+    )
+    assert resp['success'] is True
+    assert offer_row['status'] == 'waiting'
+    assert offer_row['priority'] == 232120412
+    assert client_row['cian_user_id'] is None
+
 
 
 async def test_create_offer_from_default_settings(

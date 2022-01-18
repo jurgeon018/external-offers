@@ -140,7 +140,7 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.DeleteTestObjectsResponse,
         base_handler_cls=PublicHandler,
     )),
-    url('/api/admin/v1/create-test-parsed-offer/$', get_handler(
+    url('/qa/v1/create-test-parsed-offer/$', get_handler(
         service=create_test_parsed_offer_public,
         method='POST',
         request_schema=entities.CreateTestParsedOfferRequest,
