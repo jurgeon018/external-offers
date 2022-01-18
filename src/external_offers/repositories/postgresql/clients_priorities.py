@@ -4,6 +4,7 @@ from typing import Optional
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
+from cian_json import json
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import and_, select
 
@@ -31,7 +32,8 @@ async def get_clients_priority_by_team_id(
         ).limit(1)
     )
     cached_clients_priority = await pg.get().fetchval(query, *params)
-    assert isinstance(cached_clients_priority, dict)
+    if cached_clients_priority:
+        cached_clients_priority = json.loads(cached_clients_priority)
     return cached_clients_priority
 
 

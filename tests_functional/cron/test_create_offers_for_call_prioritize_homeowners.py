@@ -2,6 +2,7 @@ from unittest.mock import ANY
 
 import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
+from cian_json import json
 
 
 _CLEAR_PRIORITY = -1
@@ -337,9 +338,9 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     )
     offer_priority_part = '12'
     client_priority_part = '2321204'
-    priority = client_priority_part + offer_priority_part
+    expected_priority = client_priority_part + offer_priority_part
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == int(priority)
+    assert offer_row['priority'] == int(expected_priority)
     assert client_row['cian_user_id'] is None
 
     cached_priorities = await pg.fetch("""
@@ -357,6 +358,24 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
         'created_at': ANY,
         'updated_at': ANY,
     }
+    # проставляет пустой приоритет клиенту, чтобы повторно протестить приоретизацию из закешированых приоритетов
+    await pg.execute("""
+        UPDATE offers_for_call SET priority = null WHERE parsed_id = '9d6c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    offer_priority = await pg.fetchval("""
+        SELECT priority FROM offers_for_call WHERE parsed_id = '9d6c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    assert offer_priority is None
+
+    await runner.run_python_command('create-offers-for-call')
+    cached_client_priority = await pg.fetchval("""
+        SELECT priorities FROM clients_priorities LIMIT 1
+    """)
+    offer_priority = await pg.fetchval("""
+        SELECT priority FROM offers_for_call WHERE parsed_id = '9d6c73b8-3057-47cc-b50a-419052da619f'
+    """)
+    assert offer_priority == int(expected_priority)
+    assert int(json.loads(cached_client_priority)[client_id]) == int(str(offer_priority)[0:-2])
 
 
 @pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])

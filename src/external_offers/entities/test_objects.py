@@ -40,8 +40,11 @@ class CreateTestClientResponse:
 @dataclass
 class CreateTestParsedOfferResponse:
     success: bool
+    """Статус операции"""
     message: str
-    parsed_id: Optional[str] = None
+    """Текст ответа"""
+    parsed_id: Optional[str]
+    """Идентификатор созданого обьявления"""
 
 
 @dataclass

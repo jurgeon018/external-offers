@@ -161,7 +161,7 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
 
 
 async def create_test_parsed_offer_public(
-        request: CreateTestParsedOfferRequest, user_id: int
+    request: CreateTestParsedOfferRequest, user_id: int
 ) -> CreateTestParsedOfferResponse:
     """
     Создать тестовое спаршеное обьявление по sourceUserId.
@@ -172,6 +172,7 @@ async def create_test_parsed_offer_public(
         return CreateTestParsedOfferResponse(
             success=False,
             message=f'Клиент с sourceUserId {source_user_id} уже существует. Выберите другой sourceUserId.',
+            parsed_id=None,
         )
 
     source_object_id = request.source_object_id
@@ -180,6 +181,7 @@ async def create_test_parsed_offer_public(
         return CreateTestParsedOfferResponse(
             success=False,
             message=f'Обьявление с source_object_id {source_object_id} уже существует.',
+            parsed_id=None,
         )
 
     parsed_id = request.id or generate_guid()
@@ -215,15 +217,7 @@ async def create_test_parsed_offer_public(
             'description': request.description,
         },
     )
-    try:
-        await save_test_parsed_offer(parsed_offer=parsed_offer_message)
-    except PostgresError as e:
-        error_message = f'Не удалось создать спаршеное обьявление из-за ошибки: {e}'
-        return CreateTestParsedOfferResponse(
-            success=False,
-            message=error_message,
-        )
-
+    await save_test_parsed_offer(parsed_offer=parsed_offer_message)
     return CreateTestParsedOfferResponse(
         success=True,
         message='Тестовое спаршенное обьявление было успешно создано',

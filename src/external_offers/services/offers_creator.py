@@ -592,7 +592,7 @@ async def get_cached_clients_priority(
     team_settings: dict,
     client_account_statuses: dict[str, ClientAccountStatus],
     team_id: Optional[int] = None,
-) -> dict[int, int]:
+) -> dict[str, str]:
     # достает закешированную часть приоритета для клиентов в ожидании
     clients_priority = await get_clients_priority_by_team_id(team_id)
     if not clients_priority:
