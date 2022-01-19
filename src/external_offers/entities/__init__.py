@@ -38,6 +38,7 @@ from external_offers.entities.operators import (
     EnrichedOperator,
     Operator,
     UpdateOperatorRequest,
+    UpdateOperatorsRequest,
 )
 from external_offers.entities.parsed_offers import ParsedOffer, ParsedOfferMessage
 from external_offers.entities.response import BasicResponse
@@ -66,4 +67,5 @@ from external_offers.entities.update_client_phone import (
 )
 from external_offers.entities.update_clients_operator import UpdateClientsOperatorRequest, UpdateClientsOperatorResponse
 from external_offers.entities.update_offer_category import UpdateOfferCategoryRequest, UpdateOfferCategoryResponse
+from external_offers.entities.update_offer_comment import UpdateOfferCommentRequest, UpdateOfferCommentResponse
 from external_offers.entities.update_waiting_offers_priority import PrioritizeWaitingOffersRequest

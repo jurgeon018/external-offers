@@ -71,8 +71,8 @@ async def create_operator(
     operator_id: Union[int, str],
     full_name: Optional[str] = None,
     team_id: Optional[int] = None,
-    is_teamlead: bool = False,
     email: Optional[str] = None,
+    is_teamlead: bool = False,
 ) -> None:
     now = datetime.now(tz=pytz.utc)
     query, params = asyncpgsa.compile_query(
@@ -82,8 +82,8 @@ async def create_operator(
             operator_id=str(operator_id),
             full_name=full_name,
             team_id=team_id,
-            is_teamlead=is_teamlead,
             email=email,
+            is_teamlead=is_teamlead,
             created_at=now,
             updated_at=now,
         )
@@ -95,22 +95,26 @@ async def update_operator_by_id(
     *,
     operator_id: Union[str, int],
     full_name: str,
-    team_id: str,
-    is_teamlead: bool = False,
+    team_id: Optional[int],
     email: Optional[str] = None,
+    is_teamlead: bool = None,
 ) -> None:
     now = datetime.now(tz=pytz.utc)
+    values = {
+        'full_name': full_name,
+        'team_id': team_id,
+        'email': email,
+        'updated_at': now,
+    }
+    if is_teamlead is not None:
+        values['is_teamlead'] = is_teamlead
     query, params = asyncpgsa.compile_query(
         update(
             operators
         ).where(
             operators.c.operator_id == str(operator_id)
         ).values(
-            full_name=full_name,
-            team_id=team_id,
-            email=email,
-            is_teamlead=is_teamlead,
-            updated_at=now
+            **values
         )
     )
     await pg.get().execute(query, *params)

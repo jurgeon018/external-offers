@@ -4,5 +4,5 @@ from typing import Optional
 
 @dataclass
 class PrioritizeWaitingOffersRequest:
-    team_id: str
-    is_test: Optional[bool] = None
+    is_test: bool
+    team_id: Optional[str] = None

@@ -22,6 +22,14 @@ from external_offers.services.parsed_offers import extract_source_from_source_ob
 logger = logging.getLogger(__name__)
 
 
+async def _send_telemetry(date: datetime):
+    aware_date = get_aware_date(date)
+    statsd.timing(
+        stat='process_announcement_delta',
+        delta=datetime.now(pytz.utc) - aware_date if aware_date else 0
+    )
+
+
 async def process_announcement_callback(messages: List[Message]) -> None:
     for message in messages:
         announcement_message: AnnouncementReportingChangedQueueMessage = message.data
@@ -30,10 +38,7 @@ async def process_announcement_callback(messages: List[Message]) -> None:
         routing_key = message.envelope.routing_key
         with new_operation_id(operation_id), statsd.timer(f'queue.{routing_key}'):
             await process_announcement(object_model=object_model)
-            statsd.timing(
-                stat='process_announcement_delta',
-                delta=datetime.now(pytz.utc) - get_aware_date(announcement_message.date)
-            )
+            await _send_telemetry(announcement_message.date)
 
 
 async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOfferMessage]]):
@@ -43,7 +48,7 @@ async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[
 
         source = extract_source_from_source_object_id(source_object_id)
         if source not in runtime_settings.SUITABLE_EXTERNAL_SOURCES_FOR_SAVE:
-            return
+            continue
 
         logger.info('Save parsed offer: %s', offer_event.id)
         await save_parsed_offer(offer=offer_event)

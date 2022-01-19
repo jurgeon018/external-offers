@@ -48,6 +48,7 @@ from external_offers.repositories.postgresql import (
 from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id
 from external_offers.repositories.postgresql.operators import get_operator_by_id, get_operator_team_id
 from external_offers.repositories.postgresql.teams import get_team_by_id
+from external_offers.services.offers_creator import get_team_info
 from external_offers.services.operator_roles import get_operator_roles
 from external_offers.utils import get_next_call_date_when_call_missed
 
@@ -71,7 +72,6 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
             ]
         )
 
-    operator_roles = []
     operator_roles = await get_operator_roles(operator_id=user_id)
     operator_team_id = await get_operator_team_id(operator_id=user_id)
     async with pg.get().transaction():
@@ -400,17 +400,14 @@ async def set_call_missed_status_for_client(
             client_id=client_id,
             next_call=next_call
         )
-        team_settings = {}
-        team_id = None
         operator = await get_operator_by_id(user_id)
+        team = None
         if operator:
             team = await get_team_by_id(operator.team_id)
-            if team:
-                team_settings = team.get_settings()
-                team_id = team.team_id
+        team_id, team_settings = get_team_info(team)
         if offers_ids := await set_offers_call_missed_by_client(
             client_id=client_id,
-            team_settings=team_settings,
+            call_missed_priority=team_settings['call_missed_priority'],
             team_id=team_id,
         ):
             offer = await get_offer_by_offer_id(offer_id=offers_ids[0])
@@ -455,15 +452,11 @@ async def set_call_later_status_for_client(
             client_id=client_id,
             next_call=call_later_datetime
         )
-        team_settings = {}
-        team_id = None
         operator = await get_operator_by_id(user_id)
-
+        team = None
         if operator:
             team = await get_team_by_id(operator.team_id)
-            if team:
-                team_settings = team.get_settings()
-                team_id = team.team_id
+        team_id, team_settings = get_team_info(team)
         if offers_ids := await set_offers_call_later_by_client(
             client_id=client_id,
             team_settings=team_settings,

@@ -29,13 +29,15 @@ async def process_announcement(
     offer_cian_id = object_model.cian_id
     if not row_version:
         return
+    if offer_cian_id is None:
+        return
     offer_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
     if offer_row_version is None:
         return
     if offer_row_version is not None and offer_row_version > row_version:
         return
     status = await get_offer_publication_status_by_offer_cian_id(offer_cian_id)
-    if status == Status.published.value:
+    if not publication_status or status == Status.published.value:
         return
     await update_publication_status(
         publication_status=publication_status,

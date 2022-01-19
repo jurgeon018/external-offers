@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from external_offers import pg
 from external_offers.entities.grafana_metric import SegmentedObject
@@ -28,7 +28,7 @@ async def sync_waiting_objects_with_grafana(table_name: str) -> None:
     """)
 
 
-async def get_processed_synced_objects_count(table_name: str) -> Optional[int]:
+async def get_processed_synced_objects_count(table_name: str) -> int:
     return await pg.get().fetchval(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana
@@ -36,7 +36,7 @@ async def get_processed_synced_objects_count(table_name: str) -> Optional[int]:
     """)
 
 
-async def get_synced_objects_count(table_name: str) -> Optional[int]:
+async def get_synced_objects_count(table_name: str) -> int:
     return await pg.get().fetchval(f"""
         SELECT COUNT(*) FROM {table_name}
         WHERE synced_with_grafana;
@@ -66,7 +66,7 @@ segment_types_to_field_names_mapper = {
     GrafanaSegmentType.user_segment: 'parsed_offers.user_segment',
     GrafanaSegmentType.category: 'ofc.category',
 }
-metric_to_status_query_mapper = {
+metric_to_status_query_mapper: dict[GrafanaMetric, Union[dict[bool, str], str]] = {
     GrafanaMetric.waiting_offers_count: (
         f"""
         WHERE ofc.synced_with_grafana IS NOT TRUE
@@ -127,7 +127,7 @@ async def fetch_segmented_objects(
     processed: bool = None,
 ) -> List[SegmentedObject]:
     field_name = segment_types_to_field_names_mapper[segment_type]
-    status_query: dict = metric_to_status_query_mapper[metric]
+    status_query = metric_to_status_query_mapper[metric]
     if processed is not None:
         status_query = status_query[processed]
     if metric in client_metrics:
@@ -143,7 +143,7 @@ async def fetch_segmented_objects(
         rows = await pg.get().fetch(segmentation_query)
 
         # создает словарь со списками клиентов из сегментов
-        dct = defaultdict(list)
+        dct: dict = defaultdict(list)
         for row in rows:
             segment_name = row['segment_name']
             client_id = row['client_id']

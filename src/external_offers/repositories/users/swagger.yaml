@@ -69,6 +69,20 @@ definitions:
     required:
     - users
     type: object
+  WebApi.Models.RemoveRoleFromUserRequest:
+    description: Запрос на отключение роли
+    properties:
+      roleName:
+        description: Название роли
+        type: string
+      userId:
+        description: Id пользователя
+        format: int64
+        type: integer
+    required:
+    - roleName
+    - userId
+    type: object
   WebApi.Models.RoleModel:
     description: Модель роли
     properties:
@@ -475,6 +489,24 @@ paths:
         \ без подтверждения\r\nручка для \"Админки предразмещения\""
       tags:
       - UserRegistration
+  /v1/remove-role-from-user/:
+    post:
+      consumes:
+      - application/json-patch+json
+      - application/json
+      - text/json
+      - application/*+json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/WebApi.Models.RemoveRoleFromUserRequest'
+      responses:
+        '200':
+          description: Success
+      summary: Удаляет роль у пользователя
+      tags:
+      - Roles
   /v1/user-has-role/:
     get:
       parameters:

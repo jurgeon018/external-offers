@@ -85,6 +85,9 @@ mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (
         SaveOfferTerm.long_term, SaveOfferCategory.free_appointment_object, DealType.rent, OfferType.commercial
     ): Category.free_appointment_object_rent,
+    (
+        None, SaveOfferCategory.free_appointment_object, DealType.rent, OfferType.commercial
+    ): Category.free_appointment_object_rent,
     (None, SaveOfferCategory.shopping_area, DealType.sale, OfferType.commercial): Category.shopping_area_sale,
     (
         SaveOfferTerm.long_term, SaveOfferCategory.shopping_area, DealType.rent, OfferType.commercial
@@ -103,8 +106,47 @@ mapping_offer_params_to_category: Dict[category_mapping_key, Category] = {
     (
         SaveOfferTerm.long_term, SaveOfferCategory.commercial_land, DealType.rent, OfferType.commercial
     ): Category.commercial_land_rent,
+    # 
+    (
+        SaveOfferTerm.long_term, SaveOfferCategory.cottage, DealType.rent, OfferType.suburban
+    ): Category.cottage_rent,
+    (
+        SaveOfferTerm.daily_term, SaveOfferCategory.house, DealType.rent, OfferType.flat
+    ): Category.house_rent,
+    (
+        SaveOfferTerm.long_term, SaveOfferCategory.house, DealType.rent, OfferType.flat
+    ): Category.house_rent,
+    (
+        None, SaveOfferCategory.office, DealType.rent, OfferType.commercial
+    ): Category.office_rent,
+    (
+        SaveOfferTerm.daily_term, SaveOfferCategory.cottage, DealType.rent, OfferType.suburban
+    ): Category.cottage_rent,
+    (
+        SaveOfferTerm.daily_term, SaveOfferCategory.townhouse, DealType.rent, OfferType.flat
+    ): Category.townhouse_rent,
+    (
+        SaveOfferTerm.long_term, SaveOfferCategory.townhouse, DealType.rent, OfferType.flat
+    ): Category.townhouse_rent,
+    (
+        SaveOfferTerm.daily_term, SaveOfferCategory.shopping_area, DealType.rent, OfferType.commercial
+    ): Category.shopping_area_rent,
+    (
+        None, SaveOfferCategory.cottage, DealType.rent, OfferType.suburban
+    ): Category.cottage_rent,
+    (
+        SaveOfferTerm.long_term, SaveOfferCategory.shopping_area, DealType.sale, OfferType.commercial
+    ): Category.shopping_area_sale,
+    (
+        SaveOfferTerm.daily_term, SaveOfferCategory.office, DealType.rent, OfferType.commercial
+    ): Category.office_rent,
+    (
+        SaveOfferTerm.daily_term, SaveOfferCategory.free_appointment_object, DealType.rent, OfferType.commercial
+    ): Category.free_appointment_object_rent,
+    (
+        None, SaveOfferCategory.shopping_area, DealType.rent, OfferType.commercial
+    ): Category.shopping_area_rent,
 }
-
 
 logger = logging.getLogger(__name__)
 

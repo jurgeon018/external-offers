@@ -68,7 +68,7 @@ async def test_get_offer_card__operator_with_offer_declined__returns_offer_not_f
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
     await pg.execute_scripts(parsed_offers_fixture)
-    operator_with_client = 60024638
+    operator_with_client = 60024649
     offer_of_another_operator_id = 7
 
     # act
@@ -108,3 +108,55 @@ async def test_get_offer_card__operator_with_offer_in_progress__doesnt_return_of
 
     # assert
     assert 'Объявление в работе не найдено' not in resp.body.decode('utf-8')
+
+
+@pytest.mark.html
+async def test_get_offer_card__unknown_offer_id__returns_offer_not_found_message(
+        http,
+        pg,
+        offers_and_clients_fixture,
+        parsed_offers_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_fixture)
+    operator_with_client = 60024635
+    offer_id = 100500
+
+    # act
+    resp = await http.request(
+        'GET',
+        f'/admin/offer-card/{offer_id}/',
+        headers={
+            'X-Real-UserId': operator_with_client
+        },
+        expected_status=200)
+
+    # assert
+    assert 'Объявление не найдено' in resp.body.decode('utf-8')
+
+
+@pytest.mark.html
+async def test_get_offer_card__unknown_client_id__returns_client_not_found_message(
+        http,
+        pg,
+        offers_and_clients_fixture,
+        parsed_offers_fixture
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_fixture)
+    client_id = 100500
+    offer_id = 1
+
+    # act
+    resp = await http.request(
+        'GET',
+        f'/admin/offer-card/{offer_id}/',
+        headers={
+            'X-Real-UserId': client_id
+        },
+        expected_status=200)
+
+    # assert
+    assert 'Клиент не найден' in resp.body.decode('utf-8')

@@ -21,6 +21,7 @@ from external_offers.services.update_client_comment import update_client_comment
 from external_offers.services.update_client_phone import update_client_phone_public
 from external_offers.services.update_clients_operator import update_clients_operator_public
 from external_offers.services.update_offer_category import update_offer_category_public
+from external_offers.services.update_offer_comment import update_offer_comment_public
 from external_offers.services.update_waiting_offers_priority import prioritize_waiting_offers_public
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
@@ -191,6 +192,13 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.UpdateTestObjectsPublicationStatusResponse,
         base_handler_cls=PublicHandler,
     )),
+    url('/api/admin/v1/update-offer-comment/$', get_handler(
+        service=update_offer_comment_public,
+        method='POST',
+        request_schema=entities.UpdateOfferCommentRequest,
+        response_schema=entities.UpdateOfferCommentResponse,
+        base_handler_cls=PublicHandler,
+    )),
     url('/api/admin/v1/prioritize-waiting-offers-public/$', get_handler(
         service=prioritize_waiting_offers_public,
         method='POST',
@@ -217,6 +225,13 @@ urlpatterns = base_urls.urlpatterns + [
         service=operators.delete_operator_public,
         method='POST',
         request_schema=entities.DeleteOperatorRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-operators-public/$', get_handler(
+        service=operators.update_operators_public,
+        method='POST',
+        request_schema=entities.UpdateOperatorsRequest,
         response_schema=entities.BasicResponse,
         base_handler_cls=PublicHandler,
     )),

@@ -21,6 +21,10 @@ alias = "default"
 
 [job.web]
 type = "web"
+memory = 2048
+
+[job.web.prod]
+cpu = 0.05
 
 [job.save-parsed-offers]
 type = "consumer"
@@ -47,6 +51,8 @@ autoscale.max = 10
 type = "cron"
 command = "create-offers-for-call"
 cron = "0 4 * * *"
+memory = 2048
+prod.cpu = 0.1
 
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "cron"
@@ -97,3 +103,8 @@ cron = "0 8 * * *"
 type = "cron"
 command = "send-processed-offers-and-clients-amount-to-grafana-cron"
 cron = "0 21 * * *"
+
+[job.create-client-account-statuses-cron]
+type = "cron"
+command = "create-client-account-statuses-cron"
+cron = "0 1 * * *"

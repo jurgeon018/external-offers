@@ -115,7 +115,7 @@ async def test_save_offer__correct_json__status_ok(
                     'lat': 12.0,
                     'lng': 13.0
                 },
-                'details': []
+                'details': [{'full_name': '123'}]
             }
         ),
     )

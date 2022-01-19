@@ -51,6 +51,8 @@ CREATE TABLE offers_for_call
     team_priorities jsonb,
     category      varchar,
     last_call_id  varchar,
+    comment       varchar,
+    group_id      varchar,
     row_version         bigint                   not null default 0,
     synced_with_kafka   boolean                  not null default false,
     synced_with_grafana boolean                  not null default false,
@@ -69,7 +71,8 @@ CREATE TABLE clients
     client_email     varchar(50),
     operator_user_id bigint,
     status           client_status_type,
-    segment          varchar(1),
+    segment          varchar(255),
+    subsegment       varchar,
     next_call        timestamp with time zone,
     unactivated_at   timestamp with time zone,
     calls_count      smallint,
@@ -99,7 +102,9 @@ create table parsed_offers
 (
     id                  varchar unique primary key,
     user_segment        varchar,
+    user_subsegment     varchar,
     source_object_id    varchar,
+    source_group_id     varchar,
     source_user_id      varchar                  not null,
     source_object_model jsonb                    not null,
     is_calltracking     boolean                  not null,
@@ -144,3 +149,13 @@ CREATE TABLE operators
     created_at    timestamp with time zone not null,
     updated_at    timestamp with time zone not null
 );
+
+CREATE TABLE client_account_statuses
+(
+    phone         VARCHAR NOT NULL PRIMARY KEY UNIQUE,
+    smb_account_status       VARCHAR,
+    homeowner_account_status VARCHAR,
+    new_cian_user_id BIGINT NULL,
+    created_at    timestamp with time zone NOT NULL,
+    updated_at    timestamp with time zone NOT NULL
+)

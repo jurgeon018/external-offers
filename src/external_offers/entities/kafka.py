@@ -8,7 +8,7 @@ from external_offers.enums import CallStatus
 
 @dataclass
 class CallsKafkaMessage:
-    manager_id: int
+    manager_id: Optional[int]
     """Идентификатор оператора"""
     source_user_id: str
     """Идентификатор клиента в админке"""
@@ -18,7 +18,7 @@ class CallsKafkaMessage:
     """Номер телефона клиента"""
     status: CallStatus
     """Статус звонка"""
-    call_id: str
+    call_id: Optional[str]
     """Идентификатор звонка"""
     date: datetime
     """Дата события"""

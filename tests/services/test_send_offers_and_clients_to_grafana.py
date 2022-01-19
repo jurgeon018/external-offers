@@ -353,13 +353,14 @@ async def test_map_region_codes_to_region_names__raises_exception(mocker):
 
 
 async def test_get_region_name_from_api(mocker):
+    non_existing_region_code = '1111111111111111111'
     patched_api = mocker.patch(
         'external_offers.services.grafana_metric.v1_locations_get',
         return_value=future(LocationResponse(name='Республика Дагестан')),
     )
-    result = await get_region_name('non_existing_region_code')
+    result = await get_region_name(non_existing_region_code)
     assert result == 'respublika-dagestan'
-    patched_api.assert_called_once_with(V1LocationsGet(id='non_existing_region_code'))
+    patched_api.assert_called_once_with(V1LocationsGet(id=int(non_existing_region_code)))
 
 
 async def test_get_region_name_from_dict(mocker):

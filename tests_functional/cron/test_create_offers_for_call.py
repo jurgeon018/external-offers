@@ -17,6 +17,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_clients_test)
+
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
@@ -40,12 +41,27 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
         SELECT * FROM clients WHERE avito_user_id = 'c42bb598767308327e1dffbe7241486c'
         """
     )
+    updated_after_border_client = await pg.fetchval(
+        """
+        SELECT * FROM clients WHERE avito_user_id = '111111111111111111111111111111';
+        """
+    )
+    updated_after_border_ofc = await pg.fetchval(
+        """
+        SELECT * FROM offers_for_call WHERE parsed_id = '233f03a-1111-2222-3333-28f17e68a444441';
+        """
+    )
+
     assert row['client_phones'] == ['89883325632']
     assert row['segment'] == 'c'
+    assert row['subsegment'] == 'subsegment1'
     assert row['status'] == 'waiting'
+    # проверяет что обьявление, у которого updated_at больше текущего времени, не было обработано
+    assert updated_after_border_client is None
+    assert updated_after_border_ofc is None
 
 
-async def test_create_offers__exist_nonsuitable_parsed_offer_with_new_client__doesnt_create_waiting_client(
+async def test_create_offers__exist_parsed_offer_with_nonsuitable_new_client__doesnt_create_waiting_client(
     pg,
     runtime_settings,
     runner,
@@ -121,6 +137,7 @@ async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer
     )
     assert row['status'] == 'waiting'
     assert row['parsed_created_at'] == datetime(2020, 10, 27, 11, 59, 1, 123093, tzinfo=pytz.utc)
+    assert row['group_id'] == 'group_id1'
 
 
 async def test_create_offers__exist_suitable_commercial_parsed_offer__creates_waiting_offer(
@@ -223,7 +240,7 @@ async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_
     assert row is None
 
 
-async def test_create_offers__exist_parsed_offer_with_non_suitable_regions__doesnt_create_offer(
+async def test_create_offers__exist_parsed_offer_with_nonsuitable_regions__doesnt_create_offer(
     pg,
     runtime_settings,
     runner,

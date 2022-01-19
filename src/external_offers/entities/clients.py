@@ -28,6 +28,8 @@ class Client:
     """Идентификатор команды, в которой находился оператор"""
     segment: Optional[UserSegment] = None
     """Сегмент пользователя"""
+    subsegment: Optional[str] = None
+    """Субсегмент пользователя"""
     last_call_id: Optional[str] = None
     """Последний идентификатор звонка"""
     calls_count: int = 0
@@ -56,6 +58,8 @@ class Client:
 class ClientWaitingOffersCount:
     client_id: str
     """Идентификатор клиента"""
+    parsed_id: str
+    """Идентификатор обьявления"""
     waiting_offers_count: int
     """Количество объявлений в ожидании"""
 
@@ -68,7 +72,7 @@ class ClientDraftOffersCount:
     """Количество неактивированых черновиков"""
     priority: int
     """Старый приоритет клиента, который был ему проставлен в момент когда он еще не был добивочным"""
-    team_priorities: dict[str, Optional[int]]
+    team_priorities: Optional[str] = None
     """ Старые командные приоритеты клиента, которые были ему проставлены в момент когда он еще не был добивочным"""
 
 

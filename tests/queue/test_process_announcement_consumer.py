@@ -109,3 +109,36 @@ async def test_process_announcement_consumer__status_is_published__functions_are
     get_offer_row_version_by_offer_cian_id_mock.assert_called_once_with(offer_cian_id)
     update_publication_status_mock.assert_not_called()
     assert result is None
+
+
+async def test_process_announcement_consumer__offer_cian_id_is_none__functions_are_not_called(
+    mocker
+):
+    # arrange
+    set_offer_publication_status_by_offer_cian_id_mock = mocker.patch(
+        'external_offers.services.announcement.set_offer_publication_status_by_offer_cian_id'
+    )
+    set_client_unactivated_by_offer_cian_id_mock = mocker.patch(
+        'external_offers.services.announcement.set_client_unactivated_by_offer_cian_id'
+    )
+    set_client_done_by_offer_cian_id_mock = mocker.patch(
+        'external_offers.services.announcement.set_client_done_by_offer_cian_id'
+    )
+    set_offer_done_by_offer_cian_id_mock = mocker.patch(
+        'external_offers.services.announcement.set_offer_done_by_offer_cian_id'
+    )
+    get_offer_row_version_by_offer_cian_id_mock = mocker.patch(
+        'external_offers.services.announcement.get_offer_row_version_by_offer_cian_id'
+    )
+    object_model = mocker.MagicMock(cian_id=None)
+    # act
+    result = await process_announcement(
+        object_model=object_model
+    )
+    # assert
+    set_offer_publication_status_by_offer_cian_id_mock.assert_not_called()
+    set_client_unactivated_by_offer_cian_id_mock.assert_not_called()
+    set_client_done_by_offer_cian_id_mock.assert_not_called()
+    set_offer_done_by_offer_cian_id_mock.assert_not_called()
+    get_offer_row_version_by_offer_cian_id_mock.assert_not_called()
+    assert result is None

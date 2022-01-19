@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
@@ -7,28 +8,31 @@ from cian_core.runtime_settings import runtime_settings as settings
 from cian_json import json
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import and_, delete, func, not_, or_, select, update
+from sqlalchemy.sql import and_, delete, func, not_, select, update
 from sqlalchemy.sql.expression import false, true
-from sqlalchemy.sql.selectable import Alias
 
 from external_offers import pg
 from external_offers.entities.parsed_offers import (
     ParsedObjectModel,
     ParsedOffer,
+    ParsedOfferForAccountPrioritization,
     ParsedOfferForCreation,
     ParsedOfferMessage,
 )
-from external_offers.entities.teams import Team
-from external_offers.enums.object_model import Category
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
+    parsed_offer_for_account_prioritization,
     parsed_offer_for_creation_mapper,
     parsed_offer_mapper,
     parsed_offer_message_mapper,
 )
+from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Category
 from external_offers.repositories.postgresql import tables
 from external_offers.utils import iterate_over_list_by_chunks
+
+
+logger = logging.getLogger(__name__)
 
 
 async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
@@ -88,49 +92,10 @@ async def save_test_parsed_offer(
     await pg.get().execute(query, *params)
 
 
-async def get_parsed_ids_for_cleaning(
-    *,
-    team: Optional[Team],
-    is_test: Optional[bool] = None,
-) -> list[str]:
-    po = tables.parsed_offers.alias()
-    if team:
-        team_settings = team.get_settings()
-        regions = team_settings['regions']
-        user_segments = team_settings['segments']
-        categories = team_settings['categories']
-    else:
-        regions = settings.OFFER_TASK_CREATION_REGIONS
-        user_segments = settings.OFFER_TASK_CREATION_SEGMENTS
-        categories = settings.OFFER_TASK_CREATION_CATEGORIES
-    regions = [str(region) for region in regions]
-    options = or_(
-        po.c.user_segment.notin_(user_segments),
-        # po.c.source_object_model['user_segment'].as_string().notin_(user_segments),
-        po.c.source_object_model['region'].as_string().notin_(regions),
-        po.c.source_object_model['category'].as_string().notin_(categories),
-    )
-    if isinstance(is_test, bool):
-        options = and_(
-            po.c.is_test == is_test,
-            options,
-        )
-    query, params = asyncpgsa.compile_query(
-        select([
-            po.c.id,
-        ])
-        .where(
-            options
-        )
-    )
-    rows = await pg.get().fetch(query, *params)
-    parsed_ids = [row['id'] for row in rows]
-    return parsed_ids
-
-
 async def set_synced_and_fetch_parsed_offers_chunk(
     *,
-    last_sync_date: Optional[datetime]
+    last_sync_date: Optional[datetime],
+    max_updated_at_date: Optional[datetime],
 ) -> Optional[List[ParsedOfferForCreation]]:
 
     po = tables.parsed_offers.alias()
@@ -139,9 +104,14 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         po.c.source_object_model['phones'] != [],
         po.c.source_object_model['phones'] != JSON.NULL,
         po.c.source_object_model['phones'] != [''],
+        po.c.source_user_id.isnot(None),
         not_(po.c.is_calltracking),
         not_(po.c.synced),
     ]
+
+    if max_updated_at_date:
+        options.append(po.c.updated_at <= max_updated_at_date)
+
     if last_sync_date:
         options.append(po.c.timestamp > last_sync_date)
 
@@ -167,10 +137,12 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .returning(
             tables.parsed_offers.c.id,
             tables.parsed_offers.c.source_user_id,
+            tables.parsed_offers.c.source_group_id,
             tables.parsed_offers.c.timestamp,
             tables.parsed_offers.c.external_offer_type,
             tables.parsed_offers.c.created_at,
             tables.parsed_offers.c.user_segment,
+            tables.parsed_offers.c.user_subsegment,
             tables.parsed_offers.c.source_object_model['phones'].label('phones'),
             tables.parsed_offers.c.source_object_model['contact'].label('contact'),
             tables.parsed_offers.c.source_object_model['category'].as_string().label('category')
@@ -181,7 +153,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     return [parsed_offer_for_creation_mapper.map_from(row) for row in rows]
 
 
-async def get_parsed_offer_for_creation_by_id(*, id: int) -> ParsedOfferForCreation:
+async def get_parsed_offer_for_creation_by_id(*, id: int) -> Optional[ParsedOfferForCreation]:
     fetch_offer_query, fetch_offer_params = asyncpgsa.compile_query(
         select(
             [tables.parsed_offers]
@@ -190,7 +162,7 @@ async def get_parsed_offer_for_creation_by_id(*, id: int) -> ParsedOfferForCreat
         ).limit(1)
     )
     row = await pg.get().fetchrow(fetch_offer_query, *fetch_offer_params)
-    return parsed_offer_for_creation_mapper.map_from(row)
+    return parsed_offer_for_creation_mapper.map_from(row) if row else None
 
 
 async def get_parsed_offer_object_model_by_offer_id(*, offer_id: str) -> Optional[ParsedObjectModel]:
@@ -245,6 +217,12 @@ async def delete_outdated_parsed_offers(
 ) -> None:
     po = tables.parsed_offers.alias()
     ofc = tables.offers_for_call.alias()
+
+    query, params = asyncpgsa.compile_query(select([func.count()]).where(po.c.updated_at > updated_at_border))
+    new_parsed_offers_count = await pg.get().fetchval(query, *params)
+    if new_parsed_offers_count < settings.NEW_PARSED_OFFERS_COUNT_FOR_DELETE_OLD:
+        logger.warning('Очистка устаревших объявлений не была запущена из-за отстутствия новых объявлений')
+        return
 
     query, params = asyncpgsa.compile_query(
         select([
@@ -345,6 +323,9 @@ async def update_offer_categories_by_offer_id(
         )
     )
     parsed_offer = await pg.get().fetchrow(query, *params)
+    if not parsed_offer:
+        raise Exception('Parsed Offer not found!')
+
     parsed_offer_id = parsed_offer['id']
 
     query = f"""
@@ -378,3 +359,29 @@ async def delete_test_parsed_offers() -> None:
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def get_parsed_offers_for_account_prioritization() -> list[ParsedOfferForAccountPrioritization]:
+    po = tables.parsed_offers.alias()
+    query, params = asyncpgsa.compile_query(
+        select([
+            po.c.source_object_model['phones'].as_string().label('phones'),
+            po.c.user_segment,
+        ])
+        .where(
+            and_(
+                po.c.source_object_model['phones'] != [],
+                po.c.source_object_model['phones'] != JSON.NULL,
+                po.c.source_object_model['phones'] != [''],
+                po.c.user_segment.isnot(None),
+                po.c.user_segment.in_([
+                    'c',
+                    'd',
+                ]),
+                po.c.source_user_id.isnot(None),
+                not_(po.c.is_calltracking),
+            )
+        )
+    )
+    rows = await pg.get().fetch(query, *params)
+    return [parsed_offer_for_account_prioritization.map_from(row) for row in rows]

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 async def send_offers_for_call_to_kafka():
     async with pg.get().transaction():
 
-        offer_ids: List[int] = []
+        offer_ids: List[str] = []
 
         async for offer in iterate_over_offers_for_call_sorted(
             prefetch=settings.OFFERS_FOR_CALL_FOR_KAFKA_FETCH_LIMIT
