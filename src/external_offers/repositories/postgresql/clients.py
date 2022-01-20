@@ -4,7 +4,7 @@ from typing import AsyncGenerator, List, Optional
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
-from sqlalchemy import and_, any_, delete, exists, not_, nullslast, or_, select, update
+from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
@@ -684,12 +684,6 @@ async def iterate_over_clients_sorted(
     *,
     prefetch: int
 ) -> AsyncGenerator[Client, None]:
-    non_final_statuses = [
-        ClientStatus.waiting.value,
-        ClientStatus.in_progress.value,
-        ClientStatus.call_missed.value,
-        ClientStatus.call_later.value,
-    ]
 
     query, params = asyncpgsa.compile_query(
         select(
