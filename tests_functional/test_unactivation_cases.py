@@ -138,8 +138,8 @@ async def test_main_case(
 
     ofc = await pg.fetch(fetch_ofc_sql)
     clients = await pg.fetch(fetch_clients_sql)
-    assert response['success'] is True
     assert response['message'] == 'Успех! Статус был изменен на Draft.'
+    assert response['success'] is True
     assert ofc[0]['publication_status'] == 'Draft'
     assert ofc[0]['row_version'] == new_row_version
     assert ofc[0]['status'] == 'draft'

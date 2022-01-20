@@ -319,28 +319,28 @@ async def update_test_objects_publication_status_public(
     publication_status = request.publication_status
     success = False
     message = ''
-    try:
-        offer_is_test = await get_offer_is_test_by_offer_cian_id(offer_cian_id)
-        if offer_is_test is False:
-            message = f'Обьявление с offer_cian_id {offer_cian_id} не тестовое.'
-        elif offer_is_test is None:
-            message = f'Обьявление с offer_cian_id {offer_cian_id} не существует.'
+    # try:
+    offer_is_test = await get_offer_is_test_by_offer_cian_id(offer_cian_id)
+    if offer_is_test is False:
+        message = f'Обьявление с offer_cian_id {offer_cian_id} не тестовое.'
+    elif offer_is_test is None:
+        message = f'Обьявление с offer_cian_id {offer_cian_id} не существует.'
+    else:
+        old_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
+        if old_row_version is None:
+            message = f'Не существует обьявления с offer_cian_id {offer_cian_id}'
+        elif old_row_version > row_version:
+            message = f'new_version должен быть > {old_row_version}'
         else:
-            old_row_version = await get_offer_row_version_by_offer_cian_id(offer_cian_id)
-            if old_row_version is None:
-                message = f'Не существует обьявления с offer_cian_id {offer_cian_id}'
-            elif old_row_version > row_version:
-                message = f'new_version должен быть > {old_row_version}'
-            else:
-                await update_publication_status(
-                    publication_status=publication_status,
-                    row_version=row_version,
-                    offer_cian_id=offer_cian_id,
-                )
-                success = True
-                message = f'Успех! Статус был изменен на {publication_status.value}.'
-    except PostgresError as e:
-        message = str(e)
+            await update_publication_status(
+                publication_status=publication_status,
+                row_version=row_version,
+                offer_cian_id=offer_cian_id,
+            )
+            success = True
+            message = f'Успех! Статус был изменен на {publication_status.value}.'
+    # except PostgresError as e:
+    #     message = str(e)
     return UpdateTestObjectsPublicationStatusResponse(
         success=success,
         message=message,

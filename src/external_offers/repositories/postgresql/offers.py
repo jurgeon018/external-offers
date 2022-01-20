@@ -1120,12 +1120,14 @@ async def get_offer_publication_status_by_offer_cian_id(offer_cian_id: Optional[
 async def set_offer_done_by_offer_cian_id(
     *,
     offer_cian_id: int,
+    published_at: datetime,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
             offers_for_call
         ).values(
             status=OfferStatus.done.value,
+            published_at=published_at,
         ).where(
             offers_for_call.c.offer_cian_id == offer_cian_id,
         )
@@ -1138,13 +1140,21 @@ async def set_offer_publication_status_by_offer_cian_id(
     offer_cian_id: int,
     publication_status: str,
     row_version: int,
+    status_changing_dt: datetime,
 ) -> None:
+    values = {
+        'row_version': row_version,
+        'publication_status': publication_status,
+    }
+    if publication_status == PublicationStatus.draft.value:
+        values['drafted_at'] = status_changing_dt
+    elif publication_status == PublicationStatus.published.value:
+        values['published_at'] = status_changing_dt
     query, params = asyncpgsa.compile_query(
         update(
             offers_for_call
         ).values(
-            row_version=row_version,
-            publication_status=publication_status,
+            **values,
         ).where(
             offers_for_call.c.offer_cian_id == offer_cian_id
         )

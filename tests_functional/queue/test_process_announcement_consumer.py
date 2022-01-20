@@ -152,6 +152,7 @@ async def test_process_announcement_consumer__status_is_draft__status_is_changed
     assert client_after['status'] != 'accepted'
     assert offer_for_call_after['status'] == offer_for_call_before['status']
     assert offer_for_call_after['status'] != 'done'
+    assert offer_for_call_after['drafted_at'] is not None
 
 
 async def test_process_announcement_consumer__status_is_published__status_is_changed(
@@ -211,3 +212,4 @@ async def test_process_announcement_consumer__status_is_published__status_is_cha
     assert client_after['status'] == 'accepted'
     assert offer_for_call_after['status'] != offer_for_call_before['status']
     assert offer_for_call_after['status'] == 'done'
+    assert offer_for_call_after['published_at'] is not None
