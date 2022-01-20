@@ -1017,25 +1017,13 @@ async def iterate_over_offers_for_call_sorted(
             and_(
                 offers_for_call.c.is_test == false(),
                 or_(
-                    or_(
-                        # все обьявления в нефинальных статусах отправляются в кафку повторно
-                        offers_for_call.c.status.in_(non_final_statuses),
-                        # все обьявления с финальным статусом отправляются в кафку единажды
-                        # (отправляются только те, которые еще не были отправлены в кафку)
-                        and_(
-                            offers_for_call.c.status.notin_(non_final_statuses),
-                            not_(offers_for_call.c.synced_with_kafka),
-                        ),
-                    ),
-                    or_(
-                        # все обьявления в нефинальных статусах публикации отправляются в кафку повторно
-                        offers_for_call.c.publication_status.in_(non_final_publication_statuses),
-                        # все обьявления с финальным статусом публикации отправляются в кафку единажды
-                        # (отправляются только те, которые еще не были отправлены в кафку)
-                        and_(
-                            offers_for_call.c.publication_status.notin_(non_final_publication_statuses),
-                            not_(offers_for_call.c.synced_with_kafka),
-                        ),
+                    # все обьявления в нефинальных статусах отправляются в кафку повторно
+                    offers_for_call.c.status.in_(non_final_statuses),
+                    # все обьявления с финальным статусом отправляются в кафку единажды
+                    # (отправляются только те, которые еще не были отправлены в кафку)
+                    and_(
+                        offers_for_call.c.status.notin_(non_final_statuses),
+                        not_(offers_for_call.c.synced_with_kafka),
                     )
                 )
             )
