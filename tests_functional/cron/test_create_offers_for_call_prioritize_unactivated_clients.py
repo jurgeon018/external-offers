@@ -2,7 +2,6 @@ import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-@pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])
 async def test_prioritize_unactivated_clients(
     pg,
     runtime_settings,
@@ -10,7 +9,6 @@ async def test_prioritize_unactivated_clients(
     monolith_cian_profileapi_mock,
     announcements_mock,
     runner,
-    use_gather_for_priority_clients,
 ):
     # arrange
     # приоретизация обьявления 1 должна вернуть _CLEAR_PRIORITY, т.к у него нет сегмента
@@ -64,7 +62,6 @@ async def test_prioritize_unactivated_clients(
         'MAXIMUM_ACTIVE_OFFERS_PROPORTION': 1,
         'ACTIVE_LK_HOMEOWNER_PRIORITY': 5,
         'WAITING_PRIORITY': 3,
-        'USE_GATHER_FOR_PRIORITY_CLIENTS': use_gather_for_priority_clients,
     })
     await users_mock.add_stub(
         method='GET',
