@@ -6,7 +6,7 @@ import pytz
 from cian_core.runtime_settings import runtime_settings
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql.expression import true
+from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
@@ -621,7 +621,11 @@ async def get_client_id_by_offer_cian_id(offer_cian_id: int) -> str:
     return client_id
 
 
-async def set_client_done_by_offer_cian_id(offer_cian_id: int) -> None:
+async def set_client_done_by_offer_cian_id(
+        *,
+        offer_cian_id: int,
+        published_at: datetime,
+) -> None:
     client_id = await get_client_id_by_offer_cian_id(
         offer_cian_id=offer_cian_id,
     )
@@ -630,6 +634,7 @@ async def set_client_done_by_offer_cian_id(offer_cian_id: int) -> None:
             clients
         ).values(
             unactivated=False,
+            published_at=published_at,
             next_call=None,
             status=ClientStatus.accepted.value,
         ).where(
@@ -639,7 +644,11 @@ async def set_client_done_by_offer_cian_id(offer_cian_id: int) -> None:
     await pg.get().execute(query, *params)
 
 
-async def set_client_unactivated_by_offer_cian_id(offer_cian_id: int) -> None:
+async def set_client_unactivated_by_offer_cian_id(
+        *,
+        offer_cian_id: int,
+        drafted_at: datetime,
+) -> None:
     """
     Помечает добивочных клиентов, обнуляет номер попытки звонка,
     и проставляет новую дату для следующего прозвона(+3 дня)
@@ -649,6 +658,7 @@ async def set_client_unactivated_by_offer_cian_id(offer_cian_id: int) -> None:
         update(
             clients
         ).values(
+            drafted_at=drafted_at,
             unactivated=True,
             calls_count=0,
             next_call=get_next_call_date_when_draft(),
@@ -674,9 +684,12 @@ async def iterate_over_clients_sorted(
     *,
     prefetch: int
 ) -> AsyncGenerator[Client, None]:
+
     query, params = asyncpgsa.compile_query(
         select(
             [clients]
+        ).where(
+            clients.c.is_test == false()
         ).order_by(
             clients.c.client_id.asc()
         )

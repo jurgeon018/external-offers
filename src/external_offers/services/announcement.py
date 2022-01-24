@@ -1,5 +1,8 @@
 import logging
+from datetime import datetime
 from typing import Optional
+
+import pytz
 
 from external_offers.repositories.monolith_cian_announcementapi.entities import SwaggerObjectModel
 from external_offers.repositories.monolith_cian_announcementapi.entities.swagger_object_model import Status
@@ -52,19 +55,24 @@ async def update_publication_status(
         row_version: int,
         offer_cian_id: int,
 ) -> None:
+    now = datetime.now(pytz.utc)
     await set_offer_publication_status_by_offer_cian_id(
         offer_cian_id=offer_cian_id,
         publication_status=publication_status.value,
         row_version=row_version,
+        status_changing_dt=now,
     )
     if publication_status == Status.draft:
         await set_client_unactivated_by_offer_cian_id(
             offer_cian_id=offer_cian_id,
+            drafted_at=now,
         )
     elif publication_status == Status.published:
         await set_client_done_by_offer_cian_id(
             offer_cian_id=offer_cian_id,
+            published_at=now,
         )
         await set_offer_done_by_offer_cian_id(
             offer_cian_id=offer_cian_id,
+            published_at=now,
         )

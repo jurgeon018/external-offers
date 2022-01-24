@@ -50,6 +50,10 @@ class Offer:
     """Статус объявления"""
     external_offer_type: Optional[ExternalOfferType] = None
     """Тип объявления"""
+    drafted_at: Optional[datetime] = None
+    """Время предразмещения обьявления оператором"""
+    activated_at: Optional[datetime] = None
+    """Время активации обьявления"""
 
 
 @dataclass

@@ -48,6 +48,8 @@ clients = sa.Table(
     sa.Column('additional_numbers', sa.VARCHAR, nullable=True),
     sa.Column('additional_emails', sa.VARCHAR, nullable=True),
     sa.Column('unactivated', sa.BOOLEAN, nullable=False, default=False),
+    sa.Column('drafted_at', sa.TIMESTAMP),
+    sa.Column('published_at', sa.TIMESTAMP),
 )
 
 offers_for_call = sa.Table(
@@ -75,6 +77,8 @@ offers_for_call = sa.Table(
     sa.Column('is_test', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('parsed_created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('external_offer_type', sa.VARCHAR, nullable=True),
+    sa.Column('drafted_at', sa.TIMESTAMP),
+    sa.Column('published_at', sa.TIMESTAMP),
 )
 
 event_log = sa.Table(
