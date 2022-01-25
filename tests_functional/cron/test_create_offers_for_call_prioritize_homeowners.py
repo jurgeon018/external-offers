@@ -1,7 +1,8 @@
 import pytest
+from cian_functional_test_utils.helpers import ANY
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
-from cian_functional_test_utils.helpers import ANY
+
 
 _CLEAR_PRIORITY = -1
 
