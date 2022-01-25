@@ -1,9 +1,7 @@
-from unittest.mock import ANY
-
 import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
-
+from cian_functional_test_utils.helpers import ANY
 
 _CLEAR_PRIORITY = -1
 
@@ -340,7 +338,7 @@ async def test_create_offers__exist_suitable_parsed_offer_and_client_with_active
     client_priority_part = '2321204'
     expected_priority = client_priority_part + offer_priority_part
     assert offer_row['status'] == 'waiting'
-    assert offer_row['priority'] == int(expected_priority)
+    assert offer_row['priority'] == 232120412
     assert client_row['cian_user_id'] is None
 
     cached_priorities = await pg.fetch("""

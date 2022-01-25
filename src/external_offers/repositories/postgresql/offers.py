@@ -1010,6 +1010,9 @@ async def iterate_over_offers_for_call_sorted(
         OfferStatus.call_missed.value,
         OfferStatus.call_later.value,
     ]
+    non_final_publication_statuses = [
+        PublicationStatus.published.value,
+    ]
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]
@@ -1024,7 +1027,7 @@ async def iterate_over_offers_for_call_sorted(
                     and_(
                         offers_for_call.c.status.notin_(non_final_statuses),
                         not_(offers_for_call.c.synced_with_kafka),
-                    ),
+                    )
                 )
             )
         ).order_by(
@@ -1108,12 +1111,14 @@ async def get_offer_publication_status_by_offer_cian_id(offer_cian_id: Optional[
 async def set_offer_done_by_offer_cian_id(
     *,
     offer_cian_id: int,
+    published_at: datetime,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
             offers_for_call
         ).values(
             status=OfferStatus.done.value,
+            published_at=published_at,
         ).where(
             offers_for_call.c.offer_cian_id == offer_cian_id,
         )
@@ -1126,13 +1131,21 @@ async def set_offer_publication_status_by_offer_cian_id(
     offer_cian_id: int,
     publication_status: str,
     row_version: int,
+    status_changing_dt: datetime,
 ) -> None:
+    values = {
+        'row_version': row_version,
+        'publication_status': publication_status,
+    }
+    if publication_status == PublicationStatus.draft.value:
+        values['drafted_at'] = status_changing_dt
+    elif publication_status == PublicationStatus.published.value:
+        values['published_at'] = status_changing_dt
     query, params = asyncpgsa.compile_query(
         update(
             offers_for_call
         ).values(
-            row_version=row_version,
-            publication_status=publication_status,
+            **values,
         ).where(
             offers_for_call.c.offer_cian_id == offer_cian_id
         )

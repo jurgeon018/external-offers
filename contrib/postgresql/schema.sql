@@ -58,7 +58,9 @@ CREATE TABLE offers_for_call
     synced_with_grafana boolean                  not null default false,
     is_test             boolean                  not null default false,
     parsed_created_at   timestamp with time zone not null default current_timestamp,
-    external_offer_type varchar
+    external_offer_type varchar,
+    drafted_at          timestamp with time zone,
+    published_at        timestamp with time zone
 );
 
 CREATE TABLE clients
@@ -74,6 +76,7 @@ CREATE TABLE clients
     segment          varchar(255),
     subsegment       varchar,
     next_call        timestamp with time zone,
+    unactivated_at   timestamp with time zone,
     calls_count      smallint,
     last_call_id     varchar,
     comment          varchar,
@@ -84,7 +87,9 @@ CREATE TABLE clients
     main_account_chosen  boolean  not null  default false,
     synced_with_grafana  boolean  not null  default false,
     unactivated          boolean  not null  default false,
-    is_test              boolean  not null  default false
+    is_test              boolean  not null  default false,
+    drafted_at           timestamp with time zone,
+    published_at         timestamp with time zone
 );
 CREATE TABLE event_log
 (

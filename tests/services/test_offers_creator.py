@@ -1,8 +1,5 @@
 from external_offers.entities import ClientDraftOffersCount, ClientWaitingOffersCount
-from external_offers.services.offers_creator import (
-    prioritize_clients_use_gather,
-    prioritize_unactivated_clients_use_gather,
-)
+from external_offers.services.offers_creator import prioritize_clients, prioritize_unactivated_clients
 
 
 async def test_prioritize_clients_use_gather__raise_exception_in_prioritize_client(
@@ -20,7 +17,7 @@ async def test_prioritize_clients_use_gather__raise_exception_in_prioritize_clie
     )
 
     # act
-    await prioritize_clients_use_gather(
+    await prioritize_clients(
         waiting_clients_counts=[
             ClientWaitingOffersCount(
                 client_id='705cf497-0f34-40e7-b6f2-b4a19e12af88',
@@ -82,7 +79,7 @@ async def test_prioritize_unactivated_clients_use_gather__raise_exception_in_pri
     )
 
     # act
-    await prioritize_unactivated_clients_use_gather(
+    await prioritize_unactivated_clients(
         clients_priority={},
         unactivated_clients_counts=[
             ClientDraftOffersCount(
