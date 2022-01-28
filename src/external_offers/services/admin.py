@@ -77,7 +77,6 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
     if runtime_settings.DEBUG:
         operator_roles = []
     else:
-        # assert False
         operator_roles = await get_operator_roles(operator_id=user_id)
     operator_team_id = await get_operator_team_id(operator_id=user_id)
     async with pg.get().transaction():
