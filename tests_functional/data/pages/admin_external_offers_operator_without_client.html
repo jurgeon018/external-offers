@@ -316,13 +316,15 @@
       <hr>
 
       <div class="caller-block">
-        <!-- модуль позвонить -->
+        <!-- звонилка -->
         <div data-callComponent="call-buttons-v1"></div>
       </div>
       <script>
         $(function()
         {
             initCallComponent(1);
+            document.getElementById('CallToPhone').value = '';
+            formatPhone();
         });
          let DEBUG = 'True' === 'True'
          function formDataFromObject(obj) {

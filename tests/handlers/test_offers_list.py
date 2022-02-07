@@ -132,7 +132,13 @@ async def test_update_offers_list__operator_roles_request_degraded(mocker):
 @pytest.mark.gen_test
 async def test_offers_list_page_handler(mocker, http_client, base_url):
     user_id = '1'
-    client = mocker.MagicMock(value=None)
+    client = Client(
+        client_id='1',
+        avito_user_id='1',
+        client_phones=['7343433'],
+        status='inProgress'
+    )
+    # client = mocker.MagicMock(value=None)
     offers = mocker.MagicMock(value=[])
     mocker.patch(
         'external_offers.web.handlers.admin.get_client_in_progress_by_operator',
@@ -165,6 +171,7 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
     get_offers_list_html_mock.assert_called_once_with(
         offers=offers,
         client=client,
+        client_phone=client.client_phones[0],
         default_next_call_datetime=FakeDatetime(2022, 1, 2, 10, 0),
         operator_is_tester=False,
         operator_id=int(user_id),

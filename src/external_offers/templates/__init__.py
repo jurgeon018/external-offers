@@ -21,6 +21,7 @@ def get_offers_list_html(
     *,
     offers: List[EnrichedOffer],
     client: Optional[Client],
+    client_phone: str,
     default_next_call_datetime: datetime,
     operator_is_tester: bool,
     operator_id: int,
@@ -30,6 +31,7 @@ def get_offers_list_html(
     return template.render(
         offers=offers,
         client=client,
+        client_phone=client_phone,
         next_call_datetime=default_next_call_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
         debug=runtime_settings.DEBUG,
         operator_is_tester=operator_is_tester,

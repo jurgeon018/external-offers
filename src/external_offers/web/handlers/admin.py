@@ -50,6 +50,9 @@ class AdminOffersListPageHandler(PublicHandler):
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
+        client_phone = ''
+        if client and len(client.client_phones) > 0:
+            client_phone = client.client_phones[0]
         offers = await get_enriched_offers_in_progress_by_operator(
             operator_id=self.realty_user_id,
         )
@@ -60,15 +63,13 @@ class AdminOffersListPageHandler(PublicHandler):
             minute=settings.NEXT_CALL_MINUTES,
             second=settings.NEXT_CALL_SECONDS
         )
-        if runtime_settings.DEBUG:
-            operator_roles = []
-        else:
-            operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
+        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(
             offers=offers,
             client=client,
+            client_phone=client_phone,
             default_next_call_datetime=next_call_datetime,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
             operator_id=self.realty_user_id,
