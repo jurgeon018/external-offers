@@ -12,7 +12,6 @@
         <button data-link_to_page="/admin/teams/" onclick="onClickRedirectToTeams(this)">
             Вернуться назад
         </button>
-        <a href='/admin/teams/'>Команды</a>
         {% if current_operator.is_teamlead %}
         <button style="color:red;" data-link_to_page="/admin/teams/" onclick="deleteOperator('{{operator.operator_id}}')">
             Удалить профиль
