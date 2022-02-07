@@ -352,13 +352,15 @@
       <hr>
 
       <div class="caller-block">
-        <!-- модуль позвонить -->
+        <!-- звонилка -->
         <div data-callComponent="call-buttons-v1"></div>
       </div>
       <script>
         $(function()
         {
             initCallComponent({{operator_id}});
+            document.getElementById('CallToPhone').value = '{{client_phone}}';
+            formatPhone();
         });
          let DEBUG = 'True' === '{{ debug }}'
          function formDataFromObject(obj) {

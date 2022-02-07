@@ -323,6 +323,8 @@
         $(function()
         {
             initCallComponent(1);
+            document.getElementById('CallToPhone').value = '{{client_phone}}';
+            formatPhone();
         });
          let DEBUG = 'True' === 'True'
          function formDataFromObject(obj) {
