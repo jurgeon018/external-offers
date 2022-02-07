@@ -60,7 +60,10 @@ class AdminOffersListPageHandler(PublicHandler):
             minute=settings.NEXT_CALL_MINUTES,
             second=settings.NEXT_CALL_SECONDS
         )
-        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
+        if runtime_settings.DEBUG:
+            operator_roles = []
+        else:
+            operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(
@@ -68,6 +71,7 @@ class AdminOffersListPageHandler(PublicHandler):
             client=client,
             default_next_call_datetime=next_call_datetime,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
+            operator_id=self.realty_user_id,
             is_commercial_moderator=is_commercial_moderator,
         ))
 

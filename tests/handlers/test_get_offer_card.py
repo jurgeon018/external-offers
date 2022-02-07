@@ -21,6 +21,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
         'external_offers.web.handlers.admin.runtime_settings',
         new={
             'EXTERNAL_OFFERS_READY_BUSINESS_ENABLED': False,
+            'DEBUG': False,
         }
     )
     comment = 'comment'

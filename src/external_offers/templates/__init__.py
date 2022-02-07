@@ -23,6 +23,7 @@ def get_offers_list_html(
     client: Optional[Client],
     default_next_call_datetime: datetime,
     operator_is_tester: bool,
+    operator_id: int,
     is_commercial_moderator: bool,
 ) -> str:
     template = templates.get_template('offers_list.jinja2')
@@ -32,6 +33,7 @@ def get_offers_list_html(
         next_call_datetime=default_next_call_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
         debug=runtime_settings.DEBUG,
         operator_is_tester=operator_is_tester,
+        operator_id=operator_id,
         is_commercial_moderator=is_commercial_moderator,
     )
 
