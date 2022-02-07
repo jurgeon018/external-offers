@@ -7,7 +7,6 @@ from simple_settings import settings
 from external_offers.entities.teams import Team
 from external_offers.enums.operator_role import OperatorRole
 from external_offers.enums.user_segment import UserSegment
-from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.helpers.region_names import REGION_NAMES
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import (
     Category,
@@ -52,7 +51,7 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_id=self.realty_user_id
         )
         client_phone = ''
-        if len(client.client_phones) > 0:
+        if client and len(client.client_phones) > 0:
             client_phone = client.client_phones[0]
         offers = await get_enriched_offers_in_progress_by_operator(
             operator_id=self.realty_user_id,

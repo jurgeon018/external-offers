@@ -316,14 +316,14 @@
       <hr>
 
       <div class="caller-block">
-        <!-- модуль позвонить -->
+        <!-- звонилка -->
         <div data-callComponent="call-buttons-v1"></div>
       </div>
       <script>
         $(function()
         {
             initCallComponent(60024636);
-            document.getElementById('CallToPhone').value = '{{client_phone}}';
+            document.getElementById('CallToPhone').value = '';
             formatPhone();
         });
          let DEBUG = 'True' === 'True'
