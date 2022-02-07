@@ -1,6 +1,8 @@
 import logging
 from typing import Callable, Optional
 
+from cian_core.runtime_settings import runtime_settings
+
 from external_offers import pg
 from external_offers.entities.admin import (
     AdminCallInterruptedClientRequest,
@@ -72,7 +74,10 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
             ]
         )
 
-    operator_roles = await get_operator_roles(operator_id=user_id)
+    if runtime_settings.DEBUG:
+        operator_roles = []
+    else:
+        operator_roles = await get_operator_roles(operator_id=user_id)
     operator_team_id = await get_operator_team_id(operator_id=user_id)
     async with pg.get().transaction():
         call_id = generate_guid()
