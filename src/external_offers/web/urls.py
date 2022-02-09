@@ -34,6 +34,7 @@ urlpatterns = base_urls.urlpatterns + [
     url('/admin/teams/$', handlers.AdminTeamsPageHandler),
     url(r'/admin/operator-card/(?P<operator_id>[a-zA-Z0-9-]+)/$', handlers.AdminOperatorCardPageHandler),
     url(r'/admin/team-card/(?P<team_id>[a-zA-Z0-9-]+)/$', handlers.AdminTeamCardPageHandler),
+    url(r'/admin/calls-history/$', handlers.AdminCallsHistoryPageHandler),
 
     # admin actions
     url('/api/admin/v1/update-offers-list/$', get_handler(

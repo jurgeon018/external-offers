@@ -6,6 +6,7 @@ from jinja2 import Environment, PackageLoader
 
 from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer, EnrichedOperator, Operator, Team
 from external_offers.entities.parsed_offers import ParsedObjectModel
+from external_offers.repositories.moderation_confidence_index.entities import OperatorCallModel
 from external_offers.repositories.monolith_cian_announcementapi.entities import CommercialPossibleAppointmentModel
 from external_offers.templates.filters import custom_filters
 
@@ -121,4 +122,20 @@ def get_operator_card_html(
         current_operator=current_operator,
         operator=operator,
         teams=teams,
+    )
+
+
+def get_calls_history_html(
+    current_operator: EnrichedOperator,
+    operators: List[Operator],
+    calls: List[OperatorCallModel],
+    selected_operator_id: int,
+) -> str:
+    template = templates.get_template('operator_calls_history.jinja2')
+    return template.render(
+        debug=runtime_settings.DEBUG,
+        current_operator=current_operator,
+        operators=operators,
+        calls=calls,
+        selected_operator_id=selected_operator_id,
     )

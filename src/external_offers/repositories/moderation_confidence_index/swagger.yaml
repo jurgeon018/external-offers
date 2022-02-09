@@ -1,0 +1,101 @@
+definitions:
+  WebApi.Model.CallComponent.GetOperatorCallsResponseModel:
+    description: Модель ответа получить звонки
+    properties:
+      calls:
+        description: Звонки
+        items:
+          $ref: '#/definitions/WebApi.Model.CallComponent.OperatorCallModel'
+        type: array
+    type: object
+  WebApi.Model.CallComponent.OperatorCallModel:
+    properties:
+      beepDuration:
+        description: Длительность гудков
+        format: int32
+        type: integer
+      callId:
+        description: Идентификатор звонка
+        format: uuid
+        type: string
+      duration:
+        description: Теелфон на который звоним
+        format: int32
+        type: integer
+      mp3Url:
+        description: Урл до Mp3
+        type: string
+      phoneFrom:
+        description: Телефон с которого звоним
+        type: string
+      phoneTo:
+        description: Теелфон на который звоним
+        type: string
+      taskKey:
+        description: Ключ таски
+        type: string
+    type: object
+host: master.moderation-confidence-index.dev3.cian.ru
+info:
+  title: moderation-confidence-index
+  version: v1
+paths:
+  /api/call-component/v1/get-operator-calls:
+    post:
+      parameters:
+      - description: С какого телефона
+        in: query
+        name: phoneFrom
+        type: string
+      - description: На какой телефон
+        in: query
+        name: phoneTo
+        type: string
+      - description: Время с
+        format: date-time
+        in: query
+        name: timeFrom
+        type: string
+      - description: Время по
+        format: date-time
+        in: query
+        name: timeTo
+        type: string
+      - description: Идентификатор оператора
+        format: int64
+        in: query
+        name: operatorId
+        type: integer
+      - description: Ключ таски
+        in: query
+        name: taskKey
+        type: string
+      - description: Номер страницы
+        format: int32
+        in: query
+        name: page
+        type: integer
+      - description: Размер страницы
+        format: int32
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Model.CallComponent.GetOperatorCallsResponseModel'
+      summary: Возвращает звонки оператора
+      tags:
+      - CallComponent
+schemes:
+- http
+swagger: '2.0'
+x-cian-mq:
+  exchanges: {}
+  spec-version: '1.0'
