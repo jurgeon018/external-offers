@@ -1,7 +1,9 @@
 {% extends "base.jinja2" %}
 {% block head %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -9,44 +11,56 @@
                 format: 'dd.mm.yyyy',
             });
         });
+        $(document).ready(function () {
+            $("#button").click(function () {
+                //1st method, has hash that disables the use of parameter
+                //window.location.hash = "&item=brand";
+                //2nd method, makes page refresh
+                document.location.search += '&item=brand';
+                document.location.search += '&item=brand';
+                document.location.search += '&item=brand';
+                document.location.search += '&item=brand';
+                document.location.search += '&item=brand';
+            });
+        });
     </script>
     <style>
-    .table-striped>tbody>tr:nth-child(odd)>td,
-    .table-striped>tbody>tr:nth-child(odd)>th,
-    .table-hover>tbody>tr:hover>td,
-    .table-hover>tbody>tr:hover>th {
-        background-color: transparent;
-    }
+        .table-striped > tbody > tr:nth-child(odd) > td,
+        .table-striped > tbody > tr:nth-child(odd) > th,
+        .table-hover > tbody > tr:hover > td,
+        .table-hover > tbody > tr:hover > th {
+            background-color: transparent;
+        }
     </style>
 {% endblock %}
 {% block title %}Оператор {{ current_operator.full_name }} ({{ current_operator.operator_id }}){% endblock %}
 {% block page_header %}История звонков{% endblock %}
 {% block content %}
     <div class="col-sm-5">
-    <form class="form-horizontal" method="GET" autocomplete="off">
-      <div class="form-group">
-        <label class="col-sm-4 col-form-label">Даты</label>
-        <div class="col-sm-4">
-          <input name="dateFrom" type="text" class="form-control form-control-sm datepicker" id="dateFrom">
-        </div>
-        <div class="col-sm-4">
-          <input name="dateTo"  type="text" class="form-control form-control-sm datepicker" id="dateTo">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-4 col-form-label">Длительность</label>
-        <div class="col-sm-4">
-          <input name="timeFrom" type="number" class="form-control form-control-sm" id="timeFrom">
-        </div>
-        <div class="col-sm-4">
-          <input name="timeTo" type="number" class="form-control form-control-sm" id="timeTo">
-        </div>
-      </div>
-{#      {% if current_operator.is_teamlead %}#}
-          <div class="form-group">
+        <form class="form-horizontal" method="GET" autocomplete="off" action="/admin/calls-history/?asd=123">
+            <div class="form-group">
+                <label class="col-sm-4 col-form-label">Даты</label>
+                <div class="col-sm-4">
+                    <input name="dateFrom" type="text" class="form-control input-sm datepicker" id="dateFrom">
+                </div>
+                <div class="col-sm-4">
+                    <input name="dateTo" type="text" class="form-control input-sm datepicker" id="dateTo">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 col-form-label">Длительность</label>
+                <div class="col-sm-4">
+                    <input name="timeFrom" type="number" class="form-control input-sm" id="timeFrom">
+                </div>
+                <div class="col-sm-4">
+                    <input name="timeTo" type="number" class="form-control input-sm" id="timeTo">
+                </div>
+            </div>
+            {#      {% if current_operator.is_teamlead %}#}
+            <div class="form-group">
                 <label for="operatorId" class="col-sm-4 col-form-label">Оператор</label>
                 <div class="col-sm-8">
-                    <select name="operatorId"  class="form-control" id="operatorId">
+                    <select name="operatorId" class="form-control input-sm" id="operatorId">
                         {% for operator in operators %}
                             <option value="{{ operator.operator_id }}"
                                     {% if operator.operator_id == selected_operator_id %}selected{% endif %}>
@@ -55,43 +69,56 @@
                         {% endfor %}
                     </select>
                 </div>
-                </div>
-{#       {% endif %}#}
-         <button type="submit" class="btn btn-primary">Искать</button>
-    </form>
+            </div>
+            {#       {% endif %}#}
+            <button type="submit" class="btn btn-primary button">Искать</button>
+        </form>
     </div>
-
+    <div class="col-sm-7 text-right">
+        <button type="submit" class="btn btn-default">
+            Скачать XLS
+        </button>
+    </div>
     <div class="col-sm-12">
-    <br><br>
-    {% if calls %}
-        <table class="table table-striped">
-            <tr>
-                <th>Время</th>
-                <th>С какого телефона</th>
-                <th>На какой телефон</th>
-                <th>Длительность разговора</th>
-                <th>Разговор</th>
-            </tr>
-            {% for call in calls %}
+        <br><br>
+        {% if calls %}
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    {% if has_previous %}
+                        <li class="page-item"><a class="page-link" href="#">Предыдущая</a></li>
+                    {% endif %}
+                    {% if has_next %}
+                        <li class="page-item"><a class="page-link" href="#">Следующая</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <table class="table table-striped text-center">
                 <tr>
-                    <td>{{ call.created_time }}</td>
-                    <td>{{ call.phone_from }}</td>
-                    <td>{{ call.phone_to }}</td>
-                    <td>{{ call.duration }}</td>
-                    <td>
-                        <audio
-                                controls
-                                src="{{ call.mp3_url }}">
-                            Your browser does not support the
-                            <code>audio</code> element.
-                        </audio>
-                    </td>
+                    <th class="text-center">Время</th>
+                    <th class="text-center">С какого телефона</th>
+                    <th class="text-center">На какой телефон</th>
+                    <th class="text-center">Продолжительность разговора</th>
+                    <th class="text-center">Разговор</th>
                 </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>Звонки не найдены</p>
-    {% endif %}
-    {{ get_arguments }}
+                {% for call in calls %}
+                    <tr>
+                        <td>{{ call.created_time.strftime('%d.%m.%Y %H:%m') }}</td>
+                        <td>{{ call.phone_from }}</td>
+                        <td>{{ call.phone_to }}</td>
+                        <td>{{ call.duration }}</td>
+                        <td>
+                            <audio
+                                    controls
+                                    src="{{ call.mp3_url }}">
+                                Your browser does not support the
+                                <code>audio</code> element.
+                            </audio>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Звонки не найдены</p>
+        {% endif %}
     </div>
 {% endblock %}

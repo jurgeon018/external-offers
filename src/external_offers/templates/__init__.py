@@ -130,7 +130,8 @@ def get_calls_history_html(
     operators: List[Operator],
     calls: List[OperatorCallModel],
     selected_operator_id: int,
-    get_arguments
+    has_previous: bool,
+    has_next: bool,
 ) -> str:
     template = templates.get_template('operator_calls_history.jinja2')
     return template.render(
@@ -139,5 +140,6 @@ def get_calls_history_html(
         operators=operators,
         calls=calls,
         selected_operator_id=selected_operator_id,
-        get_arguments=get_arguments,
+        has_previous=has_previous,
+        has_next=has_next,
     )
