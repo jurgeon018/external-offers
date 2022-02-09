@@ -10,36 +10,43 @@
             });
         });
     </script>
+    <style>
+    .table-striped>tbody>tr:nth-child(odd)>td,
+    .table-striped>tbody>tr:nth-child(odd)>th,
+    .table-hover>tbody>tr:hover>td,
+    .table-hover>tbody>tr:hover>th {
+        background-color: transparent;
+    }
+    </style>
 {% endblock %}
 {% block title %}Оператор {{ current_operator.full_name }} ({{ current_operator.operator_id }}){% endblock %}
 {% block page_header %}История звонков{% endblock %}
 {% block content %}
     <div class="col-sm-5">
-        <form method="GET" autocomplete="off">
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Даты</label>
-                <div class="col-sm-4">
-                    <input name="dateFrom" type="text" class="form-control form-control-sm datepicker" id="dateFrom">
-                </div>
-                <div class="col-sm-4">
-                    <input name="dateTo"  type="text" class="form-control form-control-sm datepicker" id="dateTo">
-                </div>
-            </div>
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Длительность</label>
-                <div class="col-sm-4">
-                    <input name="timeFrom" type="number" class="form-control form-control-sm" id="timeFrom">
-                </div>
-                <div class="col-sm-4">
-                    <input name="timeTo" type="number" class="form-control form-control-sm" id="timeTo">
-                </div>
-            </div>
-
-            {% if current_operator.is_teamlead %}
-                <div class="row mb-3">
+    <form class="form-horizontal" method="GET" autocomplete="off">
+      <div class="form-group">
+        <label class="col-sm-4 col-form-label">Даты</label>
+        <div class="col-sm-4">
+          <input name="dateFrom" type="text" class="form-control form-control-sm datepicker" id="dateFrom">
+        </div>
+        <div class="col-sm-4">
+          <input name="dateTo"  type="text" class="form-control form-control-sm datepicker" id="dateTo">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 col-form-label">Длительность</label>
+        <div class="col-sm-4">
+          <input name="timeFrom" type="number" class="form-control form-control-sm" id="timeFrom">
+        </div>
+        <div class="col-sm-4">
+          <input name="timeTo" type="number" class="form-control form-control-sm" id="timeTo">
+        </div>
+      </div>
+{#      {% if current_operator.is_teamlead %}#}
+          <div class="form-group">
                 <label for="operatorId" class="col-sm-4 col-form-label">Оператор</label>
                 <div class="col-sm-8">
-                    <select name="operatorId" class="form-select" id="operatorId">
+                    <select name="operatorId"  class="form-control" id="operatorId">
                         {% for operator in operators %}
                             <option value="{{ operator.operator_id }}"
                                     {% if operator.operator_id == selected_operator_id %}selected{% endif %}>
@@ -49,15 +56,15 @@
                     </select>
                 </div>
                 </div>
-            {% endif %}
-            <button type="submit" class="btn btn-primary">Искать</button>
-        </form>
+{#       {% endif %}#}
+         <button type="submit" class="btn btn-primary">Искать</button>
+    </form>
     </div>
-    <br><br>
-    <div>
-    {% if calls %}
 
-        <table>
+    <div class="col-sm-12">
+    <br><br>
+    {% if calls %}
+        <table class="table table-striped">
             <tr>
                 <th>С какого телефона</th>
                 <th>На какой телефон</th>
@@ -83,5 +90,6 @@
     {% else %}
         <p>Звонки не найдены</p>
     {% endif %}
-</div>
+    {{ get_arguments }}
+    </div>
 {% endblock %}
