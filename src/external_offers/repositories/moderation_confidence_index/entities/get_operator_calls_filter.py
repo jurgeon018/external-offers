@@ -11,28 +11,27 @@ cian-codegen version: 1.17.0
 from dataclasses import dataclass
 from datetime import datetime as _datetime
 from typing import Optional
-from uuid import UUID
 
 
 @dataclass
-class OperatorCallModel:
-    beep_duration: Optional[int] = None
-    """Длительность гудков"""
-    call_id: Optional[UUID] = None
-    """Идентификатор звонка"""
-    created_time: Optional[_datetime] = None
-    """Время начала звонка"""
-    duration: Optional[int] = None
-    """Теелфон на который звоним"""
-    mp3_url: Optional[str] = None
-    """Урл до Mp3"""
+class GetOperatorCallsFilter:
+    """Фильтр звонков операторов"""
+
     operator_id: Optional[int] = None
     """Идентификатор оператора"""
+    page: Optional[int] = None
+    """Номер страницы"""
+    page_size: Optional[int] = None
+    """Размер страницы"""
     phone_from: Optional[str] = None
-    """Телефон с которого звоним"""
+    """С какого телефона"""
     phone_to: Optional[str] = None
-    """Теелфон на который звоним"""
+    """На какой телефон"""
     task_key: Optional[str] = None
     """Ключ таски"""
     team: Optional[str] = None
     """Команда"""
+    time_from: Optional[_datetime] = None
+    """Время с"""
+    time_to: Optional[_datetime] = None
+    """Время по"""

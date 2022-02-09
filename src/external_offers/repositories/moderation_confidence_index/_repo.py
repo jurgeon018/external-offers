@@ -17,5 +17,6 @@ api_call_component_v1_get_operator_calls = _api.make_client(
     path='/api/call-component/v1/get-operator-calls',
     method='POST',
     handle_http_exceptions=True,
+    request_schema=entities.GetOperatorCallsFilter,
     response_schema=entities.GetOperatorCallsResponseModel,
 )

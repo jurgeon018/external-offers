@@ -1,4 +1,40 @@
 definitions:
+  Common.Models.CallComponent.GetOperatorCallsFilter:
+    description: Фильтр звонков операторов
+    properties:
+      operatorId:
+        description: Идентификатор оператора
+        format: int64
+        type: integer
+      page:
+        description: Номер страницы
+        format: int32
+        type: integer
+      pageSize:
+        description: Размер страницы
+        format: int32
+        type: integer
+      phoneFrom:
+        description: С какого телефона
+        type: string
+      phoneTo:
+        description: На какой телефон
+        type: string
+      taskKey:
+        description: Ключ таски
+        type: string
+      team:
+        description: Команда
+        type: string
+      timeFrom:
+        description: Время с
+        format: date-time
+        type: string
+      timeTo:
+        description: Время по
+        format: date-time
+        type: string
+    type: object
   WebApi.Model.CallComponent.GetOperatorCallsResponseModel:
     description: Модель ответа получить звонки
     properties:
@@ -18,6 +54,10 @@ definitions:
         description: Идентификатор звонка
         format: uuid
         type: string
+      createdTime:
+        description: Время начала звонка
+        format: date-time
+        type: string
       duration:
         description: Теелфон на который звоним
         format: int32
@@ -25,6 +65,10 @@ definitions:
       mp3Url:
         description: Урл до Mp3
         type: string
+      operatorId:
+        description: Идентификатор оператора
+        format: int64
+        type: integer
       phoneFrom:
         description: Телефон с которого звоним
         type: string
@@ -34,6 +78,9 @@ definitions:
       taskKey:
         description: Ключ таски
         type: string
+      team:
+        description: Команда
+        type: string
     type: object
 host: master.moderation-confidence-index.dev3.cian.ru
 info:
@@ -42,44 +89,16 @@ info:
 paths:
   /api/call-component/v1/get-operator-calls:
     post:
+      consumes:
+      - application/json-patch+json
+      - application/json
+      - text/json
+      - application/*+json
       parameters:
-      - description: С какого телефона
-        in: query
-        name: phoneFrom
-        type: string
-      - description: На какой телефон
-        in: query
-        name: phoneTo
-        type: string
-      - description: Время с
-        format: date-time
-        in: query
-        name: timeFrom
-        type: string
-      - description: Время по
-        format: date-time
-        in: query
-        name: timeTo
-        type: string
-      - description: Идентификатор оператора
-        format: int64
-        in: query
-        name: operatorId
-        type: integer
-      - description: Ключ таски
-        in: query
-        name: taskKey
-        type: string
-      - description: Номер страницы
-        format: int32
-        in: query
-        name: page
-        type: integer
-      - description: Размер страницы
-        format: int32
-        in: query
-        name: pageSize
-        type: integer
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/Common.Models.CallComponent.GetOperatorCallsFilter'
       produces:
       - application/msgpack
       - text/plain
@@ -90,7 +109,8 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/WebApi.Model.CallComponent.GetOperatorCallsResponseModel'
-      summary: Возвращает звонки оператора
+      summary: "Возвращает звонки оператора\r\nTODO: покрыть функ. тестами S07-2022,\
+        \ задача: CD-131273"
       tags:
       - CallComponent
 schemes:

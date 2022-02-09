@@ -279,7 +279,7 @@ class AdminCallsHistoryPageHandler(PublicHandler):
         operators = await get_operators()
         selected_operator_id = self.request.arguments.get('operator_id')
         selected_operator_id = selected_operator_id or self.realty_user_id
-        calls = await get_operator_calls(selected_operator_id)
+        calls = await get_operator_calls(int(selected_operator_id))
         # calls = [
         #     {'phone_from': '89111612246', 'phone_to': '89111612235', 'duration': 24, 'mp3_url': 'url'},
         #     {'phone_from': '89111612246', 'phone_to': '89111612235', 'duration': 10, 'mp3_url': 'url'},

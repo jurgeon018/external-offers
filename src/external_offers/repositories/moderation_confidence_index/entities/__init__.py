@@ -9,5 +9,6 @@ To re-generate, run `codegen generate-client moderation-confidence-index`
 cian-codegen version: 1.17.0
 
 """
+from .get_operator_calls_filter import GetOperatorCallsFilter
 from .operator_call_model import OperatorCallModel
 from .get_operator_calls_response_model import GetOperatorCallsResponseModel
