@@ -3,12 +3,11 @@ from typing import List, Optional
 
 from cian_core.degradation import DegradationResult, degradation as get_degradation_handler
 
-from external_offers.repositories.moderation_confidence_index import (
-    api_call_component_v1_get_operator_calls,
-)
+from external_offers.repositories.moderation_confidence_index import api_call_component_v1_get_operator_calls
 from external_offers.repositories.moderation_confidence_index.entities import (
+    GetOperatorCallsFilter,
     GetOperatorCallsResponseModel,
-    OperatorCallModel, GetOperatorCallsFilter,
+    OperatorCallModel,
 )
 
 
@@ -43,4 +42,4 @@ async def get_operator_calls(
         time_to=time_to,
     )
     result: DegradationResult[GetOperatorCallsResponseModel] = await v1_get_operator_calls_degradation_handler(request)
-    return result.value.calls
+    return result.value.calls or []

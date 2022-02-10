@@ -25,7 +25,8 @@ from external_offers.repositories.postgresql.operators import (
     get_enriched_operator_by_id,
     get_enriched_operators,
     get_enriched_teamleads,
-    get_latest_operator_updating, get_operators,
+    get_latest_operator_updating,
+    get_operators,
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
@@ -33,11 +34,12 @@ from external_offers.services.calls_history import get_operator_calls
 from external_offers.services.operator_roles import get_operator_roles, get_or_create_operator, update_operators
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (
+    get_calls_history_html,
     get_offer_card_html,
     get_offers_list_html,
     get_operator_card_html,
     get_team_card_html,
-    get_teams_page_html, get_calls_history_html,
+    get_teams_page_html,
 )
 from external_offers.web.handlers.base import PublicHandler
 
@@ -61,7 +63,7 @@ class AdminOffersListPageHandler(PublicHandler):
             minute=settings.NEXT_CALL_MINUTES,
             second=settings.NEXT_CALL_SECONDS
         )
-        operator_roles = []
+        operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(
@@ -124,7 +126,7 @@ class AdminOffersCardPageHandler(PublicHandler):
         is_ready_business_enabled = runtime_settings.get('EXTERNAL_OFFERS_READY_BUSINESS_ENABLED', False)
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
-            info_message=settings.SAVE_OFFER_MSG,
+            info_message=runtime_settings.SAVE_OFFER_MSG,
             offer_id=offer_id,
             client=client,
             client_accounts=client_accounts_result.value,
