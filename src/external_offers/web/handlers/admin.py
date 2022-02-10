@@ -126,7 +126,7 @@ class AdminOffersCardPageHandler(PublicHandler):
         is_ready_business_enabled = runtime_settings.get('EXTERNAL_OFFERS_READY_BUSINESS_ENABLED', False)
         offer_html = get_offer_card_html(
             parsed_object_model=offer_object_model,
-            info_message=runtime_settings.SAVE_OFFER_MSG,
+            info_message=settings.SAVE_OFFER_MSG,
             offer_id=offer_id,
             client=client,
             client_accounts=client_accounts_result.value,
