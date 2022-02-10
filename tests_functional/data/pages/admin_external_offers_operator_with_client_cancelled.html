@@ -1,9 +1,13 @@
 <html>
    <head>
-       <script
-               src="https://code.jquery.com/jquery-3.6.0.min.js"
-               integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-               crossorigin="anonymous"></script>
+
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
+      
+        <script src="http://master.moderation-confidence-index.dev3.cian.ru/Content/js/call-component.js"></script>
+      
+
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
       <style>
          .client-info-block {
          margin: 1em;
@@ -114,6 +118,13 @@
          .additional-fields-block {
              display: flex;
              margin-top: 20px;
+             flex-direction: column;
+             justify-content: center;
+         }
+         .caller-block {
+             display: flex;
+             margin-top: 20px;
+              margin: 1em;
              flex-direction: column;
              justify-content: center;
          }
@@ -301,7 +312,20 @@
          <div class="offers-error-message">Нет объявлений в работе, получите новые задания</div>
          <div class="client-error-message">Нет клиента в работе, получите новые задания</div>
       </div>
+
+      <hr>
+
+      <div class="caller-block">
+        <!-- звонилка -->
+        <div data-callComponent="call-buttons-v1"></div>
+      </div>
       <script>
+        $(function()
+        {
+            initCallComponent(60024636);
+            document.getElementById('CallToPhone').value = '';
+            formatPhone();
+        });
          let DEBUG = 'True' === 'True'
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
@@ -329,8 +353,8 @@
                // workaround to redirect when on service.cian.ru
                queryParams = new URLSearchParams(window.location.search)
                queryParams.set("url", `/admin/offer-card/${element.innerHTML}/`);
-               history.pushState(null, null, "?"+queryParams.toString());
-               location.reload()
+               var url = window.location.href.split('?')[0] + "?" + queryParams.toString()
+               window.open(url, '_blank').focus();
             }
          }
          async function onClickOfferRowDelete(offer_id, client_id) {
