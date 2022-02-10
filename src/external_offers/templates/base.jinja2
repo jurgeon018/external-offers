@@ -5,7 +5,9 @@
     <title>{% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
+    {% if debug %}
     <link href="http://service.cian.ru/styles-bundle/common?v=0aKLpWyVhVKyGjOnlm51ljVIiDW6CKtVEmPslyQ9Btg1" rel="stylesheet">
+    {% endif %}
     {% block head %}
     {% endblock %}
   </head>

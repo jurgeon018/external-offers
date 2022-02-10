@@ -20,7 +20,8 @@ v1_get_operator_calls_degradation_handler = get_degradation_handler(
 
 
 async def get_operator_calls(
-        operator_id: Optional[int] = None,
+        *,
+        operator_id: int,
         page: Optional[int] = None,
         page_size: Optional[int] = None,
         phone_from: Optional[str] = None,

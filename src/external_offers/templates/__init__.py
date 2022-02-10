@@ -126,6 +126,7 @@ def get_operator_card_html(
 
 
 def get_calls_history_html(
+    *,
     current_operator: EnrichedOperator,
     operators: List[Operator],
     calls: List[OperatorCallModel],

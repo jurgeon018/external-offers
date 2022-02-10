@@ -277,38 +277,11 @@ class AdminCallsHistoryPageHandler(PublicHandler):
             operator_id=self.realty_user_id,
         )
         operators = await get_operators()
-        selected_operator_id = self.request.arguments.get('operator_id')
-        selected_operator_id = selected_operator_id or self.realty_user_id
+        selected_operator_id = self.realty_user_id
         calls = await get_operator_calls(
             operator_id=int(selected_operator_id),
             page=1,
         )
-        calls = [
-            {
-                "call_id": "5197d59f-0457-4c46-82b1-59f727c60359",
-                "created_time": datetime.fromisoformat("2022-02-09T13:29:12.417306+03:00"),
-                "operator_id": 13508094,
-                "phone_from": "79666663107",
-                "phone_to": "79312882017",
-                "beep_duration": 7,
-                "duration": 7,
-                "task_key": "taskKey1",
-                "team": "moderation1",
-                "mp3_url": None
-            },
-            {
-                "call_id": "5197d59f-0457-4c46-82b1-59f727c60359",
-                "created_time": datetime.fromisoformat("2022-02-09T13:29:12.417306+03:00"),
-                "operator_id": 13508094,
-                "phone_from": "79666663107",
-                "phone_to": "79312882017",
-                "beep_duration": 7,
-                "duration": 7,
-                "task_key": "taskKey1",
-                "team": "moderation1",
-                "mp3_url": None
-            },
-        ]
         self.write(get_calls_history_html(
             current_operator=current_operator,
             operators=operators,

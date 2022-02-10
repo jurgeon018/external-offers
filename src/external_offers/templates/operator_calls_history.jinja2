@@ -11,18 +11,6 @@
                 format: 'dd.mm.yyyy',
             });
         });
-        $(document).ready(function () {
-            $("#button").click(function () {
-                //1st method, has hash that disables the use of parameter
-                //window.location.hash = "&item=brand";
-                //2nd method, makes page refresh
-                document.location.search += '&item=brand';
-                document.location.search += '&item=brand';
-                document.location.search += '&item=brand';
-                document.location.search += '&item=brand';
-                document.location.search += '&item=brand';
-            });
-        });
     </script>
     <style>
         .table-striped > tbody > tr:nth-child(odd) > td,
@@ -56,7 +44,7 @@
                     <input name="timeTo" type="number" class="form-control input-sm" id="timeTo">
                 </div>
             </div>
-            {#      {% if current_operator.is_teamlead %}#}
+            {% if current_operator.is_teamlead or debug %}
             <div class="form-group">
                 <label for="operatorId" class="col-sm-4 col-form-label">Оператор</label>
                 <div class="col-sm-8">
@@ -70,7 +58,11 @@
                     </select>
                 </div>
             </div>
-            {#       {% endif %}#}
+            {% endif %}
+            {% if not debug %}
+                <input type="hidden" name="mcs" value="external-offers">
+                <input type="hidden" name="url" value="/admin/calls-history/">
+            {% endif %}
             <button type="submit" class="btn btn-primary button">Искать</button>
         </form>
     </div>
