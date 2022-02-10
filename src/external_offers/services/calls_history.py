@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from cian_core.degradation import DegradationResult, degradation as get_degradation_handler
 
@@ -29,7 +29,7 @@ async def get_operator_calls(
         team: Optional[str] = None,
         time_from: Optional[datetime] = None,
         time_to: Optional[datetime] = None,
-) -> List[OperatorCallModel]:
+) -> list[OperatorCallModel]:
     request = GetOperatorCallsFilter(
         operator_id=operator_id,
         page=page,
