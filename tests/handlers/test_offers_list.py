@@ -1,9 +1,11 @@
 from datetime import datetime
 
+import freezegun
 import pytest
 import pytz
 from cian_core.degradation import DegradationResult
 from cian_test_utils import future
+from freezegun.api import FakeDatetime
 
 from external_offers.entities import Client, Offer
 from external_offers.entities.admin import AdminDeleteOfferRequest, AdminUpdateOffersListRequest
@@ -125,3 +127,56 @@ async def test_update_offers_list__operator_roles_request_degraded(mocker):
     # act & assert
     with pytest.raises(DegradationException, match=error_message):
         await update_offers_list(request, user_id=realty_user_id)
+
+
+@pytest.mark.gen_test
+async def test_offers_list_page_handler(mocker, http_client, base_url):
+    user_id = '1'
+    client = Client(
+        client_id='1',
+        avito_user_id='1',
+        client_phones=['7343433'],
+        status='inProgress'
+    )
+    # client = mocker.MagicMock(value=None)
+    offers = mocker.MagicMock(value=[])
+    mocker.patch(
+        'external_offers.web.handlers.admin.get_client_in_progress_by_operator',
+        return_value=future(client),
+    )
+    mocker.patch(
+        'external_offers.web.handlers.admin.get_enriched_offers_in_progress_by_operator',
+        return_value=future(offers),
+    )
+    get_offers_list_html_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_offers_list_html',
+        return_value='',
+    )
+    get_operator_roles_mock = mocker.patch(
+        'external_offers.web.handlers.admin.get_operator_roles',
+        return_value=future([]),
+    )
+
+    # act
+    with freezegun.freeze_time('2022-01-01'):
+        await http_client.fetch(
+            base_url+'/admin/offers-list/',
+            method='GET',
+            headers={
+                'X-Real-UserId': user_id,
+            },
+        )
+
+    # assert
+    get_offers_list_html_mock.assert_called_once_with(
+        offers=offers,
+        client=client,
+        client_phone=client.client_phones[0],
+        default_next_call_datetime=FakeDatetime(2022, 1, 2, 10, 0),
+        operator_is_tester=False,
+        operator_id=int(user_id),
+        is_commercial_moderator=False,
+    )
+    get_operator_roles_mock.assert_called_once_with(
+        operator_id=int(user_id),
+    )
