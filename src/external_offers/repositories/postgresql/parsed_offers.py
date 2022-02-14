@@ -353,6 +353,19 @@ async def exists_parsed_offer_by_source_object_id(
     return bool(result)
 
 
+async def exists_parsed_offer_by_parsed_id(
+    *,
+    parsed_id: str,
+):
+    query = f"""
+    SELECT COUNT(*) FROM parsed_offers
+    WHERE id = '{parsed_id}';
+    """
+    result = await pg.get().fetchval(query)
+
+    return bool(result)
+
+
 async def delete_test_parsed_offers() -> None:
     query, params = asyncpgsa.compile_query(
         delete(

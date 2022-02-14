@@ -42,6 +42,7 @@ from external_offers.repositories.postgresql.offers import (
 from external_offers.repositories.postgresql.parsed_offers import (
     delete_test_parsed_offers,
     exists_parsed_offer_by_source_object_id,
+    exists_parsed_offer_by_parsed_id,
     get_parsed_offer_for_creation_by_id,
     save_parsed_offer,
     save_test_parsed_offer,
@@ -183,8 +184,17 @@ async def create_test_parsed_offer_public(
             message=f'Обьявление с source_object_id {source_object_id} уже существует.',
             parsed_id=None,
         )
-
     parsed_id = request.id or generate_guid()
+    exists = await exists_parsed_offer_by_parsed_id(parsed_id=parsed_id)
+    if exists:
+        return CreateTestParsedOfferResponse(
+            success=False,
+            message=(
+                f'Обьявление с id {parsed_id} уже существует.'
+                'Значение в поле id не обязательное, и если его не передавать то оно сгенерируется автоматически'
+            ),
+            parsed_id=None,
+        )
     user_segment = request.user_segment
     parsed_offer_message = ParsedOfferMessage(
         source_user_id=source_user_id,
