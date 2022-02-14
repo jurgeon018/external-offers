@@ -349,7 +349,6 @@ async def sync_offers_for_call_with_parsed(is_test: bool) -> None:
                 await save_client(
                     client=client
                 )
-
             offer_id = generate_guid()
             now = datetime.now(tz=pytz.utc)
             offer = Offer(
