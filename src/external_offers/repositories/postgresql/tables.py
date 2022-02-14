@@ -123,3 +123,12 @@ client_account_statuses = sa.Table(
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )
+
+clients_priorities = sa.Table(
+    'clients_priorities',
+    metadata,
+    sa.Column('priorities', JSONB(), nullable=True),
+    sa.Column('team_id', sa.INT, nullable=True),
+    sa.Column('created_at', sa.TIMESTAMP, nullable=False),
+    sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
+)

@@ -4,7 +4,6 @@ from typing import Optional, Union
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
-from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import or_, select
 

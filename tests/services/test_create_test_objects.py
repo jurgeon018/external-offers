@@ -43,6 +43,94 @@ def test_get_attr__offer_request_passed__returns_value():
     assert attr == user_segment
 
 
+# create_test_parsed_offer
+
+
+@pytest.mark.gen_test
+async def test_create_test_parsed_offer__client_exists(
+    http_client, base_url, mocker
+):
+    # arrange
+    client_id = '442'
+    source_user_id = '3421'
+    client = Client(
+        client_id=client_id,
+        avito_user_id=source_user_id,
+        client_phones=['123'],
+        status=ClientStatus.waiting,
+    )
+    get_client_by_avito_user_id_mock = mocker.patch(
+        'external_offers.services.test_objects.get_client_by_avito_user_id',
+        return_value=future(client),
+    )
+    check_cian_user_id_mock = mocker.patch(
+        'external_offers.services.test_objects.check_cian_user_id',
+        return_value=future(False),
+    )
+    # act
+    result = await http_client.fetch(
+        base_url+'/qa/v1/create-test-parsed-offer/',
+        method='POST',
+        body=json.dumps({
+            'sourceObjectId': '123',
+            'sourceUserId': source_user_id,
+            'isCalltracking': False,
+            'userSegment': 'c',
+        }),
+        headers={
+            'X-Real-UserId': '1',
+        },
+    )
+    # assert
+    data = json.loads(result.body)
+    assert data['success'] is False
+    assert data['message'] == f'Клиент с sourceUserId {source_user_id} уже существует. Выберите другой sourceUserId.'
+    get_client_by_avito_user_id_mock.assert_called_once_with(avito_user_id=source_user_id)
+    check_cian_user_id_mock.assert_not_called()
+
+
+@pytest.mark.gen_test
+async def test_create_test_parsed_offer__parsed_offer_exists(
+    http_client, base_url, mocker
+):
+    # arrange
+    source_user_id = '3421'
+    source_object_id = '123'
+    get_client_by_avito_user_id_mock = mocker.patch(
+        'external_offers.services.test_objects.get_client_by_avito_user_id',
+        return_value=future(None),
+    )
+    exists_parsed_offer_by_source_object_id_mock = mocker.patch(
+        'external_offers.services.test_objects.exists_parsed_offer_by_source_object_id',
+        return_value=future(True)
+    )
+    check_cian_user_id_mock = mocker.patch(
+        'external_offers.services.test_objects.check_cian_user_id',
+        return_value=future(False),
+    )
+    # act
+    result = await http_client.fetch(
+        base_url+'/qa/v1/create-test-parsed-offer/',
+        method='POST',
+        body=json.dumps({
+            'sourceObjectId': source_object_id,
+            'sourceUserId': source_user_id,
+            'isCalltracking': False,
+            'userSegment': 'c',
+        }),
+        headers={
+            'X-Real-UserId': '1',
+        },
+    )
+    # assert
+    data = json.loads(result.body)
+    assert data['success'] is False
+    assert data['message'] == f'Обьявление с source_object_id {source_object_id} уже существует.'
+    get_client_by_avito_user_id_mock.assert_called_once_with(avito_user_id=source_user_id)
+    check_cian_user_id_mock.assert_not_called()
+    exists_parsed_offer_by_source_object_id_mock.assert_called_once_with(source_object_id=source_object_id)
+
+
 # create_test_client
 @pytest.mark.gen_test
 async def test_create_test_client_public__client_exists__returns_client_id(

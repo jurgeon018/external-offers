@@ -1,3 +1,5 @@
+from functools import partial
+
 import click
 from cian_core.kafka import register_kafka_consumer
 from cian_core.rabbitmq.consumer_cli import register_consumer
@@ -41,7 +43,7 @@ def serve(debug: bool, host: str, port: int) -> None:
 @cli.command()
 def create_offers_for_call():
     """ Синхронизировать таблицы offers_for_call и clients на основе parsed_offers """
-    IOLoop.current().run_sync(sync_and_create_offers)
+    IOLoop.current().run_sync(partial(sync_and_create_offers, is_test=False))
 
 
 @cli.command()
