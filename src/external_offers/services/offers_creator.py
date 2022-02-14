@@ -42,6 +42,10 @@ from external_offers.repositories.postgresql.client_account_statuses import (
     get_recently_cached_client_account_statuses,
     set_client_account_status,
 )
+from external_offers.repositories.postgresql.clients_priorities import (
+    get_clients_priority_by_team_id,
+    save_clients_priority,
+)
 from external_offers.repositories.postgresql.offers import (
     clear_invalid_waiting_offers_by_offer_ids,
     delete_calltracking_clients,
@@ -295,7 +299,7 @@ async def prioritize_clients(
     return clients_priority
 
 
-async def sync_offers_for_call_with_parsed() -> None:
+async def sync_offers_for_call_with_parsed(is_test: bool) -> None:
     """ Синхронизировать таблицу заданий offers_for_call и parsed_offers """
     max_updated_at_date = None
     if runtime_settings.get('ENABLE_UPDATED_AT_DATE_FETCHING', True):
@@ -310,6 +314,7 @@ async def sync_offers_for_call_with_parsed() -> None:
     while parsed_offers := await set_synced_and_fetch_parsed_offers_chunk(
         last_sync_date=last_sync_date,
         max_updated_at_date=max_updated_at_date,
+        is_test=is_test,
     ):
         logger.warning('Fetched %d parsed offers', len(parsed_offers))
 
@@ -317,7 +322,6 @@ async def sync_offers_for_call_with_parsed() -> None:
             parsed_ids=[offer.id for offer in parsed_offers]
         )
         parsed_offer_ids_existing = set(row['parsed_id'] for row in rows)
-
         for parsed_offer in parsed_offers:
             if parsed_offer.id in parsed_offer_ids_existing:
                 continue
@@ -340,11 +344,11 @@ async def sync_offers_for_call_with_parsed() -> None:
                     status=ClientStatus.waiting,
                     segment=UserSegment.from_str(segment) if segment else None,
                     subsegment=parsed_offer.user_subsegment,
+                    is_test=is_test,
                 )
                 await save_client(
                     client=client
                 )
-
             offer_id = generate_guid()
             now = datetime.now(tz=pytz.utc)
             offer = Offer(
@@ -358,20 +362,21 @@ async def sync_offers_for_call_with_parsed() -> None:
                 parsed_created_at=parsed_offer.created_at,
                 category=parsed_offer.category,
                 external_offer_type=parsed_offer.external_offer_type,
+                is_test=is_test,
             )
             await save_offer_for_call(offer=offer)
 
 
-async def sync_and_create_offers() -> None:
+async def sync_and_create_offers(is_test: bool) -> None:
     logger.warning('Наполнение очереди заданиями было запущено')
-    await sync_offers_for_call_with_parsed()
+    await sync_offers_for_call_with_parsed(is_test=is_test)
     logger.info('Начало процесса приоритезации')
     with statsd.timer('offers_prioritization'):
-        await clear_and_prioritize_waiting_offers()
+        await clear_and_prioritize_waiting_offers(is_test=is_test)
     logger.info('Конец процесса приоритезации')
 
 
-async def clear_and_prioritize_waiting_offers() -> None:
+async def clear_and_prioritize_waiting_offers(is_test: bool) -> None:
     logger.warning('Очистка и приоретизация заданий была запущена')
     await clear_waiting_offers_and_clients_with_off_count_limits()
 
@@ -381,7 +386,7 @@ async def clear_and_prioritize_waiting_offers() -> None:
         teams.extend(await get_teams())
     await prioritize_waiting_offers(
         teams=teams,
-        is_test=False,
+        is_test=is_test,
     )
 
     await delete_calltracking_clients()
@@ -462,12 +467,20 @@ async def create_priorities(
             len(unactivated_clients_counts),
         )
 
-    # создает часть приоритета для клиентов в ожидании
-    clients_priority = await prioritize_clients(
-        waiting_clients_counts=waiting_clients_counts,
-        team_settings=team_settings,
-        client_account_statuses=client_account_statuses,
-    )
+    if runtime_settings.get('USE_CACHED_CLIENTS_PRIORITY', False):
+        clients_priority = await get_cached_clients_priority(
+            waiting_clients_counts=waiting_clients_counts,
+            team_settings=team_settings,
+            client_account_statuses=client_account_statuses,
+            team_id=team_id,
+        )
+    else:
+        # создает часть приоритета для клиентов в ожидании
+        clients_priority = await prioritize_clients(
+            waiting_clients_counts=waiting_clients_counts,
+            team_settings=team_settings,
+            client_account_statuses=client_account_statuses,
+        )
     # создает часть приоритета для добивочных клиентов
     clients_priority = await prioritize_unactivated_clients(
         clients_priority=clients_priority,
@@ -485,14 +498,40 @@ async def create_priorities(
     }
 
 
+async def get_cached_clients_priority(
+    *,
+    waiting_clients_counts: list[Optional[ClientWaitingOffersCount]],
+    team_settings: dict,
+    client_account_statuses: dict[str, ClientAccountStatus],
+    team_id: Optional[int] = None,
+) -> dict[str, str]:
+    # достает закешированную часть приоритета для клиентов в ожидании
+    clients_priority = await get_clients_priority_by_team_id(team_id)
+    if not clients_priority:
+        # создает часть приоритета для клиентов в ожидании
+        clients_priority = await prioritize_clients(
+            waiting_clients_counts=waiting_clients_counts,
+            team_settings=team_settings,
+            client_account_statuses=client_account_statuses,
+        )
+        # кеширует часть приоритета для клиентов в ожидании
+        await save_clients_priority(
+            clients_priority=clients_priority,
+            team_id=team_id,
+        )
+    return clients_priority
+
+
 async def prioritize_waiting_offers(
     *,
     teams: list[Optional[Team]],
     is_test: bool,
 ) -> None:
     logger.warning('Приоретизация заданий была запущена')
-    client_counts_for_prioritization = []
-    client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
+    created_offers_priorities = []
+    client_account_statuses = {}
+    if runtime_settings.get('USE_CACHED_CLIENT_ACCOUNT_STATUSES', True):
+        client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
     logger.warning('Количество закешированых статусов клиентов: %s', len(client_account_statuses))
 
     for team in teams:
@@ -500,7 +539,9 @@ async def prioritize_waiting_offers(
         team_id, team_settings = get_team_info(team)
         logger.warning('Приоретизация заданий для команды %s была запущена', team_id)
 
-        unactivated_clients_counts = await get_unactivated_clients_counts_by_clients()
+        unactivated_clients_counts = await get_unactivated_clients_counts_by_clients(
+            is_test=is_test,
+        )
         logger.warning('Количество добивочных заданий для приоретизации: %s', len(unactivated_clients_counts))
 
         waiting_clients_counts = await get_waiting_offer_counts_by_clients(
@@ -508,12 +549,13 @@ async def prioritize_waiting_offers(
             is_test=is_test,
             team_id=team_id,
         )
+
         logger.warning(
             'Количество заданий в ожидании для приоретизации для команды %s: %s',
             team_id,
             len(waiting_clients_counts),
         )
-        client_counts_for_prioritization.append(
+        created_offers_priorities.append(
             create_priorities(
                 waiting_clients_counts=waiting_clients_counts,
                 unactivated_clients_counts=unactivated_clients_counts,
@@ -534,10 +576,10 @@ async def prioritize_waiting_offers(
         #     len(cleared_offer_ids),
         # )
 
-    created_priorities = await asyncio.gather(*client_counts_for_prioritization)
-    for created_priority in created_priorities:
-        team_id = created_priority['team_id']
-        offers_priority = created_priority['offers_priority']
+    offers_priority_for_teams = await asyncio.gather(*created_offers_priorities)
+    for offers_priority_for_team in offers_priority_for_teams:
+        team_id = offers_priority_for_team['team_id']
+        offers_priority = offers_priority_for_team['offers_priority']
         if team_id:
             for priority, offer_ids in offers_priority.items():
                 logger.warning(

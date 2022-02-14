@@ -96,6 +96,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
     *,
     last_sync_date: Optional[datetime],
     max_updated_at_date: Optional[datetime],
+    is_test: bool,
 ) -> Optional[List[ParsedOfferForCreation]]:
 
     po = tables.parsed_offers.alias()
@@ -107,6 +108,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         po.c.source_user_id.isnot(None),
         not_(po.c.is_calltracking),
         not_(po.c.synced),
+        po.c.is_test == is_test,
     ]
 
     if max_updated_at_date:
@@ -136,6 +138,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .values(synced=True)
         .returning(
             tables.parsed_offers.c.id,
+            tables.parsed_offers.c.is_test,
             tables.parsed_offers.c.source_user_id,
             tables.parsed_offers.c.source_group_id,
             tables.parsed_offers.c.timestamp,
@@ -344,6 +347,19 @@ async def exists_parsed_offer_by_source_object_id(
     query = f"""
     SELECT COUNT(*) FROM parsed_offers
     WHERE source_object_id = '{source_object_id}';
+    """
+    result = await pg.get().fetchval(query)
+
+    return bool(result)
+
+
+async def exists_parsed_offer_by_parsed_id(
+    *,
+    parsed_id: str,
+):
+    query = f"""
+    SELECT COUNT(*) FROM parsed_offers
+    WHERE id = '{parsed_id}';
     """
     result = await pg.get().fetchval(query)
 

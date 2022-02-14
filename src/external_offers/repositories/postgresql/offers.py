@@ -741,7 +741,9 @@ async def delete_waiting_clients_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
-async def get_unactivated_clients_counts_by_clients() -> list[Optional[ClientDraftOffersCount]]:
+async def get_unactivated_clients_counts_by_clients(
+    is_test: bool,
+) -> list[Optional[ClientDraftOffersCount]]:
     query, params = asyncpgsa.compile_query(
         select(
             [
@@ -760,6 +762,8 @@ async def get_unactivated_clients_counts_by_clients() -> list[Optional[ClientDra
             and_(
                 clients.c.unactivated.is_(True),
                 offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                clients.c.is_test == is_test,
+                offers_for_call.c.is_test == is_test,
             )
         ).distinct(
             offers_for_call.c.client_id
@@ -909,7 +913,6 @@ async def get_waiting_offer_counts_by_clients(
         team_id,
         len(valid_offer_ids),
     )
-
     waiting_offer_counts = []
     for valid_offer_ids_chunk in iterate_over_list_by_chunks(
         iterable=valid_offer_ids,

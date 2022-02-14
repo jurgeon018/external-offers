@@ -16,6 +16,8 @@ from external_offers.entities.test_objects import (
     CreateTestClientResponse,
     CreateTestOfferRequest,
     CreateTestOfferResponse,
+    CreateTestParsedOfferRequest,
+    CreateTestParsedOfferResponse,
     DeleteTestObjectsRequest,
     DeleteTestObjectsResponse,
     UpdateTestObjectsPublicationStatusRequest,
@@ -39,8 +41,10 @@ from external_offers.repositories.postgresql.offers import (
 )
 from external_offers.repositories.postgresql.parsed_offers import (
     delete_test_parsed_offers,
+    exists_parsed_offer_by_parsed_id,
     exists_parsed_offer_by_source_object_id,
     get_parsed_offer_for_creation_by_id,
+    save_parsed_offer,
     save_test_parsed_offer,
 )
 from external_offers.services.announcement import update_publication_status
@@ -154,6 +158,80 @@ async def create_test_client_public(request: CreateTestClientRequest, user_id: i
         success=True,
         message='Тестовый клиент был успешно создан.',
         client_id=client_id,
+    )
+
+
+async def create_test_parsed_offer_public(
+    request: CreateTestParsedOfferRequest, user_id: int
+) -> CreateTestParsedOfferResponse:
+    """
+    Создать тестовое спаршеное обьявление по sourceUserId.
+    """
+    source_user_id = request.source_user_id
+    client = await get_client_by_avito_user_id(avito_user_id=source_user_id)
+    if client:
+        return CreateTestParsedOfferResponse(
+            success=False,
+            message=f'Клиент с sourceUserId {source_user_id} уже существует. Выберите другой sourceUserId.',
+            parsed_id=None,
+        )
+
+    source_object_id = request.source_object_id
+    exists = await exists_parsed_offer_by_source_object_id(source_object_id=source_object_id)
+    if exists:
+        return CreateTestParsedOfferResponse(
+            success=False,
+            message=f'Обьявление с source_object_id {source_object_id} уже существует.',
+            parsed_id=None,
+        )
+    parsed_id = request.id or generate_guid()
+    exists = await exists_parsed_offer_by_parsed_id(parsed_id=parsed_id)
+    if exists:
+        return CreateTestParsedOfferResponse(
+            success=False,
+            message=(
+                f'Обьявление с id {parsed_id} уже существует.'
+                'Значение в поле id не обязательное, и если его не передавать то оно сгенерируется автоматически'
+            ),
+            parsed_id=None,
+        )
+    user_segment = request.user_segment
+    parsed_offer_message = ParsedOfferMessage(
+        source_user_id=source_user_id,
+        source_object_id=source_object_id,
+        id=parsed_id,
+        is_calltracking=request.is_calltracking,
+        user_segment=user_segment,
+        timestamp=datetime.now(tz=pytz.UTC),
+        source_object_model={
+            'phones': [request.phone],
+            'category': request.category,
+            'title': request.title,
+            'address': request.address,
+            'region': request.region,
+            'price': request.price,
+            'priceType': request.price_type,
+            'contact': request.contact,
+            'totalArea': request.total_area,
+            'floorNumber': request.floor_number,
+            'floorsCount': request.floors_count,
+            'roomsCount': request.rooms_count,
+            'url': request.url,
+            'isAgency': request.is_agency,
+            'isDeveloper': request.is_developer,
+            'isStudio': request.is_studio,
+            'town': request.town,
+            'lat': float(request.lat) if request.lat else None,
+            'lng': float(request.lng) if request.lng else None,
+            'livingArea': request.living_area,
+            'description': request.description,
+        },
+    )
+    await save_test_parsed_offer(parsed_offer=parsed_offer_message)
+    return CreateTestParsedOfferResponse(
+        success=True,
+        message='Тестовое спаршенное обьявление было успешно создано',
+        parsed_id=parsed_id,
     )
 
 

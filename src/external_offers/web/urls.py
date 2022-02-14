@@ -14,6 +14,7 @@ from external_offers.services.save_offer import save_offer_public
 from external_offers.services.test_objects import (
     create_test_client_public,
     create_test_offer_public,
+    create_test_parsed_offer_public,
     delete_test_objects_public,
     update_test_objects_publication_status_public,
 )
@@ -22,7 +23,10 @@ from external_offers.services.update_client_phone import update_client_phone_pub
 from external_offers.services.update_clients_operator import update_clients_operator_public
 from external_offers.services.update_offer_category import update_offer_category_public
 from external_offers.services.update_offer_comment import update_offer_comment_public
-from external_offers.services.update_waiting_offers_priority import prioritize_waiting_offers_public
+from external_offers.services.update_waiting_offers_priority import (
+    create_test_offers_for_call,
+    prioritize_waiting_offers_public,
+)
 from external_offers.web import handlers
 from external_offers.web.handlers.base import PublicHandler
 
@@ -115,21 +119,7 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.AdminResponse,
         base_handler_cls=PublicHandler,
     )),
-    # изменения полей
-    url('/api/admin/v1/update-client-phone/$', get_handler(
-        service=update_client_phone_public,
-        method='POST',
-        request_schema=entities.UpdateClientPhoneRequest,
-        response_schema=entities.UpdateClientPhoneResponse,
-        base_handler_cls=PublicHandler,
-    )),
-    url('/api/admin/v1/update-offer-category/$', get_handler(
-        service=update_offer_category_public,
-        method='POST',
-        request_schema=entities.UpdateOfferCategoryRequest,
-        response_schema=entities.UpdateOfferCategoryResponse,
-        base_handler_cls=PublicHandler,
-    )),
+    # QA-ручки
     url('/api/admin/v1/create-test-offer/$', get_handler(
         service=create_test_offer_public,
         method='POST',
@@ -149,6 +139,41 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.DeleteTestObjectsRequest,
         response_schema=entities.DeleteTestObjectsResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/qa/v1/create-test-parsed-offer/$', get_handler(
+        service=create_test_parsed_offer_public,
+        method='POST',
+        request_schema=entities.CreateTestParsedOfferRequest,
+        response_schema=entities.CreateTestParsedOfferResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-test-object-publication-status/$', get_handler(
+        service=update_test_objects_publication_status_public,
+        method='POST',
+        request_schema=entities.UpdateTestObjectsPublicationStatusRequest,
+        response_schema=entities.UpdateTestObjectsPublicationStatusResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/create-test-offers-for-call/$', get_handler(
+        service=create_test_offers_for_call,
+        method='POST',
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    # изменения полей
+    url('/api/admin/v1/update-client-phone/$', get_handler(
+        service=update_client_phone_public,
+        method='POST',
+        request_schema=entities.UpdateClientPhoneRequest,
+        response_schema=entities.UpdateClientPhoneResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/update-offer-category/$', get_handler(
+        service=update_offer_category_public,
+        method='POST',
+        request_schema=entities.UpdateOfferCategoryRequest,
+        response_schema=entities.UpdateOfferCategoryResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-client-comment/$', get_handler(
@@ -184,13 +209,6 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.UpdateClientsOperatorRequest,
         response_schema=entities.UpdateClientsOperatorResponse,
-        base_handler_cls=PublicHandler,
-    )),
-    url('/api/admin/v1/update-test-object-publication-status/$', get_handler(
-        service=update_test_objects_publication_status_public,
-        method='POST',
-        request_schema=entities.UpdateTestObjectsPublicationStatusRequest,
-        response_schema=entities.UpdateTestObjectsPublicationStatusResponse,
         base_handler_cls=PublicHandler,
     )),
     url('/api/admin/v1/update-offer-comment/$', get_handler(

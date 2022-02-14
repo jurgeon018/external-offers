@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from external_offers.enums.user_segment import UserSegment
 from external_offers.repositories.monolith_cian_announcementapi.entities.swagger_object_model import (
     Status as PublicationStatus,
 )
@@ -34,6 +35,80 @@ class CreateTestClientResponse:
     """Сообщение"""
     client_id: Optional[str] = None
     """Идентификатор созданного тестового клиента"""
+
+
+@dataclass
+class CreateTestParsedOfferResponse:
+    success: bool
+    """Статус операции"""
+    message: str
+    """Текст ответа"""
+    parsed_id: Optional[str]
+    """Идентификатор созданого обьявления"""
+
+
+@dataclass
+class CreateTestParsedOfferRequest:
+    source_object_id: str
+    """ID объявления на внешней площадке"""
+    is_calltracking: bool
+    """Есть ли коллтрекинг у объявления"""
+    source_user_id: str
+    """ID пользователя на внешней площадке"""
+    user_segment: UserSegment
+    """Сегмент пользователя"""
+    id: Optional[str] = None
+    """Уникальный ключ"""
+    user_subsegment: Optional[str] = None
+    """Субсегмент пользователя"""
+    source_group_id: Optional[str] = None
+    """ID групы обьявлений"""
+    external_offer_type: Optional[str] = None
+    """Тип объявления"""
+
+    # source_object_model - Данные об объявлении
+    phone: Optional[str] = None
+    """Телефон"""
+    category: Optional[str] = None
+    """Категория объявления"""
+    title: Optional[str] = None
+    """Имя объялвения"""
+    address: Optional[str] = None
+    """Адрес объявления"""
+    region: Optional[int] = None
+    """Регион объявления"""
+    price: Optional[int] = None
+    """Цена"""
+    price_type: Optional[int] = None
+    """Справочник "Тип цены"""
+    contact: Optional[str] = None
+    """Контактное лицо"""
+    total_area: Optional[int] = None
+    """Общая площадь"""
+    floor_number: Optional[int] = None
+    """Этаж объекта"""
+    floors_count: Optional[int] = None
+    """Общая этажность"""
+    rooms_count: Optional[int] = None
+    """Количество комнат"""
+    url: Optional[str] = None
+    """URL объявления"""
+    is_agency: Optional[bool] = None
+    """Агентство"""
+    is_developer: Optional[bool] = None
+    """От застройщика"""
+    is_studio: Optional[bool] = None
+    """Является ли квартира студией"""
+    town: Optional[str] = None
+    """Город"""
+    lat: Optional[float] = None
+    """Широта"""
+    lng: Optional[float] = None
+    """Долгота"""
+    living_area: Optional[int] = None
+    """Жилая площадь"""
+    description: Optional[str] = None
+    """Описание объявления"""
 
 
 @dataclass
