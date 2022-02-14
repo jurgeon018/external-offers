@@ -41,8 +41,8 @@ from external_offers.repositories.postgresql.offers import (
 )
 from external_offers.repositories.postgresql.parsed_offers import (
     delete_test_parsed_offers,
-    exists_parsed_offer_by_source_object_id,
     exists_parsed_offer_by_parsed_id,
+    exists_parsed_offer_by_source_object_id,
     get_parsed_offer_for_creation_by_id,
     save_parsed_offer,
     save_test_parsed_offer,
