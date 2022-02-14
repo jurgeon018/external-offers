@@ -529,7 +529,8 @@ async def prioritize_waiting_offers(
 ) -> None:
     logger.warning('Приоретизация заданий была запущена')
     created_offers_priorities = []
-    client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
+    # client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
+    client_account_statuses = {}
     logger.warning('Количество закешированых статусов клиентов: %s', len(client_account_statuses))
 
     for team in teams:
