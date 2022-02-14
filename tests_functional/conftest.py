@@ -138,6 +138,11 @@ async def announcements_mock(http_mock_service):
 
 
 @pytest.fixture(scope='session')
+async def moderation_confidence_index_mock(http_mock_service):
+    yield await http_mock_service.make_microservice_mock('moderation-confidence-index')
+
+
+@pytest.fixture(scope='session')
 async def send_parsed_offer_consumer(runner):
     await runner.start_background_python_command('send-parsed-offers')
     await sleep(4)
