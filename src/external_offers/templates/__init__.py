@@ -1,12 +1,11 @@
 from datetime import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from cian_core.runtime_settings import runtime_settings
 from jinja2 import Environment, PackageLoader
 
-from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer, EnrichedOperator, Operator, Team
+from external_offers.entities import Client, ClientAccountInfo, EnrichedOffer, EnrichedOperator, Team
 from external_offers.entities.parsed_offers import ParsedObjectModel
-from external_offers.repositories.moderation_confidence_index.entities import OperatorCallModel
 from external_offers.repositories.monolith_cian_announcementapi.entities import CommercialPossibleAppointmentModel
 from external_offers.templates.filters import custom_filters
 
@@ -16,6 +15,14 @@ templates = Environment(
     autoescape=True
 )
 templates.filters.update(custom_filters)
+
+
+def get_html(template_name: str, **kwargs) -> str:
+    template = templates.get_template(template_name)
+    return template.render(
+        debug=runtime_settings.DEBUG,
+        **kwargs,
+    )
 
 
 def get_offers_list_html(
@@ -126,25 +133,4 @@ def get_operator_card_html(
         current_operator=current_operator,
         operator=operator,
         teams=teams,
-    )
-
-
-def get_calls_history_html(
-    *,
-    current_operator: EnrichedOperator,
-    operators: List[Operator],
-    calls: List[OperatorCallModel],
-    selected_operator_id: int,
-    has_previous: bool,
-    has_next: bool,
-) -> str:
-    template = templates.get_template('operator_calls_history.jinja2')
-    return template.render(
-        debug=runtime_settings.DEBUG,
-        current_operator=current_operator,
-        operators=operators,
-        calls=calls,
-        selected_operator_id=selected_operator_id,
-        has_previous=has_previous,
-        has_next=has_next,
     )

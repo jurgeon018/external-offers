@@ -26,15 +26,12 @@ from external_offers.repositories.postgresql.operators import (
     get_enriched_operators,
     get_enriched_teamleads,
     get_latest_operator_updating,
-    get_operators,
 )
 from external_offers.repositories.postgresql.teams import get_team_by_id, get_teams
 from external_offers.services.accounts.client_accounts import get_client_accounts_by_phone_number_degradation_handler
-from external_offers.services.calls_history import get_operator_calls
 from external_offers.services.operator_roles import get_operator_roles, get_or_create_operator, update_operators
 from external_offers.services.possible_appointments import get_possible_appointments
 from external_offers.templates import (
-    get_calls_history_html,
     get_offer_card_html,
     get_offers_list_html,
     get_operator_card_html,
@@ -272,28 +269,4 @@ class AdminTeamCardPageHandler(PublicHandler):
             segments=segments,
             subsegments=subsegments,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
-        ))
-
-
-class AdminCallsHistoryPageHandler(PublicHandler):
-    # pylint: disable=abstract-method
-
-    async def get(self) -> None:
-        self.set_header('Content-Type', 'text/html; charset=UTF-8')
-        current_operator = await get_or_create_operator(
-            operator_id=self.realty_user_id,
-        )
-        operators = await get_operators()
-        selected_operator_id = self.realty_user_id
-        calls = await get_operator_calls(
-            operator_id=int(selected_operator_id),
-            page=1,
-        )
-        self.write(get_calls_history_html(
-            current_operator=current_operator,
-            operators=operators,
-            calls=calls,
-            selected_operator_id=selected_operator_id,
-            has_previous=True,
-            has_next=True,
         ))

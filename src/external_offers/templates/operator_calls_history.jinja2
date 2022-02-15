@@ -1,15 +1,12 @@
 {% extends "base.jinja2" %}
 {% block head %}
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('.datepicker').datepicker({
                 format: 'dd.mm.yyyy',
             });
+
+            $("input[name='url']").val('/admin/calls-history/');
         });
     </script>
     <style>
@@ -29,29 +26,37 @@
             <div class="form-group">
                 <label class="col-sm-4 col-form-label">Даты</label>
                 <div class="col-sm-4">
-                    <input name="dateFrom" type="text" class="form-control input-sm datepicker" id="dateFrom">
+                    <input name="time_from"
+                           value="{% if filter_data.time_from  %}{{ filter_data.time_from.strftime('%d.%m.%Y') }}{% endif %}"
+                           type="text" class="form-control input-sm datepicker" id="dateFrom">
                 </div>
                 <div class="col-sm-4">
-                    <input name="dateTo" type="text" class="form-control input-sm datepicker" id="dateTo">
+                    <input name="time_to"
+                           value="{% if filter_data.time_to  %}{{ filter_data.time_to.strftime('%d.%m.%Y') }}{% endif %}"
+                           type="text" class="form-control input-sm datepicker" id="dateTo">
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-4 col-form-label">Длительность</label>
                 <div class="col-sm-4">
-                    <input name="timeFrom" type="number" class="form-control input-sm" id="timeFrom">
+                    <input name="duration_min"
+                           value="{{ filter_data.duration_min }}"
+                           type="number" class="form-control input-sm" id="durationMin">
                 </div>
                 <div class="col-sm-4">
-                    <input name="timeTo" type="number" class="form-control input-sm" id="timeTo">
+                    <input name="duration_max"
+                           value="{{ filter_data.duration_max }}"
+                           type="number" class="form-control input-sm" id="durationMax">
                 </div>
             </div>
             {% if current_operator.is_teamlead or debug %}
             <div class="form-group">
                 <label for="operatorId" class="col-sm-4 col-form-label">Оператор</label>
                 <div class="col-sm-8">
-                    <select name="operatorId" class="form-control input-sm" id="operatorId">
+                    <select name="operator_id" class="form-control input-sm" id="operatorId">
                         {% for operator in operators %}
                             <option value="{{ operator.operator_id }}"
-                                    {% if operator.operator_id == selected_operator_id %}selected{% endif %}>
+                                    {% if operator.operator_id|int == selected_operator_id %}selected{% endif %}>
                                 {{ operator.full_name }}({{ operator.operator_id }})
                             </option>
                         {% endfor %}
@@ -61,7 +66,7 @@
             {% endif %}
             {% if not debug %}
                 <input type="hidden" name="mcs" value="external-offers">
-                <input type="hidden" name="url" value="/admin/calls-history/">
+                <input type="hidden" name="url" value="">
             {% endif %}
             <button type="submit" class="btn btn-primary button">Искать</button>
         </form>
@@ -76,11 +81,11 @@
         {% if calls %}
             <nav aria-label="Search results pages">
                 <ul class="pagination">
-                    {% if has_previous %}
-                        <li class="page-item"><a class="page-link" href="#">Предыдущая</a></li>
+                    {% if previous_page_link %}
+                        <li class="page-item"><a class="page-link" href="{{ previous_page_link }}">Предыдущая</a></li>
                     {% endif %}
-                    {% if has_next %}
-                        <li class="page-item"><a class="page-link" href="#">Следующая</a></li>
+                    {% if next_page_link %}
+                        <li class="page-item"><a class="page-link" href="{{ next_page_link }}">Следующая</a></li>
                     {% endif %}
                 </ul>
             </nav>
@@ -94,7 +99,7 @@
                 </tr>
                 {% for call in calls %}
                     <tr>
-                        <td>{{ call.created_time.strftime('%d.%m.%Y %H:%m') }}</td>
+                        <td>{{ call.created_time.strftime('%d.%m.%Y %H:%M') }}</td>
                         <td>{{ call.phone_from }}</td>
                         <td>{{ call.phone_to }}</td>
                         <td>{{ call.duration }}</td>
