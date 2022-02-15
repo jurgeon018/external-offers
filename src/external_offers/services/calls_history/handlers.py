@@ -1,5 +1,3 @@
-from typing import Union
-
 from external_offers.repositories.postgresql.operators import get_operators_by_team_id
 from external_offers.services.calls_history.helpers import get_pagination_page_link
 from external_offers.services.calls_history.mappers import calls_history_mapper
@@ -13,8 +11,7 @@ class AdminCallsHistoryPageHandler(PublicHandler):
     # pylint: disable=abstract-method
 
     def _get_search_params(self) -> dict:
-        data: dict[str, Union[str, int]] = {'operator_id': self.realty_user_id}
-        data.update({k: self.get_argument(k) for k in self.request.arguments})
+        data = {k: self.get_argument(k) for k in self.request.arguments}
         return data
 
     async def get(self) -> None:
@@ -26,10 +23,10 @@ class AdminCallsHistoryPageHandler(PublicHandler):
             operators = await get_operators_by_team_id(current_operator.team_id)
         else:
             operators = [current_operator]
-        search = CallsHistorySearch.from_dict(self._get_search_params())
+        search = CallsHistorySearch.from_search_params(self._get_search_params(), self.realty_user_id)
         calls = await search.execute()
-        previous_page_link = get_pagination_page_link(self.request.uri, search.page - 1)
-        next_page_link = get_pagination_page_link(self.request.uri, search.page + 1)
+        previous_page_link = get_pagination_page_link(self.request.uri, search.page - 1) if self.request.uri else ''
+        next_page_link = get_pagination_page_link(self.request.uri, search.page + 1) if self.request.uri else ''
         self.write(get_html(
             'operator_calls_history.jinja2',
             current_operator=current_operator,

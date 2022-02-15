@@ -20,3 +20,5 @@ class GetOperatorCallsResponseModel:
 
     calls: Optional[List[OperatorCallModel]] = None
     """Звонки"""
+    total: Optional[int] = None
+    """Сколько всего найдено записей согласно фильтру"""

@@ -10,8 +10,8 @@ from external_offers.services.calls_history.services import get_operator_calls
 
 class CallHistoryFilterSchema(Schema):
     operator_id = fields.Int()
-    time_from = fields.DateTime(format='%d.%m.%Y')
-    time_to = fields.DateTime(format='%d.%m.%Y')
+    time_from = fields.DateTime(format='%Y-%m-%dT%H:%M')
+    time_to = fields.DateTime(format='%Y-%m-%dT%H:%M')
     duration_min = fields.Int()
     duration_max = fields.Int()
     page = fields.Int()
@@ -43,10 +43,12 @@ class CallsHistorySearch:
     """Максимальная продолжительность разговора"""
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'CallsHistorySearch':
+    def from_search_params(cls, data: dict, operator_id: int) -> 'CallsHistorySearch':
         schema = CallHistoryFilterSchema()
-        result = schema.load(data)
-        search = cls(**result.data)
+        result = schema.load(data).data
+        if 'operator_id' not in result:
+            result.update({'operator_id': operator_id})
+        search = cls(**result)
         return search
 
     async def execute(self) -> list[OperatorCallModel]:
@@ -60,6 +62,8 @@ class CallsHistorySearch:
             team=self.team,
             time_from=self.time_from,
             time_to=self.time_to,
+            duration_max=self.duration_max,
+            duration_min=self.duration_min,
         )
         calls = await get_operator_calls(request)
         return calls

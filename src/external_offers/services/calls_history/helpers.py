@@ -1,9 +1,8 @@
 import urllib.parse
-from typing import Optional
 
 
-def get_pagination_page_link(url: Optional[str], page_number: int) -> str:
-    if not url or page_number < 1:
+def get_pagination_page_link(url: str, page_number: int) -> str:
+    if page_number < 1:
         return ''
 
     url_parts = list(urllib.parse.urlparse(url))
