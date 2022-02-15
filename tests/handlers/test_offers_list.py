@@ -186,16 +186,3 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
     get_operator_roles_mock.assert_called_once_with(
         operator_id=int(user_id),
     )
-
-
-# E   Expected: 
-# client_phone='7343433',default_next_call_datetime=FakeDatetime(2022, 1, 2, 10, 0), is_calltracking=False, is_commercial_moderator=False, offers=<MagicMock id='140563414109200'>, operator_id=1, operator_is_tester=False)
-# E   Actual: 
-# client_is_calltracking=False, client_phone='7343433', default_next_call_datetime=FakeDatetime(2022, 1, 2, 10, 0), is_commercial_moderator=False, offers=<MagicMock id='140563414109200'>, operator_id=1, operator_is_tester=False)
-
-
-# E   AssertionError: expected call not found.
-# E   Expected:
-# client_phone='7343433', default_next_call_datetime=FakeDatetime(2022, 1, 2, 10, 0), is_calltracking=False, is_commercial_moderator=False, offers=<MagicMock id='140466698430640'>, operator_id=1, operator_is_tester=False)
-# E   Actual:
-# client_is_calltracking=False, client_phone='7343433', default_next_call_datetime=FakeDatetime(2022, 1, 2, 10, 0), is_commercial_moderator=False, offers=<MagicMock id='140466698430640'>, operator_id=1, operator_is_tester=False)
