@@ -8,12 +8,13 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 _CLEAR_PRIORITY = -1
 
 
+
 async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creates_waiting_client(
     pg,
     runtime_settings,
     runner,
     parsed_offers_fixture_for_clients_test,
-    users_mock
+    users_mock,
 ):
     # arrange
     await pg.execute_scripts(parsed_offers_fixture_for_clients_test)
@@ -23,6 +24,7 @@ async def test_create_offers__exist_suitable_parsed_offer_with_new_client__creat
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
+        'USE_CACHED_CLIENTS_PRIORITY': True,
     })
     await users_mock.add_stub(
         method='GET',

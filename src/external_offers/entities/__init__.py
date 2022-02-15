@@ -54,6 +54,8 @@ from external_offers.entities.test_objects import (
     CreateTestClientResponse,
     CreateTestOfferRequest,
     CreateTestOfferResponse,
+    CreateTestParsedOfferRequest,
+    CreateTestParsedOfferResponse,
     DeleteTestObjectsRequest,
     DeleteTestObjectsResponse,
     UpdateTestObjectsPublicationStatusRequest,
