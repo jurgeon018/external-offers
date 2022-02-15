@@ -1,6 +1,6 @@
 from typing import Union
 
-from external_offers.repositories.postgresql.operators import get_operators
+from external_offers.repositories.postgresql.operators import get_operators_by_team_id
 from external_offers.services.calls_history.helpers import get_pagination_page_link
 from external_offers.services.calls_history.mappers import calls_history_mapper
 from external_offers.services.calls_history.search import CallsHistorySearch
@@ -22,7 +22,10 @@ class AdminCallsHistoryPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id,
         )
-        operators = await get_operators()
+        if current_operator.team_id:
+            operators = await get_operators_by_team_id(current_operator.team_id)
+        else:
+            operators = [current_operator]
         search = CallsHistorySearch.from_dict(self._get_search_params())
         calls = await search.execute()
         previous_page_link = get_pagination_page_link(self.request.uri, search.page - 1)
