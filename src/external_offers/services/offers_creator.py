@@ -202,12 +202,12 @@ def shuffle_priority_positions(
     priority: str,
     team_settings: dict,
 ) -> str:
-    old_priority = list(priority)
+    raw_priority = list(priority)
     # склеивает в 1 строку 3 цифры из которых состоит приоритет региона
-    old_region_priority = old_priority[3] + old_priority[4] + old_priority[5]
-    del old_priority[3]
-    del old_priority[3]
-    old_priority[3] = old_region_priority
+    old_region_priority = raw_priority[3] + raw_priority[4] + raw_priority[5]
+    del raw_priority[3]
+    del raw_priority[3]
+    raw_priority[3] = old_region_priority
 
     # дефолтные положения в приоритете, который получился после приоритизации
     old_positions = {
@@ -221,13 +221,13 @@ def shuffle_priority_positions(
     }
 
     # значения в приоритете который получился после приоретизации
-    activation_status_value = old_priority[old_positions['activation_status']-1]
-    call_status_value = old_priority[old_positions['call_status']-1]
-    region_value = old_priority[old_positions['region']-1]
-    segment_value = old_priority[old_positions['segment']-1]
-    lk_value = old_priority[old_positions['lk']-1]
-    deal_type_value = old_priority[old_positions['deal_type']-1]
-    offer_type_value = old_priority[old_positions['offer_type']-1]
+    activation_status_value = raw_priority[old_positions['activation_status']-1]
+    call_status_value = raw_priority[old_positions['call_status']-1]
+    region_value = raw_priority[old_positions['region']-1]
+    segment_value = raw_priority[old_positions['segment']-1]
+    lk_value = raw_priority[old_positions['lk']-1]
+    deal_type_value = raw_priority[old_positions['deal_type']-1]
+    offer_type_value = raw_priority[old_positions['offer_type']-1]
 
     # новые положения в приоритете, которые достаются из teams.settings
     new_activation_status_position = team_settings.get('activation_status_position', old_positions['activation_status'])
@@ -239,19 +239,20 @@ def shuffle_priority_positions(
     new_offer_type_position = team_settings.get('offer_type_position', old_positions['offer_type'])
 
     # в новые положения проставляются значения
-    new_priority = []
+    shuffled_priority = []
     positions_amount = len(old_positions.keys())
     for _ in range(positions_amount):
-        new_priority.append(None)
-    new_priority[new_activation_status_position-1] = activation_status_value
-    new_priority[new_call_status_position-1] = call_status_value
-    new_priority[new_region_position-1] = region_value
-    new_priority[new_segment_position-1] = segment_value
-    new_priority[new_lk_position-1] = lk_value
-    new_priority[new_deal_type_position-1] = deal_type_value
-    new_priority[new_offer_type_position-1] = offer_type_value
-    new_priority = ''.join(new_priority)
-    return new_priority
+        shuffled_priority.append(None)
+    # -1 нужен потому что тимлиды проставляют значения позиций начиная с 1, а не с 0
+    shuffled_priority[new_activation_status_position-1] = activation_status_value
+    shuffled_priority[new_call_status_position-1] = call_status_value
+    shuffled_priority[new_region_position-1] = region_value
+    shuffled_priority[new_segment_position-1] = segment_value
+    shuffled_priority[new_lk_position-1] = lk_value
+    shuffled_priority[new_deal_type_position-1] = deal_type_value
+    shuffled_priority[new_offer_type_position-1] = offer_type_value
+    shuffled_priority = ''.join(shuffled_priority)
+    return shuffled_priority
 
 
 async def prioritize_clients(
@@ -389,9 +390,9 @@ async def clear_and_prioritize_waiting_offers(is_test: bool) -> None:
         is_test=is_test,
     )
 
-    await delete_calltracking_clients()
-
-    await delete_calltracking_offers()
+    if runtime_settings.get('EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS', True):
+        await delete_calltracking_clients()
+        await delete_calltracking_offers()
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         await delete_old_waiting_offers_for_call()
@@ -423,6 +424,7 @@ def get_default_team_settings() -> dict[str, Union[str, int]]:
         'regions': runtime_settings.get('OFFER_TASK_CREATION_REGIONS'),
         'segments': runtime_settings.get('OFFER_TASK_CREATION_SEGMENTS'),
         'categories': runtime_settings.get('OFFER_TASK_CREATION_CATEGORIES'),
+        'calltracking': None,
     }
 
 
@@ -435,6 +437,7 @@ def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
     else:
         team_id = None
         team_settings = get_default_team_settings()
+    # _team_settings = TeamSettings()
     return team_id, team_settings
 
 

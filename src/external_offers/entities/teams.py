@@ -11,7 +11,7 @@ class OffersSettings:
     """Категории"""
     regions: Optional[list[str]] = None
     """Регионы"""
-    calltracking: bool = True
+    calltracking: Optional[bool] = None
     """Флаг колтрекинга"""
 
 @dataclass

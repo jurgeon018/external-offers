@@ -28,7 +28,7 @@ async def test_teams(pg, http, runtime_settings):
     new_lead_id = '2'
     new_name = 'Команда2'
     default_valid_days_after_call = None
-    default_calltracking = True
+    default_calltracking = None
     default_activation_status_position = 1
     default_promocode_price = 0
     default_subsegments = []

@@ -106,10 +106,11 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         po.c.source_object_model['phones'] != JSON.NULL,
         po.c.source_object_model['phones'] != [''],
         po.c.source_user_id.isnot(None),
-        not_(po.c.is_calltracking),
         not_(po.c.synced),
         po.c.is_test == is_test,
     ]
+    if settings.get('EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS', True):
+        options.append(not_(po.c.is_calltracking))
 
     if max_updated_at_date:
         options.append(po.c.updated_at <= max_updated_at_date)
@@ -379,24 +380,26 @@ async def delete_test_parsed_offers() -> None:
 
 async def get_parsed_offers_for_account_prioritization() -> list[ParsedOfferForAccountPrioritization]:
     po = tables.parsed_offers.alias()
+    clauses = [
+        po.c.source_object_model['phones'] != [],
+        po.c.source_object_model['phones'] != JSON.NULL,
+        po.c.source_object_model['phones'] != [''],
+        po.c.user_segment.isnot(None),
+        po.c.user_segment.in_([
+            'c',
+            'd',
+        ]),
+        po.c.source_user_id.isnot(None),
+    ]
+    if settings.get('EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS', True):
+        clauses.append(not_(po.c.is_calltracking))
     query, params = asyncpgsa.compile_query(
         select([
             po.c.source_object_model['phones'].as_string().label('phones'),
             po.c.user_segment,
         ])
         .where(
-            and_(
-                po.c.source_object_model['phones'] != [],
-                po.c.source_object_model['phones'] != JSON.NULL,
-                po.c.source_object_model['phones'] != [''],
-                po.c.user_segment.isnot(None),
-                po.c.user_segment.in_([
-                    'c',
-                    'd',
-                ]),
-                po.c.source_user_id.isnot(None),
-                not_(po.c.is_calltracking),
-            )
+            and_(*clauses)
         )
     )
     rows = await pg.get().fetch(query, *params)
