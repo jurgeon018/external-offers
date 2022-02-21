@@ -138,6 +138,7 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
         client_phones=['7343433'],
         status='inProgress'
     )
+    is_calltracking = False
     # client = mocker.MagicMock(value=None)
     offers = mocker.MagicMock(value=[])
     mocker.patch(
@@ -156,6 +157,10 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.get_operator_roles',
         return_value=future([]),
     )
+    mocker.patch(
+        'external_offers.web.handlers.admin.get_client_is_calltracking_by_client_id',
+        return_value=future(is_calltracking),
+    )
 
     # act
     with freezegun.freeze_time('2022-01-01'):
@@ -169,6 +174,7 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
 
     # assert
     get_offers_list_html_mock.assert_called_once_with(
+        client_is_calltracking=is_calltracking,
         offers=offers,
         client=client,
         client_phone=client.client_phones[0],
