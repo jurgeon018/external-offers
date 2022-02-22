@@ -783,8 +783,6 @@ async def get_offer_ids_for_prioritization(
     regions = team_settings['regions']
     regions = [str(region) for region in regions]
     calltracking = team_settings['calltracking']
-    if calltracking not in [True, False, None]:
-        raise Exception(f'calltracking is not Boolean nor None, it is {calltracking}')
     if fetch_valid_offers is True:
         # чтобы обьявка считалась валидной, должны совпадать все поля
         validity_clauses = [
