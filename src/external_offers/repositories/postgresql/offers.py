@@ -839,10 +839,6 @@ async def clear_invalid_waiting_offers_by_offer_ids(
         is_test=is_test,
         fetch_valid_offers=False,
     )
-    # invalid_offer_ids = await get_invalid_offer_ids(
-    #     team_settings=team_settings,
-    #     is_test=is_test,
-    # )
     logger.warning(
         'Количество невалидных спаршеных обьявлений для команды %s: %s',
         team_id,
@@ -899,10 +895,6 @@ async def get_waiting_offer_counts_by_clients(
         is_test=is_test,
         fetch_valid_offers=True,
     )
-    # valid_offer_ids = await get_valid_offer_ids(
-    #     team_settings=team_settings,
-    #     is_test=is_test,
-    # )
     logger.warning(
         'Количество валидных спаршеных обьявлений для команды %s: %s',
         team_id,
