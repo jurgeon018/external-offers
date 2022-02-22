@@ -125,11 +125,8 @@
              justify-content: center;
          }
          .caller-block {
-             display: flex;
              margin-top: 20px;
               margin: 1em;
-             flex-direction: column;
-             justify-content: center;
          }
          .additional-fields-block div {
              margin: 5px 0 2px 0;
@@ -354,7 +351,8 @@
 
       <div class="caller-block">
         <!-- звонилка -->
-        <div data-callComponent="call-buttons-v1"></div>
+        <div data-callComponent="call-buttons-v1" style="display: inline-block"></div>
+        <a href="/admin/calls-history/" class="btn btn-sm btn-default" title="История звонков"><span class="glyphicon glyphicon-align-justify"></span></a>
       </div>
       <script>
         $(function()
