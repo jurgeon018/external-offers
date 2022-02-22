@@ -46,6 +46,17 @@ async def get_client_in_progress_by_operator(
     return client_mapper.map_from(row) if row else None
 
 
+async def get_client_is_calltracking_by_client_id(*, client_id: str) -> bool:
+    return await pg.get().fetchval("""
+        SELECT parsed_offers.is_calltracking
+        FROM offers_for_call
+        JOIN clients on offers_for_call.client_id = clients.client_id
+        JOIN parsed_offers on offers_for_call.parsed_id = parsed_offers.id
+        WHERE clients.client_id = $1
+        LIMIT 1
+    """, client_id)
+
+
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,

@@ -27,6 +27,7 @@ def get_html(template_name: str, **kwargs) -> str:
 
 def get_offers_list_html(
     *,
+    client_is_calltracking: bool,
     offers: List[EnrichedOffer],
     client: Optional[Client],
     client_phone: str,
@@ -37,6 +38,7 @@ def get_offers_list_html(
 ) -> str:
     template = templates.get_template('offers_list.jinja2')
     return template.render(
+        client_is_calltracking=client_is_calltracking,
         offers=offers,
         client=client,
         client_phone=client_phone,

@@ -221,6 +221,7 @@
          {% else %}
          <div id="clientInfoClientUnactivated">Новая карточка</div>
          {% endif %}
+         {% if client_is_calltracking %}Номер колтрекинговый{% else %}Номер не колтрекинговый{% endif %}
          {% if (client.cian_user_id) %}<div class="client-info-profile-url"> <a rel="noopener noreferrer" target="_blank" href="https://service.cian.ru/customers/view/{{ client.cian_user_id }}">Профиль</a></div>{% endif %}
          <div id="clientInfoClientId">Идентификатор: {{ client.client_id }}</div>
          {% if (client.client_name) %}<div id="clientInfoClientName">Имя: {{ client.client_name }}</div>{% endif %}

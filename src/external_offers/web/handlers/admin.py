@@ -20,6 +20,7 @@ from external_offers.repositories.postgresql import (
     get_offer_by_offer_id,
     get_parsed_offer_object_model_by_offer_id,
 )
+from external_offers.repositories.postgresql.clients import get_client_is_calltracking_by_client_id
 from external_offers.repositories.postgresql.offers import get_offer_comment_by_offer_id
 from external_offers.repositories.postgresql.operators import (
     get_enriched_operator_by_id,
@@ -53,6 +54,11 @@ class AdminOffersListPageHandler(PublicHandler):
         client_phone = ''
         if client and len(client.client_phones) > 0:
             client_phone = client.client_phones[0]
+        client_is_calltracking = False
+        if client:
+            client_is_calltracking = await get_client_is_calltracking_by_client_id(
+                client_id=client.client_id
+            )
         offers = await get_enriched_offers_in_progress_by_operator(
             operator_id=self.realty_user_id,
         )
@@ -69,6 +75,7 @@ class AdminOffersListPageHandler(PublicHandler):
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
         self.write(get_offers_list_html(
+            client_is_calltracking=client_is_calltracking,
             offers=offers,
             client=client,
             client_phone=client_phone,
