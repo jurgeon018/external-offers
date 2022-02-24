@@ -170,3 +170,15 @@ async def iterate_over_operators_sorted(
     )
     async for row in cursor:
         yield operators_mapper.map_from(row)
+
+
+async def get_operators_by_team_id(team_id: int) -> List[EnrichedOperator]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [operators]
+        ).where(
+            operators.c.team_id == team_id
+        )
+    )
+    rows = await pg.get().fetch(query, *params)
+    return [enriched_operators_mapper.map_from(row) for row in rows]

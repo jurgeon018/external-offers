@@ -2,6 +2,14 @@ definitions:
   Common.Models.CallComponent.GetOperatorCallsFilter:
     description: Фильтр звонков операторов
     properties:
+      durationMax:
+        description: Фильтр по длительности "по"
+        format: int32
+        type: integer
+      durationMin:
+        description: Фильтр по длительности "от"
+        format: int32
+        type: integer
       operatorId:
         description: Идентификатор оператора
         format: int64
@@ -43,6 +51,10 @@ definitions:
         items:
           $ref: '#/definitions/WebApi.Model.CallComponent.OperatorCallModel'
         type: array
+      total:
+        description: Сколько всего найдено записей согласно фильтру
+        format: int32
+        type: integer
     type: object
   WebApi.Model.CallComponent.OperatorCallModel:
     properties:
