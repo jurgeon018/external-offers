@@ -424,7 +424,7 @@ def get_default_team_settings() -> dict[str, Union[str, int]]:
         'regions': runtime_settings.get('OFFER_TASK_CREATION_REGIONS'),
         'segments': runtime_settings.get('OFFER_TASK_CREATION_SEGMENTS'),
         'categories': runtime_settings.get('OFFER_TASK_CREATION_CATEGORIES'),
-        'calltracking': None,
+        'calltracking': False,
     }
 
 
