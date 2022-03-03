@@ -4,6 +4,7 @@ from tornado.web import url
 
 from external_offers import entities
 from external_offers.services import admin, operators, teams
+from external_offers.services.calls_history import handlers as call_history_handlers
 from external_offers.services.clients import (
     update_client_additional_emails_public,
     update_client_additional_numbers_public,
@@ -38,7 +39,7 @@ urlpatterns = base_urls.urlpatterns + [
     url('/admin/teams/$', handlers.AdminTeamsPageHandler),
     url(r'/admin/operator-card/(?P<operator_id>[a-zA-Z0-9-]+)/$', handlers.AdminOperatorCardPageHandler),
     url(r'/admin/team-card/(?P<team_id>[a-zA-Z0-9-]+)/$', handlers.AdminTeamCardPageHandler),
-    url(r'/admin/calls-history/$', handlers.AdminCallsHistoryPageHandler),
+    url(r'/admin/calls-history/$', call_history_handlers.AdminCallsHistoryPageHandler),
 
     # admin actions
     url('/api/admin/v1/update-offers-list/$', get_handler(

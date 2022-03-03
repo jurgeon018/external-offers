@@ -17,6 +17,10 @@ from typing import Optional
 class GetOperatorCallsFilter:
     """Фильтр звонков операторов"""
 
+    duration_max: Optional[int] = None
+    """Фильтр по длительности "по\""""
+    duration_min: Optional[int] = None
+    """Фильтр по длительности "от\""""
     operator_id: Optional[int] = None
     """Идентификатор оператора"""
     page: Optional[int] = None
