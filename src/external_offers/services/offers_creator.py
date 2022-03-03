@@ -383,14 +383,14 @@ async def clear_and_prioritize_waiting_offers(is_test: bool) -> None:
 
     # None нужен для того чтобы проставить некомандные приоритеты
     teams = [None, ]
-    if runtime_settings.get('ENABLE_TEAMS_PRIORITIZATION', False):
+    if runtime_settings.ENABLE_TEAMS_PRIORITIZATION:
         teams.extend(await get_teams())
     await prioritize_waiting_offers(
         teams=teams,
         is_test=is_test,
     )
 
-    if runtime_settings.get('EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS', True):
+    if runtime_settings.EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS:
         await delete_calltracking_clients()
         await delete_calltracking_offers()
 

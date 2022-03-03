@@ -269,6 +269,7 @@ CLEAR_HOMEOWNERS_WITH_EXISTING_ACCOUNTS: bool = False
 DEBUG: bool = False
 ENABLE_TEAM_PRIORITIES: bool = False
 ENABLE_TEAMS_PRIORITIZATION: bool = False
+EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS: bool = True
 
 # Дефолтные обьекты для тестирования
 DEFAULT_TEST_OFFER = """{

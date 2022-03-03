@@ -109,7 +109,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         not_(po.c.synced),
         po.c.is_test == is_test,
     ]
-    if settings.get('EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS', True):
+    if settings.EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS:
         options.append(not_(po.c.is_calltracking))
 
     if max_updated_at_date:
@@ -391,7 +391,7 @@ async def get_parsed_offers_for_account_prioritization() -> list[ParsedOfferForA
         ]),
         po.c.source_user_id.isnot(None),
     ]
-    if settings.get('EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS', True):
+    if settings.EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS:
         clauses.append(not_(po.c.is_calltracking))
     query, params = asyncpgsa.compile_query(
         select([
