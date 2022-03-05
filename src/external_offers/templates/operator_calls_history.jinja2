@@ -8,6 +8,73 @@
             background-color: transparent;
         }
     </style>
+    <script>
+        let DEBUG = 'True' === '{{ debug }}'
+        function formDataFromObject(obj) {
+            var form_data = new URLSearchParams();
+            for ( var key in obj ) {
+                form_data.append(key, obj[key]);
+            }
+            return form_data
+        }
+        function getBody(obj){
+            return DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+        }
+
+        async function onClickCreateCSVReport() {
+           const error_message = 'Не удалось получить отчет, попробуйте позднее :(';
+           let generate_csv_button = $("#generate-csv-button");
+           let download_link = $("#download-link");
+           let download_link_container = $("#download-link-container");
+           let obj = {
+               'durationMax': {% if filter_data.duration_max  %}{{ filter_data.duration_max }}{% else %}null{% endif %},
+               'durationMin': {% if filter_data.duration_min  %}{{ filter_data.duration_min }}{% else %}null{% endif %},
+               'timeFrom': {% if filter_data.time_from  %}'{{ filter_data.time_from.strftime('%Y-%m-%dT%H:%M') }}'{% else %}null{% endif %},
+               'timeTo': {% if filter_data.time_to  %}'{{ filter_data.time_to.strftime('%Y-%m-%dT%H:%M') }}'{% else %}null{% endif %},
+               'operatorId': {{ selected_operator_id }}
+           }
+           const response = await fetch("/api/admin/v1/create-csv-report/", {
+             method: 'POST',
+             body: getBody(obj)
+           });
+           const resp = await response.json();
+           if (resp.reportId) {
+             generate_csv_button.prop('disabled', true);
+             generate_csv_button.text('Подождите, отчёт генерируется');
+
+             let i = 50;
+             while (i)  {
+                 i--;
+                const status_response = await fetch("/api/admin/v1/get-csv-report-status/", {
+                     method: 'POST',
+                     body: JSON.stringify({'reportId': resp.reportId})
+                });
+                if (!status_response.ok) {
+                    generate_csv_button.prop('disabled', false);
+                    generate_csv_button.text('Сгенерировать CSV');
+                    alert(error_message);
+                }
+                const status_resp = await status_response.json();
+                if (status_resp.status == 'completed') {
+                    download_link_container.show();
+                    download_link.attr('href', status_resp.url);
+                    download_link.text(status_resp.url);
+                    generate_csv_button.prop('disabled', false);
+                    generate_csv_button.text('Сгенерировать CSV');
+                    break
+                } else if  (status_resp.status == 'error') {
+                    generate_csv_button.prop('disabled', false);
+                    generate_csv_button.text('Сгенерировать CSV');
+                    alert(error_message);
+                } else {
+                    await new Promise(done => setTimeout(() => done(), 2000));
+                }
+             }
+           } else {
+              alert(error_message);
+           }
+         }
+    </script>
 {% endblock %}
 {% block title %}Оператор {{ current_operator.full_name }} ({{ current_operator.operator_id }}){% endblock %}
 {% block page_header %}История звонков{% endblock %}
@@ -63,9 +130,10 @@
         </form>
     </div>
     <div class="col-sm-5 text-right">
-        <button type="submit" class="btn btn-default">
-            Скачать XLS
+        <button id="generate-csv-button" type="submit" class="btn btn-default" onclick="onClickCreateCSVReport()">
+            Сгенерировать CSV
         </button>
+        <p id="download-link-container" style="display: none">Скачать: <a id="download-link" href=""></a></p>
     </div>
     <div class="col-sm-12">
         <br><br>

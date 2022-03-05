@@ -3,8 +3,9 @@ from cian_web import get_handler
 from tornado.web import url
 
 from external_offers import entities
+from external_offers.repositories.moderation_confidence_index import entities as moderation_confidence_index_entities
 from external_offers.services import admin, operators, teams
-from external_offers.services.calls_history import handlers as call_history_handlers
+from external_offers.services.calls_history import handlers as call_history_handlers, services as call_history_services
 from external_offers.services.clients import (
     update_client_additional_emails_public,
     update_client_additional_numbers_public,
@@ -275,6 +276,20 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=entities.DeleteTeamRequest,
         response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/create-csv-report/$', get_handler(
+        service=call_history_services.create_csv_report,
+        method='POST',
+        request_schema=moderation_confidence_index_entities.GetOperatorCallsFilter,
+        response_schema=moderation_confidence_index_entities.GenerateCsvResponseModel,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/get-csv-report-status/$', get_handler(
+        service=call_history_services.get_csv_report_status,
+        method='POST',
+        request_schema=moderation_confidence_index_entities.GetCsvReportStatusRequestModel,
+        response_schema=moderation_confidence_index_entities.GetCsvReportStatusResponseModel,
         base_handler_cls=PublicHandler,
     )),
 ]

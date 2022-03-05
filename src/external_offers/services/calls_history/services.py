@@ -1,7 +1,14 @@
 from cian_core.degradation import DegradationResult, degradation as get_degradation_handler
 
-from external_offers.repositories.moderation_confidence_index import api_call_component_v1_get_operator_calls
+from external_offers.repositories.moderation_confidence_index import (
+    api_call_component_v1_get_operator_calls,
+    api_call_component_v1_operator_calls_create_csv_report,
+    api_call_component_v1_operator_calls_get_csv_report_status,
+)
 from external_offers.repositories.moderation_confidence_index.entities import (
+    GenerateCsvResponseModel,
+    GetCsvReportStatusRequestModel,
+    GetCsvReportStatusResponseModel,
     GetOperatorCallsFilter,
     GetOperatorCallsResponseModel,
     OperatorCallModel,
@@ -18,3 +25,16 @@ v1_get_operator_calls_degradation_handler = get_degradation_handler(
 async def get_operator_calls(request: GetOperatorCallsFilter) -> list[OperatorCallModel]:
     result: DegradationResult[GetOperatorCallsResponseModel] = await v1_get_operator_calls_degradation_handler(request)
     return result.value.calls or []
+
+
+async def create_csv_report(request: GetOperatorCallsFilter, user_id: int) -> GenerateCsvResponseModel:
+    resp = await api_call_component_v1_operator_calls_create_csv_report(request)
+    return resp
+
+
+async def get_csv_report_status(
+        request: GetCsvReportStatusRequestModel,
+        user_id: int,
+) -> GetCsvReportStatusResponseModel:
+    resp = await api_call_component_v1_operator_calls_get_csv_report_status(request)
+    return resp
