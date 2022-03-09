@@ -11,5 +11,6 @@ cian-codegen version: 2.0.0
 from ._repo import (
     api_call_component_v1_get_operator_calls,
     api_call_component_v1_operator_calls_create_csv_report,
+    api_call_component_v1_operator_calls_download_csv_reportcsv,
     api_call_component_v1_operator_calls_get_csv_report_status,
 )

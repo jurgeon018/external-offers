@@ -41,7 +41,7 @@
            if (resp.reportId) {
              generate_csv_button.prop('disabled', true);
              generate_csv_button.text('Подождите, отчёт генерируется');
-
+             let in_progress_count = 5;
              let i = 50;
              while (i)  {
                  i--;
@@ -55,14 +55,24 @@
                     alert(error_message);
                 }
                 const status_resp = await status_response.json();
-                if (status_resp.status == 'completed') {
-                    download_link_container.show();
-                    download_link.attr('href', status_resp.url);
-                    download_link.text(status_resp.url);
+                if (status_resp.status == 'completed' || in_progress_count == 0) {
                     generate_csv_button.prop('disabled', false);
                     generate_csv_button.text('Сгенерировать CSV');
+
+                    const csv_response = await fetch("/api/admin/v1/download_csv/?reportId="+resp.reportId, {
+                         method: 'GET'
+                    });
+                    const file_data = await csv_response.json();
+                    var a = document.createElement("a");
+                    var binaryData = [];
+                    binaryData.push(file_data.content);
+                    a.href = window.URL.createObjectURL(new Blob(binaryData, {type: "text/csv"}));
+                    a.download = "report.csv";
+                    a.click();
                     break
-                } else if  (status_resp.status == 'error') {
+                } else if  (status_resp.status == 'inProgress') {
+                    in_progress_count--;
+                }  else if  (status_resp.status == 'error') {
                     generate_csv_button.prop('disabled', false);
                     generate_csv_button.text('Сгенерировать CSV');
                     alert(error_message);
@@ -165,7 +175,7 @@
                         <td>
                             <audio
                                     controls
-                                    src="{{ call.mp3_url }}">
+                                    src="{{ call.mp3_url }}" style="height: 35px">
                                 Your browser does not support the
                                 <code>audio</code> element.
                             </audio>

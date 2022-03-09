@@ -1,4 +1,5 @@
 from cian_core.web import base_urls
+from cian_http.file import ResponseFile
 from cian_web import get_handler
 from tornado.web import url
 
@@ -290,6 +291,13 @@ urlpatterns = base_urls.urlpatterns + [
         method='POST',
         request_schema=moderation_confidence_index_entities.GetCsvReportStatusRequestModel,
         response_schema=moderation_confidence_index_entities.GetCsvReportStatusResponseModel,
+        base_handler_cls=PublicHandler,
+    )),
+    url('/api/admin/v1/download_csv/$', get_handler(
+        service=call_history_services.download_csv,
+        method='GET',
+        request_schema=moderation_confidence_index_entities.ApiCallComponentV1OperatorCallsDownloadCsvReportcsv,
+        response_schema=ResponseFile,
         base_handler_cls=PublicHandler,
     )),
 ]

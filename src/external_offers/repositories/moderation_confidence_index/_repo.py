@@ -9,6 +9,7 @@ cian-codegen version: 2.0.0
 
 """
 from cian_http.api_client import Api
+from cian_http.file import ResponseFile
 
 from . import entities
 
@@ -27,6 +28,13 @@ api_call_component_v1_operator_calls_create_csv_report = _api.make_client(
     handle_http_exceptions=True,
     request_schema=entities.GetOperatorCallsFilter,
     response_schema=entities.GenerateCsvResponseModel,
+)
+api_call_component_v1_operator_calls_download_csv_reportcsv = _api.make_client(
+    path='/api/call-component/v1/operator-calls/download-csv-report.csv',
+    method='GET',
+    handle_http_exceptions=True,
+    request_schema=entities.ApiCallComponentV1OperatorCallsDownloadCsvReportcsv,
+    response_schema=ResponseFile,
 )
 api_call_component_v1_operator_calls_get_csv_report_status = _api.make_client(
     path='/api/call-component/v1/operator-calls/get-csv-report-status',

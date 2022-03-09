@@ -137,7 +137,7 @@ definitions:
         description: Команда
         type: string
     type: object
-host: cd-132321.moderation-confidence-index.dev3.cian.ru
+host: master.moderation-confidence-index.dev3.cian.ru
 info:
   title: moderation-confidence-index
   version: v1
@@ -191,6 +191,20 @@ paths:
           schema:
             $ref: '#/definitions/WebApi.Model.CallComponent.GenerateCSVResponseModel'
       summary: Возвращает звонки оператора
+      tags:
+      - CallComponent
+  /api/call-component/v1/operator-calls/download-csv-report.csv:
+    get:
+      parameters:
+      - description: Идентификтаор отчёта
+        format: uuid
+        in: query
+        name: reportId
+        type: string
+      responses:
+        '200':
+          description: Success
+      summary: Получает статус csv-отчёта
       tags:
       - CallComponent
   /api/call-component/v1/operator-calls/get-csv-report-status:
