@@ -1031,10 +1031,12 @@ async def test_call_later_client__exist_offers_in_progress_and_cancelled__only_o
 
     assert row_offer_expected_call_later['status'] == 'callLater'
     assert row_offer_expected_cancelled['status'] == 'cancelled'
-    assert offers_event_log[1]['offer_id'] == '10' or '6'
     assert offers_event_log[0]['status'] == 'callLater'
-    assert offers_event_log[0]['offer_id'] == '6' or '10'
     assert offers_event_log[1]['status'] == 'callLater'
+    offers_event_log_ids = [i['offer_id'] for i in offers_event_log]
+    assert '10' in offers_event_log_ids
+    assert '6' in offers_event_log_ids
+    assert len(offers_event_log_ids) == 2
 
 
 async def test_decline_client__exist_draft__client_accepted(
