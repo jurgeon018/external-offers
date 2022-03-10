@@ -1,4 +1,4 @@
-from external_offers.services.calls_history.helpers import PageItem, Paginator
+from external_offers.services.calls_history.helpers import Paginator
 
 
 def test_paginator__get_page_items__first_is_active():
@@ -36,7 +36,7 @@ def test_paginator__get_page_items__one_page():
     page_items = paginator.get_page_items()
 
     # assert
-    assert not len(page_items)
+    assert not page_items
 
 
 def test_paginator__get_page_items__last_is_active():
