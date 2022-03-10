@@ -47,7 +47,7 @@
                  i--;
                 const status_response = await fetch("/api/admin/v1/get-csv-report-status/", {
                      method: 'POST',
-                     body: JSON.stringify({'reportId': resp.reportId})
+                     body: getBody({'reportId': resp.reportId})
                 });
                 if (!status_response.ok) {
                     generate_csv_button.prop('disabled', false);
