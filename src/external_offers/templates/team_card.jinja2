@@ -82,15 +82,17 @@
             {# <span>минимальная дата создания в очереди:</span> #}
             {# <input name="..." type="number" {% if team_settings.get('calltracking') == True %} checked {% endif %}/> #}
             {# <br><br> #}
-            
-            {# <span>Флаг коллтрекинга:</span>
-            <input name="calltracking" type="checkbox" {% if team_settings.get('calltracking') == True %} checked {% endif %}/> #}
+
         </div>
 
         <hr>
         <h2>Настройки пользователей</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки клиентов</button>
         <div class="toggledBlock" style="display: none; padding-left:15px;">
+            <br>
+            <span title="Получать в очередь для прозвона только колтрекинговых клиентов?">Флаг коллтрекинга:</span>
+            <input name="calltracking" type="checkbox" {% if team_settings.get('calltracking') == True %} checked {% endif %}/>
+            <br>
             <br>
             <span title="мультивыбор">Сегмент:</span>
             <select name="segments" multiple="multiple" size="10">

@@ -70,6 +70,7 @@ CREATE TABLE clients
     cian_user_id     bigint,
     client_name      varchar,
     client_phones    varchar[]   not null,
+    real_phone       varchar,
     client_email     varchar(50),
     operator_user_id bigint,
     status           client_status_type,
