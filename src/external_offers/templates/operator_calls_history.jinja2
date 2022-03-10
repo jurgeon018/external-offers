@@ -59,8 +59,9 @@
                     generate_csv_button.prop('disabled', false);
                     generate_csv_button.text('Сгенерировать CSV');
 
-                    const csv_response = await fetch("/api/admin/v1/download_csv/?reportId="+resp.reportId, {
-                         method: 'GET'
+                    const csv_response = await fetch("/api/admin/v1/download_csv/", {
+                        method: 'POST',
+                        body: getBody({'reportId': resp.reportId})
                     });
                     const file_data = await csv_response.json();
                     var a = document.createElement("a");

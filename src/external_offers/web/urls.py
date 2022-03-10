@@ -295,7 +295,7 @@ urlpatterns = base_urls.urlpatterns + [
     )),
     url('/api/admin/v1/download_csv/$', get_handler(
         service=call_history_services.download_csv,
-        method='GET',
+        method='POST',
         request_schema=moderation_confidence_index_entities.ApiCallComponentV1OperatorCallsDownloadCsvReportcsv,
         response_schema=ResponseFile,
         base_handler_cls=PublicHandler,
