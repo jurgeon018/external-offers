@@ -73,6 +73,7 @@
                     break
                 } else if  (status_resp.status == 'inProgress') {
                     in_progress_count--;
+                    await new Promise(done => setTimeout(() => done(), 2000));
                 }  else if  (status_resp.status == 'error') {
                     generate_csv_button.prop('disabled', false);
                     generate_csv_button.text('Сгенерировать CSV');
