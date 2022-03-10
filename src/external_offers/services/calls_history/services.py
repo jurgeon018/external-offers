@@ -13,20 +13,19 @@ from external_offers.repositories.moderation_confidence_index.entities import (
     GetCsvReportStatusResponseModel,
     GetOperatorCallsFilter,
     GetOperatorCallsResponseModel,
-    OperatorCallModel,
 )
 
 
 v1_get_operator_calls_degradation_handler = get_degradation_handler(
     func=api_call_component_v1_get_operator_calls,
-    default=GetOperatorCallsResponseModel(calls=[]),
+    default=GetOperatorCallsResponseModel(calls=[], total=0),
     key='api_call_component_v1_get_operator_calls',
 )
 
 
-async def get_operator_calls(request: GetOperatorCallsFilter) -> list[OperatorCallModel]:
+async def get_operator_calls(request: GetOperatorCallsFilter) -> GetOperatorCallsResponseModel:
     result: DegradationResult[GetOperatorCallsResponseModel] = await v1_get_operator_calls_degradation_handler(request)
-    return result.value.calls or []
+    return result.value
 
 
 async def create_csv_report(request: GetOperatorCallsFilter, user_id: int) -> GenerateCsvResponseModel:

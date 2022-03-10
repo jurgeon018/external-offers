@@ -98,20 +98,18 @@ async def test_calls_history__download_csv(
         method='GET',
         path='/api/call-component/v1/operator-calls/download-csv-report.csv',
         response=MockResponse(
-            body={
-                'content': content,
-            },
+            body=content,
         ),
     )
 
     # act
     response = await http.request(
-        'GET',
-        '/api/admin/v1/download_csv/',
+        'POST',
+        '/api/admin/v1/download-csv/',
         headers={
             'X-Real-UserId': operator_with_client
         },
-        params={'reportId': '5197d59f-0457-4c46-82b1-59f727c60359'},
+        json={'reportId': '5197d59f-0457-4c46-82b1-59f727c60359'},
         expected_status=200
     )
     body = json.loads(response.body)

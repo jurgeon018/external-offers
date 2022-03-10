@@ -151,12 +151,9 @@
         {% if calls %}
             <nav aria-label="Search results pages">
                 <ul class="pagination">
-                    {% if previous_page_link %}
-                        <li class="page-item"><a class="page-link" href="{{ previous_page_link }}">Предыдущая</a></li>
-                    {% endif %}
-                    {% if next_page_link %}
-                        <li class="page-item"><a class="page-link" href="{{ next_page_link }}">Следующая</a></li>
-                    {% endif %}
+                    {% for p in paginator %}
+                        <li class="page-item {% if p.is_active %}active{% endif %}"><a class="page-link" href="{{ p.link }}">{{ p.text }}</a></li>
+                    {% endfor %}
                 </ul>
             </nav>
             <table class="table table-striped text-center">
