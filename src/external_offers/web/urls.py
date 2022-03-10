@@ -293,7 +293,7 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=moderation_confidence_index_entities.GetCsvReportStatusResponseModel,
         base_handler_cls=PublicHandler,
     )),
-    url('/api/admin/v1/download_csv/$', get_handler(
+    url('/api/admin/v1/download-csv/$', get_handler(
         service=call_history_services.download_csv,
         method='POST',
         request_schema=moderation_confidence_index_entities.ApiCallComponentV1OperatorCallsDownloadCsvReportcsv,

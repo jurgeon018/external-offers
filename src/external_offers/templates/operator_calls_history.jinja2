@@ -59,13 +59,13 @@
                     generate_csv_button.prop('disabled', false);
                     generate_csv_button.text('Сгенерировать CSV');
 
-                    const csv_response = await fetch("/api/admin/v1/download_csv/", {
+                    const csv_response = await fetch("/api/admin/v1/download-csv/", {
                         method: 'POST',
                         body: getBody({'reportId': resp.reportId})
                     });
                     const file_data = await csv_response.json();
-                    var a = document.createElement("a");
-                    var binaryData = [];
+                    let a = document.createElement("a");
+                    let binaryData = [];
                     binaryData.push(file_data.content);
                     a.href = window.URL.createObjectURL(new Blob(binaryData, {type: "text/csv"}));
                     a.download = "report.csv";
