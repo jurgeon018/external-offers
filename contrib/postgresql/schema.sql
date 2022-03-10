@@ -1,174 +1,160 @@
-CREATE TYPE offer_status_type AS enum (
-    'waiting',
-    'inProgress',
-    'draft',
-    'callMissed',
-    'callLater',
-    'cancelled',
-    'declined',
-    'alreadyPublished',
-    'phoneUnavailable',
-    'callInterrupted',
-    'promoGiven',
-    'done'
-);
-CREATE TYPE offer_publication_status_type AS enum (
-    'Draft',
-    'Published',
-    'Deactivated',
-    'Refused',
-    'Deleted',
-    'Sold',
-    'Moderate',
-    'RemovedByModerator',
-    'Blocked'
-);
-CREATE TYPE client_status_type AS enum (
-    'waiting',
-    'declined',
-    'inProgress',
-    'callLater',
-    'callMissed',
-    'accepted',
-    'phoneUnavailable',
-    'callInterrupted',
-    'promoGiven'
+create table offers_for_call
+(
+	id varchar not null
+		constraint offers_for_call_pkey
+			primary key,
+	parsed_id varchar not null,
+	offer_cian_id bigint,
+	client_id varchar not null,
+	status offer_status_type not null,
+	created_at timestamp with time zone not null,
+	started_at timestamp with time zone,
+	synced_at timestamp with time zone not null,
+	promocode varchar,
+	priority integer,
+	last_call_id varchar,
+	parsed_created_at timestamp with time zone default CURRENT_TIMESTAMP not null,
+	category varchar,
+	synced_with_kafka boolean default false,
+	synced_with_grafana boolean default false not null,
+	is_test boolean default false not null,
+	publication_status offer_publication_status_type,
+	row_version bigint default 0 not null,
+	external_offer_type varchar,
+	team_priorities jsonb,
+	comment varchar,
+	group_id varchar
 );
 
-CREATE TABLE offers_for_call
+create index offers_for_call_offer_cian_id_idx
+	on offers_for_call (offer_cian_id);
+
+create index offers_for_call_client_id_idx
+	on offers_for_call (client_id);
+
+create table clients
 (
-    id            varchar                  not null primary key,
-    parsed_id     varchar                  not null,
-    offer_cian_id bigint,
-    client_id     int                      not null,
-    status        offer_status_type        not null,
-    publication_status offer_publication_status_type  null,
-    created_at    timestamp with time zone not null,
-    synced_at     timestamp with time zone not null,
-    started_at    timestamp with time zone,
-    promocode     varchar,
-    priority      int,
-    team_priorities jsonb,
-    category      varchar,
-    last_call_id  varchar,
-    comment       varchar,
-    group_id      varchar,
-    row_version         bigint                   not null default 0,
-    synced_with_kafka   boolean                  not null default false,
-    synced_with_grafana boolean                  not null default false,
-    is_test             boolean                  not null default false,
-    parsed_created_at   timestamp with time zone not null default current_timestamp,
-    external_offer_type varchar,
-    drafted_at          timestamp with time zone,
-    published_at        timestamp with time zone
+	client_id varchar not null
+		constraint clients_pkey
+			primary key,
+	avito_user_id varchar not null,
+	cian_user_id bigint,
+	client_name varchar,
+	client_email varchar(50),
+	operator_user_id bigint,
+	status client_status_type,
+	client_phones character varying[] not null,
+	segment varchar(255),
+	next_call timestamp with time zone,
+	last_call_id varchar,
+	calls_count smallint,
+	main_account_chosen boolean default false not null,
+	synced_with_grafana boolean default false not null,
+	comment varchar,
+	is_test boolean default false not null,
+	unactivated boolean default false not null,
+	reason_of_decline varchar,
+	additional_numbers varchar,
+	additional_emails varchar,
+	team_id integer,
+	subsegment varchar
 );
 
-CREATE TABLE clients
+create index clients_avito_user_id_idx
+	on clients (avito_user_id);
+
+create table tmp_parsed_offers
 (
-    client_id        varchar     not null primary key,
-    avito_user_id    varchar     not null,
-    cian_user_id     bigint,
-    client_name      varchar,
-    client_phones    varchar[]   not null,
-    real_phone       varchar,
-    client_email     varchar(50),
-    operator_user_id bigint,
-    status           client_status_type,
-    segment          varchar(255),
-    subsegment       varchar,
-    next_call        timestamp with time zone,
-    unactivated_at   timestamp with time zone,
-    calls_count      smallint,
-    last_call_id     varchar,
-    comment          varchar,
-    team_id          int default null,
-    reason_of_decline varchar default null,
-    additional_numbers varchar default null,
-    additional_emails varchar default null,
-    main_account_chosen  boolean  not null  default false,
-    synced_with_grafana  boolean  not null  default false,
-    unactivated          boolean  not null  default false,
-    is_test              boolean  not null  default false,
-    drafted_at           timestamp with time zone,
-    published_at         timestamp with time zone
-);
-CREATE TABLE event_log
-(
-    id               serial primary key,
-    offer_id         varchar                  not null,
-    operator_user_id bigint,
-    status           varchar(30)              not null,
-    created_at       timestamp with time zone not null,
-    last_call_id     varchar
+	id varchar,
+	user_segment varchar,
+	source_object_id varchar,
+	source_user_id varchar,
+	source_object_model json,
+	is_calltracking boolean,
+	timestamp timestamp with time zone,
+	created_at timestamp with time zone,
+	updated_at timestamp with time zone
 );
 
+create table event_log
+(
+	id serial
+		constraint event_log_pkey
+			primary key,
+	offer_id varchar not null,
+	operator_user_id bigint,
+	status varchar(30) not null,
+	created_at timestamp with time zone not null,
+	call_id varchar
+);
 
 create table parsed_offers
 (
-    id                  varchar unique primary key,
-    user_segment        varchar,
-    user_subsegment     varchar,
-    source_object_id    varchar,
-    source_group_id     varchar,
-    source_user_id      varchar                  not null,
-    source_object_model jsonb                    not null,
-    is_calltracking     boolean                  not null,
-    timestamp           timestamp with time zone not null,
-    created_at          timestamp with time zone not null,
-    updated_at          timestamp with time zone not null,
-    is_test             boolean                  not null default false,
-    synced              boolean                  not null,
-    external_offer_type varchar
+	id varchar,
+	user_segment varchar,
+	source_object_id varchar
+		constraint source_object_id_unique
+			unique,
+	source_user_id varchar,
+	source_object_model jsonb,
+	is_calltracking boolean,
+	timestamp timestamp with time zone,
+	created_at timestamp with time zone,
+	updated_at timestamp with time zone,
+	synced boolean default false,
+	is_test boolean default false not null,
+	external_offer_type varchar,
+	source_group_id varchar,
+	user_subsegment varchar
 );
 
-CREATE INDEX ON clients(avito_user_id);
-CREATE INDEX ON offers_for_call(offer_cian_id);
-CREATE INDEX ON offers_for_call(client_id); 
-CREATE INDEX ON event_log(created_at); 
-ALTER TABLE parsed_offers ADD CONSTRAINT source_object_id_unique UNIQUE(source_object_id);
+create index parsed_offers_id_idx
+	on parsed_offers (id);
 
-CREATE TYPE segment_type AS enum (
-	'a',
-	'b',
-	'c',
-	'd',
-	'commercial'
+create table ct_phones
+(
+	phone varchar
 );
 
-CREATE TABLE teams
+create table teams
 (
-    team_id   SERIAL  NOT NULL PRIMARY KEY,
-    team_name VARCHAR UNIQUE,
-    lead_id   VARCHAR        NOT NULL,
-    segment   segment_type,
-    settings  JSONB
+	team_id serial
+		constraint teams_pkey
+			primary key,
+	team_name varchar
+		constraint teams_team_name_key
+			unique,
+	lead_id varchar not null,
+	segment segment_type,
+	settings jsonb
 );
 
-CREATE TABLE operators
+create table operators
 (
-    operator_id VARCHAR UNIQUE NOT NULL PRIMARY KEY,
-    is_teamlead BOOLEAN        NOT NULL,
-    full_name   VARCHAR,
-    team_id     INT,
-    email       VARCHAR,
-    created_at    timestamp with time zone not null,
-    updated_at    timestamp with time zone not null
+	operator_id varchar not null
+		constraint operators_pkey
+			primary key,
+	is_teamlead boolean not null,
+	full_name varchar,
+	team_id integer,
+	email varchar,
+	created_at timestamp with time zone not null,
+	updated_at timestamp with time zone not null
 );
 
-CREATE TABLE client_account_statuses
+create table calltracking_phone_numbers
 (
-    phone         VARCHAR NOT NULL PRIMARY KEY UNIQUE,
-    smb_account_status       VARCHAR,
-    homeowner_account_status VARCHAR,
-    new_cian_user_id BIGINT NULL,
-    created_at    timestamp with time zone NOT NULL,
-    updated_at    timestamp with time zone NOT NULL
-)
+	phone varchar not null
+);
 
-CREATE TABLE clients_priorities
+create table client_account_statuses
 (
-    priorities jsonb,
-    team_id    int default null,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-)
+	phone varchar not null
+		constraint client_account_statuses_pkey
+			primary key,
+	smb_account_status varchar,
+	homeowner_account_status varchar,
+	new_cian_user_id bigint,
+	created_at timestamp with time zone not null,
+	updated_at timestamp with time zone not null
+);

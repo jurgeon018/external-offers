@@ -58,8 +58,8 @@ async def test_decline_client__client_exist_with_2_offers__expected_1_messages_t
         timeout=2.5,
         count=1
     )
-    assert offers_messages[0].data['offer']['id'] == '11'
-    assert offers_messages[0].data['offer']['parsedId'] == '2dddd3b8-3157-47cc-b50a-419052da619f'
+    assert offers_messages[0].data['offer']['id'] == '12'
+    assert offers_messages[0].data['offer']['parsedId'] == '3dddd3b8-3257345cc-b50a-419052da619f'
     assert offers_messages[0].data['offer']['clientId'] == '6'
     assert offers_messages[0].data['offer']['status'] == 'declined'
     assert offers_messages[0].data['offer']['priority'] == 1
@@ -157,8 +157,8 @@ async def test_call_missed_client__client_exist_with_2_offers__expected_1_messag
         timeout=2.5,
         count=1
     )
-    assert offers_messages[0].data['offer']['id'] == '11'
-    assert offers_messages[0].data['offer']['parsedId'] == '2dddd3b8-3157-47cc-b50a-419052da619f'
+    assert offers_messages[0].data['offer']['id'] == '12'
+    assert offers_messages[0].data['offer']['parsedId'] == '3dddd3b8-3257345cc-b50a-419052da619f'
     assert offers_messages[0].data['offer']['clientId'] == '6'
     assert offers_messages[0].data['offer']['status'] == 'callMissed'
     assert offers_messages[0].data['offer']['priority'] == 200000
@@ -443,21 +443,7 @@ async def test_call_later_client__client_exist_with_2_offers__expected_1_message
         timeout=2.5,
         count=1
     )
-    assert any((message.data['offer'] == {
-        'id': '11',
-        'parsedId': '2dddd3b8-3157-47cc-b50a-419052da619f',
-        'clientId': '6',
-        'status': 'callLater',
-        'createdAt': ANY,
-        'syncedAt': ANY,
-        'parsedCreatedAt': ANY,
-        'priority': 100000,
-        'lastCallId': '2dddd3b8-3157-47cc-b50a-419052da6197',
-        'startedAt': ANY,
-        'syncedWithKafka': False,
-        'isTest': False,
-        'rowVersion': 0,
-    } for message in offers_messages))
+    assert any((message.data['offer']['id'] == '12' for message in offers_messages))
 
 
 async def test_call_later_client__client_doesnt_exist__expected_0_messages_to_kafka(
