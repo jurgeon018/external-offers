@@ -11,13 +11,13 @@ class OffersSettings:
     """Категории"""
     regions: Optional[list[str]] = None
     """Регионы"""
-    calltracking: bool = True
-    """Флаг колтрекинга"""
+
 
 @dataclass
 class ClientsSettings:
-
     # Настройки фильтрации клиентов
+    calltracking: bool = False
+    """Флаг колтрекинга"""
     segments: Optional[list[str]] = None
     """Сегменты пользователей, которых будет обрабатывать команда"""
     subsegments: Optional[list[str]] = None
