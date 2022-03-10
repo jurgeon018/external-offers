@@ -1,7 +1,9 @@
+import pytest
 from cian_test_utils import future
 
 from external_offers import pg
 from external_offers.repositories import postgresql
+from external_offers.repositories.postgresql.offers import get_offer_ids_for_prioritization
 
 
 async def test_get_offers_in_progress_by_operator():
@@ -145,3 +147,23 @@ async def test_get_enriched_offers_in_progress_by_operator():
     )
     # assert
     pg.get().fetch.assert_called_with(query, operator_id)
+
+
+@pytest.mark.parametrize('fetch_valid', [True, False])
+async def test_get_offer_ids_for_prioritization(fetch_valid):
+    # arrange
+    team_settings = {
+        'segments': [],
+        'categories': [],
+        'regions': [],
+        'calltracking': True,
+    }
+    pg.get().fetch.return_value = future([])
+    # act
+    await get_offer_ids_for_prioritization(
+        team_settings=team_settings,
+        is_test=True,
+        fetch_valid_offers=fetch_valid,
+    )
+    # assert
+    pg.get().fetch.assert_called()
