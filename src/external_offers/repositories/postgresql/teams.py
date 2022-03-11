@@ -39,7 +39,7 @@ async def create_team(
     team_name: str,
     lead_id: str,
     settings: dict[str, Any],
-    team_type: Optional[TeamType] = TeamType.attractor,
+    team_type: TeamType,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         insert(

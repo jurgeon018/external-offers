@@ -58,6 +58,7 @@ async def test_teams(pg, http, runtime_settings):
         json={
             'teamName': name,
             'leadId': lead_id,
+            'teamType': 'attractor',
         },
         headers={
             'X-Real-UserId': 1

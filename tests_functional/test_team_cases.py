@@ -126,6 +126,7 @@ async def prepare_teams(*, http, pg, operator_id):
             json={
                 'teamName': f'Команда №{i+1}',
                 'leadId': str(i),
+                'teamType': 'attractor',
             },
             headers={
                 'X-Real-UserId': operator_id

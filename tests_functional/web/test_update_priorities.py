@@ -86,6 +86,7 @@ async def test_update_team_priorities(
         json={
             'teamName': 'team 1',
             'leadId': '1',
+            'teamType': 'attractor',
         },
         headers={
             'X-Real-UserId': 1
@@ -217,6 +218,7 @@ async def test_update_priorities(
         json={
             'teamName': 'team 1',
             'leadId': '1',
+            'teamType': 'attractor',
         },
         headers={
             'X-Real-UserId': 1

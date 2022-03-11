@@ -203,7 +203,7 @@ class CreateTeamRequest:
     """Название команды"""
     lead_id: str
     """ID лида команды"""
-    team_type: Optional[TeamType] = TeamType.attractor.value
+    team_type: TeamType
     """Тип команды"""
 
 
