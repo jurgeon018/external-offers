@@ -4,7 +4,10 @@ from typing import Optional
 
 from marshmallow import Schema, fields
 
-from external_offers.repositories.moderation_confidence_index.entities import GetOperatorCallsFilter, OperatorCallModel
+from external_offers.repositories.moderation_confidence_index.entities import (
+    GetOperatorCallsFilter,
+    GetOperatorCallsResponseModel,
+)
 from external_offers.services.calls_history.services import get_operator_calls
 
 
@@ -51,7 +54,7 @@ class CallsHistorySearch:
         search = cls(**result)
         return search
 
-    async def execute(self) -> list[OperatorCallModel]:
+    async def execute(self) -> GetOperatorCallsResponseModel:
         request = GetOperatorCallsFilter(
             operator_id=self.operator_id,
             page=self.page,
