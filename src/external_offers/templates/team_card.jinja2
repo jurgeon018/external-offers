@@ -53,8 +53,14 @@
         Название: {{team.team_name}}
         <input value="{% if team.team_name %}{{team.team_name}}{% endif %}"  required
             type='text' name="teamName" placeholder='введите название команды'
-        />
-        
+        /><br><br>
+
+        Роль операторов в команде:
+        {% if team.team_type.value == 'hunter' %}
+        Добытчики(hunter)
+        {% elif team.team_type.value == 'attractor' %}
+        Привлеченцы(attractor)
+        {% endif %}
         <hr>
         <h2>Настройки обьявлений</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки обьявлений</button>

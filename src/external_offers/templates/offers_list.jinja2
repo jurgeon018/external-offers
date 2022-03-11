@@ -139,6 +139,10 @@
              padding: 0.5em 0em;
              display: block;
          }
+         .additional-info-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
          .additional-numbers-client-block {
              padding: 0.5em 0em;
              display: block;
@@ -310,6 +314,17 @@
                      </button>
                      <div class="messages" id="additionalEmailsClientMessages"></div>
                  </div>
+                 <div class="additional-info-client-block">
+                     <div>Добытый реальный номер телефона:</div>
+                     <input type="text" id="realPhoneInput" placeholder="Введите добытый номер телефона"
+                            value="{% if client.real_phone%}{{ client.real_phone }}{% endif %}" size=30>
+                     <input type="datetime-local" id="realPhoneDtInput" placeholder="Введите дату добычи реального номера телефона"
+                            value="{% if client.real_phone%}{{ client.real_phone_hunted_at }}{% else %}{{now}}{% endif %}" size=30>
+                     <button id="realPhoneButton" class="realPhoneButton">
+                         Сохранить
+                     </button>
+                 </div>
+
              </div>
 
          </div>
@@ -670,6 +685,29 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
+         
+         document.getElementById("realPhoneButton").onclick = async function () {
+             real_phone_number = document.getElementById('realPhoneInput').value;
+             real_phone_number_hunted_at = document.getElementById('realPhoneDtInput').value;
+             let obj =  {
+                 'clientId': '{{ client.client_id }}',
+                 'realPhoneNumber': real_phone_number,
+                 'realPhoneNumberHuntedAt': real_phone_number_hunted_at,                 
+             };
+             const response = await fetch("/api/admin/v1/update-client-real-phone/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             if(resp.success === true){
+              alert(resp.message)
+             }else if(resp.success === false){
+              alert(resp.message)
+             }else{
+               alsert("Не удалось обновить добытый номер телефона")
+             }
+         };
+         
          document.getElementById("callInterruptedClientButton").onclick = async function () {
            let obj =  {
                'clientId': '{{ client.client_id }}'

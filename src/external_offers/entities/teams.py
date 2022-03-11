@@ -3,6 +3,8 @@ from typing import Any, Optional
 
 from cian_json import json
 
+from external_offers.enums.teams import TeamType
+
 
 @dataclass
 class OffersSettings:
@@ -165,6 +167,7 @@ class Team:
     """ID лида команды"""
     settings: str
     """Настройки команды"""
+    team_type: Optional[TeamType] = TeamType.attractor.value
 
     def get_settings(self) -> dict:
         settings = {}
@@ -199,7 +202,9 @@ class CreateTeamRequest:
     team_name: str
     """Название команды"""
     lead_id: str
-    """ ID лида команды """
+    """ID лида команды"""
+    team_type: Optional[TeamType] = TeamType.attractor.value
+    """Тип команды"""
 
 
 @dataclass

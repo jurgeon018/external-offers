@@ -496,9 +496,13 @@
                             id="getPhoneNumber"
                             style="float: left">
                     </div>
+                    {% if current_operator.team_type.value == 'attractor' %}
                     <div id="clientPhoneNumberBtn">
                         <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
                     </div>
+                    {% elif current_operator.team_type.value == 'hunter' %}
+                    <div class="text-info">У хантеров нет прав на изменение номера</div>
+                    {% endif %}
                     <div id="accountCheckboxesBlock" >
                     <div id="useExistingAccountRadio" style="float: left;">
                         <input type="radio" style="float: left;" name="account" id="getUseExistingAccount" checked>
@@ -560,21 +564,25 @@
             {% endif %}
     </form>
     </div>
-    {% if offer_is_draft %}
-    <div class="footer-block">
-        <div>
-            <div class="text-info">Обьявление уже опубликовано как черновик, но не активировано.</div>
-        </div>
-    </div>
-    {% else %}
-    <div class="footer-block">
-        <div>
-            <div class="text-info">{{ info_message }}</div>
-            <div class="save-offer-button-block">
-                <button id="saveOfferBtn" type="button" class="btn">Сохранить объявление</button>
+    {% if current_operator.team_type.value == 'attractor' %}
+        {% if offer_is_draft %}
+        <div class="footer-block">
+            <div>
+                <div class="text-info">Обьявление уже опубликовано как черновик, но не активировано.</div>
             </div>
         </div>
-    </div>
+        {% else %}
+        <div class="footer-block">
+            <div>
+                <div class="text-info">{{ info_message }}</div>
+                <div class="save-offer-button-block">
+                    <button id="saveOfferBtn" type="button" class="btn">Сохранить объявление</button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% elif current_operator.team_type.value == 'hunter' %}
+        <div class="text-info">У хантеров нет прав на сохранение обьявления</div>
     {% endif %}
 </div>  
 

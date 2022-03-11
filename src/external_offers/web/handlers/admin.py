@@ -47,6 +47,9 @@ class AdminOffersListPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
 
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
@@ -83,6 +86,8 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
             operator_id=self.realty_user_id,
             is_commercial_moderator=is_commercial_moderator,
+            current_operator=current_operator,
+            now=now,
         ))
 
 
@@ -91,6 +96,9 @@ class AdminOffersCardPageHandler(PublicHandler):
 
     async def get(self, offer_id: str) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
 
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
@@ -146,6 +154,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             appointments=appointments,
             is_ready_business_enabled=is_ready_business_enabled,
             offer_comment=offer_comment,
+            current_operator=current_operator,
         )
 
         self.write(offer_html)

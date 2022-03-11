@@ -113,6 +113,7 @@ async def create_team_public(request: CreateTeamRequest, user_id: int) -> BasicR
             team_name=request.team_name,
             lead_id=request.lead_id,
             settings=settings,
+            team_type=request.team_type,
         )
         success = True
         message = 'Команда была успешно создана.'

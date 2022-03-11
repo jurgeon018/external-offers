@@ -170,6 +170,13 @@ urlpatterns = base_urls.urlpatterns + [
         response_schema=entities.UpdateClientPhoneResponse,
         base_handler_cls=PublicHandler,
     )),
+    url('/api/admin/v1/update-client-real-phone/$', get_handler(
+        service=update_client_phone_public,
+        method='POST',
+        request_schema=entities.UpdateClientRealPhoneRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
     url('/api/admin/v1/update-offer-category/$', get_handler(
         service=update_offer_category_public,
         method='POST',

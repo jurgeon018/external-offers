@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
 
+from external_offers.enums.teams import TeamType
 from external_offers.enums.user_segment import UserSegment
 
 
@@ -43,6 +44,8 @@ class EnrichedOperator:
     """Email оператора"""
     team_id: Optional[int] = None
     """ ID команды оператора """
+    team_type: Optional[TeamType] = TeamType.attractor
+    """Тип команды"""
     is_teamlead: bool = False
     """ Имеет ли право быть лидом команд """
     segment: Optional[UserSegment] = None

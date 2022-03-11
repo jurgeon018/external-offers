@@ -161,7 +161,11 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
         'external_offers.web.handlers.admin.get_client_is_calltracking_by_client_id',
         return_value=future(is_calltracking),
     )
-
+    current_operator = mocker.MagicMock(is_teamlead=True)
+    mocker.patch(
+        'external_offers.services.operator_roles.get_enriched_operator_by_id',
+        return_value=future(current_operator)
+    )
     # act
     with freezegun.freeze_time('2022-01-01'):
         await http_client.fetch(
@@ -182,6 +186,8 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
         operator_is_tester=False,
         operator_id=int(user_id),
         is_commercial_moderator=False,
+        current_operator=current_operator,
+        now=mocker.ANY,
     )
     get_operator_roles_mock.assert_called_once_with(
         operator_id=int(user_id),
