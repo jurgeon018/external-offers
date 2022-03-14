@@ -136,7 +136,7 @@ create table teams
 	lead_id varchar not null,
 	segment segment_type,
 	settings jsonb,
-	team_type_enum team_type_enum not null default 'attractor'
+	team_type_enum team_type_enum not null
 );
 
 create table operators

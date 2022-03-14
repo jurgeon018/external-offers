@@ -100,7 +100,7 @@ teams = sa.Table(
     metadata,
     sa.Column('team_id', sa.INT, unique=True, nullable=False, autoincrement=True, primary_key=True),
     sa.Column('team_name', sa.VARCHAR, unique=True, nullable=True),
-    sa.Column('team_type', sa.VARCHAR, nullable=False, default='attractor'),
+    sa.Column('team_type', sa.VARCHAR, nullable=False),
     sa.Column('lead_id', sa.VARCHAR, nullable=False),
     sa.Column('settings', JSONB(), nullable=True),
 )
