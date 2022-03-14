@@ -502,6 +502,28 @@ async def set_phone_number_by_client_id(
     await pg.get().execute(query, *params)
 
 
+async def set_real_info_by_client_id(
+    *,
+    client_id: str,
+    real_phone: Optional[str] = None,
+    real_phone_hunted_at: Optional[datetime] = None,
+    real_name: Optional[str] = None,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            real_phone=real_phone,
+            real_phone_hunted_at=real_phone_hunted_at,
+            real_name=real_name,
+        ).where(
+            clients.c.client_id == client_id,
+        )
+    )
+
+    await pg.get().execute(query, *params)
+
+
 async def set_comment_by_client_id(
     *,
     client_id: str,

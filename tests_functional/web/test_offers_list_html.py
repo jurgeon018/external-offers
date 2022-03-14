@@ -5,7 +5,7 @@ import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-@pytest.mark.skip(reason='no way of currently testing this')
+@pytest.mark.html
 async def test_get_offers_list__operator_with_client_in_progress__returns_offers_in_progress_page(
         http,
         pg,
@@ -42,6 +42,15 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
         '',
         html
     )
+    html_without_dynamic_datetime = re.sub(
+        (
+            r'<input type="datetime-local" id="realPhoneDtInput" '
+            r'placeholder="Введите дату добычи реального номера телефона" '
+            r'value=([\d\:\-T]*) size=30>'
+        ),
+        '',
+        html_without_dynamic_datetime
+    )
 
     if 'UPDATE_HTML_FIXTURES' in os.environ:
         admin_external_offers_operator_with_client_in_progress_html.write_text(html_without_dynamic_datetime)
@@ -51,7 +60,7 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
                                              .read_text('utf-8'))
 
 
-@pytest.mark.skip(reason='no way of currently testing this')
+@pytest.mark.html
 async def test_get_offers_list__operator_with_client_cancelled__returns_no_offers_page(
         http,
         pg,
@@ -88,6 +97,15 @@ async def test_get_offers_list__operator_with_client_cancelled__returns_no_offer
         '',
         html
     )
+    html_without_dynamic_datetime = re.sub(
+        (
+            r'<input type="datetime-local" id="realPhoneDtInput" '
+            r'placeholder="Введите дату добычи реального номера телефона" '
+            r'value=([\d\:\-T]*) size=30>'
+        ),
+        '',
+        html_without_dynamic_datetime
+    )
 
     if 'UPDATE_HTML_FIXTURES' in os.environ:
         admin_external_offers_operator_with_client_cancelled_html.write_text(html_without_dynamic_datetime)
@@ -97,7 +115,7 @@ async def test_get_offers_list__operator_with_client_cancelled__returns_no_offer
                                              .read_text('utf-8'))
 
 
-@pytest.mark.skip(reason='no way of currently testing this')
+@pytest.mark.html
 async def test_get_offers__operator_without_client__returns_no_offers_page(
         pg,
         http,
@@ -133,6 +151,15 @@ async def test_get_offers__operator_without_client__returns_no_offers_page(
         r'<input id="call-later-datetime" type="datetime-local" value=([\d\:\-T]*)>',
         '',
         html
+    )
+    html_without_dynamic_datetime = re.sub(
+        (
+            r'<input type="datetime-local" id="realPhoneDtInput" '
+            r'placeholder="Введите дату добычи реального номера телефона" '
+            r'value=([\d\:\-T]*) size=30>'
+        ),
+        '',
+        html_without_dynamic_datetime
     )
 
     if 'UPDATE_HTML_FIXTURES' in os.environ:

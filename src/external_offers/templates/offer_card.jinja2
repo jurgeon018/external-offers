@@ -564,7 +564,7 @@
             {% endif %}
     </form>
     </div>
-    {% if current_operator.team_type.value == 'attractor' %}
+    {% if current_operator.team_type.value == 'attractor' or not current_operator.team_type %}
         {% if offer_is_draft %}
         <div class="footer-block">
             <div>

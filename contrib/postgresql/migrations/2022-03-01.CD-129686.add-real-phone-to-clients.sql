@@ -1,1 +1,0 @@
-alter table clients add column real_phone varchar;

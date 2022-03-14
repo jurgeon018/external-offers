@@ -136,7 +136,11 @@
              padding: 0.5em 0em;
              display: block;
          }
-         .additional-numbers-client-block {
+         .additional-info-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
+         .additlional-numbers-client-block {
              padding: 0.5em 0em;
              display: block;
          }
@@ -288,8 +292,27 @@
                      </button>
                      <div class="messages" id="additionalEmailsClientMessages"></div>
                  </div>
+                 
+                 <div class="additional-info-client-block">
+                     <h3>Добытая реальная информация про клиента:</h3>
+                     Номер телефона: <br>
+                     <input type="text" id="realPhoneInput" placeholder="Введите добытый номер телефона"
+                            value="" size=30>
+                     <br><br>
+                     ФИО: <br>  
+                     <input type="text" id="realNameInput" placeholder="Введите настоящее ФИО клиента"
+                            value="" size=30>
+                     <br><br>
+                                        
+                     Дата добычи номера телефона: <br>
+                     
+                     <br><br>
+                     <button id="realPhoneButton" class="realPhoneButton">
+                         Сохранить
+                     </button>
+                 </div>
+                 
              </div>
-
          </div>
       </div>
       <div class="offers-block">

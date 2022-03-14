@@ -38,19 +38,20 @@ def get_offers_list_html(
     current_operator: EnrichedOperator,
     now: datetime,
 ) -> str:
+    dt_format = '%Y-%m-%dT%H:%M:%S'
     template = templates.get_template('offers_list.jinja2')
     return template.render(
         client_is_calltracking=client_is_calltracking,
         offers=offers,
         client=client,
         client_phone=client_phone,
-        next_call_datetime=default_next_call_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
+        next_call_datetime=default_next_call_datetime.strftime(dt_format),
         debug=runtime_settings.DEBUG,
         operator_is_tester=operator_is_tester,
         operator_id=operator_id,
         is_commercial_moderator=is_commercial_moderator,
         current_operator=current_operator,
-        now=now,
+        now=now.strftime(dt_format),
     )
 
 

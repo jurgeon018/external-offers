@@ -55,7 +55,7 @@
         </option>
         {% for team in teams %}
         <option value="{{team.team_id}}" {% if operator.team_id == team.team_id %} selected {% endif %}>
-            {{team.team_name}} ({{team.team_id}})
+            {{team.team_name}}, {{team.team_type.value}} ({{team.team_id}})
         </option>
         {% endfor %}
     </select>

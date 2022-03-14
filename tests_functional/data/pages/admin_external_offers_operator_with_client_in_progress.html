@@ -136,7 +136,11 @@
              padding: 0.5em 0em;
              display: block;
          }
-         .additional-numbers-client-block {
+         .additional-info-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
+         .additlional-numbers-client-block {
              padding: 0.5em 0em;
              display: block;
          }
@@ -288,8 +292,27 @@
                      </button>
                      <div class="messages" id="additionalEmailsClientMessages"></div>
                  </div>
+                 
+                 <div class="additional-info-client-block">
+                     <h3>Добытая реальная информация про клиента:</h3>
+                     Номер телефона: <br>
+                     <input type="text" id="realPhoneInput" placeholder="Введите добытый номер телефона"
+                            value="" size=30>
+                     <br><br>
+                     ФИО: <br>  
+                     <input type="text" id="realNameInput" placeholder="Введите настоящее ФИО клиента"
+                            value="" size=30>
+                     <br><br>
+                                        
+                     Дата добычи номера телефона: <br>
+                     
+                     <br><br>
+                     <button id="realPhoneButton" class="realPhoneButton">
+                         Сохранить
+                     </button>
+                 </div>
+                 
              </div>
-
          </div>
       </div>
       <div class="offers-block">
@@ -634,6 +657,40 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
+         
+         document.getElementById("realPhoneButton").onclick = async function () {
+             real_phone = document.getElementById('realPhoneInput').value;
+             if(!real_phone){
+               real_phone = null;
+             }
+             real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;
+             if(!real_phone_hunted_at){
+               real_phone_hunted_at = null;
+             }
+             real_name = document.getElementById('realNameInput').value;
+             if(!real_name){
+               real_name = null;
+             }
+             let obj =  {
+                 'clientId': '1',
+                 'realPhone': real_phone,
+                 'realName': real_name,
+                 'realPhoneHuntedAt': real_phone_hunted_at,                 
+             };
+             const response = await fetch("/api/admin/v1/update-client-real-info/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             if(resp.success === true){
+              alert(resp.message)
+             }else if(resp.success === false){
+              alert(resp.message)
+             }else{
+               alsert("Не удалось обновить добытый номер телефона")
+             }
+         };
+         
          document.getElementById("callInterruptedClientButton").onclick = async function () {
            let obj =  {
                'clientId': '1'
