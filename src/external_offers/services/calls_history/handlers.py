@@ -1,5 +1,5 @@
 from external_offers.repositories.postgresql.operators import get_operators_by_team_id
-from external_offers.services.calls_history.helpers import get_pagination_page_link
+from external_offers.services.calls_history.helpers import Paginator
 from external_offers.services.calls_history.mappers import calls_history_mapper
 from external_offers.services.calls_history.search import CallsHistorySearch
 from external_offers.services.operator_roles import get_or_create_operator
@@ -24,16 +24,19 @@ class AdminCallsHistoryPageHandler(PublicHandler):
         else:
             operators = [current_operator]
         search = CallsHistorySearch.from_search_params(self._get_search_params(), self.realty_user_id)
-        calls = await search.execute()
-        previous_page_link = get_pagination_page_link(self.request.uri, search.page - 1) if self.request.uri else ''
-        next_page_link = get_pagination_page_link(self.request.uri, search.page + 1) if self.request.uri else ''
+        calls_response = await search.execute()
+        paginator = Paginator(
+            url=self.request.uri or '',
+            current_page_number=search.page,
+            total_count=calls_response.total or 0,
+            page_size=search.page_size,
+        )
         self.write(get_html(
             'operator_calls_history.jinja2',
             current_operator=current_operator,
             operators=operators,
-            calls=calls,
+            calls=calls_response.calls,
             selected_operator_id=search.operator_id,
             filter_data=calls_history_mapper.map_to(search),
-            previous_page_link=previous_page_link,
-            next_page_link=next_page_link,
+            paginator=paginator.get_page_items(),
         ))
