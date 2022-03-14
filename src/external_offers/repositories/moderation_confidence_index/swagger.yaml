@@ -43,6 +43,49 @@ definitions:
         format: date-time
         type: string
     type: object
+  WebApi.Model.CallComponent.GenerateCSVResponseModel:
+    description: Ответ на запрос создать csv-отчёт
+    properties:
+      reportId:
+        description: Идентификатор отчёта
+        format: uuid
+        type: string
+    type: object
+  WebApi.Model.CallComponent.GetCSVReportStatusRequestModel:
+    description: Запросить статус отчёта модель запроса
+    properties:
+      reportId:
+        description: Идентификтаор отчёта
+        format: uuid
+        type: string
+    type: object
+  WebApi.Model.CallComponent.GetCSVReportStatusResponseModel:
+    description: Модель отчёта
+    properties:
+      changedTime:
+        description: Время изменения
+        format: date-time
+        type: string
+      createdTime:
+        description: Время создания
+        format: date-time
+        type: string
+      status:
+        description: Статус CSV-отчёта
+        enum:
+        - new
+        - inProgress
+        - completed
+        - error
+        type: string
+        x-completed: Завершён
+        x-error: Ошибка
+        x-inProgress: В процессе
+        x-new: Новый
+      url:
+        description: Урл на скачивание
+        type: string
+    type: object
   WebApi.Model.CallComponent.GetOperatorCallsResponseModel:
     description: Модель ответа получить звонки
     properties:
@@ -123,6 +166,70 @@ paths:
             $ref: '#/definitions/WebApi.Model.CallComponent.GetOperatorCallsResponseModel'
       summary: "Возвращает звонки оператора\r\nTODO: покрыть функ. тестами S07-2022,\
         \ задача: CD-131273"
+      tags:
+      - CallComponent
+  /api/call-component/v1/operator-calls/create-csv-report:
+    post:
+      consumes:
+      - application/json-patch+json
+      - application/json
+      - text/json
+      - application/*+json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/Common.Models.CallComponent.GetOperatorCallsFilter'
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Model.CallComponent.GenerateCSVResponseModel'
+      summary: Возвращает звонки оператора
+      tags:
+      - CallComponent
+  /api/call-component/v1/operator-calls/download-csv-report.csv:
+    get:
+      parameters:
+      - description: Идентификтаор отчёта
+        format: uuid
+        in: query
+        name: reportId
+        type: string
+      responses:
+        '200':
+          description: Success
+      summary: Получает статус csv-отчёта
+      tags:
+      - CallComponent
+  /api/call-component/v1/operator-calls/get-csv-report-status:
+    post:
+      consumes:
+      - application/json-patch+json
+      - application/json
+      - text/json
+      - application/*+json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/WebApi.Model.CallComponent.GetCSVReportStatusRequestModel'
+      produces:
+      - application/msgpack
+      - text/plain
+      - application/json
+      - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/WebApi.Model.CallComponent.GetCSVReportStatusResponseModel'
+      summary: Получает статус csv-отчёта
       tags:
       - CallComponent
 schemes:
