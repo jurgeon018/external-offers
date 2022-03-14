@@ -9,8 +9,7 @@ async def update_client_real_info_public(request: UpdateClientRealInfoRequest, u
     real_phone_hunted_at = request.real_phone_hunted_at
     real_name = request.real_name
 
-    client = await get_client_by_client_id(client_id=client_id)
-    if not client:
+    if not await get_client_by_client_id(client_id=client_id):
         return BasicResponse(
             success=False,
             message='Пользователь с переданным идентификатором не найден',
