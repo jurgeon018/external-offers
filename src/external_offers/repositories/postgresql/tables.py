@@ -1,5 +1,6 @@
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import JSONB, ENUM
+from sqlalchemy.dialects.postgresql import ENUM, JSONB
+
 from external_offers.enums.teams import TeamType
 from external_offers.helpers.tables import get_names
 
