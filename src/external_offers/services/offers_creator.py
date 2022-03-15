@@ -19,6 +19,8 @@ from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioriti
 from external_offers.entities.teams import Team
 from external_offers.enums import UserSegment
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
+from external_offers.entities.teams import TeamType
+
 from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql import (
     delete_old_waiting_offers_for_call,
@@ -431,14 +433,16 @@ def get_default_team_settings() -> dict[str, Union[str, int]]:
 def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
     if team:
         team_id = team.team_id
+        team_type = team.team_type
         team_settings = team.get_settings()
         if not team_settings.get('main_regions_priority'):
             team_settings['main_regions_priority'] = get_default_team_settings()['main_regions_priority']
     else:
         team_id = None
+        team_type = TeamType.attractor
         team_settings = get_default_team_settings()
     # _team_settings = TeamSettings()
-    return team_id, team_settings
+    return team_id, team_settings, team_type
 
 
 async def create_priorities(
@@ -539,7 +543,7 @@ async def prioritize_waiting_offers(
 
     for team in teams:
 
-        team_id, team_settings = get_team_info(team)
+        team_id, team_settings, team_type = get_team_info(team)
         logger.warning('Приоретизация заданий для команды %s была запущена', team_id)
 
         unactivated_clients_counts = await get_unactivated_clients_counts_by_clients(
@@ -551,6 +555,7 @@ async def prioritize_waiting_offers(
             team_settings=team_settings,
             is_test=is_test,
             team_id=team_id,
+            team_type=team_type,
         )
 
         logger.warning(

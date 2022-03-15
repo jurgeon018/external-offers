@@ -11,6 +11,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
 from sqlalchemy.sql.selectable import CTE
+from external_offers.entities.teams import TeamType
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
@@ -775,6 +776,7 @@ async def get_unactivated_clients_counts_by_clients(
 
 async def get_offer_ids_for_prioritization(
     team_settings: dict,
+    team_type: TeamType,
     is_test: bool,
     fetch_valid_offers: bool,
 ) -> list[str]:
@@ -790,6 +792,10 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().in_(categories),
             parsed_offers.c.source_object_model['region'].as_string().in_(regions),
         ]
+        if team_type == TeamType.attractor:
+            validity_clauses.append(offers_for_call.c.real_phone.is_(None))
+        elif team_type == TeamType.hunter:
+            validity_clauses.append(offers_for_call.c.real_phone.isnot(None))
         if calltracking is not None:
             validity_clauses.append(parsed_offers.c.is_calltracking.is_(calltracking))
         validity_clause = and_(*validity_clauses)
@@ -800,6 +806,10 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().notin_(categories),
             parsed_offers.c.source_object_model['region'].as_string().notin_(regions),
         ]
+        if team_type == TeamType.attractor:
+            validity_clauses.append(offers_for_call.c.real_phone.isnot(None))
+        elif team_type == TeamType.hunter:
+            validity_clauses.append(offers_for_call.c.real_phone.is_(None))
         if calltracking is not None:
             validity_clauses.append(parsed_offers.c.is_calltracking.isnot(calltracking))
         validity_clause = or_(*validity_clauses)
@@ -888,10 +898,12 @@ async def get_waiting_offer_counts_by_clients(
     team_settings: dict,
     is_test: bool,
     team_id: Optional[str] = None,
+    team_type: TeamType,
 ) -> list[ClientWaitingOffersCount]:
 
     valid_offer_ids = await get_offer_ids_for_prioritization(
         team_settings=team_settings,
+        team_type=team_type,
         is_test=is_test,
         fetch_valid_offers=True,
     )
