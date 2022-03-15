@@ -15,11 +15,6 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
-    await pg.execute(
-        """
-        DELETE FROM parsed_offers;
-        """
-    )
     operator_with_client = 60024635
     stub = await users_mock.add_stub(
         method='GET',
@@ -70,11 +65,14 @@ async def test_get_offers_list__operator_with_client_cancelled__returns_no_offer
         http,
         pg,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         admin_external_offers_operator_with_client_cancelled_html,
         users_mock,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
+
     operator_with_client = 60024636
     stub = await users_mock.add_stub(
         method='GET',
@@ -126,9 +124,11 @@ async def test_get_offers__operator_without_client__returns_no_offers_page(
         http,
         admin_external_offers_operator_without_client_html,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     await pg.execute_scripts(offers_and_clients_fixture)
     operator_without_clients = 1
     stub = await users_mock.add_stub(
