@@ -15,10 +15,13 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
+
     expected_client = '224'
     expected_operator_offer = '226'
     operator_id = 60024636
@@ -178,6 +181,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
@@ -190,6 +194,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
     )
 
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     operator_without_offers_in_progress = 60024636
 
     # act
@@ -212,6 +217,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
@@ -223,7 +229,9 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
         ),
     )
 
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     await pg.execute_scripts(offers_and_clients_fixture)
+    
     operator_without_offers_in_progress = 60024636
     expected_operator_client = '3'
     expected_operator_offer = '4'
@@ -270,6 +278,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
@@ -282,6 +291,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
     )
 
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     first_operator_without_offers_in_progress = 60024636
     second_operator_without_offers_in_progress = 60024637
     expected_operator_client = '2'
