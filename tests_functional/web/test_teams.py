@@ -174,9 +174,9 @@ async def test_render_teams(
 ):
     # arrange
     await pg.execute("""
-    INSERT INTO teams (team_id, team_name, lead_id) VALUES
-    ('1', 'team1', '1'),
-    ('2', 'team2', '2');
+    INSERT INTO teams (team_id, team_name, lead_id, team_type) VALUES
+    ('1', 'team1', '1', 'attractor'),
+    ('2', 'team2', '2', 'attractor');
     """)
     await users_mock.add_stub(
         method='GET',
