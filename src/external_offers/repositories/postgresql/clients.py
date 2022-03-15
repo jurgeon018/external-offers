@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import AsyncGenerator, List, Optional
+from typing_extensions import runtime
 
 import asyncpgsa
 import pytz
@@ -12,10 +13,12 @@ from sqlalchemy.sql.functions import coalesce
 from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
+from external_offers.enums.teams import TeamType
 from external_offers.enums.operator_role import OperatorRole
 from external_offers.mappers import client_mapper
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
-from external_offers.repositories.postgresql.tables import clients, offers_for_call
+from external_offers.repositories.postgresql.operators import get_enriched_operator_by_id
+from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.utils.next_call import get_next_call_date_when_draft
 
 
@@ -67,7 +70,45 @@ async def assign_suitable_client_to_operator(
 ) -> str:
 
     now = datetime.now(pytz.utc)
-
+    if not runtime_settings.get('ENABLE_TEAM_TYPES', True):
+        team_type_clauses = []
+        joined_tables = clients.join(
+            offers_for_call,
+            offers_for_call.c.client_id == clients.c.client_id
+        )
+    else:
+        joined_tables = clients.join(
+            offers_for_call.join(parsed_offers, offers_for_call.c.parsed_id == parsed_offers.c.id),
+            offers_for_call.c.client_id == clients.c.client_id
+        )        
+        operator = await get_enriched_operator_by_id(operator_id=operator_id)
+        team_type = TeamType.attractor
+        if operator:
+            team_type = operator.team_type
+        if team_type == TeamType.attractor:
+            team_type_clauses = [
+                or_(
+                    # выдает в работу аттракторам все неколтрекинговые обьявки, или...
+                    parsed_offers.c.is_calltracking.is_(False),
+                    and_(
+                        # ...все колтрекинговые обьявки, которые прошли через этап хантинга,
+                        # (т.е те, у которых уже есть дата хантинга и реальный номер)
+                        parsed_offers.c.is_calltracking.is_(True),
+                        clients.c.real_phone_hunted_at.isnot(None),
+                        clients.c.real_phone.isnot(None),
+                    ),
+                )
+            ]
+        elif team_type == TeamType.hunter:
+            team_type_clauses = [
+                and_(
+                    # выдает в работу хантерам все колтрекинговые обьявки, которые еще не прошли через этап хантинга,
+                    # (т.е те, у которых еще нет даты хантинга и реального номер)
+                    parsed_offers.c.is_calltracking.is_(True),
+                    clients.c.real_phone_hunted_at.is_(None),
+                    clients.c.real_phone.is_(None),
+                )
+            ]
     if runtime_settings.ENABLE_TEAM_PRIORITIES and operator_team_id:
         priority_ordering = (
             nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
@@ -99,10 +140,7 @@ async def assign_suitable_client_to_operator(
                 clients.c.client_id,
             ]
         ).select_from(
-            clients.join(
-                offers_for_call,
-                offers_for_call.c.client_id == clients.c.client_id
-            )
+            joined_tables
         ).with_for_update(
             skip_locked=True
         ).where(
@@ -118,6 +156,7 @@ async def assign_suitable_client_to_operator(
                     clients.c.is_test == is_test,
                     *offer_category_clause,
                     *priority_clause,
+                    *team_type_clauses,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны

@@ -150,10 +150,12 @@ async def test_update_offers_list__with_is_test_true__assigns_test_object_to_ope
 async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
         pg,
         http,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        parsed_offers_fixture,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_fixture)
     operator_with_offers_in_progress = 60024635
 
     # act
@@ -391,6 +393,33 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
             'ddd86dec-20f5-4a70-bb3a-077b2754df77'
         ]
     )
+    await pg.execute(
+        """
+        INSERT INTO public.parsed_offers(
+        id,
+        user_segment,
+        source_object_id,
+        source_user_id,
+        source_object_model,
+        is_calltracking,
+        "timestamp",
+        created_at,
+        updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        """,
+        [
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            'NOT_IMPORTANT',
+            '1_1',
+            '1',
+            '{}',
+            False,
+            now,
+            now,
+            now
+        ]
+    )
+
     await pg.execute(
         """
         INSERT INTO public.clients (

@@ -28,14 +28,24 @@ async def test_get_client_in_progress_by_operator():
     pg.get().fetchrow.assert_called_with(query, operator_id, operator_id, 'inProgress')
 
 
-async def test_assign_suitable_client_to_operator(mocker):
+async def test_assign_suitable_client_to_operator(
+    mocker,
+    fake_settings,    
+):
     # arrange
+    await fake_settings.set(
+        ENABLE_TEAM_TYPES=False
+    )
     operator_id = 1
     default_no_calls = 0
     default_one_more_call = 1
     expected_call_id = '1'
     default_offer_category = ''
     # https://www.joydeepdeb.com/tools/line-break.html
+    mocker.patch(
+        'external_offers.repositories.postgresql.clients.get_enriched_operator_by_id',
+        return_value=future(None),
+    )
     query = (
         'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id '
         'AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = '
@@ -125,14 +135,24 @@ async def test_assign_suitable_client_to_operator(mocker):
     pg.get().fetchval.assert_called_with(query, *args)
 
 
-async def test_assign_suitable_client_to_operator__commercial_operator(mocker):
+async def test_assign_suitable_client_to_operator__commercial_operator(
+    mocker,
+    fake_settings,    
+):
     # arrange
+    await fake_settings.set(
+        ENABLE_TEAM_TYPES=False
+    )
     operator_id = 1
     default_no_calls = 0
     default_one_more_call = 1
     expected_call_id = '1'
     default_offer_category = ''
     # https://www.joydeepdeb.com/tools/line-break.html
+    mocker.patch(
+        'external_offers.repositories.postgresql.clients.get_enriched_operator_by_id',
+        return_value=future(None),
+    )
     query = (
         'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id '
         'AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = '

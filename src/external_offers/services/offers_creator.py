@@ -430,7 +430,7 @@ def get_default_team_settings() -> dict[str, Union[str, int]]:
     }
 
 
-def get_team_info(team: Optional[Team]) -> tuple[int, dict]:
+def get_team_info(team: Optional[Team]) -> tuple[int, dict, str]:
     if team:
         team_id = team.team_id
         team_type = team.team_type
@@ -614,12 +614,13 @@ async def prioritize_waiting_offers(
                 )
 
     for team in teams:
-        team_id, team_settings = get_team_info(team)
+        team_id, team_settings, team_type = get_team_info(team)
         logger.warning('Очистка заданий для команды %s была запущена', team_id)
         cleared_offer_ids = await clear_invalid_waiting_offers_by_offer_ids(
             team_id=team_id,
             is_test=is_test,
             team_settings=team_settings,
+            team_type=team_type,
         )
         logger.warning(
             'Количество заданий в ожидании для очистки для команды %s: %s ',
