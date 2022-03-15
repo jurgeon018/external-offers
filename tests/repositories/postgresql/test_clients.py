@@ -30,7 +30,7 @@ async def test_get_client_in_progress_by_operator():
 
 async def test_assign_suitable_client_to_operator(
     mocker,
-    fake_settings,    
+    fake_settings,
 ):
     # arrange
     await fake_settings.set(
@@ -137,7 +137,7 @@ async def test_assign_suitable_client_to_operator(
 
 async def test_assign_suitable_client_to_operator__commercial_operator(
     mocker,
-    fake_settings,    
+    fake_settings,
 ):
     # arrange
     await fake_settings.set(

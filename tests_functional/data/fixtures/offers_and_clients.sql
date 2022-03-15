@@ -342,10 +342,6 @@ INSERT INTO public.offers_for_call(
     NULL
 );
 
-
-
-
-
 INSERT INTO public.parsed_offers (
     id,
     user_segment,

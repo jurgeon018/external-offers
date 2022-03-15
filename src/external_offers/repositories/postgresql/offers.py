@@ -11,12 +11,12 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
 from sqlalchemy.sql.selectable import CTE
-from external_offers.entities.teams import TeamType
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
 from external_offers.entities.clients import ClientDraftOffersCount
 from external_offers.entities.offers import OfferForPrioritization
+from external_offers.entities.teams import TeamType
 from external_offers.enums import OfferStatus
 from external_offers.mappers import (
     client_draft_offers_count_mapper,

@@ -15,6 +15,11 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute(
+        """
+        DELETE FROM parsed_offers;
+        """
+    )
     operator_with_client = 60024635
     stub = await users_mock.add_stub(
         method='GET',

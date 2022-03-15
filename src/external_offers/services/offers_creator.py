@@ -16,11 +16,9 @@ from external_offers.entities import Offer
 from external_offers.entities.client_account_statuses import ClientAccountStatus, HomeownerAccount, SmbAccount
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
 from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
-from external_offers.entities.teams import Team
+from external_offers.entities.teams import Team, TeamType
 from external_offers.enums import UserSegment
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
-from external_offers.entities.teams import TeamType
-
 from external_offers.helpers.uuid import generate_guid
 from external_offers.repositories.postgresql import (
     delete_old_waiting_offers_for_call,

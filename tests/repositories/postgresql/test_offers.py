@@ -2,6 +2,7 @@ import pytest
 from cian_test_utils import future
 
 from external_offers import pg
+from external_offers.enums.teams import TeamType
 from external_offers.repositories import postgresql
 from external_offers.repositories.postgresql.offers import get_offer_ids_for_prioritization
 
@@ -164,6 +165,7 @@ async def test_get_offer_ids_for_prioritization(fetch_valid):
         team_settings=team_settings,
         is_test=True,
         fetch_valid_offers=fetch_valid,
+        team_type=TeamType.attractor,
     )
     # assert
     pg.get().fetch.assert_called()

@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import AsyncGenerator, List, Optional
-from typing_extensions import runtime
 
 import asyncpgsa
 import pytz
@@ -9,12 +8,13 @@ from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, updat
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
+from typing_extensions import runtime
 
 from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
-from external_offers.enums.teams import TeamType
 from external_offers.enums.operator_role import OperatorRole
+from external_offers.enums.teams import TeamType
 from external_offers.mappers import client_mapper
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
 from external_offers.repositories.postgresql.operators import get_enriched_operator_by_id
