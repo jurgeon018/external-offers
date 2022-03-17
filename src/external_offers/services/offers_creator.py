@@ -570,7 +570,7 @@ async def prioritize_waiting_offers(
             create_priorities(
                 waiting_clients_counts=waiting_clients_counts,
                 unactivated_clients_counts=unactivated_clients_counts,
-                team_settings=team_settings,
+                team_settings=team_info.team_settings,
                 team_id=team_id,
                 client_account_statuses=client_account_statuses,
             )
