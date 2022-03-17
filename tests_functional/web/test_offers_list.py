@@ -231,7 +231,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
 
     await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     await pg.execute_scripts(offers_and_clients_fixture)
-    
+
     operator_without_offers_in_progress = 60024636
     expected_operator_client = '3'
     expected_operator_offer = '4'

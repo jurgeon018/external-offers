@@ -16,7 +16,7 @@ from external_offers.entities import Offer
 from external_offers.entities.client_account_statuses import ClientAccountStatus, HomeownerAccount, SmbAccount
 from external_offers.entities.clients import Client, ClientDraftOffersCount, ClientStatus, ClientWaitingOffersCount
 from external_offers.entities.parsed_offers import ParsedOfferForAccountPrioritization
-from external_offers.entities.teams import Team, TeamType
+from external_offers.entities.teams import Team, TeamInfo, TeamType
 from external_offers.enums import UserSegment
 from external_offers.helpers.phonenumber import transform_phone_number_to_canonical_format
 from external_offers.helpers.uuid import generate_guid
@@ -428,7 +428,7 @@ def get_default_team_settings() -> dict[str, Union[str, int]]:
     }
 
 
-def get_team_info(team: Optional[Team]) -> tuple[int, dict, str]:
+def get_team_info(team: Optional[Team]) -> TeamInfo:
     if team:
         team_id = team.team_id
         team_type = team.team_type
@@ -440,7 +440,11 @@ def get_team_info(team: Optional[Team]) -> tuple[int, dict, str]:
         team_type = TeamType.attractor
         team_settings = get_default_team_settings()
     # _team_settings = TeamSettings()
-    return team_id, team_settings, team_type
+    return TeamInfo(
+        team_id=team_id,
+        team_settings=team_settings,
+        team_type=team_type,
+    )
 
 
 async def create_priorities(
@@ -541,7 +545,8 @@ async def prioritize_waiting_offers(
 
     for team in teams:
 
-        team_id, team_settings, team_type = get_team_info(team)
+        team_info = get_team_info(team)
+        team_id = team_id.team_info
         logger.warning('Приоретизация заданий для команды %s была запущена', team_id)
 
         unactivated_clients_counts = await get_unactivated_clients_counts_by_clients(
@@ -550,10 +555,10 @@ async def prioritize_waiting_offers(
         logger.warning('Количество добивочных заданий для приоретизации: %s', len(unactivated_clients_counts))
 
         waiting_clients_counts = await get_waiting_offer_counts_by_clients(
-            team_settings=team_settings,
+            team_settings=team_info.team_settings,
             is_test=is_test,
             team_id=team_id,
-            team_type=team_type,
+            team_type=team_info.team_type,
         )
 
         logger.warning(
@@ -612,13 +617,13 @@ async def prioritize_waiting_offers(
                 )
 
     for team in teams:
-        team_id, team_settings, team_type = get_team_info(team)
+        team_info = get_team_info(team)
         logger.warning('Очистка заданий для команды %s была запущена', team_id)
         cleared_offer_ids = await clear_invalid_waiting_offers_by_offer_ids(
-            team_id=team_id,
+            team_id=team_info.team_id,
             is_test=is_test,
-            team_settings=team_settings,
-            team_type=team_type,
+            team_settings=team_info.team_settings,
+            team_type=team_info.team_type,
         )
         logger.warning(
             'Количество заданий в ожидании для очистки для команды %s: %s ',

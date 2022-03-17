@@ -99,16 +99,16 @@ async def test_get_team_info(mocker):
         }
     )
     # act
-    team_id, team_settings, team_type = get_team_info(Team(
+    team_info = get_team_info(Team(
         team_id=1,
         lead_id=1,
         team_name='team 1',
         settings='{}'
     ))
     # assert
-    assert team_id == 1
-    assert team_settings['main_regions_priority'] == {'1': 1, '2': 2}
-    assert team_type == 'attractor'
+    assert team_info.team_id == 1
+    assert team_info.team_settings['main_regions_priority'] == {'1': 1, '2': 2}
+    assert team_info.team_type == 'attractor'
 
 
 async def test_create_client_account_statuses__phones_are_cached_phonens(

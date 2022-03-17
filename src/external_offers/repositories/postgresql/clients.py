@@ -8,7 +8,6 @@ from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, updat
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
-from typing_extensions import runtime
 
 from external_offers import pg
 from external_offers.entities import Client
@@ -80,7 +79,7 @@ async def assign_suitable_client_to_operator(
         joined_tables = clients.join(
             offers_for_call.join(parsed_offers, offers_for_call.c.parsed_id == parsed_offers.c.id),
             offers_for_call.c.client_id == clients.c.client_id
-        )        
+        )
         operator = await get_enriched_operator_by_id(operator_id=operator_id)
         team_type = TeamType.attractor
         if operator:

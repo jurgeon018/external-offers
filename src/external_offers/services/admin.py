@@ -407,11 +407,11 @@ async def set_call_missed_status_for_client(
         team = None
         if operator:
             team = await get_team_by_id(operator.team_id)
-        team_id, team_settings, _ = get_team_info(team)
+        team_info = get_team_info(team)
         if offers_ids := await set_offers_call_missed_by_client(
             client_id=client_id,
-            call_missed_priority=team_settings['call_missed_priority'],
-            team_id=team_id,
+            call_missed_priority=team_info.team_settings['call_missed_priority'],
+            team_id=team_info.team_id,
         ):
             offer = await get_offer_by_offer_id(offer_id=offers_ids[0])
             await save_event_log_for_offers(
@@ -459,11 +459,11 @@ async def set_call_later_status_for_client(
         team = None
         if operator:
             team = await get_team_by_id(operator.team_id)
-        team_id, team_settings, _ = get_team_info(team)
+        team_info = get_team_info(team)
         if offers_ids := await set_offers_call_later_by_client(
             client_id=client_id,
-            team_settings=team_settings,
-            team_id=team_id,
+            team_settings=team_info.team_settings,
+            team_id=team_info.team_id,
         ):
             offer = await get_offer_by_offer_id(offer_id=offers_ids[0])
             client = await get_client_by_client_id(client_id=request.client_id)

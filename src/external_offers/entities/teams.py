@@ -233,3 +233,13 @@ class UpdateTeamRequest(
 class DeleteTeamRequest:
     team_id: int
     """ID команды которую нужно удалить"""
+
+
+@dataclass
+class TeamInfo:
+    team_id: str
+    """Идентификатор команды"""
+    team_settings: dict
+    """Настройки команды"""
+    team_type: TeamType
+    """Тип команды"""

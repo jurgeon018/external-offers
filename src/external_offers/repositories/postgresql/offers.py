@@ -792,10 +792,6 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().in_(categories),
             parsed_offers.c.source_object_model['region'].as_string().in_(regions),
         ]
-        # if team_type == TeamType.attractor:
-        #     validity_clauses.append(clients.c.real_phone.is_(None))
-        # elif team_type == TeamType.hunter:
-        #     validity_clauses.append(clients.c.real_phone.isnot(None))
         if calltracking is not None:
             validity_clauses.append(parsed_offers.c.is_calltracking.is_(calltracking))
         validity_clause = and_(*validity_clauses)
@@ -806,10 +802,6 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().notin_(categories),
             parsed_offers.c.source_object_model['region'].as_string().notin_(regions),
         ]
-        # if team_type == TeamType.attractor:
-        #     validity_clauses.append(clients.c.real_phone.isnot(None))
-        # elif team_type == TeamType.hunter:
-        #     validity_clauses.append(clients.c.real_phone.is_(None))
         if calltracking is not None:
             validity_clauses.append(parsed_offers.c.is_calltracking.isnot(calltracking))
         validity_clause = or_(*validity_clauses)
