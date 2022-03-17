@@ -546,7 +546,7 @@ async def prioritize_waiting_offers(
     for team in teams:
 
         team_info = get_team_info(team)
-        team_id = team_id.team_info
+        team_id = team_info.team_id
         logger.warning('Приоретизация заданий для команды %s была запущена', team_id)
 
         unactivated_clients_counts = await get_unactivated_clients_counts_by_clients(
