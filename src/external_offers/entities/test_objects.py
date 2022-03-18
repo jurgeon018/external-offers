@@ -134,6 +134,7 @@ class CreateTestOfferRequest:
     """Идентификатор объявления на Циане"""
     offer_priority: Optional[int] = None
     """Приоритет задачи"""
+    offer_team_priorities: Optional[str] = None
     # source_object_model - Данные об объявлении
     phone: Optional[str] = None
     """Телефон"""
