@@ -2,6 +2,7 @@
     "TEST_OFFER_REQUEST": {
         "offerCianId": 12321,
         "offerPriority": 1,
+        "offerTeamPriorities": "{\"1\": 1000, \"2\": 3022}",
         "parsedId": "ad49365b-caa3-4d8a-be58-02360ad338d5",
         "isCalltracking": false,
         "userSegment": "c",
