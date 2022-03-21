@@ -1,4 +1,4 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 
 
 def datetoday(date):
@@ -9,7 +9,12 @@ def time(date):
     return date.strftime('%H:%M')
 
 
+def seconds_to_time(seconds):
+    return str(timedelta(seconds=seconds))
+
+
 custom_filters = {
     'date': datetoday,
-    'time': time
+    'time': time,
+    'seconds_to_time': seconds_to_time,
 }

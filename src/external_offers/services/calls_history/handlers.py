@@ -1,4 +1,4 @@
-from external_offers.repositories.postgresql.operators import get_operators_by_team_id
+from external_offers.repositories.postgresql.operators import get_enriched_operators
 from external_offers.services.calls_history.helpers import Paginator
 from external_offers.services.calls_history.mappers import calls_history_mapper
 from external_offers.services.calls_history.search import CallsHistorySearch
@@ -19,10 +19,10 @@ class AdminCallsHistoryPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id,
         )
-        if current_operator.team_id:
-            operators = await get_operators_by_team_id(current_operator.team_id)
+        if current_operator.is_teamlead:
+            operators = await get_enriched_operators()
         else:
-            operators = [current_operator]
+            operators = []
         search = CallsHistorySearch.from_search_params(self._get_search_params(), self.realty_user_id)
         calls_response = await search.execute()
         paginator = Paginator(
