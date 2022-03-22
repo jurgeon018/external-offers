@@ -90,5 +90,7 @@ class EnrichedOffer:
     """Адрес объявления с Авито"""
     title: Optional[str] = None
     """Название объявления с Авито"""
+    town: Optional[str] = None
+    """Город объявления"""
     publication_status: Optional[PublicationStatus] = None
     """Статус объявления"""

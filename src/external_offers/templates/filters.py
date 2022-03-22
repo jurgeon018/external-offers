@@ -10,7 +10,7 @@ def time(date):
 
 
 def seconds_to_time(seconds):
-    return str(timedelta(seconds=seconds))
+    return str(timedelta(seconds=int(seconds)))
 
 
 custom_filters = {
