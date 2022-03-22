@@ -19,10 +19,7 @@ class AdminCallsHistoryPageHandler(PublicHandler):
         current_operator = await get_or_create_operator(
             operator_id=self.realty_user_id,
         )
-        if current_operator.is_teamlead:
-            operators = await get_enriched_operators()
-        else:
-            operators = []
+        operators = await get_enriched_operators()
         search = CallsHistorySearch.from_search_params(self._get_search_params(), self.realty_user_id)
         calls_response = await search.execute()
         paginator = Paginator(
