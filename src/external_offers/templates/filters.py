@@ -15,10 +15,9 @@ def seconds_to_time(seconds: str) -> str:
     if isinstance(seconds, bool):
         return 'NaN'
     try:
-        seconds = str(float(seconds))
+        return str(timedelta(seconds=int(float(seconds))))
     except ValueError:
         return 'NaN'
-    return str(timedelta(seconds=int(seconds)))
 
 
 custom_filters = {
