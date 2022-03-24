@@ -479,6 +479,19 @@
                               id="getComment">{% if offer_comment %}{{offer_comment}}{% endif %}</textarea>
             <button id="updateofferCommentBtn" style="float: left" type="button" class="btn">Обновить коментарий</button>
             </div>
+
+            <div class="offerCommentTitle">
+                <span class="">Коментарий к карточке клиента</span>
+            </div>
+            <div class="clientCommentTitleInput">
+                    <textarea class="input-control"
+                              placeholder="Коментарий к карточке клиента"
+                              id="getComment">{% if client_comment %}{{client_comment}}{% endif %}</textarea>
+            <button id="updateclientCommentBtn" style="float: left" type="button" class="btn">Обновить коментарий</button>
+            </div>
+
+                        
+
         </div>
             {% if not exist_drafts %}
                 <div class="clientForm">
