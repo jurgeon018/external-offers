@@ -335,6 +335,10 @@
             formatPhone();
         });
          let DEBUG = 'True' === 'True'
+         $("#voxCallStatus").change(function(){
+            var action = $("#*voxCallStatus*").attr('value');
+            console.log(action); 
+          });
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -512,6 +516,19 @@
 
          
          document.getElementById("declineClientButton1").onclick = async function () {
+           // отказ
+           let call_status = $("#voxCallStatus").attr('value');
+           if(call_status != 'end'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = 'None';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '1'
            }
@@ -529,6 +546,19 @@
          };
 
          document.getElementById("callMissedClientButton1").onclick = async function () {
+           // недозвон
+           let call_status = $("#voxCallStatus").attr('value');
+           if(call_status != 'end'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = 'None';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '1'
            }
@@ -546,6 +576,19 @@
          };
 
          document.getElementById("promoGivenClientButton").onclick = async function () {
+           // выдан промокод
+           let call_status = $("#voxCallStatus").attr('value');
+           if(call_status != 'end'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = 'None';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '1'
            }
@@ -563,6 +606,19 @@
          };
 
          document.getElementById("phoneUnavailableClientButton").onclick = async function () {
+           // телефон недоступен
+           let call_status = $("#voxCallStatus").attr('value');
+           if(call_status != 'end'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = 'None';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '1'
            }
@@ -644,6 +700,19 @@
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
          document.getElementById("callInterruptedClientButton").onclick = async function () {
+           // трубку бросили
+           let call_status = $("#voxCallStatus").attr('value');
+           if(call_status != 'end'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = 'None';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '1'
            }
@@ -661,6 +730,20 @@
          };
 
          document.getElementById("callLaterClientButton1").onclick = async function () {
+           // перезвон
+           let call_status = $("#voxCallStatus").attr('value');
+           if(call_status != 'end'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = 'None';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+
            call_later_datetime = document.getElementById("call-later-datetime").value
            if (call_later_datetime === '') {
               alert('Не заполнена дата следующего звонка')

@@ -335,6 +335,10 @@
             formatPhone();
         });
          let DEBUG = 'True' === 'True'
+         $("#voxCallStatus").change(function(){
+            var action = $("#*voxCallStatus*").attr('value');
+            console.log(action); 
+          });
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
