@@ -98,12 +98,16 @@
                 <div class="col-sm-4">
                     <input name="time_from"
                            value="{% if filter_data.time_from  %}{{ filter_data.time_from.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
-                           type="datetime-local" class="form-control input-sm" id="dateFrom">
+                           type="datetime-local" class="form-control input-sm" id="dateFrom"
+                           placeholder="от(2022-01-01T00:00)"
+                    >                           
                 </div>
                 <div class="col-sm-4">
                     <input name="time_to"
                            value="{% if filter_data.time_to  %}{{ filter_data.time_to.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
-                           type="datetime-local" class="form-control input-sm" id="dateTo">
+                           type="datetime-local" class="form-control input-sm" id="dateTo"
+                           placeholder="до(2022-01-28T23:00)"
+                    >                           
                 </div>
             </div>
             <div class="form-group">
@@ -111,15 +115,19 @@
                 <div class="col-sm-4">
                     <input name="duration_min"
                            value="{{ filter_data.duration_min }}"
-                           type="number" class="form-control input-sm" id="durationMin">
+                           type="number" class="form-control input-sm" id="durationMin"
+                           placeholder="от(в секундах)"
+                    >                           
                 </div>
                 <div class="col-sm-4">
                     <input name="duration_max"
                            value="{{ filter_data.duration_max }}"
-                           type="number" class="form-control input-sm" id="durationMax">
+                           type="number" class="form-control input-sm" id="durationMax"
+                           placeholder="до(в секундах)"
+                    >                           
                 </div>
             </div>
-            {% if current_operator.is_teamlead or debug %}
+            {% if current_operator.is_teamlead and operators %}
             <div class="form-group">
                 <label for="operatorId" class="col-sm-4 col-form-label">Оператор</label>
                 <div class="col-sm-8">
@@ -159,6 +167,10 @@
             </nav>
             <table class="table table-striped text-center">
                 <tr>
+                    <th class="text-center">ID звонка</th>
+                    <th class="text-center">ID оператора</th>
+                    {# TODO: https://jira.cian.tech/browse/CD-134654 #}
+                    {# <th class="text-center">Статус</th> #}
                     <th class="text-center">Время</th>
                     <th class="text-center">С какого телефона</th>
                     <th class="text-center">На какой телефон</th>
@@ -167,10 +179,14 @@
                 </tr>
                 {% for call in calls %}
                     <tr>
+                        <td>{{ call.call_id }}</td>
+                        <td>{{ call.operator_id }}</td>
+                        {# TODO: https://jira.cian.tech/browse/CD-134654 #}
+                        {# <td>{{ call.status }}</td> #}
                         <td>{{ call.created_time.strftime('%d.%m.%Y %H:%M') }}</td>
                         <td>{{ call.phone_from }}</td>
                         <td>{{ call.phone_to }}</td>
-                        <td>{{ call.duration }}</td>
+                        <td>{{ call.duration|seconds_to_time }}({{ call.duration }})</td>
                         <td>
                             <audio
                                     controls
