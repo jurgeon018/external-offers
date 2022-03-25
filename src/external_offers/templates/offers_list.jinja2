@@ -331,7 +331,7 @@
                      <br><br>
                                         
                      Дата добычи номера телефона: <br>
-                     <input type="datetime-local" id="realPhoneDtInput" placeholder="Введите дату добычи реального номера телефона" value={% if client.real_phone%}{{ client.real_phone_hunted_at }}{% else %}{{now}}{% endif %} size=30>
+                     <input type="datetime-local" id="realPhoneDtInput" placeholder="Введите дату добычи реального номера телефона" value={% if client.real_phone%}{{ client.real_phone_hunted_at }}{% else %}{{default_real_phone_hunted_at}}{% endif %} size=30>
                      <br><br>
                      <button id="realPhoneButton" class="realPhoneButton">
                          Сохранить
@@ -399,7 +399,9 @@
             document.getElementById('CallToPhone').value = '{{client_phone}}';
             formatPhone();
         });
-         let DEBUG = 'True' === '{{ debug }}'
+         let DEBUG = 'True' === '{{ debug }}';
+         let operator_is_hunter = '{{current_operator.team_type.value}}' == 'hunter';
+
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -431,6 +433,10 @@
             }
          }
          async function onClickOfferRowDelete(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на удаление обьявления')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id
@@ -447,6 +453,10 @@
            }
          }
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на выдачу статуса "Есть на циан"')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id
@@ -611,6 +621,10 @@
          };
 
          document.getElementById("promoGivenClientButton").onclick = async function () {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на выдачу промокода')
+             return
+           }
            let obj =  {
                'clientId': '{{ client.client_id }}'
            }
