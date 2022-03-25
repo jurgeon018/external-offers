@@ -1225,7 +1225,7 @@
         updateofferCommentBtn.click(function() {
             let obj = {
                 'comment': getComment.val(),
-                'clientId': '{{client.client_id}}',
+                'offerId': '{{offer_id}}',
             }
             $.post("/api/admin/v1/update-offer-comment/", DEBUG ? JSON.stringify(obj) : obj
             ).then(function (data) {
