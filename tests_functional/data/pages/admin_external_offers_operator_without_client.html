@@ -357,7 +357,9 @@
             document.getElementById('CallToPhone').value = '';
             formatPhone();
         });
-         let DEBUG = 'True' === 'True'
+         let DEBUG = 'True' === 'True';
+         let operator_is_hunter = '' == 'hunter';
+
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -389,6 +391,10 @@
             }
          }
          async function onClickOfferRowDelete(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на удаление обьявления')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id
@@ -405,6 +411,10 @@
            }
          }
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на выдачу статуса "Есть на циан"')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id
