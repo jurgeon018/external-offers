@@ -647,6 +647,7 @@
            });
            resp = await response.json()
            document.getElementById("commentClientMessages").innerHTML = resp.message
+           location.reload();
          };
 
          $( document ).ready(function() {
