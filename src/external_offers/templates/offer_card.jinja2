@@ -501,6 +501,7 @@
                         <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
                     </div>
                     {% elif current_operator.team_type.value == 'hunter' %}
+                    <br>
                     <div class="text-info">У хантеров нет прав на изменение номера</div>
                     {% endif %}
                     <div id="accountCheckboxesBlock" >
@@ -582,7 +583,9 @@
         </div>
         {% endif %}
     {% elif current_operator.team_type.value == 'hunter' %}
-        <div class="text-info">У хантеров нет прав на сохранение обьявления</div>
+        <div class="footer-block">
+            <div class="text-info">У хантеров нет прав на сохранение обьявления</div>
+        </div>
     {% endif %}
 </div>  
 
