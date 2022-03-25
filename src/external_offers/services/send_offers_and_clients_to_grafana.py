@@ -34,10 +34,10 @@ async def send_waiting_offers_and_clients_amount_to_grafana() -> None:
     waiting_offers_count = await get_unsynced_waiting_objects_count('offers_for_call')
 
     # отправка метрик в графану
-    statsd.incr(GrafanaMetric.waiting_clients_count.value, count=waiting_clients_count)
+    statsd.incr(GrafanaMetric.waiting_clients_count.value, count=waiting_clients_count or 0)
     await send_segments_count_to_grafana(GrafanaMetric.waiting_clients_count)
 
-    statsd.incr(GrafanaMetric.waiting_offers_count.value, count=waiting_offers_count)
+    statsd.incr(GrafanaMetric.waiting_offers_count.value, count=waiting_offers_count or 0)
     await send_segments_count_to_grafana(GrafanaMetric.waiting_offers_count)
 
     # синхронизация клиентов с заданий с графаной(проставляем synced_with_grafana = TRUE)

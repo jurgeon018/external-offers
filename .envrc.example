@@ -1,4 +1,4 @@
-layout python python3.9
+layout python python3.10
 
 export PIP_INDEX_URL="https://nexus.cian.tech/repository/cian/simple/"
 
