@@ -261,6 +261,7 @@ async def test_create_offer_from_request_parameters(
     assert offers_for_call['parsed_id'] == parsed_offer['id']
     assert offers_for_call['category'] == TEST_OFFER_REQUEST['category']
     assert offers_for_call['offer_cian_id'] == TEST_OFFER_REQUEST['offerCianId']
+    assert offers_for_call['team_priorities'] == TEST_OFFER_REQUEST['offerTeamPriorities']
     assert offers_for_call['priority'] == TEST_OFFER_REQUEST['offerPriority']
 
     assert parsed_offer['source_object_id'] == source_object_id

@@ -96,7 +96,8 @@ async def get_enriched_offers_in_progress_by_operator(
         SELECT
             ofc.*,
             po.source_object_model->>'title' as title,
-            po.source_object_model->>'address' as address
+            po.source_object_model->>'address' as address,
+            po.source_object_model->>'town' as town
         FROM
             offers_for_call as ofc
         INNER JOIN
