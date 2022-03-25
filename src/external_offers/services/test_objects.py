@@ -337,9 +337,13 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
         offer_status = OfferStatus.in_progress
     else:
         offer_status = OfferStatus.waiting
+    team_priorities = get_attr(obj, 'offer_team_priorities')
+    if team_priorities:
+        team_priorities = json.loads(team_priorities)
     offer = Offer(
         # dynamic params from request
         priority=get_attr(obj, 'offer_priority'),
+        team_priorities=team_priorities,
         offer_cian_id=get_attr(obj, 'offer_cian_id'),
         # static params
         is_test=True,

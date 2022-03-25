@@ -279,6 +279,7 @@ EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS: bool = False
 DEFAULT_TEST_OFFER = """{
     "offer_cian_id": null,
     "offer_priority": 1,
+    "offer_team_priorities": null,
     "parsed_id": "ad49365b-caa3-4d8a-be58-02360ad338d5",
     "is_calltracking": false,
     "user_segment": "c",
