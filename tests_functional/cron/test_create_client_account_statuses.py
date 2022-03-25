@@ -51,6 +51,7 @@ async def test_create_client_account_statuses__statuses_are_created(
 ):
     # arrange
     await runtime_settings.set({
+        'EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS': True,
         # настройки для кеширования статусов аккаунтов
         'CLIENT_ACCOUNT_STATUSES_UPDATE_CHECK_WINDOW_IN_DAYS': 5,
         'ENABLE_CLIENT_ACCOUNT_STATUSES_CASHING': True,
