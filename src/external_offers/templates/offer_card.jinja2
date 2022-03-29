@@ -957,7 +957,7 @@
         $("#voxCallStatus").change(function(){ var action = $("#voxCallStatus").attr('value'); console.log(action); } );
         const saveOffer = () => {
             let call_status = $("#voxCallStatus").attr('value');
-            if(call_status != 'end'){
+            if(call_status == 'start'){
                 if (!confirm('Напоминание: Сохранение обьявления прервет текущий звонок. Вы действительно хотите продолжить?')) {
                     return
                 }
