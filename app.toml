@@ -2,7 +2,7 @@ name = "external-offers"
 team = "b2b-core"
 [runtime]
 name = "python"
-version = "3.9"
+version = "3.10"
 features.preset = "v2"
 
 [[dependency]]
