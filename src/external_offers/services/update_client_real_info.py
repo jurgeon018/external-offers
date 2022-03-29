@@ -1,5 +1,5 @@
 from external_offers.entities import BasicResponse
-from external_offers.entities.update_client_real_phone import UpdateClientRealInfoRequest
+from external_offers.entities.update_client_real_info import UpdateClientRealInfoRequest
 from external_offers.repositories.postgresql.clients import get_client_by_client_id, set_real_info_by_client_id
 
 

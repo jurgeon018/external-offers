@@ -5,6 +5,7 @@ from typing import AsyncGenerator, Optional, Union
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
+from external_offers.enums.client_status import ClientStatus
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
@@ -1185,3 +1186,21 @@ async def get_offer_comment_by_offer_id(offer_id: str) -> Optional[str]:
     )
     comment = await pg.get().fetchval(query, *params)
     return comment
+
+
+async def return_offers_to_waiting_by_client_id(
+    *,
+    client_id: int,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).set(
+            status=ClientStatus.waiting.value,
+            operator_user_id=None,
+            calls_count=0,
+        ).where(
+            clients.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)

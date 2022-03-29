@@ -15,9 +15,11 @@ from external_offers.entities.admin import (
     AdminPromoGivenClientRequest,
     AdminResponse,
     AdminUpdateOffersListRequest,
+    ReturnClientToWaitingRequest,
 )
 from external_offers.entities.clients import Client
 from external_offers.entities.offers import Offer
+from external_offers.entities.response import BasicResponse
 from external_offers.enums import CallStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid
 from external_offers.queue.helpers import send_kafka_calls_analytics_message_if_not_test
@@ -47,7 +49,8 @@ from external_offers.repositories.postgresql import (
     set_offers_phone_unavailable_by_client,
     set_offers_promo_given_by_client,
 )
-from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id
+from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id, return_client_to_waiting_by_client_id
+from external_offers.repositories.postgresql.offers import return_offers_to_waiting_by_client_id
 from external_offers.repositories.postgresql.operators import get_operator_by_id, get_operator_team_id
 from external_offers.repositories.postgresql.teams import get_team_by_id
 from external_offers.services.offers_creator import get_team_info
@@ -512,3 +515,13 @@ async def set_client_to_status_and_send_kafka_message(
                 offer=offer,
                 status=non_draft_status,
             )
+
+
+async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest) -> BasicResponse:
+    async with pg.get().transaction():
+        await return_client_to_waiting_by_client_id(client_id=request.client_id)
+        await return_offers_to_waiting_by_client_id(client_id=request.client_id)
+    return BasicResponse(
+        success=True,
+        message='Клиент был успешно возвращен в очередь на прозвон.',
+    )

@@ -716,7 +716,24 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
-         
+         document.getElementById("clientHuntedButton").onclick = async function() {
+             let obj =  {
+                 'clientId': '{{ client.client_id }}',
+             };
+             const response = await fetch("/api/admin/v1/return-client-to-waiting/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             if(resp.success === true){
+              alert(resp.message);
+              location.reload();
+             }else if(resp.success === false){
+              alert(resp.message)
+             }else{
+               alsert("Не удалось отправить задание обратно в очередь")
+             }
+         }         
          document.getElementById("realPhoneButton").onclick = async function () {
              real_phone = document.getElementById('realPhoneInput').value;
              real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;

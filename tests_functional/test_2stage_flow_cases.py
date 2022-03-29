@@ -1,7 +1,7 @@
 import json
 
 
-async def test_update_offer_comment__valid_parameters__comment_is_changed(
+async def test_update_client_real_info__valid_parameters__real_info_is_changed(
     http,
     pg,
     offers_and_clients_fixture,

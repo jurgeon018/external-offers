@@ -11,6 +11,7 @@ from sqlalchemy.sql.functions import coalesce
 
 from external_offers import pg
 from external_offers.entities import Client
+from external_offers.entities.offers import Offer
 from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.enums.operator_role import OperatorRole
 from external_offers.enums.teams import TeamType
@@ -772,3 +773,19 @@ async def iterate_over_clients_sorted(
     )
     async for row in cursor:
         yield client_mapper.map_from(row)
+
+
+async def return_client_to_waiting_by_client_id(
+    *,
+    client_id: int,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            offers_for_call
+        ).set(
+            status=OfferStatus.waiting.value
+        ).where(
+            offers_for_call.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)

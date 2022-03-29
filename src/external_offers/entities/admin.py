@@ -77,3 +77,9 @@ class AdminCallLaterClientRequest:
     """ID клиента"""
     call_later_datetime: datetime
     """Дата и время следующего звонка"""
+
+
+@dataclass
+class ReturnClientToWaitingRequest:
+    client_id: str
+    """ID клиента"""
