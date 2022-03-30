@@ -250,7 +250,7 @@
                <div class="phone-unavailable-client-messages" id="phoneUnavailableClientMessages"></div>
             </div>
             <div class="promo-given-client-block">
-               <button {% if '{{current_operator.team_type.value}}' == 'hunter' %}disabled{% endif %}
+               <button {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                 class="promo-given-client-button" id="promoGivenClientButton"
                >
                 Выдан промокод
@@ -370,7 +370,7 @@
                <div class="offercolumn offer-column-status">{{ offer.status.value }}</div>
                <div class=offercolumn>
                   <button 
-                    {% if '{{current_operator.team_type.value}}' == 'hunter' %}disabled{% endif %}
+                    {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     style="display:inline" onclick="onClickOfferRowDelete('{{ offer.id }}', '{{ client.client_id }}')"
                   >
                     Удалить
@@ -378,7 +378,7 @@
                </div>
                <div class=offercolumn>
                   <button 
-                    {% if '{{current_operator.team_type.value}}' == 'hunter' %}disabled{% endif %}
+                    {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     style="display:inline" onclick="onClickOfferRowAlreadyPublished('{{ offer.id }}', '{{ client.client_id }}')"
                   >
                       Есть на Циан
