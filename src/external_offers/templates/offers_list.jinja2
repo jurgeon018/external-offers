@@ -378,7 +378,7 @@
              localStorage.setItem('voxCallStatus', action);
              console.log('voxCallStatus has been saved to localStorage. Value is' + localStorage.getItem('voxCallStatus'));
              console.log()
-         });          
+         });
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -758,8 +758,7 @@
                }
            }
            let client_comment = '{{client.comment}}';
-           if(!client_comment
-           || client_comment == 'None'){
+           if(!client_comment || client_comment == 'None'){
                if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
                    return
                }
