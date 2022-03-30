@@ -13,7 +13,7 @@ async def _create_topic(kafka_service: KafkaService, kafka_addr: str, topic: str
     client.create_topics([NewTopic(topic=topic, num_partitions=1)])
 
     while True:
-        topics = await kafka_service._producer.list_topics(timeout=1)
+        topics = kafka_service._admin_client.list_topics()
         if topic in topics:
             break
         await asyncio.sleep(0.5)
