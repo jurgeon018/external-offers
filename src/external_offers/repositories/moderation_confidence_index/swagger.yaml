@@ -10,6 +10,12 @@ definitions:
         description: Фильтр по длительности "от"
         format: int32
         type: integer
+      isConnected:
+        description: Статус соединение устанолвено
+        type: boolean
+      isIncoming:
+        description: Признак, что это входящий вызов
+        type: boolean
       operatorId:
         description: Идентификатор оператора
         format: int64
@@ -164,8 +170,7 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/WebApi.Model.CallComponent.GetOperatorCallsResponseModel'
-      summary: "Возвращает звонки оператора\r\nTODO: покрыть функ. тестами S07-2022,\
-        \ задача: CD-131273"
+      summary: Возвращает звонки оператора
       tags:
       - CallComponent
   /api/call-component/v1/operator-calls/create-csv-report:
