@@ -517,7 +517,7 @@ async def set_client_to_status_and_send_kafka_message(
             )
 
 
-async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest) -> BasicResponse:
+async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest, user_id: int) -> BasicResponse:
     async with pg.get().transaction():
         await return_client_to_waiting_by_client_id(client_id=request.client_id)
         await return_offers_to_waiting_by_client_id(client_id=request.client_id)
