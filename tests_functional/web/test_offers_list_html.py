@@ -5,6 +5,7 @@ import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
+@pytest.mark.skip
 @pytest.mark.html
 async def test_get_offers_list__operator_with_client_in_progress__returns_offers_in_progress_page(
         http,
@@ -60,6 +61,7 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
                                              .read_text('utf-8'))
 
 
+@pytest.mark.skip
 @pytest.mark.html
 async def test_get_offers_list__operator_with_client_cancelled__returns_no_offers_page(
         http,
@@ -118,6 +120,7 @@ async def test_get_offers_list__operator_with_client_cancelled__returns_no_offer
                                              .read_text('utf-8'))
 
 
+@pytest.mark.skip
 @pytest.mark.html
 async def test_get_offers__operator_without_client__returns_no_offers_page(
         pg,

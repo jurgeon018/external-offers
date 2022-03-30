@@ -399,6 +399,7 @@ async def test_create_offers__exist_parsed_offer_with_calltracking__doesnt_creat
     await pg.execute_scripts(parsed_offers_fixture_for_offers_for_call_test)
     await runtime_settings.set({
         'OFFER_TASK_CREATION_SEGMENTS': ['c'],
+        'EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS': True,
         'OFFER_TASK_CREATION_CATEGORIES': ['flatSale', 'flatRent'],
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,

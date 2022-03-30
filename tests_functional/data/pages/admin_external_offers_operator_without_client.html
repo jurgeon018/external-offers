@@ -234,7 +234,11 @@
                <div class="phone-unavailable-client-messages" id="phoneUnavailableClientMessages"></div>
             </div>
             <div class="promo-given-client-block">
-               <button class="promo-given-client-button" id="promoGivenClientButton">Выдан промокод</button>
+               <button 
+                class="promo-given-client-button" id="promoGivenClientButton"
+               >
+                Выдан промокод
+               </button>
                <div class="promo-given-client-messages" id="promoGivenClientMessages"></div>
             </div>
             <div class="call-interrupted-client-block">
@@ -359,13 +363,37 @@
         <a target="_blank" href="/admin/calls-history/" class="btn btn-sm btn-default call-history" title="История звонков"><span class="glyphicon glyphicon-align-justify"></span></a>
       </div>
       <script>
+        function voxCallStatusListener(){
+            console.log()
+            var action = $("#voxCallStatus").attr('value');
+            console.log('voxCallStatus value changed to: ' + action);
+            localStorage.setItem('voxCallStatus', action);
+            console.log('voxCallStatus has been saved to localStorage. Value is: ' + localStorage.getItem('voxCallStatus'));
+            console.log()
+        }
+        function FormatPhone() {
+            let phoneExceptNonNumeric = $("#CallToPhone").val().replace(/\D/g, '');
+            if (phoneExceptNonNumeric.length > 1 && phoneExceptNonNumeric.charAt(0) === '8') {
+                phoneExceptNonNumeric = phoneExceptNonNumeric.substring(1);
+                phoneExceptNonNumeric = '7' + phoneExceptNonNumeric;
+            }
+            if (phoneExceptNonNumeric.length > 1 && phoneExceptNonNumeric.charAt(0) != '7') {
+                phoneExceptNonNumeric = '7' + phoneExceptNonNumeric;
+            }
+            $("#CallToPhone").val(phoneExceptNonNumeric);
+        }
         $(function()
         {
             initCallComponent(1);
             document.getElementById('CallToPhone').value = '';
-            formatPhone();
+            FormatPhone();
+            console.log('before adding listener to vox status')
+            $("#voxCallStatus").change(voxCallStatusListener);
+            console.log('after adding listener to vox status')
         });
-         let DEBUG = 'True' === 'True'
+         let DEBUG = 'True' === 'True';
+         let operator_is_hunter = '' == 'hunter';
+
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -397,6 +425,10 @@
             }
          }
          async function onClickOfferRowDelete(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на удаление обьявления')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id
@@ -413,6 +445,10 @@
            }
          }
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на выдачу статуса "Есть на циан"')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id

@@ -21,6 +21,10 @@ class GetOperatorCallsFilter:
     """Фильтр по длительности "по\""""
     duration_min: Optional[int] = None
     """Фильтр по длительности "от\""""
+    is_connected: Optional[bool] = None
+    """Статус соединение устанолвено"""
+    is_incoming: Optional[bool] = None
+    """Признак, что это входящий вызов"""
     operator_id: Optional[int] = None
     """Идентификатор оператора"""
     page: Optional[int] = None

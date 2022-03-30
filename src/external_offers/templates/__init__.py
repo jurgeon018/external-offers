@@ -36,6 +36,7 @@ def get_offers_list_html(
     operator_id: int,
     is_commercial_moderator: bool,
     current_operator: EnrichedOperator,
+    default_real_phone_hunted_at: datetime,
     now: datetime,
 ) -> str:
     dt_format = '%Y-%m-%dT%H:%M:%S'
@@ -51,6 +52,7 @@ def get_offers_list_html(
         operator_id=operator_id,
         is_commercial_moderator=is_commercial_moderator,
         current_operator=current_operator,
+        default_real_phone_hunted_at=default_real_phone_hunted_at.strftime(dt_format),
         now=now.strftime(dt_format),
     )
 

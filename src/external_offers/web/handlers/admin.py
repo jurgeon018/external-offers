@@ -66,6 +66,11 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_id=self.realty_user_id,
         )
         now = datetime.now()
+        default_real_phone_hunted_at = now.replace(
+            hour=runtime_settings.NEXT_CALL_HOUR,
+            minute=runtime_settings.NEXT_CALL_MINUTES,
+            second=runtime_settings.NEXT_CALL_SECONDS
+        )
         next_call_day = now + timedelta(days=settings.NEXT_CALL_DAY)
         next_call_datetime = next_call_day.replace(
             hour=settings.NEXT_CALL_HOUR,
@@ -87,6 +92,7 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_id=self.realty_user_id,
             is_commercial_moderator=is_commercial_moderator,
             current_operator=current_operator,
+            default_real_phone_hunted_at=default_real_phone_hunted_at,
             now=now,
         ))
 

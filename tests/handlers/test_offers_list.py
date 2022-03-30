@@ -187,6 +187,7 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
         operator_id=int(user_id),
         is_commercial_moderator=False,
         current_operator=current_operator,
+        default_real_phone_hunted_at=mocker.ANY,
         now=mocker.ANY,
     )
     get_operator_roles_mock.assert_called_once_with(
