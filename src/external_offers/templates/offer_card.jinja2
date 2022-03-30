@@ -954,9 +954,8 @@
             }
             return obj
         }
-        $("#voxCallStatus").change(function(){ var action = $("#voxCallStatus").attr('value'); console.log(action); } );
         const saveOffer = () => {
-            let call_status = $("#voxCallStatus").attr('value');
+            let call_status = localStorage.getItem('voxCallStatus');
             if(call_status == 'start'){
                 if (!confirm('Напоминание: Сохранение обьявления прервет текущий звонок. Вы действительно хотите продолжить?')) {
                     return

@@ -372,9 +372,13 @@
         });
          let DEBUG = 'True' === '{{ debug }}'
          $("#voxCallStatus").change(function(){
-            var action = $("#*voxCallStatus*").attr('value');
-            console.log(action); 
-          });
+             var action = $("#voxCallStatus").attr('value');
+             console.log()
+             console.log('voxCallStatus value changed to: ' + action);
+             localStorage.setItem('voxCallStatus', action);
+             console.log('voxCallStatus has been saved to localStorage. Value is' + localStorage.getItem('voxCallStatus'));
+             console.log()
+         });          
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -553,7 +557,7 @@
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
            // отказ
-           let call_status = $("#voxCallStatus").attr('value');
+           let call_status = localStorage.getItem('voxCallStatus');
            if(call_status == 'start'){
                if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
                    return
@@ -606,7 +610,7 @@
 
          document.getElementById("promoGivenClientButton").onclick = async function () {
            // выдан промокод
-           let call_status = $("#voxCallStatus").attr('value');
+           let call_status = localStorage.getItem('voxCallStatus');
            if(call_status == 'start'){
                if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
                    return
@@ -747,14 +751,15 @@
 
          document.getElementById("callLaterClientButton1").onclick = async function () {
            // перезвон
-           let call_status = $("#voxCallStatus").attr('value');
+           let call_status = localStorage.getItem('voxCallStatus');
            if(call_status == 'start'){
                if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
                    return
                }
            }
            let client_comment = '{{client.comment}}';
-           if(!client_comment || client_comment == 'None'){
+           if(!client_comment
+           || client_comment == 'None'){
                if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
                    return
                }
