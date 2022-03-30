@@ -407,11 +407,33 @@
         <a target="_blank" href="/admin/calls-history/" class="btn btn-sm btn-default call-history" title="История звонков"><span class="glyphicon glyphicon-align-justify"></span></a>
       </div>
       <script>
+        function voxCallStatusListener(){
+            console.log()
+            var action = $("#voxCallStatus").attr('value');
+            console.log('voxCallStatus value changed to: ' + action);
+            localStorage.setItem('voxCallStatus', action);
+            console.log('voxCallStatus has been saved to localStorage. Value is: ' + localStorage.getItem('voxCallStatus'));
+            console.log()
+        }
+        function FormatPhone() {
+            let phoneExceptNonNumeric = $("#CallToPhone").val().replace(/\D/g, '');
+            if (phoneExceptNonNumeric.length > 1 && phoneExceptNonNumeric.charAt(0) === '8') {
+                phoneExceptNonNumeric = phoneExceptNonNumeric.substring(1);
+                phoneExceptNonNumeric = '7' + phoneExceptNonNumeric;
+            }
+            if (phoneExceptNonNumeric.length > 1 && phoneExceptNonNumeric.charAt(0) != '7') {
+                phoneExceptNonNumeric = '7' + phoneExceptNonNumeric;
+            }
+            $("#CallToPhone").val(phoneExceptNonNumeric);
+        }
         $(function()
         {
             initCallComponent({{operator_id}});
             document.getElementById('CallToPhone').value = '{{client_phone}}';
-            formatPhone();
+            FormatPhone();
+            console.log('before adding listener to vox status')
+            $("#voxCallStatus").change(voxCallStatusListener);
+            console.log('after adding listener to vox status')
         });
          let DEBUG = 'True' === '{{ debug }}';
          let operator_is_hunter = '{{current_operator.team_type.value}}' == 'hunter';
@@ -601,6 +623,19 @@
 
          {% if (client is defined) and client %}
          document.getElementById("declineClientButton1").onclick = async function () {
+           // отказ
+           let call_status = localStorage.getItem('voxCallStatus');
+           if(call_status == 'start'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = '{{client.comment}}';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '{{ client.client_id }}'
            }
@@ -618,6 +653,12 @@
          };
 
          document.getElementById("callMissedClientButton1").onclick = async function () {
+           let client_comment = '{{client.comment}}';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '{{ client.client_id }}'
            }
@@ -635,9 +676,21 @@
          };
 
          document.getElementById("promoGivenClientButton").onclick = async function () {
+           // выдан промокод
            if(operator_is_hunter){
              alert('У хантеров нет прав на выдачу промокода')
              return
+           let call_status = localStorage.getItem('voxCallStatus');
+           if(call_status == 'start'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = '{{client.comment}}';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
            }
            let obj =  {
                'clientId': '{{ client.client_id }}'
@@ -656,6 +709,12 @@
          };
 
          document.getElementById("phoneUnavailableClientButton").onclick = async function () {
+           let client_comment = '{{client.comment}}';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '{{ client.client_id }}'
            }
@@ -684,6 +743,7 @@
            });
            resp = await response.json()
            document.getElementById("commentClientMessages").innerHTML = resp.message
+           location.reload();
          };
 
          $( document ).ready(function() {
@@ -771,6 +831,12 @@
          };
          
          document.getElementById("callInterruptedClientButton").onclick = async function () {
+           let client_comment = '{{client.comment}}';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
            let obj =  {
                'clientId': '{{ client.client_id }}'
            }
@@ -788,6 +854,20 @@
          };
 
          document.getElementById("callLaterClientButton1").onclick = async function () {
+           // перезвон
+           let call_status = localStorage.getItem('voxCallStatus');
+           if(call_status == 'start'){
+               if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+           let client_comment = '{{client.comment}}';
+           if(!client_comment || client_comment == 'None'){
+               if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                   return
+               }
+           }
+
            call_later_datetime = document.getElementById("call-later-datetime").value
            if (call_later_datetime === '') {
               alert('Не заполнена дата следующего звонка')

@@ -518,12 +518,23 @@
             <div class="offerCommentTitle">
                 <span class="">Коментарий к объявлению</span>
             </div>
-            <div class="offerCommentTitleInput">
+            <div>
                     <textarea class="input-control"
                               placeholder="Коментарий к объявлению"
                               id="getComment">{% if offer_comment %}{{offer_comment}}{% endif %}</textarea>
             <button id="updateofferCommentBtn" style="float: left" type="button" class="btn">Обновить коментарий</button>
             </div>
+
+            <div>
+                <span class="">Коментарий к карточке клиента</span>
+            </div>
+            <div class="clientCommentTitleInput">
+                    <textarea class="input-control"
+                              placeholder="Коментарий к карточке клиента"
+                              id="getClientComment">{% if client.comment %}{{client.comment}}{% endif %}</textarea>
+            <button id="updateclientCommentBtn" style="float: left" type="button" class="btn">Обновить коментарий к карточке клиента</button>
+            </div>
+
         </div>
             {% if not exist_drafts %}
                 <div class="clientForm">
@@ -655,6 +666,7 @@
         const saveOfferBtn = $('#saveOfferBtn');
         const updateClientPhoneBtn = $('#updateClientPhoneNumberBtn');
         const updateofferCommentBtn = $('#updateofferCommentBtn');
+        const updateclientCommentBtn = $('#updateclientCommentBtn');
         const getDealType = $('#getDealType');
         const getTermType = $('#getTermType');
         const getOfferType = $('#getOfferType');
@@ -1008,8 +1020,19 @@
             }
             return obj
         }
-
         const saveOffer = () => {
+            let call_status = localStorage.getItem('voxCallStatus');
+            if(call_status == 'start'){
+                if (!confirm('Напоминание: Сохранение обьявления прервет текущий звонок. Вы действительно хотите продолжить?')) {
+                    return
+                }
+            }
+            let client_comment = '{{client.comment}}';
+            if(!client_comment || client_comment == 'None'){
+                if (!confirm('Напоминание: Вы не заполнили коментарий к карточке клиента! Вы действительно хотите продолжить?')) {
+                    return
+                }
+            }
             let category = getCategoryType.val();
             if (getPrice.val() === "") {
                 alert('Цена обязательный параметр!');
@@ -1245,6 +1268,24 @@
 
         getUseExistingAccount.click(() => {
             onClickUseExistingAccountRadio()
+        })
+        updateclientCommentBtn.click(function(){
+            let comment = document.getElementById('getClientComment').value;
+            let obj = {
+                'comment': comment,
+                'clientId': '{{client.client_id}}',
+            }
+            $.post("/api/admin/v1/update-client-comment/", DEBUG ? JSON.stringify(obj) : obj
+            ).then(function (data) {
+                if (data.success === true) {
+                    alert(data.message)
+                    location.reload()
+                } else if (data.success === false){
+                    alert(data.message)
+                }else {
+                    alert("Произошла неизвестная ошибка при обновлении коментария")
+                }
+            });        
         })
         updateofferCommentBtn.click(function() {
             let obj = {
