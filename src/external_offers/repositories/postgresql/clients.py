@@ -781,11 +781,13 @@ async def return_client_to_waiting_by_client_id(
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
-            offers_for_call
-        ).set(
-            status=OfferStatus.waiting.value
+            clients
+        ).values(
+            status=ClientStatus.waiting.value,
+            operator_user_id=None,
+            calls_count=0,
         ).where(
-            offers_for_call.c.client_id == client_id
+            clients.c.client_id == client_id
         )
     )
     await pg.get().execute(query, *params)
