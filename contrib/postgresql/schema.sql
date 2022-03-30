@@ -1,3 +1,9 @@
+CREATE TYPE team_type_enum AS enum (
+    'hunter',
+    'attractor'
+);
+
+
 create table offers_for_call
 (
 	id varchar not null
@@ -44,6 +50,9 @@ create table clients
 	operator_user_id bigint,
 	status client_status_type,
 	client_phones character varying[] not null,
+	real_phone varchar,
+	real_name varchar,
+	real_phone_hunted_at timestamp with time zone,
 	segment varchar(255),
 	next_call timestamp with time zone,
 	last_call_id varchar,
@@ -126,7 +135,8 @@ create table teams
 			unique,
 	lead_id varchar not null,
 	segment segment_type,
-	settings jsonb
+	settings jsonb,
+	team_type team_type_enum not null
 );
 
 create table operators

@@ -8,12 +8,13 @@ async def test_get_client_in_progress_by_operator():
     # arrange
     query = (
         'SELECT clients.client_id, clients.avito_user_id, clients.cian_user_id, clients.client_name, '
-        'clients.client_phones, clients.client_email, clients.status, clients.operator_user_id, clients.segment, '
+        'clients.client_phones, clients.real_phone, clients.real_name, clients.real_phone_hunted_at, '
+        'clients.client_email, clients.status, clients.operator_user_id, clients.segment, '
         'clients.subsegment, clients.next_call, clients.calls_count, clients.last_call_id, '
-        'clients.synced_with_grafana, clients.is_test, clients.main_account_chosen, clients.comment, clients.team_id, '
-        'clients.reason_of_decline, clients.additional_numbers, clients.additional_emails, clients.unactivated, '
-        'clients.drafted_at, clients.published_at \nFROM clients \nWHERE clients.operator_user_id = $1 '
-        'AND clients.status = $3 \n LIMIT $2'
+        'clients.synced_with_grafana, clients.is_test, clients.main_account_chosen, clients.comment, '
+        'clients.team_id, clients.reason_of_decline, clients.additional_numbers, clients.additional_emails, '
+        'clients.unactivated, clients.drafted_at, clients.published_at \nFROM clients \nWHERE '
+        'clients.operator_user_id = $1 AND clients.status = $3 \n LIMIT $2'
     )
     operator_id = 1
 

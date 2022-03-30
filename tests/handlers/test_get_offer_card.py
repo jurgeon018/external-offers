@@ -17,6 +17,11 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
         mocker,
 ):
     # arrange
+    current_operator = mocker.MagicMock(is_teamlead=True)
+    mocker.patch(
+        'external_offers.services.operator_roles.get_enriched_operator_by_id',
+        return_value=future(current_operator)
+    )
     mocker.patch(
         'external_offers.web.handlers.admin.runtime_settings',
         new={
@@ -97,6 +102,7 @@ async def test_get_admin_offer_card__exist_drafts__called_correct_get_offer_card
                 offer_is_draft=True,
                 is_ready_business_enabled=1 if is_ready_business_enabled is True else 0,
                 offer_comment=comment,
+                current_operator=current_operator,
             )
         ]
     )

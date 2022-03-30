@@ -29,6 +29,7 @@ async def test_team_priorities(
     operator_id = 1
     await runtime_settings.set({
         'ENABLE_TEAM_PRIORITIES': True,
+        'EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS': True,
         'ENABLE_TEAMS_PRIORITIZATION': True,
         'OFFER_TASK_CREATION_MINIMUM_OFFERS': 0,
         'OFFER_TASK_CREATION_MAXIMUM_OFFERS': 5,
@@ -126,6 +127,7 @@ async def prepare_teams(*, http, pg, operator_id):
             json={
                 'teamName': f'Команда №{i+1}',
                 'leadId': str(i),
+                'teamType': 'attractor',
             },
             headers={
                 'X-Real-UserId': operator_id

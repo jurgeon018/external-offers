@@ -16,6 +16,12 @@ class Client:
     """Телефон клиента"""
     status: ClientStatus
     """Статус клиента"""
+    real_phone: Optional[str] = None
+    """Добытый реальный телефон клиента"""
+    real_name: Optional[str] = None
+    """Добытое настоящее ФИО клиента"""
+    real_phone_hunted_at: Optional[datetime] = None
+    """Дата добычи реального телефона клиента"""
     client_name: Optional[str] = None
     """Имя клиента"""
     cian_user_id: Optional[int] = None

@@ -67,7 +67,7 @@ from external_offers.entities.update_client_phone import (
     UpdateClientPhoneRequest,
     UpdateClientPhoneResponse,
 )
-from external_offers.entities.update_client_real_phone import UpdateClientRealPhoneRequest
+from external_offers.entities.update_client_real_phone import UpdateClientRealInfoRequest
 from external_offers.entities.update_clients_operator import UpdateClientsOperatorRequest, UpdateClientsOperatorResponse
 from external_offers.entities.update_offer_category import UpdateOfferCategoryRequest, UpdateOfferCategoryResponse
 from external_offers.entities.update_offer_comment import UpdateOfferCommentRequest, UpdateOfferCommentResponse

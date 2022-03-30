@@ -47,6 +47,9 @@ class AdminOffersListPageHandler(PublicHandler):
 
     async def get(self) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
 
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
@@ -63,6 +66,11 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_id=self.realty_user_id,
         )
         now = datetime.now()
+        default_real_phone_hunted_at = now.replace(
+            hour=runtime_settings.NEXT_CALL_HOUR,
+            minute=runtime_settings.NEXT_CALL_MINUTES,
+            second=runtime_settings.NEXT_CALL_SECONDS
+        )
         next_call_day = now + timedelta(days=settings.NEXT_CALL_DAY)
         next_call_datetime = next_call_day.replace(
             hour=settings.NEXT_CALL_HOUR,
@@ -83,6 +91,9 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
             operator_id=self.realty_user_id,
             is_commercial_moderator=is_commercial_moderator,
+            current_operator=current_operator,
+            default_real_phone_hunted_at=default_real_phone_hunted_at,
+            now=now,
         ))
 
 
@@ -91,6 +102,9 @@ class AdminOffersCardPageHandler(PublicHandler):
 
     async def get(self, offer_id: str) -> None:
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
+        current_operator = await get_or_create_operator(
+            operator_id=self.realty_user_id
+        )
 
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
@@ -146,6 +160,7 @@ class AdminOffersCardPageHandler(PublicHandler):
             appointments=appointments,
             is_ready_business_enabled=is_ready_business_enabled,
             offer_comment=offer_comment,
+            current_operator=current_operator,
         )
 
         self.write(offer_html)

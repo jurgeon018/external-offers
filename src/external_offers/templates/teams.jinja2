@@ -74,6 +74,7 @@
         <div class="grid">
             <div class="tablerow tablerow-header">
                 <div class="column columnheader">ID</div>
+                <div class="column columnheader">Тип</div>
                 <div class="column columnheader">Название</div>
                 <div class="column columnheader">ID лида</div>
             </div>
@@ -81,6 +82,9 @@
             <div class="tablerow">
                 <div class="column">
                     {{team.team_id}}
+                </div>
+                <div class=column>
+                    {{team.team_type.value}}
                 </div>
                 <div class="column column-link" onclick="onClickRedirectToTeamCard('{{team.team_id}}')">
                     {{team.team_name}}
@@ -95,6 +99,7 @@
                     </button>
                     {% endif %}
                 </div>
+
             </div>
             {% endfor %}
         </div>
@@ -103,6 +108,10 @@
     {% if current_operator.is_teamlead %}
     <div class="block">
         <input id="teamName" type='text' name='name' placeholder='введите название команды'/>
+        <select id="teamType" name="teamType">
+            <option value="attractor">Привлеченец(attractor)</option>
+            <option value="hunter">Добытчик(hunter)</option>
+        </select>
         <br>
         <br>
         <button onclick="createTeam()">Создать команду</button>
@@ -359,6 +368,7 @@
     }
     async function createTeam(){
         let name = document.getElementById('teamName').value;
+        let team_type = document.getElementById('teamType').value;
         let leadId = '{{current_operator.operator_id}}';
         if(!name){
             alert('Введите название команды!')
@@ -368,6 +378,7 @@
             "teamName": name,
             "leadId": leadId,
             "segment": null,
+            "teamType": team_type,
         }
         const response = await fetch("/api/admin/v1/create-team-public/", {
             method: 'POST',

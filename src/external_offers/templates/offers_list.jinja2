@@ -139,7 +139,11 @@
              padding: 0.5em 0em;
              display: block;
          }
-         .additional-numbers-client-block {
+         .additional-info-client-block {
+             padding: 0.5em 0em;
+             display: block;
+         }
+         .additlional-numbers-client-block {
              padding: 0.5em 0em;
              display: block;
          }
@@ -246,7 +250,11 @@
                <div class="phone-unavailable-client-messages" id="phoneUnavailableClientMessages"></div>
             </div>
             <div class="promo-given-client-block">
-               <button class="promo-given-client-button" id="promoGivenClientButton">Выдан промокод</button>
+               <button {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                class="promo-given-client-button" id="promoGivenClientButton"
+               >
+                Выдан промокод
+               </button>
                <div class="promo-given-client-messages" id="promoGivenClientMessages"></div>
             </div>
             <div class="call-interrupted-client-block">
@@ -314,8 +322,33 @@
                      </button>
                      <div class="messages" id="additionalEmailsClientMessages"></div>
                  </div>
+                 {% if current_operator.team_type.value == 'hunter' or not current_operator.team_type %}
+                 <div class="additional-info-client-block">
+                     <h3>Добытая реальная информация про клиента:</h3>
+                     Номер телефона: <br>
+                     <input type="text" id="realPhoneInput" placeholder="Введите добытый номер телефона"
+                            value="{% if client.real_phone%}{{ client.real_phone }}{% endif %}" size=30>
+                     <br><br>
+                     ФИО: <br>  
+                     <input type="text" id="realNameInput" placeholder="Введите настоящее ФИО клиента"
+                            value="{% if client.real_name%}{{ client.real_name }}{% endif %}" size=30>
+                     <br><br>
+                                        
+                     Дата добычи номера телефона: <br>
+                     <input type="datetime-local" id="realPhoneDtInput" placeholder="Введите дату добычи реального номера телефона" value={% if client.real_phone%}{{ client.real_phone_hunted_at }}{% else %}{{default_real_phone_hunted_at}}{% endif %} size=30>
+                     <br><br>
+                     <button id="realPhoneButton" class="realPhoneButton">
+                         Сохранить
+                     </button>
+                 </div>
+                 {% elif current_operator.team_type.value == 'attractor' and client.real_phone %}
+                 <div class="additional-info-client-block">
+                    {% if client.real_name%}<div>Добытое настоящее ФИО клиента: {{ client.real_name }}</div>{% endif %}
+                     <div>Добытый реальный номер телефона: {{ client.real_phone }}</div>
+                     <div>Дата добычи: {{ client.real_phone_hunted_at }}</div>
+                 </div>
+                 {% endif %}
              </div>
-
          </div>
       </div>
       <div class="offers-block">
@@ -336,10 +369,20 @@
                <div class=offercolumn>{{ offer.created_at|date }} {{ offer.created_at|time }}</div>
                <div class="offercolumn offer-column-status">{{ offer.status.value }}</div>
                <div class=offercolumn>
-                  <button style="display:inline" onclick="onClickOfferRowDelete('{{ offer.id }}', '{{ client.client_id }}')">Удалить</button>
+                  <button 
+                    {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                    style="display:inline" onclick="onClickOfferRowDelete('{{ offer.id }}', '{{ client.client_id }}')"
+                  >
+                    Удалить
+                  </button>
                </div>
                <div class=offercolumn>
-                  <button style="display:inline" onclick="onClickOfferRowAlreadyPublished('{{ offer.id }}', '{{ client.client_id }}')">Есть на Циан</button>
+                  <button 
+                    {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                    style="display:inline" onclick="onClickOfferRowAlreadyPublished('{{ offer.id }}', '{{ client.client_id }}')"
+                  >
+                      Есть на Циан
+                  </button>
                </div>
             </div>
          {% endfor %}
@@ -392,7 +435,9 @@
             $("#voxCallStatus").change(voxCallStatusListener);
             console.log('after adding listener to vox status')
         });
-         let DEBUG = 'True' === '{{ debug }}'
+         let DEBUG = 'True' === '{{ debug }}';
+         let operator_is_hunter = '{{current_operator.team_type.value}}' == 'hunter';
+
          function formDataFromObject(obj) {
             var form_data = new URLSearchParams();
             for ( var key in obj ) {
@@ -424,6 +469,10 @@
             }
          }
          async function onClickOfferRowDelete(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на удаление обьявления')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id
@@ -440,6 +489,10 @@
            }
          }
          async function onClickOfferRowAlreadyPublished(offer_id, client_id) {
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на выдачу статуса "Есть на циан"')
+             return
+           }
            let obj =  {
                'offerId': offer_id,
                'clientId': client_id
@@ -624,6 +677,9 @@
 
          document.getElementById("promoGivenClientButton").onclick = async function () {
            // выдан промокод
+           if(operator_is_hunter){
+             alert('У хантеров нет прав на выдачу промокода')
+             return
            let call_status = localStorage.getItem('voxCallStatus');
            if(call_status == 'start'){
                if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
@@ -740,6 +796,40 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
+         
+         document.getElementById("realPhoneButton").onclick = async function () {
+             real_phone = document.getElementById('realPhoneInput').value;
+             if(!real_phone){
+               real_phone = null;
+             }
+             real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;
+             if(!real_phone_hunted_at){
+               real_phone_hunted_at = null;
+             }
+             real_name = document.getElementById('realNameInput').value;
+             if(!real_name){
+               real_name = null;
+             }
+             let obj =  {
+                 'clientId': '{{ client.client_id }}',
+                 'realPhone': real_phone,
+                 'realName': real_name,
+                 'realPhoneHuntedAt': real_phone_hunted_at,                 
+             };
+             const response = await fetch("/api/admin/v1/update-client-real-info/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             if(resp.success === true){
+              alert(resp.message)
+             }else if(resp.success === false){
+              alert(resp.message)
+             }else{
+               alsert("Не удалось обновить добытый номер телефона")
+             }
+         };
+         
          document.getElementById("callInterruptedClientButton").onclick = async function () {
            let client_comment = '{{client.comment}}';
            if(!client_comment || client_comment == 'None'){

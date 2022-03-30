@@ -1,5 +1,8 @@
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ENUM, JSONB
+
+from external_offers.enums.teams import TeamType
+from external_offers.helpers.tables import get_names
 
 
 metadata = sa.MetaData()
@@ -31,6 +34,9 @@ clients = sa.Table(
     sa.Column('cian_user_id', sa.BIGINT),
     sa.Column('client_name', sa.VARCHAR, nullable=True),
     sa.Column('client_phones', sa.ARRAY(sa.VARCHAR), nullable=False),
+    sa.Column('real_phone', sa.VARCHAR, nullable=True),
+    sa.Column('real_name', sa.VARCHAR, nullable=True),
+    sa.Column('real_phone_hunted_at', sa.TIMESTAMP, nullable=True),
     sa.Column('client_email', sa.VARCHAR),
     sa.Column('status', sa.VARCHAR, nullable=False),
     sa.Column('operator_user_id', sa.BIGINT),
@@ -92,11 +98,17 @@ event_log = sa.Table(
     sa.Column('call_id', sa.VARCHAR,)
 )
 
+team_type_enum = ENUM(
+    *get_names(TeamType),
+    name='team_type'
+)
+
 teams = sa.Table(
     'teams',
     metadata,
     sa.Column('team_id', sa.INT, unique=True, nullable=False, autoincrement=True, primary_key=True),
     sa.Column('team_name', sa.VARCHAR, unique=True, nullable=True),
+    sa.Column('team_type', team_type_enum, nullable=False),
     sa.Column('lead_id', sa.VARCHAR, nullable=False),
     sa.Column('settings', JSONB(), nullable=True),
 )

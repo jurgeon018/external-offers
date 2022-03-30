@@ -611,6 +611,7 @@ async def test_call_missed_client__operator_and_in_progress__next_call_and_call_
         json={
             'teamName': 'Команда №1',
             'leadId': str(operator),
+            'teamType': 'attractor',
         },
         headers={
             'X-Real-UserId': operator

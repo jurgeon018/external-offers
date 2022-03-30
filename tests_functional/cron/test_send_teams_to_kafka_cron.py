@@ -5,9 +5,9 @@ async def test_send_offers_for_call_called__final_offers_for_call_exist__correct
     runner,
 ):
     await pg.execute("""
-    INSERT INTO teams (team_id, team_name, lead_id) VALUES
-    ('1', 'team1', '1'),
-    ('2', 'team2', '2');
+    INSERT INTO teams (team_id, team_name, lead_id, team_type) VALUES
+    ('1', 'team1', '1', 'attractor'),
+    ('2', 'team2', '2', 'attractor');
     """)
 
     expected_count = await pg.fetchval("""

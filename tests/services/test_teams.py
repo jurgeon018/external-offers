@@ -21,6 +21,7 @@ async def test_create_team__success_is_true(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'teamName': 'name',
+            'teamType': 'attractor',
             'leadId': '1',
             'segment': 'c',
             'settings': None,
@@ -49,6 +50,7 @@ async def test_create_team__unique_violation_error(http_client, base_url, mocker
         method='POST',
         body=json.dumps({
             'teamName': 'name',
+            'teamType': 'attractor',
             'leadId': '1',
             'segment': 'c',
             'settings': None,
@@ -77,6 +79,7 @@ async def test_create_team__postgres_error(http_client, base_url, mocker):
         method='POST',
         body=json.dumps({
             'teamName': 'name',
+            'teamType': 'attractor',
             'leadId': '1',
             'segment': 'c',
             'settings': None,
@@ -108,6 +111,7 @@ async def test_update_team__success_is_true(http_client, base_url, mocker):
         body=json.dumps({
             'teamId': '1',
             'teamName': 'name',
+            'teamType': 'attractor',
             'leadId': '1',
             'segment': 'c',
         }),
@@ -136,6 +140,7 @@ async def test_update_team__postgres_error(http_client, base_url, mocker):
         body=json.dumps({
             'teamId': '1',
             'teamName': 'name',
+            'teamType': 'attractor',
             'leadId': '1',
             'segment': 'c',
         }),

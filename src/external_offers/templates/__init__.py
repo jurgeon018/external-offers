@@ -35,18 +35,25 @@ def get_offers_list_html(
     operator_is_tester: bool,
     operator_id: int,
     is_commercial_moderator: bool,
+    current_operator: EnrichedOperator,
+    default_real_phone_hunted_at: datetime,
+    now: datetime,
 ) -> str:
+    dt_format = '%Y-%m-%dT%H:%M:%S'
     template = templates.get_template('offers_list.jinja2')
     return template.render(
         client_is_calltracking=client_is_calltracking,
         offers=offers,
         client=client,
         client_phone=client_phone,
-        next_call_datetime=default_next_call_datetime.strftime('%Y-%m-%dT%H:%M:%S'),
+        next_call_datetime=default_next_call_datetime.strftime(dt_format),
         debug=runtime_settings.DEBUG,
         operator_is_tester=operator_is_tester,
         operator_id=operator_id,
         is_commercial_moderator=is_commercial_moderator,
+        current_operator=current_operator,
+        default_real_phone_hunted_at=default_real_phone_hunted_at.strftime(dt_format),
+        now=now.strftime(dt_format),
     )
 
 
@@ -62,6 +69,7 @@ def get_offer_card_html(
     appointments: List[CommercialPossibleAppointmentModel],
     is_ready_business_enabled: bool = False,
     offer_comment: Optional[str] = None,
+    current_operator: EnrichedOperator,
 ) -> str:
     template = templates.get_template('offer_card.jinja2')
     # template = templates.get_template('admin_debug.jinja2')
@@ -77,6 +85,7 @@ def get_offer_card_html(
         offer_is_draft=offer_is_draft,
         is_ready_business_enabled=1 if is_ready_business_enabled is True else 0,
         offer_comment=offer_comment,
+        current_operator=current_operator,
     )
 
 

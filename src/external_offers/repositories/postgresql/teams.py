@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import delete, select, update
 
 from external_offers import pg
-from external_offers.entities.teams import Team
+from external_offers.entities.teams import Team, TeamType
 from external_offers.mappers.teams import teams_mapper
 from external_offers.repositories.postgresql.tables import teams
 
@@ -39,6 +39,7 @@ async def create_team(
     team_name: str,
     lead_id: str,
     settings: dict[str, Any],
+    team_type: TeamType,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         insert(
@@ -47,6 +48,7 @@ async def create_team(
             team_name=team_name,
             lead_id=lead_id,
             settings=settings,
+            team_type=team_type.value,
         )
     )
     await pg.get().execute(query, *params)
@@ -69,7 +71,7 @@ async def update_team_by_id(
         ).values(
             team_name=team_name,
             lead_id=lead_id,
-            settings=settings
+            settings=settings,
         )
     )
     await pg.get().execute(query, *params)
