@@ -33,6 +33,7 @@
                     
                 <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     class="select-control" id="getDealType" 
+                >
                     <option value="" disabled>Не выбрано</option>
                     <option value="rent" {% if parsed_object_model.is_rent %}selected{% endif %}>Аренда</option>
                     <option value="sale" {% if parsed_object_model.is_sale %}selected{% endif %}>Продажа</option>
@@ -47,6 +48,7 @@
                     
                 <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     class="select-control" id="getTermType" 
+                >
                     <option value="" selected disabled>Не выбрано</option>
                     <option value="long" {% if parsed_object_model.is_long_term_rent and parsed_object_model.is_rent %}selected{% endif %}>
                         Долгосрочная
@@ -62,6 +64,7 @@
                     
                 <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     class="select-control" id="getOfferType" 
+                >
                     <option value="" selected disabled>Не выбрано</option>
                     <option value="flat" {% if parsed_object_model.is_allow_realty_type %} selected {% endif %}>Жилая</option>
                     <option value="commercial"{% if parsed_object_model.is_commercial_type %} selected {% endif %}>Коммерческая</option>
@@ -74,6 +77,7 @@
             <div class="offerCategoryTypeSelect">
                 <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     class="select-control" id="getCategoryType" 
+                >
                     <option value="" selected disabled>
                         Не выбрано
                     </option>
@@ -241,6 +245,7 @@
                 <div class="offerCategoryTypeSelect">
                     <select 
                         class="select-control" id="getBuildingType" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                    >
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="shoppingMall">помещение в торговом комплексе</option>
                         <option value="streetRetail">street retail</option>
@@ -254,8 +259,9 @@
                     <span class="">Тип готового бизнеса</span>
                 </div>
                 <div class="offerReadyBusinessTypeSelect" style="display: {% if parsed_object_model.is_business and is_ready_business_enabled %} block {% else %} none {% endif %}">
-                    <select 
-                        class="select-control" id="getReadyBusinessType" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                    <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                        class="select-control" id="getReadyBusinessType" 
+                    >
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="rentalBusiness">арендный бизнес</option>
                         <option value="other">другое</option>
@@ -278,8 +284,9 @@
                 </div>
 
                 <div class="offerAppointmentSelect">
-                    <select 
-                        class="select-control" id="getAppointmentBuildingType" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                    <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                        class="select-control" id="getAppointmentBuildingType" 
+                    >
                         <option value="" selected disabled>Не выбрано</option>
                     </select>
                 </div>
@@ -291,8 +298,9 @@
                 </div>
 
                 <div class="offerAppointmentSelect">
-                    <select 
-                        class="select-control" id="getSpecialtyType" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                    <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
+                        class="select-control" id="getSpecialtyType" 
+                    >
                         <option value="" selected disabled>Не выбрано</option>
                         {% if not appointments %}
                             <option value="office" >Офис</option>
@@ -316,7 +324,8 @@
                 </div>
                 <div class="offerCommercialLangSelect">
                     <select 
-                        class="select-control" id="getCommercialLandType" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}                    
+                        class="select-control" id="getCommercialLandType" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}                 
+                    >   
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="settlements">поселений</option>
                         <option value="forAgriculturalPurposes">сельскохозяйственного назначения</option>
@@ -333,6 +342,7 @@
                     
                 <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     class="select-control" id="getRealtyType" 
+                >
                     <option value="" selected disabled>Не выбрано</option>
                     <option value="flat">Квартира</option>
                     <option value="apartments">Апартаменты</option>
@@ -357,6 +367,7 @@
                     
                 <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     class="select-control" id="getRoomsCount" 
+                >
                     <option value="" {% if not parsed_object_model.rooms_count %}selected{% endif %} disabled>Не выбрано</option>
                     <option value="room1" {% if parsed_object_model.rooms_count == 1 %}selected{% endif %}>
                         1
@@ -406,8 +417,9 @@
                     type="number" required value="{{ parsed_object_model.land_area }}"
                     placeholder="Площадь участка в сотках"
                     class="input-control" id="getLandArea">
-                <select 
-                    class="select-control" id="getAreaUnit" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}                
+                <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %} 
+                    class="select-control" id="getAreaUnit"                 
+                >
                     <option value="" selected>Не выбрано</option>
                     <option value="sotka" {% if parsed_object_model.land_area_unit == 'sotka' %} selected {% endif %}>Сотка</option>
                     <option value="hectare" {% if parsed_object_model.land_area_unit == 'hectare' %} selected {% endif %}>Гектар</option>
@@ -419,8 +431,9 @@
                 <span class="">Тип участка</span>
             </div>
             <div class="offerLandStatusInput" style="display: {% if parsed_object_model.is_land %}block{% else %}none{% endif %};">
-                <select 
-                    class="select-control" id="getLandStatus" {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}                
+                <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %} 
+                    class="select-control" id="getLandStatus"                 
+                >
                     <option value="" selected>Не выбрано</option>
                     <option value="individualHousingConstruction" {% if parsed_object_model.land_status == 'ИЖС' %}selected {% endif %}>ИЖС</option>
                     <option value="gardening" {% if parsed_object_model.land_status == 'СНТ, ДНП' %} selected {% endif %}>Садоводство</option>
@@ -439,6 +452,7 @@
                 <div class="offerLeaseTypeSelect">
                     <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                         class="select-control" id="getLeaseType" 
+                    >
                         <option value="" selected disabled>Не выбрано</option>
                         <option value="direct">прямая аренда</option>
                         <option value="sublease">субаренда</option>
@@ -480,6 +494,7 @@
             <div class="offerSaleTypeSelect" style="display: {% if parsed_object_model.is_sale %} block {% else %} none {% endif%};">
                 <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                     class="select-control" id="getSaleType"                 
+                >
                     <option value="" selected disabled>Не выбрано</option>
                     <option value="free">Свободная продажа</option>
                     <option value="alternative">Альтернатива</option>
@@ -527,14 +542,15 @@
                             id="getPhoneNumber"
                             style="float: left">
                     </div>
-                    {% if current_operator.team_type.value == 'attractor' %}
+                    
                     <div id="clientPhoneNumberBtn">
-                        <button id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn">Сменить</button>
+                        <button {% if current_operator.team_type.value == 'hunter' %} disabled {% endif %}
+                            id="updateClientPhoneNumberBtn" style="float: left" type="button" class="btn"
+                        >
+                            Сменить
+                        </button>
                     </div>
-                    {% elif current_operator.team_type.value == 'hunter' %}
-                    <br>
-                    <div class="text-info">У хантеров нет прав на изменение номера</div>
-                    {% endif %}
+                    
                     <div id="accountCheckboxesBlock" >
                     <div id="useExistingAccountRadio" style="float: left;">
                         <input {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
@@ -562,6 +578,7 @@
                     
                         <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                             class="select-control" id="getAccountForDraft"
+                        >
                             <option value="" selected disabled>Не выбрано</option>
                             {% for client_account in client_accounts %}
                                 <option value={{ client_account.cian_user_id }}>({{ client_account.cian_user_id }}) {{ client_account.email }} {% if client_account.is_agent %}Специалист{% else %}Собственник{% endif %}</option>
@@ -576,6 +593,7 @@
                     <div id="accountTypeSelect">
                         <select {% if current_operator.team_type.value == 'hunter' %}disabled{% endif %}
                             class="select-control" id="getAccountType"
+                        >
                             <option selected value="realtor">Специалист</option>
                             <option value="homeowner">Собственник</option>
                         </select>
