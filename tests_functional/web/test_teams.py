@@ -28,7 +28,6 @@ async def test_teams(pg, http, runtime_settings):
     new_lead_id = '2'
     new_name = 'Команда2'
     default_valid_days_after_call = None
-    default_calltracking = False
     default_activation_status_position = 1
     default_promocode_price = 0
     default_subsegments = []
@@ -131,7 +130,6 @@ async def test_teams(pg, http, runtime_settings):
     assert teams_after_creation[0]['lead_id'] == lead_id
     assert teams_after_creation[0]['team_name'] == name
     assert after_creation_settings['valid_days_after_call'] == default_valid_days_after_call
-    assert after_creation_settings['calltracking'] == default_calltracking
     assert after_creation_settings['activation_status_position'] == default_activation_status_position
     assert after_creation_settings['promocode_price'] == default_promocode_price
     assert after_creation_settings['categories'] == default_categories

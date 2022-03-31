@@ -79,14 +79,10 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
     operator_roles = []
     if not runtime_settings.DEBUG:
         operator_roles = await get_operator_roles(operator_id=user_id)
-    operator = await get_operator_by_id(operator_id=user_id)
-    team = await get_team_by_id(operator.team_id)
-    team_info = get_team_info(team)
     async with pg.get().transaction():
         call_id = generate_guid()
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
-            team_info=team_info,
             call_id=call_id,
             operator_roles=operator_roles,
             is_test=request.is_test,
