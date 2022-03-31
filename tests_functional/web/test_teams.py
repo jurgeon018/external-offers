@@ -35,7 +35,6 @@ async def test_teams(pg, http, runtime_settings):
     default_regions_with_paid_publication = []
     default_filling = []
     new_valid_days_after_call = None
-    new_calltracking = True
     new_activation_status_position = 1
     new_promocode_price = 0
     new_categories = ['1', '2', '3']
@@ -87,7 +86,6 @@ async def test_teams(pg, http, runtime_settings):
             'teamName': new_name,
             'leadId': new_lead_id,
             'validDaysAfterCall': new_valid_days_after_call,
-            'calltracking': new_calltracking,
             'activationStatusPosition': new_activation_status_position,
             'promocodePrice': new_promocode_price,
             'categories': json.dumps(new_categories),
@@ -150,7 +148,6 @@ async def test_teams(pg, http, runtime_settings):
     assert teams_after_update[0]['lead_id'] == new_lead_id
     assert teams_after_update[0]['team_name'] == new_name
     assert after_update_settings['valid_days_after_call'] == new_valid_days_after_call
-    assert after_update_settings['calltracking'] == new_calltracking
     assert after_update_settings['activation_status_position'] == new_activation_status_position
     assert after_update_settings['promocode_price'] == new_promocode_price
     assert after_update_settings['categories'] == new_categories
