@@ -351,7 +351,7 @@
                  </div>
                  {% elif current_operator.team_type.value == 'attractor' and client.real_phone %}
                  <div class="additional-info-client-block">
-                    {% if client.real_name%}<div>Добытое настоящее ФИО клиента: {{ client.real_name }}</div>{% endif %}
+                     <div>Добытое настоящее ФИО клиента: {% if client.real_name%}{{ client.real_name }}{% else %} - {% endif %}</div>
                      <div>Добытый реальный номер телефона: {{ client.real_phone }}</div>
                      <div>Дата добычи: {{ client.real_phone_hunted_at }}</div>
                  </div>
@@ -688,6 +688,7 @@
            if(operator_is_hunter){
              alert('У хантеров нет прав на выдачу промокода')
              return
+           }
            let call_status = localStorage.getItem('voxCallStatus');
            if(call_status == 'start'){
                if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
@@ -821,7 +822,7 @@
              }else{
                alsert("Не удалось отправить задание обратно в очередь")
              }
-         }         
+         }
          document.getElementById("realPhoneButton").onclick = async function () {
              real_phone = document.getElementById('realPhoneInput').value;
              real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;

@@ -7,8 +7,8 @@ from cian_test_utils import future
 @pytest.mark.gen_test
 async def test_update_client_real_info(http_client, base_url, mocker):
     # arrange
-    get_client_by_client_id_mock = mocker.patch(
-        'external_offers.services.update_client_real_phone.get_client_by_client_id'
+    get_client_by_client_id_mock =  mocker.patch(
+        'external_offers.services.update_client_real_info.get_client_by_client_id'
     )
     get_client_by_client_id_mock.return_value = future(0)
     client_id = '1'

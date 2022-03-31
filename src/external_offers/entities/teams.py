@@ -18,8 +18,6 @@ class OffersSettings:
 @dataclass
 class ClientsSettings:
     # Настройки фильтрации клиентов
-    calltracking: bool = False
-    """Флаг колтрекинга"""
     segments: Optional[list[str]] = None
     """Сегменты пользователей, которых будет обрабатывать команда"""
     subsegments: Optional[list[str]] = None

@@ -5,7 +5,6 @@ from typing import AsyncGenerator, Optional, Union
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
-from external_offers.enums.client_status import ClientStatus
 from simple_settings import settings
 from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, update
 from sqlalchemy.dialects.postgresql import insert
@@ -19,6 +18,7 @@ from external_offers.entities.clients import ClientDraftOffersCount
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.entities.teams import TeamType
 from external_offers.enums import OfferStatus
+from external_offers.enums.client_status import ClientStatus
 from external_offers.mappers import (
     client_draft_offers_count_mapper,
     client_waiting_offers_count_mapper,
@@ -778,7 +778,6 @@ async def get_unactivated_clients_counts_by_clients(
 
 async def get_offer_ids_for_prioritization(
     team_settings: dict,
-    team_type: TeamType,
     is_test: bool,
     fetch_valid_offers: bool,
 ) -> list[str]:
@@ -786,7 +785,6 @@ async def get_offer_ids_for_prioritization(
     categories = team_settings['categories']
     regions = team_settings['regions']
     regions = [str(region) for region in regions]
-    calltracking = team_settings['calltracking']
     if fetch_valid_offers is True:
         # чтобы обьявка считалась валидной, должны совпадать все поля
         validity_clauses = [
@@ -794,8 +792,6 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().in_(categories),
             parsed_offers.c.source_object_model['region'].as_string().in_(regions),
         ]
-        if calltracking is not None:
-            validity_clauses.append(parsed_offers.c.is_calltracking.is_(calltracking))
         validity_clause = and_(*validity_clauses)
     elif fetch_valid_offers is False:
         # если хотя бы одно поле не совпадает - обьявка считается невалидной
@@ -804,8 +800,6 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().notin_(categories),
             parsed_offers.c.source_object_model['region'].as_string().notin_(regions),
         ]
-        if calltracking is not None:
-            validity_clauses.append(parsed_offers.c.is_calltracking.isnot(calltracking))
         validity_clause = or_(*validity_clauses)
     query, params = asyncpgsa.compile_query(
         select(
@@ -843,7 +837,6 @@ async def clear_invalid_waiting_offers_by_offer_ids(
         team_settings=team_settings,
         is_test=is_test,
         fetch_valid_offers=False,
-        team_type=team_type,
     )
     logger.warning(
         'Количество невалидных спаршеных обьявлений для команды %s: %s',
@@ -894,12 +887,10 @@ async def get_waiting_offer_counts_by_clients(
     team_settings: dict,
     is_test: bool,
     team_id: Optional[str] = None,
-    team_type: TeamType,
 ) -> list[ClientWaitingOffersCount]:
 
     valid_offer_ids = await get_offer_ids_for_prioritization(
         team_settings=team_settings,
-        team_type=team_type,
         is_test=is_test,
         fetch_valid_offers=True,
     )
@@ -1195,7 +1186,7 @@ async def return_offers_to_waiting_by_client_id(
     query, params = asyncpgsa.compile_query(
         update(
             offers_for_call
-        ).set(
+        ).values(
             status=OfferStatus.waiting.value
         ).where(
             offers_for_call.c.client_id == client_id

@@ -13,7 +13,7 @@ from external_offers.repositories.monolith_cian_profileapi.entities.get_sanction
     GetSanctionsResponse,
     UserSanctions,
 )
-from external_offers.services.offers_creator import create_client_account_statuses, get_team_info
+from external_offers.services.offers_creator import create_client_account_statuses
 from external_offers.services.prioritizers.prioritize_homeowner import (
     GetUsersByPhoneResponseV2,
     UserModelV2,
@@ -21,6 +21,7 @@ from external_offers.services.prioritizers.prioritize_homeowner import (
     find_homeowner_client_account_priority,
 )
 from external_offers.services.prioritizers.prioritize_smb import find_smb_client_account_priority
+from external_offers.utils.teams import get_team_info
 
 
 async def test_create_client_account_statuses(mocker):
@@ -93,7 +94,7 @@ async def test_find_homeowner_client_account_priority__invalid_account_status(
 async def test_get_team_info(mocker):
     # arrange
     mocker.patch(
-        'external_offers.services.offers_creator.runtime_settings',
+        'external_offers.utils.teams.runtime_settings',
         new={
             'MAIN_REGIONS_PRIORITY': {'1': 1, '2': 2},
         }

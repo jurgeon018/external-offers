@@ -49,9 +49,9 @@ from external_offers.repositories.postgresql import (
     set_offers_phone_unavailable_by_client,
     set_offers_promo_given_by_client,
 )
-from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id, return_client_to_waiting_by_client_id
+from external_offers.repositories.postgresql.clients import return_client_to_waiting_by_client_id
 from external_offers.repositories.postgresql.offers import return_offers_to_waiting_by_client_id
-from external_offers.repositories.postgresql.operators import get_operator_by_id, get_operator_team_id
+from external_offers.repositories.postgresql.operators import get_operator_by_id
 from external_offers.repositories.postgresql.teams import get_team_by_id
 from external_offers.services.offers_creator import get_team_info
 from external_offers.services.operator_roles import get_operator_roles
@@ -79,12 +79,14 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
     operator_roles = []
     if not runtime_settings.DEBUG:
         operator_roles = await get_operator_roles(operator_id=user_id)
-    operator_team_id = await get_operator_team_id(operator_id=user_id)
+    operator = await get_operator_by_id(operator_id=user_id)
+    team = await get_team_by_id(operator.team_id)
+    team_info = get_team_info(team)
     async with pg.get().transaction():
         call_id = generate_guid()
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
-            operator_team_id=operator_team_id,
+            team_info=team_info,
             call_id=call_id,
             operator_roles=operator_roles,
             is_test=request.is_test,
@@ -103,7 +105,6 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
             client_id=client_id,
             call_id=call_id,
         ):
-            
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
                 operator_user_id=user_id,
@@ -518,6 +519,14 @@ async def set_client_to_status_and_send_kafka_message(
 
 
 async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest, user_id: int) -> BasicResponse:
+    client = await get_client_by_client_id(client_id=request.client_id)
+
+    if not client.real_phone_hunted_at or not client.real_phone:
+        return BasicResponse(
+            success=False,
+            message='Настоящее имя и номер телефона обязательны для перевода на второй этап прозвона.',
+        )
+
     async with pg.get().transaction():
         await return_client_to_waiting_by_client_id(client_id=request.client_id)
         await return_offers_to_waiting_by_client_id(client_id=request.client_id)
