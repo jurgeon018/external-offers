@@ -98,7 +98,7 @@ async def assign_suitable_client_to_operator(
                         # (т.е те, у которых уже есть дата хантинга и реальный номер)
                         parsed_offers.c.is_calltracking.is_(True),
                         clients.c.real_phone_hunted_at.isnot(None),
-                        clients.c.real_phone_hunted_at <= (now + timedelta(
+                        clients.c.real_phone_hunted_at <= (now - timedelta(
                             days=team_info.team_settings['return_to_queue_days_after_hunted']
                         )),
                     ),
@@ -155,7 +155,11 @@ async def assign_suitable_client_to_operator(
                     # Достает клиентов в ожидании
                     clients.c.unactivated.is_(False),
                     offers_for_call.c.publication_status.is_(None),
-                    clients.c.operator_user_id.is_(None),
+                    or_(
+                        clients.c.operator_user_id.isnot(operator_id),
+                        clients.c.operator_user_id.is_(None),
+                    ),
+                    # clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
                     clients.c.status == ClientStatus.waiting.value,
                     clients.c.is_test == is_test,
@@ -789,7 +793,7 @@ async def return_client_to_waiting_by_client_id(
             clients
         ).values(
             status=ClientStatus.waiting.value,
-            operator_user_id=None,
+            # operator_user_id=None,
             calls_count=0,
         ).where(
             clients.c.client_id == client_id

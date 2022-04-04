@@ -47,81 +47,10 @@ async def test_assign_suitable_client_to_operator(
         return_value=future(None),
     )
     query = (
-        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id '
-        'AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = '
-        'clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS '
-        'NULL AND clients.operator_user_id IS NULL AND offers_for_call.status = $39 AND '
-        'clients.status = $40 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) '
-        'NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, '
-        '$13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR '
-        'clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND '
-        'clients.operator_user_id = $31 AND offers_for_call.status IN ($41, $42) AND clients.next_call <= $27 '
-        'AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN '
-        '($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, '
-        '$15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS '
-        'true AND clients.operator_user_id = $32 AND clients.next_call <= $28 AND '
-        'offers_for_call.publication_status = $36 AND clients.status NOT IN ($43) AND clients.is_test = false AND '
-        'coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, '
-        '$10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR '
-        'clients.unactivated IS true AND clients.operator_user_id = $33 AND offers_for_call.status IN ($44, '
-        '$45) AND clients.next_call <= $29 AND offers_for_call.publication_status = $37 AND '
-        'clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, '
-        '$23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, '
-        '$18) AND offers_for_call.priority != $35 ORDER BY offers_for_call.priority ASC '
-        'NULLS LAST, offers_for_call.created_at DESC \n LIMIT $34 FOR UPDATE SKIP LOCKED)\n '
-        'UPDATE clients SET status=$38, operator_user_id=$30, '
-        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$46 '
-        'FROM first_suitable_offer_client_cte '
-        'WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING '
-        'clients.client_id'
+        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND (clients.operator_user_id IS NOT $31 OR clients.operator_user_id IS NULL) AND offers_for_call.status = $40 AND clients.status = $41 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 OR clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND clients.operator_user_id = $32 AND offers_for_call.status IN ($42, $43) AND clients.next_call <= $27 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 OR clients.unactivated IS true AND clients.operator_user_id = $33 AND clients.next_call <= $28 AND offers_for_call.publication_status = $37 AND clients.status NOT IN ($44) AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 OR clients.unactivated IS true AND clients.operator_user_id = $34 AND offers_for_call.status IN ($45, $46) AND clients.next_call <= $29 AND offers_for_call.publication_status = $38 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) NOT IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.created_at DESC \n LIMIT $35 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$39, operator_user_id=$30, calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$47 FROM first_suitable_offer_client_cte WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING clients.client_id'
     )
     args = (
-        0,
-        'businessSale',
-        'commercialLandSale',
-        'publicCateringSale',
-        'carServiceSale',
-        'domesticServicesSale',
-        'officeRent',
-        'warehouseRent',
-        'shoppingAreaRent',
-        'industryRent',
-        'buildingRent',
-        1,
-        'freeAppointmentObjectRent',
-        'businessRent',
-        'commercialLandRent',
-        'publicCateringRent',
-        'carServiceRent',
-        'domesticServicesRent',
-        '',
-        'officeSale',
-        'warehouseSale',
-        'shoppingAreaSale',
-        'industrySale',
-        'buildingSale',
-        'freeAppointmentObjectSale',
-        '1',
-        mocker.ANY,
-        mocker.ANY,
-        mocker.ANY,
-        1,
-        1,
-        1,
-        1,
-        1,
-        -1,
-        'Draft',
-        'Draft',
-        'inProgress',
-        'waiting',
-        'waiting',
-        'callLater',
-        'callMissed',
-        'declined',
-        'callLater',
-        'callMissed',
-        None
+        0, 'businessSale', 'commercialLandSale', 'publicCateringSale', 'carServiceSale', 'domesticServicesSale', 'officeRent', 'warehouseRent', 'shoppingAreaRent', 'industryRent', 'buildingRent', 1, 'freeAppointmentObjectRent', 'businessRent', 'commercialLandRent', 'publicCateringRent', 'carServiceRent', 'domesticServicesRent', '', 'officeSale', 'warehouseSale', 'shoppingAreaSale', 'industrySale', 'buildingSale', 'freeAppointmentObjectSale', '1', mocker.ANY, mocker.ANY, mocker.ANY, 1, 1, 1, 1, 1, 1, -1, 'Draft', 'Draft', 'inProgress', 'waiting', 'waiting', 'callLater', 'callMissed', 'declined', 'callLater', 'callMissed', None        
     )
     # act
     pg.get().fetchval.return_value = future(None)
@@ -154,81 +83,10 @@ async def test_assign_suitable_client_to_operator__commercial_operator(
         return_value=future(None),
     )
     query = (
-        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id '
-        'AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = '
-        'clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS '
-        'NULL AND clients.operator_user_id IS NULL AND offers_for_call.status = $39 AND '
-        'clients.status = $40 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) '
-        'IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, '
-        '$14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated '
-        'IS false AND offers_for_call.publication_status IS NULL AND '
-        'clients.operator_user_id = $31 AND offers_for_call.status IN ($41, $42) AND clients.next_call <= $27 '
-        'AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, '
-        '$21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, '
-        '$16, $17, $18) AND offers_for_call.priority != $35 OR clients.unactivated IS true '
-        'AND clients.operator_user_id = $32 AND clients.next_call <= $28 AND '
-        'offers_for_call.publication_status = $36 AND clients.status NOT IN ($43) AND clients.is_test = false AND '
-        'coalesce(offers_for_call.category, $19) IN '
-        '($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, '
-        '$11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $35 OR '
-        'clients.unactivated IS true AND clients.operator_user_id = $33 AND offers_for_call.status IN ($44, '
-        '$45) AND clients.next_call <= $29 AND offers_for_call.publication_status = $37 AND '
-        'clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, '
-        '$24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) '
-        'AND offers_for_call.priority != $35 ORDER BY offers_for_call.priority ASC NULLS '
-        'LAST, offers_for_call.created_at DESC \n LIMIT $34 FOR UPDATE SKIP LOCKED)\n UPDATE '
-        'clients SET status=$38, operator_user_id=$30, '
-        'calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, '
-        'team_id=$46 FROM first_suitable_offer_client_cte '
-        'WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING '
-        'clients.client_id'
+        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFROM clients JOIN offers_for_call ON offers_for_call.client_id = clients.client_id \nWHERE clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND (clients.operator_user_id IS NOT $31 OR clients.operator_user_id IS NULL) AND offers_for_call.status = $40 AND clients.status = $41 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 OR clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND clients.operator_user_id = $32 AND offers_for_call.status IN ($42, $43) AND clients.next_call <= $27 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 OR clients.unactivated IS true AND clients.operator_user_id = $33 AND clients.next_call <= $28 AND offers_for_call.publication_status = $37 AND clients.status NOT IN ($44) AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 OR clients.unactivated IS true AND clients.operator_user_id = $34 AND offers_for_call.status IN ($45, $46) AND clients.next_call <= $29 AND offers_for_call.publication_status = $38 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $18) AND offers_for_call.priority != $36 ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.created_at DESC \n LIMIT $35 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$39, operator_user_id=$30, calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$26, team_id=$47 FROM first_suitable_offer_client_cte WHERE clients.client_id = first_suitable_offer_client_cte.client_id RETURNING clients.client_id'
     )
     args = (
-        0,
-        'businessSale',
-        'commercialLandSale',
-        'publicCateringSale',
-        'carServiceSale',
-        'domesticServicesSale',
-        'officeRent',
-        'warehouseRent',
-        'shoppingAreaRent',
-        'industryRent',
-        'buildingRent', 1,
-        'freeAppointmentObjectRent',
-        'businessRent',
-        'commercialLandRent',
-        'publicCateringRent',
-        'carServiceRent',
-        'domesticServicesRent',
-        '',
-        'officeSale',
-        'warehouseSale',
-        'shoppingAreaSale',
-        'industrySale',
-        'buildingSale',
-        'freeAppointmentObjectSale',
-        '1',
-        mocker.ANY,
-        mocker.ANY,
-        mocker.ANY,
-        1,
-        1,
-        1,
-        1,
-        1,
-        -1,
-        'Draft',
-        'Draft',
-        'inProgress',
-        'waiting',
-        'waiting',
-        'callLater',
-        'callMissed',
-        'declined',
-        'callLater',
-        'callMissed',
-        None
+        0, 'businessSale', 'commercialLandSale', 'publicCateringSale', 'carServiceSale', 'domesticServicesSale', 'officeRent', 'warehouseRent', 'shoppingAreaRent', 'industryRent', 'buildingRent', 1, 'freeAppointmentObjectRent', 'businessRent', 'commercialLandRent', 'publicCateringRent', 'carServiceRent', 'domesticServicesRent', '', 'officeSale', 'warehouseSale', 'shoppingAreaSale', 'industrySale', 'buildingSale', 'freeAppointmentObjectSale', '1', mocker.ANY, mocker.ANY, mocker.ANY, 1, 1, 1, 1, 1, 1, -1, 'Draft', 'Draft', 'inProgress', 'waiting', 'waiting', 'callLater', 'callMissed', 'declined', 'callLater', 'callMissed', None
     )
 
     # act

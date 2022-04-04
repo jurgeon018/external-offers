@@ -517,12 +517,16 @@ async def set_client_to_status_and_send_kafka_message(
 async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest, user_id: int) -> BasicResponse:
     client = await get_client_by_client_id(client_id=request.client_id)
 
-    if not client.real_phone_hunted_at or not client.real_phone:
+    if not client.real_phone_hunted_at:
         return BasicResponse(
             success=False,
-            message='Настоящее имя и номер телефона обязательны для перевода на второй этап прозвона.',
+            message='Дата получения настоящего номера телефона обязательна для перевода на второй этап прозвона.',
         )
-
+    if not client.real_phone:
+        return BasicResponse(
+            success=False,
+            message='Настоящий номер телефона обязателен для перевода на второй этап прозвона.',
+        )
     async with pg.get().transaction():
         await return_client_to_waiting_by_client_id(client_id=request.client_id)
         await return_offers_to_waiting_by_client_id(client_id=request.client_id)

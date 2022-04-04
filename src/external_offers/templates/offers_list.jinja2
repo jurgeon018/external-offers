@@ -437,7 +437,7 @@
         $(function()
         {
             initCallComponent({{operator_id}});
-            document.getElementById('CallToPhone').value = '{{client_phone}}';
+            document.getElementById('CallToPhone').value = '{{call_to_phone}}';
             FormatPhone();
             console.log('before adding listener to vox status')
             $("#voxCallStatus").change(voxCallStatusListener);
