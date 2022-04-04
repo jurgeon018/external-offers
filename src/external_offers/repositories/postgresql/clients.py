@@ -156,8 +156,14 @@ async def assign_suitable_client_to_operator(
                     clients.c.unactivated.is_(False),
                     offers_for_call.c.publication_status.is_(None),
                     or_(
-                        clients.c.operator_user_id.isnot(operator_id),
-                        clients.c.operator_user_id.is_(None),
+                        and_(
+                            clients.c.operator_user_id != operator_id,
+                            clients.c.real_phone_hunted_at.isnot(None),
+                        ),
+                        and_(
+                            clients.c.operator_user_id.is_(None),
+                            clients.c.real_phone_hunted_at.is_(None),
+                        ),
                     ),
                     # clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
