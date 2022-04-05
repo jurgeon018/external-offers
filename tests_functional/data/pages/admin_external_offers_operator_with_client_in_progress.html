@@ -636,6 +636,7 @@
            if(operator_is_hunter){
              alert('У хантеров нет прав на выдачу промокода')
              return
+           }
            let call_status = localStorage.getItem('voxCallStatus');
            if(call_status == 'start'){
                if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
@@ -752,16 +753,33 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
-         
+         document.getElementById("clientHuntedButton").onclick = async function() {
+             let obj =  {
+                 'clientId': '1',
+             };
+             const response = await fetch("/api/admin/v1/return-client-to-waiting/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             if(resp.success === true){
+              alert(resp.message);
+              location.reload();
+             }else if(resp.success === false){
+              alert(resp.message)
+             }else{
+               alert("Не удалось отправить задание обратно в очередь")
+             }
+         }
          document.getElementById("realPhoneButton").onclick = async function () {
              real_phone = document.getElementById('realPhoneInput').value;
              real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;
              real_name = document.getElementById('realNameInput').value;
-             if(!real_phone && real_phone_hunted_at){
+             if(real_phone && !real_phone_hunted_at){
               alert('Дата хантинга не может быть пустой, если заполнен номер телефона')
               return
              }
-             if(real_phone && !real_phone_hunted_at){
+             if(!real_phone && real_phone_hunted_at){
                alert('Номер телефона не может быть пустым, если заполнена дата хантинга')
                return
              }
@@ -790,7 +808,7 @@
              }else if(resp.success === false){
               alert(resp.message)
              }else{
-               alsert("Не удалось обновить добытый номер телефона")
+               alert("Не удалось обновить добытый номер телефона")
              }
          };
          

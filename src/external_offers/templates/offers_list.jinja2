@@ -820,18 +820,18 @@
              }else if(resp.success === false){
               alert(resp.message)
              }else{
-               alsert("Не удалось отправить задание обратно в очередь")
+               alert("Не удалось отправить задание обратно в очередь")
              }
          }
          document.getElementById("realPhoneButton").onclick = async function () {
              real_phone = document.getElementById('realPhoneInput').value;
              real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;
              real_name = document.getElementById('realNameInput').value;
-             if(!real_phone && real_phone_hunted_at){
+             if(real_phone && !real_phone_hunted_at){
               alert('Дата хантинга не может быть пустой, если заполнен номер телефона')
               return
              }
-             if(real_phone && !real_phone_hunted_at){
+             if(!real_phone && real_phone_hunted_at){
                alert('Номер телефона не может быть пустым, если заполнена дата хантинга')
                return
              }
@@ -860,7 +860,7 @@
              }else if(resp.success === false){
               alert(resp.message)
              }else{
-               alsert("Не удалось обновить добытый номер телефона")
+               alert("Не удалось обновить добытый номер телефона")
              }
          };
          
