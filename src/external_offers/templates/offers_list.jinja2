@@ -343,7 +343,7 @@
                      <br><br>
                                         
                      Дата добычи номера телефона: <br>
-                     <input type="datetime-local" id="realPhoneDtInput" placeholder="Введите дату добычи реального номера телефона" value={% if client.real_phone%}{{ client.real_phone_hunted_at }}{% else %}{{default_real_phone_hunted_at}}{% endif %} size=30>
+                     <input type="datetime-local" id="realPhoneDtInput" placeholder="Введите дату добычи реального номера телефона" value={% if client.real_phone%}{{ client.real_phone_hunted_at.strftime('%Y-%m-%dT%H:%M:%S') }}{% else %}{{default_real_phone_hunted_at}}{% endif %} size=30>
                      <br><br>
                      <button id="realPhoneButton" class="realPhoneButton">
                          Сохранить

@@ -9,3 +9,5 @@ create index clients_real_phone_index
 -- при джоине offers_for_call + parsed_offers
 create index offers_for_call_parsed_id_index
 	on offers_for_call (parsed_id);
+
+ALTER TABLE clients ALTER COLUMN real_phone_hunted_at TYPE TIMESTAMP;
