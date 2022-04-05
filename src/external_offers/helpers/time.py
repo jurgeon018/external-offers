@@ -12,4 +12,3 @@ def get_aware_date(date: Optional[datetime]) -> Optional[datetime]:
         return date
 
     return make_aware(date)
-

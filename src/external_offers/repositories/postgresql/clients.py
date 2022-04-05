@@ -98,7 +98,7 @@ async def assign_suitable_client_to_operator(
                         # (т.е те, у которых уже есть дата хантинга и реальный номер)
                         parsed_offers.c.is_calltracking.is_(True),
                         clients.c.real_phone_hunted_at.isnot(None),
-                        clients.c.real_phone_hunted_at <= (now - timedelta(
+                        clients.c.real_phone_hunted_at <= (datetime.now() - timedelta(
                             days=team_info.team_settings['return_to_queue_days_after_hunted']
                         )),
                     ),

@@ -527,7 +527,7 @@ async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest,
             success=False,
             message='Дата получения настоящего номера телефона обязательна для перевода на второй этап прозвона.',
         )
-    
+
     async with pg.get().transaction():
         await return_client_to_waiting_by_client_id(client_id=request.client_id)
         await return_offers_to_waiting_by_client_id(client_id=request.client_id)

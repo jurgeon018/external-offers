@@ -19,7 +19,8 @@ async def test_update_client_real_info__valid_parameters__real_info_is_changed(
         [client_id, ]
     )
     real_phone = '88005553535'
-    real_phone_hunted_at = '2022-01-14 04:44:44.794400+00:00'
+    real_phone_hunted_at = '2022-01-14 04:44:44'
+    # real_phone_hunted_at = '2022-01-14 04:44:44.794400+00:00'
     real_name = 'Реальное ФИО'
     # # act
     response = await http.request(
