@@ -356,6 +356,7 @@ async def sync_offers_for_call_with_parsed(is_test: bool) -> None:
                 id=offer_id,
                 group_id=parsed_offer.source_group_id,
                 parsed_id=parsed_offer.id,
+                source_object_id=parsed_offer.source_object_id,
                 client_id=client.client_id,
                 status=client.status,
                 created_at=now,
