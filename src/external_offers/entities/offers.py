@@ -54,7 +54,7 @@ class Offer:
     """Время предразмещения обьявления оператором"""
     activated_at: Optional[datetime] = None
     """Время активации обьявления"""
-    source_offer_id: Optional[str] = None
+    source_object_id: Optional[str] = None
     """Идентификатор обьявления на внешней площадке"""
 
 @dataclass
