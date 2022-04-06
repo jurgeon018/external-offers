@@ -23,7 +23,7 @@ from external_offers.services.test_objects import (
 )
 from external_offers.services.update_client_comment import update_client_comment_public
 from external_offers.services.update_client_phone import update_client_phone_public
-from external_offers.services.update_client_real_phone import update_client_real_info_public
+from external_offers.services.update_client_real_info import update_client_real_info_public
 from external_offers.services.update_clients_operator import update_clients_operator_public
 from external_offers.services.update_offer_category import update_offer_category_public
 from external_offers.services.update_offer_comment import update_offer_comment_public
@@ -67,6 +67,13 @@ urlpatterns = base_urls.urlpatterns + [
         base_handler_cls=PublicHandler,
     )),
     # перевод по статусам
+    url('/api/admin/v1/return-client-to-waiting/$', get_handler(
+        service=admin.return_client_to_waiting_public,
+        method='POST',
+        request_schema=entities.ReturnClientToWaitingRequest,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
     url('/api/admin/v1/decline-client/$', get_handler(
         service=admin.set_decline_status_for_client,
         method='POST',

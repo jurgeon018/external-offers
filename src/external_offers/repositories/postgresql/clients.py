@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
@@ -13,10 +13,14 @@ from external_offers import pg
 from external_offers.entities import Client
 from external_offers.enums import ClientStatus, OfferStatus
 from external_offers.enums.operator_role import OperatorRole
+from external_offers.enums.teams import TeamType
 from external_offers.mappers import client_mapper
 from external_offers.repositories.monolith_cian_announcementapi.entities.object_model import Status as PublicationStatus
-from external_offers.repositories.postgresql.tables import clients, offers_for_call
+from external_offers.repositories.postgresql.operators import get_operator_by_id
+from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
+from external_offers.repositories.postgresql.teams import get_team_by_id
 from external_offers.utils.next_call import get_next_call_date_when_draft
+from external_offers.utils.teams import get_team_info
 
 
 _NO_CALLS = 0
@@ -60,14 +64,56 @@ async def get_client_is_calltracking_by_client_id(*, client_id: str) -> bool:
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,
-    operator_team_id: Optional[int] = None,
     call_id: str,
     operator_roles: List[str],
     is_test: bool = False,
 ) -> str:
-
+    operator = await get_operator_by_id(operator_id=operator_id)
+    if operator:
+        team = await get_team_by_id(operator.team_id)
+    else:
+        team = None
+    team_info = get_team_info(team)
     now = datetime.now(pytz.utc)
+    if not runtime_settings.get('ENABLE_TEAM_TYPES', True):
+        team_type_clauses = []
+        joined_tables = clients.join(
+            offers_for_call,
+            offers_for_call.c.client_id == clients.c.client_id
+        )
+    else:
+        team_type = team_info.team_type
 
+        joined_tables = clients.join(
+            offers_for_call.join(parsed_offers, offers_for_call.c.parsed_id == parsed_offers.c.id),
+            offers_for_call.c.client_id == clients.c.client_id
+        )
+        if team_type == TeamType.attractor:
+            team_type_clauses = [
+                or_(
+                    # выдает в работу аттракторам все неколтрекинговые обьявки, или...
+                    parsed_offers.c.is_calltracking.is_(False),
+                    and_(
+                        # ...все колтрекинговые обьявки, которые прошли через этап хантинга,
+                        # (т.е те, у которых уже есть дата хантинга и реальный номер)
+                        parsed_offers.c.is_calltracking.is_(True),
+                        clients.c.real_phone_hunted_at.isnot(None),
+                        clients.c.real_phone_hunted_at <= (datetime.now() - timedelta(
+                            days=team_info.team_settings['return_to_queue_days_after_hunted']
+                        )),
+                    ),
+                )
+            ]
+        elif team_type == TeamType.hunter:
+            team_type_clauses = [
+                and_(
+                    # выдает в работу хантерам все колтрекинговые обьявки, которые еще не прошли через этап хантинга,
+                    # (т.е те, у которых еще нет даты хантинга и реального номера)
+                    parsed_offers.c.is_calltracking.is_(True),
+                    clients.c.real_phone_hunted_at.is_(None),
+                )
+            ]
+    operator_team_id = team_info.team_id
     if runtime_settings.ENABLE_TEAM_PRIORITIES and operator_team_id:
         priority_ordering = (
             nullslast(offers_for_call.c.team_priorities[str(operator_team_id)].asc())
@@ -99,10 +145,7 @@ async def assign_suitable_client_to_operator(
                 clients.c.client_id,
             ]
         ).select_from(
-            clients.join(
-                offers_for_call,
-                offers_for_call.c.client_id == clients.c.client_id
-            )
+            joined_tables
         ).with_for_update(
             skip_locked=True
         ).where(
@@ -112,12 +155,23 @@ async def assign_suitable_client_to_operator(
                     # Достает клиентов в ожидании
                     clients.c.unactivated.is_(False),
                     offers_for_call.c.publication_status.is_(None),
-                    clients.c.operator_user_id.is_(None),
+                    or_(
+                        and_(
+                            clients.c.operator_user_id != operator_id,
+                            clients.c.real_phone_hunted_at.isnot(None),
+                        ),
+                        and_(
+                            clients.c.operator_user_id.is_(None),
+                            clients.c.real_phone_hunted_at.is_(None),
+                        ),
+                    ),
+                    # clients.c.operator_user_id.is_(None),
                     offers_for_call.c.status == OfferStatus.waiting.value,
                     clients.c.status == ClientStatus.waiting.value,
                     clients.c.is_test == is_test,
                     *offer_category_clause,
                     *priority_clause,
+                    *team_type_clauses,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны
@@ -734,3 +788,21 @@ async def iterate_over_clients_sorted(
     )
     async for row in cursor:
         yield client_mapper.map_from(row)
+
+
+async def return_client_to_waiting_by_client_id(
+    *,
+    client_id: int,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            clients
+        ).values(
+            status=ClientStatus.waiting.value,
+            # operator_user_id=None,
+            calls_count=0,
+        ).where(
+            clients.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)
