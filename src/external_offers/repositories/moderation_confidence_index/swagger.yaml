@@ -123,6 +123,9 @@ definitions:
         description: Теелфон на который звоним
         format: int32
         type: integer
+      isIncoming:
+        description: Входящий звонок
+        type: boolean
       mp3Url:
         description: Урл до Mp3
         type: string
@@ -136,6 +139,16 @@ definitions:
       phoneTo:
         description: Теелфон на который звоним
         type: string
+      status:
+        description: Статус звонка через веб
+        enum:
+        - new
+        - connected
+        - notConnected
+        type: string
+        x-connected: Подключён
+        x-new: Новый звонок
+        x-notConnected: Не подключён
       taskKey:
         description: Ключ таски
         type: string

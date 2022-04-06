@@ -18,8 +18,6 @@ class OffersSettings:
 @dataclass
 class ClientsSettings:
     # Настройки фильтрации клиентов
-    calltracking: bool = False
-    """Флаг колтрекинга"""
     segments: Optional[list[str]] = None
     """Сегменты пользователей, которых будет обрабатывать команда"""
     subsegments: Optional[list[str]] = None
@@ -233,3 +231,13 @@ class UpdateTeamRequest(
 class DeleteTeamRequest:
     team_id: int
     """ID команды которую нужно удалить"""
+
+
+@dataclass
+class TeamInfo:
+    team_id: str
+    """Идентификатор команды"""
+    team_settings: dict
+    """Настройки команды"""
+    team_type: TeamType
+    """Тип команды"""

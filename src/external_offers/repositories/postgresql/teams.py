@@ -20,7 +20,7 @@ async def get_teams() -> List[Team]:
     return [teams_mapper.map_from(row) for row in rows]
 
 
-async def get_team_by_id(team_id: int) -> Optional[Team]:
+async def get_team_by_id(team_id: Optional[int]) -> Optional[Team]:
     query, params = asyncpgsa.compile_query(
         select(
             [teams]

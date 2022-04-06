@@ -10,12 +10,12 @@ from sqlalchemy import and_, delete, func, not_, or_, outerjoin, over, select, u
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
-from sqlalchemy.sql.selectable import CTE
 
 from external_offers import pg
 from external_offers.entities import ClientWaitingOffersCount, EnrichedOffer, Offer
 from external_offers.entities.clients import ClientDraftOffersCount
 from external_offers.entities.offers import OfferForPrioritization
+from external_offers.entities.teams import TeamType
 from external_offers.enums import OfferStatus
 from external_offers.mappers import (
     client_draft_offers_count_mapper,
@@ -783,7 +783,6 @@ async def get_offer_ids_for_prioritization(
     categories = team_settings['categories']
     regions = team_settings['regions']
     regions = [str(region) for region in regions]
-    calltracking = team_settings['calltracking']
     if fetch_valid_offers is True:
         # чтобы обьявка считалась валидной, должны совпадать все поля
         validity_clauses = [
@@ -791,8 +790,6 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().in_(categories),
             parsed_offers.c.source_object_model['region'].as_string().in_(regions),
         ]
-        if calltracking is not None:
-            validity_clauses.append(parsed_offers.c.is_calltracking.is_(calltracking))
         validity_clause = and_(*validity_clauses)
     elif fetch_valid_offers is False:
         # если хотя бы одно поле не совпадает - обьявка считается невалидной
@@ -801,8 +798,6 @@ async def get_offer_ids_for_prioritization(
             parsed_offers.c.source_object_model['category'].as_string().notin_(categories),
             parsed_offers.c.source_object_model['region'].as_string().notin_(regions),
         ]
-        if calltracking is not None:
-            validity_clauses.append(parsed_offers.c.is_calltracking.isnot(calltracking))
         validity_clause = or_(*validity_clauses)
     query, params = asyncpgsa.compile_query(
         select(
@@ -831,6 +826,7 @@ async def clear_invalid_waiting_offers_by_offer_ids(
     team_id: int,
     team_settings: dict,
     is_test: bool,
+    team_type: TeamType,
 ) -> list[str]:
     logger.warning('Очистка заданий для команды %s была запущена', team_id)
 
@@ -1179,3 +1175,19 @@ async def get_offer_comment_by_offer_id(offer_id: str) -> Optional[str]:
     )
     comment = await pg.get().fetchval(query, *params)
     return comment
+
+
+async def return_offers_to_waiting_by_client_id(
+    *,
+    client_id: int,
+) -> None:
+    query, params = asyncpgsa.compile_query(
+        update(
+            offers_for_call
+        ).values(
+            status=OfferStatus.waiting.value
+        ).where(
+            offers_for_call.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)

@@ -10,6 +10,7 @@ from external_offers.entities.admin import (
     AdminPromoGivenClientRequest,
     AdminResponse,
     AdminUpdateOffersListRequest,
+    ReturnClientToWaitingRequest,
 )
 from external_offers.entities.choose_profile import (
     HomeownerClientChooseMainProfileResult,
@@ -67,7 +68,7 @@ from external_offers.entities.update_client_phone import (
     UpdateClientPhoneRequest,
     UpdateClientPhoneResponse,
 )
-from external_offers.entities.update_client_real_phone import UpdateClientRealInfoRequest
+from external_offers.entities.update_client_real_info import UpdateClientRealInfoRequest
 from external_offers.entities.update_clients_operator import UpdateClientsOperatorRequest, UpdateClientsOperatorResponse
 from external_offers.entities.update_offer_category import UpdateOfferCategoryRequest, UpdateOfferCategoryResponse
 from external_offers.entities.update_offer_comment import UpdateOfferCommentRequest, UpdateOfferCommentResponse

@@ -38,14 +38,14 @@ class EnrichedOperator:
     """Дата создания оператора"""
     updated_at: datetime
     """Дата обновления оператора"""
+    team_type: TeamType
+    """Тип команды"""
     full_name: Optional[str] = None
     """Имя оператора """
     email: Optional[str] = None
     """Email оператора"""
     team_id: Optional[int] = None
     """ ID команды оператора """
-    team_type: Optional[TeamType] = TeamType.attractor
-    """Тип команды"""
     is_teamlead: bool = False
     """ Имеет ли право быть лидом команд """
     segment: Optional[UserSegment] = None

@@ -158,7 +158,6 @@ async def test_get_offer_ids_for_prioritization(fetch_valid):
         'segments': [],
         'categories': [],
         'regions': [],
-        'calltracking': True,
     }
     pg.get().fetch.return_value = future([])
     # act

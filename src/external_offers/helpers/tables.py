@@ -1,10 +1,10 @@
-from enum import Enum, EnumMeta
-from typing import List
+from enum import Enum
+from typing import List, Type
 
 
-def get_names(enum: EnumMeta) -> List[str]:
+def get_names(enum: Type[Enum]) -> List[str]:
     result = []
-    for value in enum:  # type: Enum
-        result.append(value.name)
+    for value in enum:
+        result.append(value.value)
 
     return result

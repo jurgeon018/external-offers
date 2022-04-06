@@ -54,9 +54,11 @@ class AdminOffersListPageHandler(PublicHandler):
         client = await get_client_in_progress_by_operator(
             operator_id=self.realty_user_id
         )
-        client_phone = ''
-        if client and len(client.client_phones) > 0:
-            client_phone = client.client_phones[0]
+        call_to_phone = ''
+        if client and client.real_phone:
+            call_to_phone = client.real_phone
+        elif client and len(client.client_phones) > 0:
+            call_to_phone = client.client_phones[0]
         client_is_calltracking = False
         if client:
             client_is_calltracking = await get_client_is_calltracking_by_client_id(
@@ -86,7 +88,7 @@ class AdminOffersListPageHandler(PublicHandler):
             client_is_calltracking=client_is_calltracking,
             offers=offers,
             client=client,
-            client_phone=client_phone,
+            call_to_phone=call_to_phone,
             default_next_call_datetime=next_call_datetime,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
             operator_id=self.realty_user_id,
