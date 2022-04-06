@@ -82,7 +82,10 @@ async def test_calls_history__get_csv_report_status(
     assert body['status'] == 'inProgress'
 
 
-@pytest.mark.skip('После обновления схемы перестал работать мок. Поправить в https://jira.cian.tech/browse/CD-134654')
+# Если тест падает, то нужно добавить cian_http.file.ResponseFile в response_schema
+# ручки api_call_component_v1_operator_calls_download_csv_reportcsv.
+# TODO: убрать в этой задаче https://jira.cian.tech/browse/CD-135956
+# @pytest.mark.skip('После обновления схемы перестал работать мок.')
 async def test_calls_history__download_csv(
         http,
         pg,
