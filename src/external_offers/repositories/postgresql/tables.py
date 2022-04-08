@@ -67,6 +67,7 @@ offers_for_call = sa.Table(
     sa.Column('offer_cian_id', sa.BIGINT),
     sa.Column('publication_status', sa.VARCHAR, nullable=True),
     sa.Column('row_version', sa.BIGINT, nullable=False, default=0),
+    sa.Column('is_calltracking', sa.BOOLEAN, nullable=True),
     sa.Column('client_id', sa.VARCHAR, nullable=False),
     sa.Column('status', sa.VARCHAR, nullable=False),
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),

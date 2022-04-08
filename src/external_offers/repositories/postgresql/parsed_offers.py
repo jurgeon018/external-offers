@@ -140,6 +140,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .returning(
             tables.parsed_offers.c.id,
             tables.parsed_offers.c.is_test,
+            tables.parsed_offers.c.is_calltracking,
             tables.parsed_offers.c.source_user_id,
             tables.parsed_offers.c.source_group_id,
             tables.parsed_offers.c.timestamp,

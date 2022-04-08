@@ -365,6 +365,7 @@ async def sync_offers_for_call_with_parsed(is_test: bool) -> None:
                 category=parsed_offer.category,
                 external_offer_type=parsed_offer.external_offer_type,
                 is_test=is_test,
+                is_calltracking=parsed_offer.is_calltracking,
             )
             await save_offer_for_call(offer=offer)
 

@@ -345,6 +345,7 @@ async def create_test_offer_public(request: CreateTestOfferRequest, user_id: int
         priority=get_attr(obj, 'offer_priority'),
         team_priorities=team_priorities,
         offer_cian_id=get_attr(obj, 'offer_cian_id'),
+        is_calltracking=get_attr(obj, 'is_calltracking'),
         # static params
         is_test=True,
         promocode=None,

@@ -400,11 +400,12 @@ class ParsedOfferForCreation:
     """ID групы обьявлений"""
     category: str
     """Категория"""
+    is_calltracking: bool
+    """Флаг колтрекинга"""
     is_test: bool = False
     """Флаг тестового обьявления"""
     external_offer_type: Optional[ExternalOfferType] = None
     """Тип объявления"""
-
 
 @dataclass
 class ParsedOfferForAccountPrioritization:

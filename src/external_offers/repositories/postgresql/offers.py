@@ -1191,3 +1191,12 @@ async def return_offers_to_waiting_by_client_id(
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def sync_offers_for_call_calltracking_from_parsed_offers() -> None:
+    await pg.get().execute("""
+        UPDATE offers_for_call
+        SET is_calltracking = parsed_offers.is_calltracking
+        FROM parsed_offers
+        WHERE offers_for_call.parsed_id = parsed_offers.id;
+    """)

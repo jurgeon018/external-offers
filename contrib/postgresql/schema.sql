@@ -11,6 +11,7 @@ create table offers_for_call
 			primary key,
 	parsed_id varchar not null,
 	offer_cian_id bigint,
+	is_calltracking boolean,
 	client_id varchar not null,
 	status offer_status_type not null,
 	created_at timestamp with time zone not null,

@@ -15,6 +15,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     AnnouncementReportingChangedQueueMessage,
     SwaggerObjectModel,
 )
+from external_offers.repositories.postgresql.offers import sync_offers_for_call_calltracking_from_parsed_offers
 from external_offers.services.announcement import process_announcement
 from external_offers.services.parsed_offers import extract_source_from_source_object_id, save_parsed_offer
 
@@ -52,3 +53,4 @@ async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[
 
         logger.info('Save parsed offer: %s', offer_event.id)
         await save_parsed_offer(offer=offer_event)
+    await sync_offers_for_call_calltracking_from_parsed_offers()
