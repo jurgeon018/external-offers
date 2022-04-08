@@ -82,6 +82,7 @@ async def assign_suitable_client_to_operator(
             offers_for_call.c.client_id == clients.c.client_id
         )
     else:
+        team_type = team_info.team_type
         if runtime_settings.get('USE_PARSED_OFFERS_FOR_CALLTRACKING_FILTRATION', True):
             table_with_ct_flag = parsed_offers
             joined_tables = clients.join(
@@ -94,7 +95,7 @@ async def assign_suitable_client_to_operator(
                 offers_for_call,
                 offers_for_call.c.client_id == clients.c.client_id
             )
-        if team_info.team_type == TeamType.attractor:
+        if team_type == TeamType.attractor:
             team_type_clauses = [
                 or_(
                     # выдает в работу аттракторам все неколтрекинговые обьявки, или...
@@ -110,7 +111,7 @@ async def assign_suitable_client_to_operator(
                     ),
                 )
             ]
-        elif team_info.team_type == TeamType.hunter:
+        elif team_type == TeamType.hunter:
             team_type_clauses = [
                 and_(
                     # выдает в работу хантерам все колтрекинговые обьявки, которые еще не прошли через этап хантинга,
