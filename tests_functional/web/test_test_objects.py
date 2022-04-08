@@ -33,7 +33,7 @@ async def test_create_test_parsed_offers_and_run_offers_creation_cron(
             body={'users': []}
         ),
     )
-
+    is_calltracking = False
     # act
     result = await http.request(
         'POST',
@@ -41,7 +41,7 @@ async def test_create_test_parsed_offers_and_run_offers_creation_cron(
         json={
             'sourceObjectId': '1_1931552437',
             'sourceUserId': '95f05f430722c915c498113b16ba0e78',
-            'isCalltracking': False,
+            'isCalltracking': is_calltracking,
             'userSegment': 'd',
             'userSubsegment': 'subsegment1',
             'sourceGroupId': 'group_id1',
@@ -104,6 +104,7 @@ async def test_create_test_parsed_offers_and_run_offers_creation_cron(
     assert resp['success'] is True
     assert offer_row['status'] == 'waiting'
     assert offer_row['priority'] == 232120412
+    assert offer_row['is_calltracking'] == is_calltracking
     assert client_row['cian_user_id'] is None
 
 
@@ -174,6 +175,7 @@ async def test_create_offer_from_default_settings(
     assert offers_for_call['category'] == DEFAULT_TEST_OFFER['category']
     assert offers_for_call['offer_cian_id'] == DEFAULT_TEST_OFFER['offer_cian_id']
     assert offers_for_call['priority'] == DEFAULT_TEST_OFFER['offer_priority']
+    assert offers_for_call['is_calltracking'] == DEFAULT_TEST_OFFER['is_calltracking']
 
     assert parsed_offer['source_object_id'] == source_object_id
     assert parsed_offer['source_user_id'] == source_user_id
@@ -263,6 +265,7 @@ async def test_create_offer_from_request_parameters(
     assert offers_for_call['offer_cian_id'] == TEST_OFFER_REQUEST['offerCianId']
     assert offers_for_call['team_priorities'] == TEST_OFFER_REQUEST['offerTeamPriorities']
     assert offers_for_call['priority'] == TEST_OFFER_REQUEST['offerPriority']
+    assert offers_for_call['is_calltracking'] == TEST_OFFER_REQUEST['isCalltracking']
 
     assert parsed_offer['source_object_id'] == source_object_id
     assert parsed_offer['source_user_id'] == source_user_id

@@ -39,6 +39,17 @@ async def test_external_offer_callback__existing_external_offer__updated_without
     kafka_service
 ):
     # arrange
+    source_object_id = '1_1986816313'
+    parsed_id1 = '3c0c865f-3012-4d02-8560-5c644d2c95ba'
+    parsed_id2 = '4c0c865f-3012-4d02-8560-5c644d2c95ba'
+    parsed_is_calltracking = False
+    offer_is_calltracking = True
+    await pg.execute("""
+        INSERT INTO offers_for_call (
+            id, parsed_id, client_id, priority, publication_status,status,category,created_at,synced_at,is_calltracking
+        ) VALUES
+        (2, $1, 2, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', $2);
+    """, [parsed_id1, offer_is_calltracking])
     old_offer_data = {
         'phones': ['87771114422'],
         'category': 'flatSale',
@@ -48,13 +59,13 @@ async def test_external_offer_callback__existing_external_offer__updated_without
         'address': 'адресф'
     }
     old_data = {
-        'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
+        'id': parsed_id1,
         'sourceGroupId': 'source_group_id_example1',
-        'sourceObjectId': '1_1986816313',
+        'sourceObjectId': source_object_id,
         'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
         'userSegment': 'c',
         'userSubsegment': 'subsegment_example_1',
-        'isCalltracking': False,
+        'isCalltracking': parsed_is_calltracking,
         'sourceObjectModel': old_offer_data,
         'timestamp': '2020-10-26 13:55:00'
     }
@@ -67,13 +78,13 @@ async def test_external_offer_callback__existing_external_offer__updated_without
         'address': 'адрес новый'
     }
     new_data = {
-        'id': '4c0c865f-3012-4d02-8560-5c644d2c95ba',
+        'id': parsed_id2,
         'sourceGroupId': 'source_group_id_example1',
-        'sourceObjectId': '1_1986816313',
+        'sourceObjectId': source_object_id,
         'sourceUserId': '27d1a87eb7a7cda52167530e424ca317',
         'userSegment': 'c',
         'userSubsegment': 'subsegment_example_1',
-        'isCalltracking': False,
+        'isCalltracking': parsed_is_calltracking,
         'sourceObjectModel': new_offer_data,
         'timestamp': '2020-10-26 13:55:00'
     }
@@ -89,16 +100,18 @@ async def test_external_offer_callback__existing_external_offer__updated_without
     await asyncio.sleep(2)
 
     # assert
-    row = await pg.fetchrow('SELECT * FROM parsed_offers LIMIT 1')
+    offer_row = await pg.fetchrow('SELECT * FROM offers_for_call where parsed_id=$1', [parsed_id1])
+    assert offer_row['is_calltracking'] == parsed_is_calltracking
 
+    row = await pg.fetchrow('SELECT * FROM parsed_offers LIMIT 1')
     row.pop('timestamp')
     row.pop('created_at')
     row.pop('updated_at')
     assert row == {
-        'id': '3c0c865f-3012-4d02-8560-5c644d2c95ba',
+        'id': parsed_id1,
         'user_segment': 'c',
         'user_subsegment': 'subsegment_example_1',
-        'source_object_id': '1_1986816313',
+        'source_object_id': source_object_id,
         'source_user_id': '27d1a87eb7a7cda52167530e424ca317',
         'source_object_model': (
             '{"title": "название новое", "phones": ["87771114422"], '
