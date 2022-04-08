@@ -15,7 +15,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities import 
     AnnouncementReportingChangedQueueMessage,
     SwaggerObjectModel,
 )
-from external_offers.repositories.postgresql.offers import sync_offers_for_call_calltracking_from_parsed_offers
+from external_offers.repositories.postgresql.offers import update_offer_is_calltracking_by_parsed_ids
 from external_offers.services.announcement import process_announcement
 from external_offers.services.parsed_offers import extract_source_from_source_object_id, save_parsed_offer
 
@@ -43,6 +43,8 @@ async def process_announcement_callback(messages: List[Message]) -> None:
 
 
 async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[entities.ParsedOfferMessage]]):
+    calltracking_parsed_ids = []
+    non_calltracking_parsed_ids = []
     for msg in messages:
         offer_event = msg.data
         source_object_id = offer_event.source_object_id
@@ -52,5 +54,17 @@ async def save_parsed_offers_callback(messages: List[EntityKafkaConsumerMessage[
             continue
 
         logger.info('Save parsed offer: %s', offer_event.id)
-        await save_parsed_offer(offer=offer_event)
-    await sync_offers_for_call_calltracking_from_parsed_offers()
+        parsed_offer_diff = await save_parsed_offer(offer=offer_event)
+        if parsed_offer_diff:
+            if parsed_offer_diff.is_calltracking is True:
+                calltracking_parsed_ids.append(parsed_offer_diff.id)
+            elif parsed_offer_diff.is_calltracking is False:
+                non_calltracking_parsed_ids.append(parsed_offer_diff.id)
+    await update_offer_is_calltracking_by_parsed_ids(
+        parsed_ids=calltracking_parsed_ids,
+        is_calltracking=True,
+    )
+    await update_offer_is_calltracking_by_parsed_ids(
+        parsed_ids=non_calltracking_parsed_ids,
+        is_calltracking=False,
+    )

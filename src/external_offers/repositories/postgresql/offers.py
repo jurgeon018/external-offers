@@ -1193,10 +1193,22 @@ async def return_offers_to_waiting_by_client_id(
     await pg.get().execute(query, *params)
 
 
-async def sync_offers_for_call_calltracking_from_parsed_offers() -> None:
-    await pg.get().execute("""
-        UPDATE offers_for_call
-        SET is_calltracking = parsed_offers.is_calltracking
-        FROM parsed_offers
-        WHERE offers_for_call.parsed_id = parsed_offers.id;
-    """)
+async def update_offer_is_calltracking_by_parsed_ids(
+    *,
+    parsed_ids: list[str],
+    is_calltracking: bool,
+) -> None:
+    for parsed_ids_chunk in iterate_over_list_by_chunks(
+        iterable=parsed_ids,
+        chunk_size=runtime_settings.get('ITERATE_OVER_OFFERS_FOR_CALLTRACKING_UPDATE', 15000),
+    ):
+        query, params = asyncpgsa.compile_query(
+            update(
+                offers_for_call
+            ).values(
+                is_calltracking=is_calltracking,
+            ).where(
+                offers_for_call.c.parsed_id.in_(parsed_ids_chunk)
+            )
+        )
+        await pg.get().execute(query, *params)

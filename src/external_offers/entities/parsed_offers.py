@@ -407,9 +407,18 @@ class ParsedOfferForCreation:
     external_offer_type: Optional[ExternalOfferType] = None
     """Тип объявления"""
 
+
 @dataclass
 class ParsedOfferForAccountPrioritization:
     phones: str
     """Номера телефонов в виде JSON списка"""
     user_segment: str
     """Сегмент пользователя"""
+
+
+@dataclass
+class ParsedOfferDiff:
+    id: str
+    """Уникальный ключ"""
+    is_calltracking: bool
+    """Флаг колтрекинга"""
