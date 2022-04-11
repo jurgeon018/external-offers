@@ -1208,7 +1208,10 @@ async def update_offer_is_calltracking_by_parsed_ids(
             ).values(
                 is_calltracking=is_calltracking,
             ).where(
-                offers_for_call.c.parsed_id.in_(parsed_ids_chunk)
+                and_(
+                    offers_for_call.c.is_calltracking != is_calltracking,
+                    offers_for_call.c.parsed_id.in_(parsed_ids_chunk),
+                )
             )
         )
         await pg.get().execute(query, *params)
