@@ -4,6 +4,7 @@ from typing import AsyncGenerator, List, Optional
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
+from cian_core.statsd import statsd_timer
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
@@ -61,6 +62,7 @@ async def get_client_is_calltracking_by_client_id(*, client_id: str) -> bool:
     """, client_id)
 
 
+@statsd_timer
 async def assign_suitable_client_to_operator(
     *,
     operator_id: int,

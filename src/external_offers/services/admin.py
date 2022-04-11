@@ -2,6 +2,7 @@ import logging
 from typing import Callable, Optional
 
 from cian_core.runtime_settings import runtime_settings
+from cian_core.statsd import statsd_timer
 
 from external_offers import pg
 from external_offers.entities.admin import (
@@ -61,6 +62,7 @@ from external_offers.utils import get_next_call_date_when_call_missed
 logger = logging.getLogger(__name__)
 
 
+@statsd_timer
 async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
     exists = await exists_offers_in_progress_by_operator(
