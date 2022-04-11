@@ -10,6 +10,7 @@ create table offers_for_call
 		constraint offers_for_call_pkey
 			primary key,
 	parsed_id varchar not null,
+	source_object_id varchar,
 	offer_cian_id bigint,
 	is_calltracking boolean,
 	client_id varchar not null,

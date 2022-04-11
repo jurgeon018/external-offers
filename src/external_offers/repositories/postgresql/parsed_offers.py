@@ -155,7 +155,8 @@ async def set_synced_and_fetch_parsed_offers_chunk(
             tables.parsed_offers.c.user_subsegment,
             tables.parsed_offers.c.source_object_model['phones'].label('phones'),
             tables.parsed_offers.c.source_object_model['contact'].label('contact'),
-            tables.parsed_offers.c.source_object_model['category'].as_string().label('category')
+            tables.parsed_offers.c.source_object_model['category'].as_string().label('category'),
+            tables.parsed_offers.c.source_object_id,
         )
     )
 

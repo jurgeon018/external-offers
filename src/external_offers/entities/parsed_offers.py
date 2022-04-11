@@ -406,6 +406,8 @@ class ParsedOfferForCreation:
     """Флаг тестового обьявления"""
     external_offer_type: Optional[ExternalOfferType] = None
     """Тип объявления"""
+    source_object_id: Optional[str] = None
+    """Идентификатор обьявления на внешней площадке"""
 
 
 @dataclass

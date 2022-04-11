@@ -64,6 +64,7 @@ offers_for_call = sa.Table(
     sa.Column('id', sa.VARCHAR, unique=True, primary_key=True),
     sa.Column('group_id', sa.VARCHAR, nullable=True),
     sa.Column('parsed_id', sa.VARCHAR, nullable=False),
+    sa.Column('source_object_id', sa.VARCHAR, nullable=True),
     sa.Column('offer_cian_id', sa.BIGINT),
     sa.Column('publication_status', sa.VARCHAR, nullable=True),
     sa.Column('row_version', sa.BIGINT, nullable=False, default=0),
