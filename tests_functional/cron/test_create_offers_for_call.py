@@ -102,6 +102,7 @@ async def test_create_offers__exist_parsed_offer_with_nonsuitable_new_client__do
     )
     assert len(rows) == 1
     assert rows[0]['priority'] == _CLEAR_PRIORITY
+    assert rows[0]['source_object_id'] == '1_1931442437'
 
 
 async def test_create_offers__exist_suitable_parsed_offer__creates_waiting_offer(
