@@ -53,7 +53,7 @@ create table clients
 	client_phones character varying[] not null,
 	real_phone varchar,
 	real_name varchar,
-	real_phone_hunted_at timestamp with time zone,
+	real_phone_hunted_at timestamp,
 	segment varchar(255),
 	next_call timestamp with time zone,
 	last_call_id varchar,

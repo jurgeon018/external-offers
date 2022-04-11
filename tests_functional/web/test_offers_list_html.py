@@ -5,7 +5,6 @@ import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-@pytest.mark.skip
 @pytest.mark.html
 async def test_get_offers_list__operator_with_client_in_progress__returns_offers_in_progress_page(
         http,
@@ -61,19 +60,21 @@ async def test_get_offers_list__operator_with_client_in_progress__returns_offers
                                              .read_text('utf-8'))
 
 
-@pytest.mark.skip
 @pytest.mark.html
 async def test_get_offers_list__operator_with_client_cancelled__returns_no_offers_page(
         http,
         pg,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         admin_external_offers_operator_with_client_cancelled_html,
         users_mock,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
+
     operator_with_client = 60024636
-    stub = await users_mock.add_stub(
+    await users_mock.add_stub(
         method='GET',
         path='/v1/get-user-roles/',
         response=MockResponse(
@@ -117,19 +118,20 @@ async def test_get_offers_list__operator_with_client_cancelled__returns_no_offer
                                              .read_text('utf-8'))
 
 
-@pytest.mark.skip
 @pytest.mark.html
 async def test_get_offers__operator_without_client__returns_no_offers_page(
         pg,
         http,
         admin_external_offers_operator_without_client_html,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     await pg.execute_scripts(offers_and_clients_fixture)
     operator_without_clients = 1
-    stub = await users_mock.add_stub(
+    await users_mock.add_stub(
         method='GET',
         path='/v1/get-user-roles/',
         response=MockResponse(

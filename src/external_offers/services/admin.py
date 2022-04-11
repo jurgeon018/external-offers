@@ -2,6 +2,7 @@ import logging
 from typing import Callable, Optional
 
 from cian_core.runtime_settings import runtime_settings
+from cian_core.statsd import statsd_timer
 
 from external_offers import pg
 from external_offers.entities.admin import (
@@ -15,9 +16,11 @@ from external_offers.entities.admin import (
     AdminPromoGivenClientRequest,
     AdminResponse,
     AdminUpdateOffersListRequest,
+    ReturnClientToWaitingRequest,
 )
 from external_offers.entities.clients import Client
 from external_offers.entities.offers import Offer
+from external_offers.entities.response import BasicResponse
 from external_offers.enums import CallStatus, OfferStatus
 from external_offers.helpers.uuid import generate_guid
 from external_offers.queue.helpers import send_kafka_calls_analytics_message_if_not_test
@@ -47,8 +50,9 @@ from external_offers.repositories.postgresql import (
     set_offers_phone_unavailable_by_client,
     set_offers_promo_given_by_client,
 )
-from external_offers.repositories.postgresql.clients import get_client_unactivated_by_client_id
-from external_offers.repositories.postgresql.operators import get_operator_by_id, get_operator_team_id
+from external_offers.repositories.postgresql.clients import return_client_to_waiting_by_client_id
+from external_offers.repositories.postgresql.offers import return_offers_to_waiting_by_client_id
+from external_offers.repositories.postgresql.operators import get_operator_by_id
 from external_offers.repositories.postgresql.teams import get_team_by_id
 from external_offers.services.offers_creator import get_team_info
 from external_offers.services.operator_roles import get_operator_roles
@@ -58,6 +62,7 @@ from external_offers.utils import get_next_call_date_when_call_missed
 logger = logging.getLogger(__name__)
 
 
+@statsd_timer
 async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int) -> AdminResponse:
     """ Обновить для оператора список объявлений в работе в админке """
     exists = await exists_offers_in_progress_by_operator(
@@ -76,12 +81,10 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
     operator_roles = []
     if not runtime_settings.DEBUG:
         operator_roles = await get_operator_roles(operator_id=user_id)
-    operator_team_id = await get_operator_team_id(operator_id=user_id)
     async with pg.get().transaction():
         call_id = generate_guid()
         client_id = await assign_suitable_client_to_operator(
             operator_id=user_id,
-            operator_team_id=operator_team_id,
             call_id=call_id,
             operator_roles=operator_roles,
             is_test=request.is_test,
@@ -100,7 +103,6 @@ async def update_offers_list(request: AdminUpdateOffersListRequest, user_id: int
             client_id=client_id,
             call_id=call_id,
         ):
-            
             await save_event_log_for_offers(
                 offers_ids=offers_ids,
                 operator_user_id=user_id,
@@ -407,11 +409,11 @@ async def set_call_missed_status_for_client(
         team = None
         if operator:
             team = await get_team_by_id(operator.team_id)
-        team_id, team_settings = get_team_info(team)
+        team_info = get_team_info(team)
         if offers_ids := await set_offers_call_missed_by_client(
             client_id=client_id,
-            call_missed_priority=team_settings['call_missed_priority'],
-            team_id=team_id,
+            call_missed_priority=team_info.team_settings['call_missed_priority'],
+            team_id=team_info.team_id,
         ):
             offer = await get_offer_by_offer_id(offer_id=offers_ids[0])
             await save_event_log_for_offers(
@@ -459,11 +461,11 @@ async def set_call_later_status_for_client(
         team = None
         if operator:
             team = await get_team_by_id(operator.team_id)
-        team_id, team_settings = get_team_info(team)
+        team_info = get_team_info(team)
         if offers_ids := await set_offers_call_later_by_client(
             client_id=client_id,
-            team_settings=team_settings,
-            team_id=team_id,
+            team_settings=team_info.team_settings,
+            team_id=team_info.team_id,
         ):
             offer = await get_offer_by_offer_id(offer_id=offers_ids[0])
             client = await get_client_by_client_id(client_id=request.client_id)
@@ -512,3 +514,26 @@ async def set_client_to_status_and_send_kafka_message(
                 offer=offer,
                 status=non_draft_status,
             )
+
+
+async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest, user_id: int) -> BasicResponse:
+    client = await get_client_by_client_id(client_id=request.client_id)
+
+    if not client.real_phone:
+        return BasicResponse(
+            success=False,
+            message='Настоящий номер телефона обязателен для перевода на второй этап прозвона.',
+        )
+    if not client.real_phone_hunted_at:
+        return BasicResponse(
+            success=False,
+            message='Дата получения настоящего номера телефона обязательна для перевода на второй этап прозвона.',
+        )
+
+    async with pg.get().transaction():
+        await return_client_to_waiting_by_client_id(client_id=request.client_id)
+        await return_offers_to_waiting_by_client_id(client_id=request.client_id)
+    return BasicResponse(
+        success=True,
+        message='Клиент был успешно возвращен в очередь на прозвон.',
+    )

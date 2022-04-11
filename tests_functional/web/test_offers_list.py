@@ -15,10 +15,13 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
+
     expected_client = '224'
     expected_operator_offer = '226'
     operator_id = 60024636
@@ -150,10 +153,12 @@ async def test_update_offers_list__with_is_test_true__assigns_test_object_to_ope
 async def test_update_offers_list__operator_with_client_in_progress__returns_not_success(
         pg,
         http,
-        offers_and_clients_fixture
+        offers_and_clients_fixture,
+        parsed_offers_fixture,
 ):
     # arrange
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_fixture)
     operator_with_offers_in_progress = 60024635
 
     # act
@@ -176,6 +181,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
@@ -188,6 +194,7 @@ async def test_update_offers_list__operator_without_client__returns_success(
     )
 
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     operator_without_offers_in_progress = 60024636
 
     # act
@@ -210,6 +217,7 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
@@ -221,7 +229,9 @@ async def test_update_offers_list__first_operator_without_client__updates_first_
         ),
     )
 
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     await pg.execute_scripts(offers_and_clients_fixture)
+
     operator_without_offers_in_progress = 60024636
     expected_operator_client = '3'
     expected_operator_offer = '4'
@@ -268,6 +278,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
         pg,
         http,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
         users_mock,
 ):
     # arrange
@@ -280,6 +291,7 @@ async def test_update_offers_list__second_operator_without_client_update__update
     )
 
     await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
     first_operator_without_offers_in_progress = 60024636
     second_operator_without_offers_in_progress = 60024637
     expected_operator_client = '2'
@@ -391,6 +403,33 @@ async def test_update_offers_list__exist_suitable_next_call_for_operator_in_queu
             'ddd86dec-20f5-4a70-bb3a-077b2754df77'
         ]
     )
+    await pg.execute(
+        """
+        INSERT INTO public.parsed_offers(
+        id,
+        user_segment,
+        source_object_id,
+        source_user_id,
+        source_object_model,
+        is_calltracking,
+        "timestamp",
+        created_at,
+        updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        """,
+        [
+            'ddd86dec-20f5-4a70-bb3a-077b2754dfe6',
+            'NOT_IMPORTANT',
+            '1_1',
+            '1',
+            '{}',
+            False,
+            now,
+            now,
+            now
+        ]
+    )
+
     await pg.execute(
         """
         INSERT INTO public.clients (

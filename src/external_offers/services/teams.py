@@ -23,10 +23,6 @@ def build_default_team_settings() -> dict[str, Any]:
     offers_settings = {
         'categories': runtime_settings.OFFER_TASK_CREATION_CATEGORIES,
         'regions': runtime_settings.OFFER_TASK_CREATION_REGIONS,
-        # минимальная дата создания в очереди
-        # '': ...
-        # колтрекинг
-        # 'calltracking': True,
     }
     clients_settings = {
         'segments': runtime_settings.OFFER_TASK_CREATION_SEGMENTS,

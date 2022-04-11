@@ -111,6 +111,10 @@
          padding: 0.5em 0em 0em 0.5em;
          display: inline-block;
          }
+         .client-hunted-block {
+         padding: 0.5em 0em 0em 0.5em;
+         display: inline-block;
+         }
          .call-later-client-block {
          padding: 0.5em 0em;
          display: flex;
@@ -240,6 +244,10 @@
             <div class="call-interrupted-client-block">
                <button class="call-interrupted-client-button" id="callInterruptedClientButton">Бросили трубку</button>
                <div class="call-interrupted-client-messages" id="callInterruptedClientMessages"></div>
+            </div>
+            <div class="client-hunted-block">
+               <button class="client-hunted-button" id="clientHuntedButton">Вернуть в очередь</button>
+               <div class="client-hunted-messages" id="clientHuntedMessages"></div>
             </div>
             <div class="call-later-client-block">
                
@@ -628,6 +636,7 @@
            if(operator_is_hunter){
              alert('У хантеров нет прав на выдачу промокода')
              return
+           }
            let call_status = localStorage.getItem('voxCallStatus');
            if(call_status == 'start'){
                if (!confirm('Напоминание: Перевод по статусам прервет текущий звонок. Вы действительно хотите продолжить?')) {
@@ -744,17 +753,42 @@
              resp = await response.json()
              document.getElementById("additionalEmailsClientMessages").innerHTML = resp.message
          };
-         
+         document.getElementById("clientHuntedButton").onclick = async function() {
+             let obj =  {
+                 'clientId': '1',
+             };
+             const response = await fetch("/api/admin/v1/return-client-to-waiting/", {
+                 method: 'POST',
+                 body: DEBUG ? JSON.stringify(obj) : formDataFromObject(obj)
+             });
+             resp = await response.json()
+             if(resp.success === true){
+              alert(resp.message);
+              location.reload();
+             }else if(resp.success === false){
+              alert(resp.message)
+             }else{
+               alert("Не удалось отправить задание обратно в очередь")
+             }
+         }
          document.getElementById("realPhoneButton").onclick = async function () {
              real_phone = document.getElementById('realPhoneInput').value;
+             real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;
+             real_name = document.getElementById('realNameInput').value;
+             if(real_phone && !real_phone_hunted_at){
+              alert('Дата хантинга не может быть пустой, если заполнен номер телефона')
+              return
+             }
+             if(!real_phone && real_phone_hunted_at){
+               alert('Номер телефона не может быть пустым, если заполнена дата хантинга')
+               return
+             }
              if(!real_phone){
                real_phone = null;
              }
-             real_phone_hunted_at = document.getElementById('realPhoneDtInput').value;
              if(!real_phone_hunted_at){
                real_phone_hunted_at = null;
              }
-             real_name = document.getElementById('realNameInput').value;
              if(!real_name){
                real_name = null;
              }
@@ -774,7 +808,7 @@
              }else if(resp.success === false){
               alert(resp.message)
              }else{
-               alsert("Не удалось обновить добытый номер телефона")
+               alert("Не удалось обновить добытый номер телефона")
              }
          };
          

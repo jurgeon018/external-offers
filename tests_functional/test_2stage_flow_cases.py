@@ -1,7 +1,7 @@
 import json
 
 
-async def test_update_offer_comment__valid_parameters__comment_is_changed(
+async def test_update_client_real_info__valid_parameters__real_info_is_changed(
     http,
     pg,
     offers_and_clients_fixture,
@@ -18,8 +18,9 @@ async def test_update_offer_comment__valid_parameters__comment_is_changed(
         """,
         [client_id, ]
     )
-    real_phone = '8 800 555 35 35'
-    real_phone_hunted_at = '2022-01-14 04:44:44.794400+00:00'
+    real_phone = '88005553535'
+    real_phone_hunted_at = '2022-01-14 04:44:44'
+    # real_phone_hunted_at = '2022-01-14 04:44:44.794400+00:00'
     real_name = 'Реальное ФИО'
     # # act
     response = await http.request(
@@ -44,8 +45,8 @@ async def test_update_offer_comment__valid_parameters__comment_is_changed(
         [client_id, ]
     )
     # assert
-    assert body['success'] is True
     assert body['message'] == 'Реальные данные клиента были успешно изменены'
+    assert body['success'] is True
     assert client_before_api_call['real_phone'] is None
     assert client_before_api_call['real_phone_hunted_at'] is None
     assert client_before_api_call['real_name'] is None
