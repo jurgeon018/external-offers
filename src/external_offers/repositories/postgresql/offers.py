@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional, Union
@@ -1006,17 +1007,14 @@ async def get_offers_regions_by_client_ids() -> dict[str, list[int]]:
             )
         )
     )
-
+    
     rows = await pg.get().fetch(query, *params)
     clients_regions: dict[str, list[int]] = {}
     for row in rows:
         client_id = row['client_id']
         region = row['region']
-        try:
-            clients_regions[client_id].append(region)
-        except KeyError:
-            clients_regions[client_id] = []
-            clients_regions[client_id].append(region)
+        clients_regions = defaultdict(list)
+        clients_regions[client_id].append(region)
     return clients_regions
 
 
