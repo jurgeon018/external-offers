@@ -24,6 +24,8 @@ class Offer:
     """Дата последней синхронизации объявления"""
     parsed_created_at: datetime
     """Дата создания спаршенного объявления"""
+    is_calltracking: Optional[bool] = None
+    """Флаг колтрекинга спаршеного обьявления"""
     group_id: Optional[str] = None
     """ID групы обьявлений"""
     priority: Optional[int] = None

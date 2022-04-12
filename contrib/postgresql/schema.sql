@@ -12,6 +12,7 @@ create table offers_for_call
 	parsed_id varchar not null,
 	source_object_id varchar,
 	offer_cian_id bigint,
+	is_calltracking boolean,
 	client_id varchar not null,
 	status offer_status_type not null,
 	created_at timestamp with time zone not null,

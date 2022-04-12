@@ -11,19 +11,28 @@ async def test_get_offers_list__without_x_real_userid__returns_400(http):
     await http.request('GET', '/admin/offers-list/', expected_status=400)
 
 
+@pytest.mark.parametrize('USE_PARSED_OFFERS_FOR_CALLTRACKING_FILTRATION', [
+    True,
+    False,
+])
 async def test_update_offers_list_with_unactivated_clients__operator_without_client__return_success(
         pg,
         http,
         offers_and_clients_fixture,
         parsed_offers_for_offers_and_clients_fixture,
         users_mock,
+        runtime_settings,
+        USE_PARSED_OFFERS_FOR_CALLTRACKING_FILTRATION,
 ):
     # arrange
+    await runtime_settings.set({
+        'USE_PARSED_OFFERS_FOR_CALLTRACKING_FILTRATION': USE_PARSED_OFFERS_FOR_CALLTRACKING_FILTRATION,
+    })
     await pg.execute_scripts(offers_and_clients_fixture)
     await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
 
     expected_client = '224'
-    expected_operator_offer = '226'
+    expected_offer = '226'
     operator_id = 60024636
     next_call = (datetime.now(pytz.utc) - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
     await pg.execute(f"""
@@ -37,14 +46,14 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
     """)
     await pg.execute(f"""
         INSERT INTO offers_for_call (
-            id, parsed_id, client_id, priority, publication_status,status,category,created_at,synced_at
+            id, parsed_id, client_id, priority, publication_status,status,category,created_at,synced_at,is_calltracking
         ) VALUES
-        (221, 221, 221, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (222, 222, 222, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (223, 223, 222, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (224, 224, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        (225, 225, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()'),
-        ({expected_operator_offer}, {expected_operator_offer}, {expected_client}, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()');
+        (221, 221, 221, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', 'f'),
+        (222, 222, 222, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', 'f'),
+        (223, 223, 222, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', 'f'),
+        (224, 224, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', 'f'),
+        (225, 225, 223, 1, 'Draft', 'draft', 'flatRent', 'now()', 'now()', 'f'),
+        ({expected_offer},{expected_offer},{expected_client},1,'Draft','draft','flatRent','now()','now()','f');
     """)
     await pg.execute("""
         INSERT INTO parsed_offers (
@@ -87,7 +96,7 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         ]
     )
     # assert
-    assert offers_event_log[0]['offer_id'] == expected_operator_offer
+    assert offers_event_log[0]['offer_id'] == expected_offer
     assert offers_event_log[0]['status'] == 'inProgress'
     assert body['success'] is True
     assert operator_id == await pg.fetchval(
@@ -98,7 +107,7 @@ async def test_update_offers_list_with_unactivated_clients__operator_without_cli
         ]
     )
 
-    assert expected_operator_offer == await pg.fetchval(
+    assert expected_offer == await pg.fetchval(
         'SELECT id FROM offers_for_call WHERE client_id=$1 AND status = $2',
         [
             expected_client,

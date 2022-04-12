@@ -400,6 +400,8 @@ class ParsedOfferForCreation:
     """ID групы обьявлений"""
     category: str
     """Категория"""
+    is_calltracking: bool
+    """Флаг колтрекинга"""
     is_test: bool = False
     """Флаг тестового обьявления"""
     external_offer_type: Optional[ExternalOfferType] = None
@@ -414,3 +416,11 @@ class ParsedOfferForAccountPrioritization:
     """Номера телефонов в виде JSON списка"""
     user_segment: str
     """Сегмент пользователя"""
+
+
+@dataclass
+class ParsedOfferDiff:
+    id: str
+    """Уникальный ключ"""
+    is_calltracking: bool
+    """Флаг колтрекинга"""
