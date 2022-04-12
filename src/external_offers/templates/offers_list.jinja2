@@ -354,7 +354,10 @@
                      <div>Добытое настоящее ФИО клиента: {% if client.real_name%}{{ client.real_name }}{% else %} - {% endif %}</div>
                      <div>Добытый реальный номер телефона: {{ client.real_phone }}</div>
                      <div>Дата добычи: {{ client.real_phone_hunted_at }}</div>
+                     <input type="hidden" id="realPhoneButton" class="realPhoneButton"/>
                  </div>
+                 {% else %}
+                     <input type="hidden" id="realPhoneButton" class="realPhoneButton"/>
                  {% endif %}
              </div>
          </div>
