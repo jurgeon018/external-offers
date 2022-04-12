@@ -85,20 +85,27 @@ async def assign_suitable_client_to_operator(
         )
     else:
         team_type = team_info.team_type
-
-        joined_tables = clients.join(
-            offers_for_call.join(parsed_offers, offers_for_call.c.parsed_id == parsed_offers.c.id),
-            offers_for_call.c.client_id == clients.c.client_id
-        )
+        if runtime_settings.get('USE_PARSED_OFFERS_FOR_CALLTRACKING_FILTRATION', True):
+            table_with_ct_flag = parsed_offers
+            joined_tables = clients.join(
+                offers_for_call.join(parsed_offers, offers_for_call.c.parsed_id == parsed_offers.c.id),
+                offers_for_call.c.client_id == clients.c.client_id
+            )
+        else:
+            table_with_ct_flag = offers_for_call
+            joined_tables = clients.join(
+                offers_for_call,
+                offers_for_call.c.client_id == clients.c.client_id
+            )
         if team_type == TeamType.attractor:
             team_type_clauses = [
                 or_(
                     # выдает в работу аттракторам все неколтрекинговые обьявки, или...
-                    parsed_offers.c.is_calltracking.is_(False),
+                    table_with_ct_flag.c.is_calltracking.is_(False),
                     and_(
                         # ...все колтрекинговые обьявки, которые прошли через этап хантинга,
                         # (т.е те, у которых уже есть дата хантинга и реальный номер)
-                        parsed_offers.c.is_calltracking.is_(True),
+                        table_with_ct_flag.c.is_calltracking.is_(True),
                         clients.c.real_phone_hunted_at.isnot(None),
                         clients.c.real_phone_hunted_at <= (datetime.now() - timedelta(
                             days=team_info.team_settings['return_to_queue_days_after_hunted']
@@ -111,7 +118,7 @@ async def assign_suitable_client_to_operator(
                 and_(
                     # выдает в работу хантерам все колтрекинговые обьявки, которые еще не прошли через этап хантинга,
                     # (т.е те, у которых еще нет даты хантинга и реального номера)
-                    parsed_offers.c.is_calltracking.is_(True),
+                    table_with_ct_flag.c.is_calltracking.is_(True),
                     clients.c.real_phone_hunted_at.is_(None),
                 )
             ]

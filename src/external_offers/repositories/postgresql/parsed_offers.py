@@ -15,6 +15,7 @@ from external_offers import pg
 from external_offers.entities.parsed_offers import (
     ParsedObjectModel,
     ParsedOffer,
+    ParsedOfferDiff,
     ParsedOfferForAccountPrioritization,
     ParsedOfferForCreation,
     ParsedOfferMessage,
@@ -22,6 +23,7 @@ from external_offers.entities.parsed_offers import (
 from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.parsed_object_model import parsed_object_model_mapper
 from external_offers.mappers.parsed_offers import (
+    parsed_offer_diff_mapper,
     parsed_offer_for_account_prioritization,
     parsed_offer_for_creation_mapper,
     parsed_offer_mapper,
@@ -35,7 +37,7 @@ from external_offers.utils import iterate_over_list_by_chunks
 logger = logging.getLogger(__name__)
 
 
-async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
+async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> Optional[ParsedOfferDiff]:
     insert_query = insert(tables.parsed_offers)
 
     now = datetime.now(tz=pytz.UTC)
@@ -62,10 +64,13 @@ async def save_parsed_offer(*, parsed_offer: ParsedOfferMessage) -> None:
                 'timestamp': insert_query.excluded.timestamp,
                 'external_offer_type': insert_query.excluded.external_offer_type,
             }
+        ).returning(
+            tables.parsed_offers.c.is_calltracking,
+            tables.parsed_offers.c.id,
         )
     )
-
-    await pg.get().execute(query, *params)
+    row = await pg.get().fetchrow(query, *params)
+    return parsed_offer_diff_mapper.map_from(row) if row else None
 
 
 async def save_test_parsed_offer(
@@ -140,6 +145,7 @@ async def set_synced_and_fetch_parsed_offers_chunk(
         .returning(
             tables.parsed_offers.c.id,
             tables.parsed_offers.c.is_test,
+            tables.parsed_offers.c.is_calltracking,
             tables.parsed_offers.c.source_user_id,
             tables.parsed_offers.c.source_group_id,
             tables.parsed_offers.c.timestamp,
