@@ -1,5 +1,5 @@
-from collections import defaultdict
 import logging
+from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional, Union
 
@@ -1007,7 +1007,7 @@ async def get_offers_regions_by_client_ids() -> dict[str, list[int]]:
             )
         )
     )
-    
+
     rows = await pg.get().fetch(query, *params)
     clients_regions: dict[str, list[int]] = {}
     for row in rows:
