@@ -1009,11 +1009,10 @@ async def get_offers_regions_by_client_ids() -> dict[str, list[int]]:
     )
 
     rows = await pg.get().fetch(query, *params)
-    clients_regions: dict[str, list[int]] = {}
+    clients_regions: dict[str, list[int]] = defaultdict(list)
     for row in rows:
         client_id = row['client_id']
         region = row['region']
-        clients_regions = defaultdict(list)
         clients_regions[client_id].append(region)
     return clients_regions
 
