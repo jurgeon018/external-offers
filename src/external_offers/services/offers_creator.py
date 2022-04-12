@@ -99,10 +99,6 @@ async def prioritize_client(
         )
         regions = clients_regions.get(client_id, [])
 
-        # regions = await get_offers_regions_by_client_id(
-        #     client_id=client_id
-        # )
-
         if regions in ([], [None]):
             return _CLEAR_PRIORITY
 
