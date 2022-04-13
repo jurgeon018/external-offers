@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional, Union
 
@@ -982,6 +983,38 @@ async def get_offers_regions_by_client_id(*, client_id: str) -> list[int]:
     rows = await pg.get().fetch(query, *params)
 
     return [row[_REGION_FIELD] for row in rows]
+
+
+async def get_offers_regions_by_client_ids() -> dict[str, list[int]]:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [
+                clients.c.client_id,
+                parsed_offers.c.source_object_model[_REGION_FIELD].as_integer().label(_REGION_FIELD),
+            ]
+        ).select_from(
+            clients.join(
+                offers_for_call.join(
+                    parsed_offers,
+                    offers_for_call.c.parsed_id == parsed_offers.c.id
+                ),
+                offers_for_call.c.client_id == clients.c.client_id
+            )
+        ).where(
+            or_(
+                offers_for_call.c.publication_status == PublicationStatus.draft.value,
+                offers_for_call.c.status == OfferStatus.waiting.value,
+            )
+        )
+    )
+
+    rows = await pg.get().fetch(query, *params)
+    clients_regions: dict[str, list[int]] = defaultdict(list)
+    for row in rows:
+        client_id = row['client_id']
+        region = row['region']
+        clients_regions[client_id].append(region)
+    return clients_regions
 
 
 async def iterate_over_offers_for_call_sorted(
