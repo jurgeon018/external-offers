@@ -5,7 +5,7 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-_CLEAR_PRIORITY = -1
+_CLEAR_PRIORITY = 99999999999999999999
 
 
 async def test_team_priorities(

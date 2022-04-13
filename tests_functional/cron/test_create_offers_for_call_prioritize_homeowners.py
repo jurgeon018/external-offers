@@ -4,7 +4,7 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-_CLEAR_PRIORITY = -1
+_CLEAR_PRIORITY = 99999999999999999999
 
 
 @pytest.mark.parametrize('use_gather_for_priority_clients', [True, False])

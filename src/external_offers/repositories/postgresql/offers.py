@@ -830,7 +830,7 @@ async def clear_invalid_waiting_offers_by_offer_ids(
 ) -> list[str]:
     logger.warning('Очистка заданий для команды %s была запущена', team_id)
 
-    _CLEAR_PRIORITY = -1
+    _CLEAR_PRIORITY = 99999999999999999999
     invalid_offer_ids = await get_offer_ids_for_prioritization(
         team_settings=team_settings,
         is_test=is_test,
