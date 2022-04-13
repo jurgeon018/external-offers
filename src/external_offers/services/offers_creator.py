@@ -67,7 +67,7 @@ from external_offers.utils.teams import get_team_info
 
 logger = logging.getLogger(__name__)
 
-_CLEAR_PRIORITY = 99999999999999999999
+_CLEAR_PRIORITY = 999999999999999999
 
 
 async def clear_waiting_offers_and_clients_with_off_count_limits() -> None:
