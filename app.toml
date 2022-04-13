@@ -34,10 +34,6 @@ command = "save-parsed-offers"
 cpu = 0.4
 memory = 512
 
-[job.send-parsed-offers]
-type = "consumer"
-command = "send-parsed-offers"
-
 [job.process_announcement_consumer]
 type = "consumer"
 command = "process_announcement_consumer"
