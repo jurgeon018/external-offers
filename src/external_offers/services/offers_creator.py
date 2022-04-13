@@ -50,6 +50,7 @@ from external_offers.repositories.postgresql.offers import (
     clear_invalid_waiting_offers_by_offer_ids,
     delete_calltracking_clients,
     delete_calltracking_offers,
+    get_offers_regions_by_client_ids,
     set_waiting_offers_team_priorities_by_offer_ids,
 )
 from external_offers.repositories.postgresql.parsed_offers import get_parsed_offers_for_account_prioritization
@@ -88,6 +89,7 @@ async def prioritize_client(
     client_count: int,
     team_settings: dict[str, Union[int, str, list[str]]],
     client_account_statuses: Optional[dict[str, ClientAccountStatus]] = None,
+    clients_regions: dict[str, list[int]],
 ) -> int:
     """ Возвращаем приоритет клиента, если клиента нужно убрать из очереди возвращаем _CLEAR_PRIORITY """
 
@@ -95,9 +97,7 @@ async def prioritize_client(
         client: Optional[Client] = await get_client_by_client_id(
             client_id=client_id
         )
-        regions = await get_offers_regions_by_client_id(
-            client_id=client_id
-        )
+        regions = clients_regions.get(client_id, [])
 
         if regions in ([], [None]):
             return _CLEAR_PRIORITY
@@ -128,6 +128,7 @@ async def prioritize_unactivated_clients(
     clients_priority: dict[str, Union[str, int]],
     unactivated_clients_counts: list[ClientDraftOffersCount],
     team_settings: dict[str, Union[int, str, list[str]]],
+    clients_regions: dict[str, list[int]]
 ) -> dict[str, Union[str, int]]:
     """ Просчитать приоритеты для добивочных заданий """
     logger.info('Начало просчета приоритета для добивочных заданий')
@@ -145,6 +146,7 @@ async def prioritize_unactivated_clients(
                 client_id=client_count.client_id,
                 client_count=client_count.draft_offers_count,
                 team_settings=team_settings,
+                clients_regions=clients_regions,
             )
             prioritize_client_coros.append(prioritize_client_coro)
 
@@ -261,6 +263,7 @@ async def prioritize_clients(
     waiting_clients_counts: list[ClientWaitingOffersCount],
     team_settings: dict[str, Union[int, str, list[str]]],
     client_account_statuses: dict[str, ClientAccountStatus],
+    clients_regions: dict[str, list[int]],
 ) -> dict[str, Union[str, int]]:
     logger.info('Начало просчета приоритета для клиентов в ожидании')
     prefix = team_settings['new_client_priority']
@@ -279,6 +282,7 @@ async def prioritize_clients(
                 client_count=client_count.waiting_offers_count,
                 team_settings=team_settings,
                 client_account_statuses=client_account_statuses,
+                clients_regions=clients_regions,
             )
             prioritize_client_coros.append(prioritize_client_coro)
 
@@ -408,6 +412,7 @@ async def create_priorities(
     team_settings: dict,
     team_id: Optional[int] = None,
     client_account_statuses: dict[str, ClientAccountStatus],
+    clients_regions: dict[str, list[int]]
 ) -> dict[int, dict[int, list[str]]]:
     if team_id:
         logger.warning(
@@ -436,6 +441,7 @@ async def create_priorities(
             team_settings=team_settings,
             client_account_statuses=client_account_statuses,
             team_id=team_id,
+            clients_regions=clients_regions,
         )
     else:
         # создает часть приоритета для клиентов в ожидании
@@ -443,12 +449,14 @@ async def create_priorities(
             waiting_clients_counts=waiting_clients_counts,
             team_settings=team_settings,
             client_account_statuses=client_account_statuses,
+            clients_regions=clients_regions,
         )
     # создает часть приоритета для добивочных клиентов
     clients_priority = await prioritize_unactivated_clients(
         clients_priority=clients_priority,
         unactivated_clients_counts=unactivated_clients_counts,
         team_settings=team_settings,
+        clients_regions=clients_regions,
     )
     # создает часть приоритета для заданий + склеивает с приоритетами клиентов
     offers_priority = await prioritize_offers(
@@ -467,6 +475,7 @@ async def get_cached_clients_priority(
     team_settings: dict,
     client_account_statuses: dict[str, ClientAccountStatus],
     team_id: Optional[int] = None,
+    clients_regions: dict[str, list[int]],
 ) -> dict[str, str]:
     # достает закешированную часть приоритета для клиентов в ожидании
     clients_priority = await get_clients_priority_by_team_id(team_id)
@@ -476,6 +485,7 @@ async def get_cached_clients_priority(
             waiting_clients_counts=waiting_clients_counts,
             team_settings=team_settings,
             client_account_statuses=client_account_statuses,
+            clients_regions=clients_regions,
         )
         # кеширует часть приоритета для клиентов в ожидании
         await save_clients_priority(
@@ -493,6 +503,9 @@ async def prioritize_waiting_offers(
     logger.warning('Приоретизация заданий была запущена')
     created_offers_priorities = []
     client_account_statuses = {}
+    clients_regions = await get_offers_regions_by_client_ids()
+    logger.warning('Количество закешированых регионов клиентов: %s', len(clients_regions))
+
     if runtime_settings.get('USE_CACHED_CLIENT_ACCOUNT_STATUSES', True):
         client_account_statuses: dict[str, ClientAccountStatus] = await get_client_account_statuses()
     logger.warning('Количество закешированых статусов клиентов: %s', len(client_account_statuses))
@@ -526,6 +539,7 @@ async def prioritize_waiting_offers(
                 team_settings=team_info.team_settings,
                 team_id=team_id,
                 client_account_statuses=client_account_statuses,
+                clients_regions=clients_regions,
             )
         )
 
