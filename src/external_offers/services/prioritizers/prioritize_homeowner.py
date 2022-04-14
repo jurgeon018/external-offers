@@ -26,7 +26,7 @@ from external_offers.services.prioritizers.build_priority import build_waiting_h
 
 logger = logging.getLogger(__name__)
 
-_CLEAR_PRIORITY = -1
+_CLEAR_PRIORITY = 999999999999999999
 
 _METRIC_PRIORITIZE_FAILED = 'prioritize_client.failed'
 _METRIC_PRIORITIZE_NO_LK = 'prioritize_client.no_lk'

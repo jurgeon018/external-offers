@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import AsyncGenerator, List, Optional
 
@@ -28,7 +29,10 @@ _NO_CALLS = 0
 _ONE_CALL = 1
 
 _NO_OFFER_CATEGORY = ''
-_CLEAR_PRIORITY = -1
+_CLEAR_PRIORITY = 999999999999999999
+
+
+logger = logging.getLogger(__name__)
 
 
 async def get_client_in_progress_by_operator(
@@ -179,7 +183,6 @@ async def assign_suitable_client_to_operator(
                     clients.c.status == ClientStatus.waiting.value,
                     clients.c.is_test == is_test,
                     *offer_category_clause,
-                    *priority_clause,
                     *team_type_clauses,
                 ),
                 and_(
@@ -194,7 +197,6 @@ async def assign_suitable_client_to_operator(
                     clients.c.next_call <= now,
                     clients.c.is_test == is_test,
                     *offer_category_clause,
-                    *priority_clause,
                 ),
                 # добивочные клиенты
                 and_(
@@ -208,7 +210,6 @@ async def assign_suitable_client_to_operator(
                     ]),
                     clients.c.is_test == is_test,
                     *offer_category_clause,
-                    *priority_clause,
                 ),
                 and_(
                     # Достает перезвоны и недозвоны добивочных клиентов с неактивироваными черновиками
@@ -222,7 +223,6 @@ async def assign_suitable_client_to_operator(
                     offers_for_call.c.publication_status == PublicationStatus.draft.value,
                     clients.c.is_test == is_test,
                     *offer_category_clause,
-                    *priority_clause,
                 ),
             )
         ).order_by(
@@ -249,6 +249,12 @@ async def assign_suitable_client_to_operator(
             clients.c.client_id
         )
     )
+    if runtime_settings.get('ENABLE_CLIENT_ASSIGNING_LOGGING', True):
+        logger.warning(
+            '\nЗапрос: %s; \nПараметры: %s',
+            query,
+            params,
+        )
     result = await pg.get().fetchval(query, *params)
     return result
 

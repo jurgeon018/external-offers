@@ -5,7 +5,7 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
-_CLEAR_PRIORITY = -1
+_CLEAR_PRIORITY = 999999999999999999
 
 
 async def test_team_priorities(
@@ -307,8 +307,8 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     # assert ofc12['priority'] == 231120212
     assert ofc13['priority'] == 231115223
     assert await pg.fetchval('select count(*) from offers_for_call') == 9
-    assert json.loads(ofc1['team_priorities'])['1'] == -1
-    assert json.loads(ofc1['team_priorities'])['2'] == -1
+    assert json.loads(ofc1['team_priorities'])['1'] == _CLEAR_PRIORITY
+    assert json.loads(ofc1['team_priorities'])['2'] == _CLEAR_PRIORITY
     # assert json.loads(ofc1['team_priorities'])['3'] == -1  # ???
     # TODO:
     # assert json.loads(ofc1['team_priorities'])['3'] == 231115211
@@ -318,46 +318,46 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     # assert json.loads(ofc2['team_priorities'])['2'] == -1  # ???
     # TODO:
     # assert json.loads(ofc2['team_priorities'])['2'] == 231120211
-    assert json.loads(ofc2['team_priorities'])['3'] == -1
+    assert json.loads(ofc2['team_priorities'])['3'] == _CLEAR_PRIORITY
     assert json.loads(ofc2['team_priorities'])['4'] == 231120213
     assert json.loads(ofc2['team_priorities'])['5'] == 231120221
     assert json.loads(ofc3['team_priorities'])['1'] == 231120211
     # assert json.loads(ofc3['team_priorities'])['2'] == 231120211
     # assert json.loads(ofc3['team_priorities'])['2'] == -1  # ???
     # TODO:
-    assert json.loads(ofc3['team_priorities'])['3'] == -1
+    assert json.loads(ofc3['team_priorities'])['3'] == _CLEAR_PRIORITY
     assert json.loads(ofc3['team_priorities'])['4'] == 231120213
     assert json.loads(ofc3['team_priorities'])['5'] == 231120221
     assert json.loads(ofc4['team_priorities'])['1'] == 231120211
     # assert json.loads(ofc4['team_priorities'])['2'] == 231120211
     # assert json.loads(ofc4['team_priorities'])['2'] == -1  # ???
     # TODO:
-    assert json.loads(ofc4['team_priorities'])['3'] == -1
+    assert json.loads(ofc4['team_priorities'])['3'] == _CLEAR_PRIORITY
     assert json.loads(ofc4['team_priorities'])['4'] == 231120213
     assert json.loads(ofc4['team_priorities'])['5'] == 231120221
     assert json.loads(ofc5['team_priorities'])['1'] == 231120211
-    assert json.loads(ofc5['team_priorities'])['2'] == -1
-    assert json.loads(ofc5['team_priorities'])['3'] == -1
+    assert json.loads(ofc5['team_priorities'])['2'] == _CLEAR_PRIORITY
+    assert json.loads(ofc5['team_priorities'])['3'] == _CLEAR_PRIORITY
     assert json.loads(ofc5['team_priorities'])['4'] == 231120213
     assert json.loads(ofc5['team_priorities'])['5'] == 231120221
-    assert json.loads(ofc11['team_priorities'])['1'] == -1
-    assert json.loads(ofc11['team_priorities'])['2'] == -1
-    assert json.loads(ofc11['team_priorities'])['3'] == -1
-    assert json.loads(ofc11['team_priorities'])['4'] == -1
-    assert json.loads(ofc11['team_priorities'])['5'] == -1
+    assert json.loads(ofc11['team_priorities'])['1'] == _CLEAR_PRIORITY
+    assert json.loads(ofc11['team_priorities'])['2'] == _CLEAR_PRIORITY
+    assert json.loads(ofc11['team_priorities'])['3'] == _CLEAR_PRIORITY
+    assert json.loads(ofc11['team_priorities'])['4'] == _CLEAR_PRIORITY
+    assert json.loads(ofc11['team_priorities'])['5'] == _CLEAR_PRIORITY
     # assert json.loads(ofc12['team_priorities'])['1'] == 231120212
     # assert json.loads(ofc12['team_priorities'])['1'] == -1  # ???
     # TODO:
     assert json.loads(ofc12['team_priorities'])['2'] == 231120212
-    assert json.loads(ofc12['team_priorities'])['3'] == -1
+    assert json.loads(ofc12['team_priorities'])['3'] == _CLEAR_PRIORITY
     # assert json.loads(ofc12['team_priorities'])['4'] == -1  # ???
     # TODO:
     # assert json.loads(ofc12['team_priorities'])['4'] == 231120212
     # assert json.loads(ofc12['team_priorities'])['5'] == -1  # ???
     # TODO:
     # assert json.loads(ofc12['team_priorities'])['5'] == 231120222
-    assert json.loads(ofc13['team_priorities'])['1'] == -1
-    assert json.loads(ofc13['team_priorities'])['2'] == -1
+    assert json.loads(ofc13['team_priorities'])['1'] == _CLEAR_PRIORITY
+    assert json.loads(ofc13['team_priorities'])['2'] == _CLEAR_PRIORITY
     assert json.loads(ofc13['team_priorities'])['3'] == 231115223
     assert json.loads(ofc13['team_priorities'])['4'] == 231115221
     assert json.loads(ofc13['team_priorities'])['5'] == 231115213
@@ -451,7 +451,11 @@ async def assert_offers_updating(*, pg, http, operator_id):
     assert ofc['priority'] == 231120211
     new_priority = 100000
     assert json.loads(ofc['team_priorities']) == {
-        '1': new_priority, '2': -1, '3': -1, '4': 231120213, '5': 231120221
+        '1': new_priority,
+        '2': _CLEAR_PRIORITY,
+        '3': _CLEAR_PRIORITY,
+        '4': 231120213,
+        '5': 231120221
     }
 
 
