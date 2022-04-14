@@ -5,7 +5,7 @@ import pytz
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
-_CLEAR_PRIORITY = -1
+_CLEAR_PRIORITY = 999999999999999999
 
 
 

@@ -19,7 +19,7 @@ create table offers_for_call
 	started_at timestamp with time zone,
 	synced_at timestamp with time zone not null,
 	promocode varchar,
-	priority integer,
+	priority bigint,
 	last_call_id varchar,
 	parsed_created_at timestamp with time zone default CURRENT_TIMESTAMP not null,
 	category varchar,

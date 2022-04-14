@@ -76,7 +76,7 @@ offers_for_call = sa.Table(
     sa.Column('started_at', sa.TIMESTAMP),
     sa.Column('promocode', sa.VARCHAR),
     sa.Column('comment', sa.VARCHAR, nullable=True),
-    sa.Column('priority', sa.INT),
+    sa.Column('priority', sa.BIGINT),
     sa.Column('team_priorities', JSONB(none_as_null=True), nullable=True),
     sa.Column('category', sa.VARCHAR, nullable=True),
     sa.Column('last_call_id', sa.VARCHAR),

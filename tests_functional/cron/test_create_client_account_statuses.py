@@ -4,6 +4,8 @@ import pytest
 from cian_functional_test_utils.pytest_plugin import MockResponse
 
 
+_CLEAR_PRIORITY = 999999999999999999
+
 async def v2_get_users_by_phone_add_stub(
     users: list,
     phone: str,
@@ -84,7 +86,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     account_3_c_inner_phone = '80000003'
     account_3_c_cian_user_id = 3
     expected_offer_3_c = {
-        'priority': -1
+        'priority': _CLEAR_PRIORITY
     }
     expected_account_3_c = {
         'smb_account_status': 'has_bad_account',
@@ -109,7 +111,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     account_4_c_inner_phone = '80000004'
     account_4_c_cian_user_id = 4
     expected_offer_4_c = {
-        'priority': -1
+        'priority': _CLEAR_PRIORITY
     }
     expected_account_4_c = {
         'smb_account_status': 'has_wrong_user_source_type',
@@ -162,7 +164,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     account_6_c_inner_phone = '80000006'
 
     expected_offer_6_c = {
-        'priority': -1
+        'priority': _CLEAR_PRIORITY
     }
     expected_account_6_c = {
         'smb_account_status': 'api_client_exception',
@@ -176,7 +178,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     account_7_c_inner_phone = '80000007'
     account_7_c_cian_user_id = 7
     expected_offer_7_c = {
-        'priority': -1
+        'priority': _CLEAR_PRIORITY
     }
     expected_account_7_c = {
         'smb_account_status': None,
@@ -271,7 +273,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     account_16_d_inner_phone = '80000016'
     account_16_c_cian_user_id = 16
     expected_offer_16_d = {
-        'priority': -1
+        'priority': _CLEAR_PRIORITY
     }
     expected_account_16_d = {
         'phone': account_16_d_inner_phone,
@@ -296,7 +298,7 @@ async def test_create_client_account_statuses__statuses_are_created(
     account_17_d_inner_phone = '80000017'
     account_17_c_cian_user_id = 17
     expected_offer_17_d = {
-        'priority': -1
+        'priority': _CLEAR_PRIORITY
     }
     expected_account_17_d = {
         'phone': account_17_d_inner_phone,
@@ -321,7 +323,7 @@ async def test_create_client_account_statuses__statuses_are_created(
 
     account_18_d_inner_phone = '80000018'
     expected_offer_18_d = {
-        'priority': -1
+        'priority': _CLEAR_PRIORITY
     }
     expected_account_18_d = {
         'phone': account_18_d_inner_phone,

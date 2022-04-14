@@ -5,6 +5,9 @@ from cian_functional_test_utils.pytest_plugin import MockResponse
 from cian_json import json
 
 
+_CLEAR_PRIORITY = 999999999999999999
+
+
 @pytest.mark.parametrize('is_test_request, is_test_value', [
     (False, 'f'),
     (True, 't'),
@@ -254,7 +257,7 @@ async def test_update_priorities(
     """)
     # TODO:
     # assert ofc['priority'] == 231120212
-    assert ofc['priority'] == -1
+    assert ofc['priority'] == _CLEAR_PRIORITY
 
 
 async def update_team_settings(*, key, value, team_id, pg):
