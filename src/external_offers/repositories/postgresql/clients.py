@@ -102,19 +102,35 @@ async def assign_suitable_client_to_operator(
                 offers_for_call.c.client_id == clients.c.client_id
             )
         if team_type == TeamType.attractor:
-            team_type_clauses = [
-                or_(
+            onlyct_team_ids = runtime_settings.get('ONLY_HUNTED_CT_ATTRACTOR_TEAM_ID', [])
+            if team_info.team_id and int(team_info.team_id) in onlyct_team_ids:
+                team_type_clauses = [
                     and_(
-                        # ...все колтрекинговые обьявки, которые прошли через этап хантинга,
+                        # все колтрекинговые обьявки, которые прошли через этап хантинга,
                         # (т.е те, у которых уже есть дата хантинга и реальный номер)
                         table_with_ct_flag.c.is_calltracking.is_(True),
                         clients.c.real_phone_hunted_at.isnot(None),
                         clients.c.real_phone_hunted_at <= (datetime.now() - timedelta(
                             days=team_info.team_settings['return_to_queue_days_after_hunted']
                         )),
-                    ),
-                )
-            ]
+                    )
+                ]
+            else:
+                team_type_clauses = [
+                    or_(
+                        # выдает в работу аттракторам все неколтрекинговые обьявки, или...
+                        table_with_ct_flag.c.is_calltracking.is_(False),
+                        and_(
+                            # ...все колтрекинговые обьявки, которые прошли через этап хантинга,
+                            # (т.е те, у которых уже есть дата хантинга и реальный номер)
+                            table_with_ct_flag.c.is_calltracking.is_(True),
+                            clients.c.real_phone_hunted_at.isnot(None),
+                            clients.c.real_phone_hunted_at <= (datetime.now() - timedelta(
+                                days=team_info.team_settings['return_to_queue_days_after_hunted']
+                            )),
+                        ),
+                    )
+                ]
         elif team_type == TeamType.hunter:
             team_type_clauses = [
                 and_(
