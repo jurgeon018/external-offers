@@ -104,8 +104,6 @@ async def assign_suitable_client_to_operator(
         if team_type == TeamType.attractor:
             team_type_clauses = [
                 or_(
-                    # выдает в работу аттракторам все неколтрекинговые обьявки, или...
-                    table_with_ct_flag.c.is_calltracking.is_(False),
                     and_(
                         # ...все колтрекинговые обьявки, которые прошли через этап хантинга,
                         # (т.е те, у которых уже есть дата хантинга и реальный номер)
