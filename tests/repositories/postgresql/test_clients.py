@@ -117,10 +117,6 @@ async def test_assign_suitable_client_to_operator__only_hunted_ct_attractor_team
         ONLY_HUNTED_CT_ATTRACTOR_TEAM_ID=[team_id]
     )
     operator_id = 1
-    default_no_calls = 0
-    default_one_more_call = 1
-    expected_call_id = '1'
-    default_offer_category = ''
     # https://www.joydeepdeb.com/tools/line-break.html
     mocker.patch(
         'external_offers.repositories.postgresql.clients.get_operator_by_id',
@@ -136,7 +132,6 @@ async def test_assign_suitable_client_to_operator__only_hunted_ct_attractor_team
             team_type=TeamType.attractor,
         ),
     )
-    
     query = (
         'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFRO'
         'M clients JOIN (offers_for_call JOIN parsed_offers ON offers_for_call.parsed_id = pars'
