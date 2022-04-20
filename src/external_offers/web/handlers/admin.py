@@ -84,10 +84,13 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
+        client_comment = client.comment or ''
+        client_comment = client_comment.replace('\n', '; ')
         self.write(get_offers_list_html(
             client_is_calltracking=client_is_calltracking,
             offers=offers,
             client=client,
+            client_comment=client_comment,
             call_to_phone=call_to_phone,
             default_next_call_datetime=next_call_datetime,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
