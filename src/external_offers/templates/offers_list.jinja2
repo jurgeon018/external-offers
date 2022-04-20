@@ -366,6 +366,7 @@
          <div class="offers-block-title">Объявления</div>
          <div class="offers-grid">
             <div class="offers-row offers-row-header">
+               <div class="offercolumn offercolumnheader">Ссылка</div>
                <div class="offercolumn offercolumnheader">Идентификатор</div>
                <div class="offercolumn offercolumnheader">Название</div>
                <div class="offercolumn offercolumnheader">Адрес</div>
@@ -374,6 +375,7 @@
             </div>
             {% for offer in offers %}
             <div class="offers-row">
+               <div class="offercolumn offer-column-identifier"><a target="_blank" href="{{offer.url}}">Тыц</a></div>
                <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">{{ offer.id }}</div>
                <div class="offercolumn offer-column-title">{{ offer.title }}</div>
                <div class="offercolumn offer-column-address">{{ offer.address }}</div>
