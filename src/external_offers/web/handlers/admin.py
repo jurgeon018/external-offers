@@ -64,6 +64,8 @@ class AdminOffersListPageHandler(PublicHandler):
             client_is_calltracking = await get_client_is_calltracking_by_client_id(
                 client_id=client.client_id
             )
+            client_comment = client.comment or ''
+            client_comment = client_comment.replace('\n', '; ')
         offers = await get_enriched_offers_in_progress_by_operator(
             operator_id=self.realty_user_id,
         )
@@ -84,8 +86,6 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
 
-        client_comment = client.comment or ''
-        client_comment = client_comment.replace('\n', '; ')
         self.write(get_offers_list_html(
             client_is_calltracking=client_is_calltracking,
             offers=offers,
