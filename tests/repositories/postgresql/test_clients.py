@@ -2,6 +2,8 @@ import pytest
 from cian_test_utils import future
 
 from external_offers import pg
+from external_offers.entities.teams import TeamInfo
+from external_offers.enums.teams import TeamType
 from external_offers.repositories import postgresql
 
 
@@ -90,6 +92,123 @@ async def test_assign_suitable_client_to_operator__commercial_operator(
     )
     args = (
         0, 'businessSale', 'commercialLandSale', 'publicCateringSale', 'carServiceSale', 'domesticServicesSale', 'officeRent', 'warehouseRent', 'shoppingAreaRent', 'industryRent', 'buildingRent', 1, 'freeAppointmentObjectRent', 'businessRent', 'commercialLandRent', 'publicCateringRent', 'carServiceRent', 'domesticServicesRent', '', 'officeSale', 'warehouseSale', 'shoppingAreaSale', 'industrySale', 'buildingSale', 'freeAppointmentObjectSale', '1', mocker.ANY, mocker.ANY, mocker.ANY, 1, 1, 1, 1, 1, 1, -1, 'Draft', 'Draft', 'inProgress', 'waiting', 'waiting', 'callLater', 'callMissed', 'declined', 'callLater', 'callMissed', None
+    )
+
+    # act
+    pg.get().fetchval.return_value = future(None)
+    await postgresql.assign_suitable_client_to_operator(
+        operator_id=operator_id,
+        call_id='1',
+        operator_roles=['CommercialPrepublicationModerator']
+    )
+
+    # assert
+    pg.get().fetchval.assert_called_with(query, *args)
+
+
+async def test_assign_suitable_client_to_operator__only_hunted_ct_attractor_teams(
+    mocker,
+    fake_settings,
+):
+    # arrange
+    team_id = 58
+    await fake_settings.set(
+        ENABLE_TEAM_TYPES=True,
+        ONLY_HUNTED_CT_ATTRACTOR_TEAM_ID=[team_id]
+    )
+    operator_id = 1
+    # https://www.joydeepdeb.com/tools/line-break.html
+    mocker.patch(
+        'external_offers.repositories.postgresql.clients.get_operator_by_id',
+        return_value=future(None),
+    )
+    mocker.patch(
+        'external_offers.repositories.postgresql.clients.get_team_info',
+        return_value=TeamInfo(
+            team_id=str(team_id),
+            team_settings={
+                'return_to_queue_days_after_hunted': 2,
+            },
+            team_type=TeamType.attractor,
+        ),
+    )
+    query = (
+        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFRO'
+        'M clients JOIN (offers_for_call JOIN parsed_offers ON offers_for_call.parsed_id = pars'
+        'ed_offers.id) ON offers_for_call.client_id = clients.client_id \nWHERE clients.unactiv'
+        'ated IS false AND offers_for_call.publication_status IS NULL AND (clients.operator_use'
+        'r_id != $31 AND clients.real_phone_hunted_at IS NOT NULL OR clients.operator_user_id '
+        'IS NULL AND clients.real_phone_hunted_at IS NULL) AND offers_for_call.status = $40 AN'
+        'D clients.status = $41 AND clients.is_test = false AND coalesce(offers_for_call.categor'
+        'y, $19) IN ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $1'
+        '3, $14, $15, $16, $17, $18) AND parsed_offers.is_calltracking IS true AND clients.rea'
+        'l_phone_hunted_at IS NOT NULL AND clients.real_phone_hunted_at <= $38 OR clients.unac'
+        'tivated IS false AND offers_for_call.publication_status IS NULL AND clients.operator_'
+        'user_id = $32 AND offers_for_call.status IN ($42, $43) AND clients.next_call <= $27 AN'
+        'D clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $21, $2'
+        '2, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $17, $'
+        '18) OR clients.unactivated IS true AND clients.operator_user_id = $33 AND clients.next'
+        '_call <= $28 AND offers_for_call.publication_status = $36 AND clients.status NOT IN ($4'
+        '4) AND clients.is_test = false AND coalesce(offers_for_call.category, $19) IN ($20, $2'
+        '1, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $15, $16, $1'
+        '7, $18) OR clients.unactivated IS true AND clients.operator_user_id = $34 AND offers_fo'
+        'r_call.status IN ($45, $46) AND clients.next_call <= $29 AND offers_for_call.publicatio'
+        'n_status = $37 AND clients.is_test = false AND coalesce(offers_for_call.category, $19) I'
+        'N ($20, $21, $22, $23, $24, $25, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $13, $14, $1'
+        '5, $16, $17, $18) ORDER BY offers_for_call.priority ASC NULLS LAST, offers_for_call.crea'
+        'ted_at DESC \n LIMIT $35 FOR UPDATE SKIP LOCKED)\n UPDATE clients SET status=$39, operat'
+        'or_user_id=$30, calls_count=(coalesce(clients.calls_count, $1) + $12), last_call_id=$2'
+        '6, team_id=$47 FROM first_suitable_offer_client_cte WHERE clients.client_id = first_su'
+        'itable_offer_client_cte.client_id RETURNING clients.client_id'
+    )
+    args = (
+        0,
+        'businessSale',
+        'commercialLandSale',
+        'publicCateringSale',
+        'carServiceSale',
+        'domesticServicesSale',
+        'officeRent',
+        'warehouseRent',
+        'shoppingAreaRent',
+        'industryRent',
+        'buildingRent',
+        1,
+        'freeAppointmentObjectRent',
+        'businessRent',
+        'commercialLandRent',
+        'publicCateringRent',
+        'carServiceRent',
+        'domesticServicesRent',
+        '',
+        'officeSale',
+        'warehouseSale',
+        'shoppingAreaSale',
+        'industrySale',
+        'buildingSale',
+        'freeAppointmentObjectSale',
+        '1',
+        mocker.ANY,
+        mocker.ANY,
+        mocker.ANY,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        'Draft',
+        'Draft',
+        mocker.ANY,
+        'inProgress',
+        'waiting',
+        'waiting',
+        'callLater',
+        'callMissed',
+        'declined',
+        'callLater',
+        'callMissed',
+        '58'
     )
 
     # act
