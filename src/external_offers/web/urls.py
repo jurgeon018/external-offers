@@ -273,6 +273,13 @@ urlpatterns = base_urls.urlpatterns + [
         base_handler_cls=PublicHandler,
     )),
     # teams
+    url('/api/admin/v1/get-waiting-offers-count-for-team-public/$', get_handler(
+        service=teams.get_waiting_offers_count_for_team_public,
+        method='POST',
+        request_schema=entities.GetWaitingOffersCountForTeam,
+        response_schema=entities.BasicResponse,
+        base_handler_cls=PublicHandler,
+    )),
     url('/api/admin/v1/create-team-public/$', get_handler(
         service=teams.create_team_public,
         method='POST',

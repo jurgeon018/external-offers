@@ -241,3 +241,9 @@ class TeamInfo:
     """Настройки команды"""
     team_type: TeamType
     """Тип команды"""
+
+
+@dataclass
+class GetWaitingOffersCountForTeam:
+    team_id: str
+    """Идентификатор команды"""

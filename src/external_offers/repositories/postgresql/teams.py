@@ -1,13 +1,22 @@
+from operator import and_, or_
 from typing import Any, AsyncGenerator, List, Optional
 
 import asyncpgsa
+from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import delete, select, update
 
 from external_offers import pg
 from external_offers.entities.teams import Team, TeamType
+from external_offers.enums.client_status import ClientStatus
+from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.teams import teams_mapper
-from external_offers.repositories.postgresql.tables import teams
+from external_offers.repositories.postgresql.tables import teams, clients, offers_for_call
+from external_offers.utils.teams import get_team_info
+from external_offers.utils.assign_suitable_offers import get_team_type_clauses, get_priority_ordering
+
+
+_CLEAR_PRIORITY = 999999999999999999
 
 
 async def get_teams() -> List[Team]:
@@ -106,3 +115,45 @@ async def iterate_over_teams_sorted(
     )
     async for row in cursor:
         yield teams_mapper.map_from(row)
+
+
+async def get_offers_count_for_team(
+    *,
+    team_id: str,
+) -> int:
+    team = await get_team_by_id(team_id)
+    team_info = get_team_info(team)
+    joined_tables, team_type_clauses = get_team_type_clauses(
+        team_info=team_info
+    )
+    priority_ordering, offer_category_clause = await get_priority_ordering(
+        team_info=team_info,
+        operator_roles=[],
+    )
+    query, params = asyncpgsa.compile_query(
+        select(
+            [func.count()]
+        ).select_from(
+            joined_tables
+        ).where(
+            or_(
+                # новые клиенты
+                and_(
+                    # Достает клиентов в ожидании
+                    offers_for_call.team_priorities[str(team_id)] != str(_CLEAR_PRIORITY),
+                    clients.c.unactivated.is_(False),
+                    offers_for_call.c.publication_status.is_(None),
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    clients.c.status == ClientStatus.waiting.value,
+                    clients.c.is_test.is_(False),
+                    *offer_category_clause,
+                    *team_type_clauses,
+                ),
+            )
+        ).order_by(
+            priority_ordering,
+            offers_for_call.c.created_at.desc()
+        )
+    )
+    offers_count = await pg.get().fetchval(query, *params)
+    return offers_count or 0
