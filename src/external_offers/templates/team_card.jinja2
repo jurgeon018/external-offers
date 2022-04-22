@@ -23,6 +23,9 @@
             Пересчитать приоритеты тестовых заданий
         </button>
         {% endif %}
+        <button onclick="onClickGetWaitingOffers('{{team.team_id}}')">
+            Узнать количество заданий в очереди
+        </button>
         <hr>
 
 
@@ -55,6 +58,11 @@
         <input value="{% if team.team_name %}{{team.team_name}}{% endif %}"  required
             type='text' name="teamName" placeholder='введите название команды'
         /><br><br>
+
+        {% if team.team_waiting_offers_count or team.team_waiting_offers_count == 0 %}
+        Количество заданий в очереди: {{team.team_waiting_offers_count}}(на {{team.team_waiting_offers_count_updated_at.strftime('%Y-%m-%d %H:%M:%S')}})
+        <br><br>
+        {% endif %}
 
         Роль операторов в команде:
         {% if team.team_type.value == 'hunter' %}
@@ -378,6 +386,24 @@
     }
     function onClickRedirectToOperatorCard(operator_id) {
         redirect(`/admin/operator-card/${operator_id}/`)
+    }
+    async function onClickGetWaitingOffers(team_id){
+        let obj = {
+            'teamId': team_id
+        }
+        const response = await fetch("/api/admin/v1/get-waiting-offers-count-for-team-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await response.json();
+        if (resp.success === true) {
+            alert(resp.message)
+            location.reload()
+        } else if (resp.success === false){
+            alert(resp.message)
+        }else {
+            alert('Не получить количество заданий в очереди для команды ' + team_id)
+        }
     }
     function validate_values(form_values){
         console.log('form_values', form_values)

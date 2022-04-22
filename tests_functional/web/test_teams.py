@@ -164,15 +164,9 @@ async def test_teams(pg, http, runtime_settings):
     assert len(teams_after_deletion) == 0
 
 
-async def test_render_teams(
-    pg, http, users_mock,
+async def _assert_render_teams(
+    *, http, users_mock, team_id
 ):
-    # arrange
-    await pg.execute("""
-    INSERT INTO teams (team_id, team_name, lead_id, team_type) VALUES
-    ('1', 'team1', '1', 'attractor'),
-    ('2', 'team2', '2', 'attractor');
-    """)
     await users_mock.add_stub(
         method='GET',
         path='/v1/get-userids-by-rolename/',
@@ -224,7 +218,7 @@ async def test_render_teams(
     )
     team_response = await http.request(
         'GET',
-        '/admin/team-card/1/',
+        f'/admin/team-card/{team_id}/',
         headers={
             'X-Real-UserId': 100,
         },
@@ -235,3 +229,51 @@ async def test_render_teams(
     # assert
     assert teams_html is not None
     assert team_html is not None
+
+
+async def test_render_teams(
+    pg, http, users_mock,
+):
+    # arrange
+    team_id = 1
+    await pg.execute("""
+    INSERT INTO teams (team_id, team_name, lead_id, team_type) VALUES
+    ('1', 'team1', '1', 'attractor'),
+    ('2', 'team2', '2', 'attractor');
+    """)
+    # act && assert
+    await _assert_render_teams(
+        http=http, users_mock=users_mock, team_id=team_id,
+    )
+
+
+async def test_update_waiting_offers_count(
+    pg, http, users_mock
+):
+    # arrange
+    await pg.execute("""
+    INSERT INTO teams (team_id, team_name, lead_id, team_type) VALUES
+    ('1', 'team1', '1', 'attractor'),
+    ('2', 'team2', '2', 'attractor');
+    """)
+    team_id = 1
+    offers_count = 0
+    # act
+    api_response = await http.request(
+        'POST',
+        '/api/admin/v1/get-waiting-offers-count-for-team-public/',
+        json={
+            'teamId': team_id,
+        },
+        headers={
+            'X-Real-UserId': 100,
+        },
+        expected_status=200
+    )
+    response = json.loads(api_response.body.decode('utf-8'))
+
+    # assert
+    assert response['message'] == f'Количество обьявлений в очереди для команды №{team_id} - {offers_count}'
+    _assert_render_teams(
+        http=http, users_mock=users_mock, team_id=team_id,
+    )

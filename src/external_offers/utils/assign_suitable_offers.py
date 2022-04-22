@@ -1,11 +1,13 @@
+from datetime import datetime, timedelta
+
+from cian_core.runtime_settings import runtime_settings
+from sqlalchemy import and_, nullslast, or_
+from sqlalchemy.sql.functions import coalesce
+
 from external_offers.entities.teams import TeamInfo
 from external_offers.enums.operator_role import OperatorRole
 from external_offers.enums.teams import TeamType
-from datetime import datetime, timedelta
-from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
-from cian_core.runtime_settings import runtime_settings
-from sqlalchemy.sql.functions import coalesce
 
 
 _NO_OFFER_CATEGORY = ''

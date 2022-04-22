@@ -5,6 +5,7 @@ from typing import Any
 from asyncpg.exceptions import PostgresError, UniqueViolationError
 from cian_core.runtime_settings import runtime_settings
 
+from external_offers import pg
 from external_offers.entities.response import BasicResponse
 from external_offers.entities.teams import (
     CreateTeamRequest,
@@ -17,7 +18,13 @@ from external_offers.entities.teams import (
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_item_model import (
     DurationInDays,
 )
-from external_offers.repositories.postgresql.teams import create_team, delete_team_by_id, get_offers_count_for_team, update_team_by_id
+from external_offers.repositories.postgresql.teams import (
+    create_team,
+    delete_team_by_id,
+    get_offers_count_for_team,
+    set_offer_count_for_team,
+    update_team_by_id,
+)
 
 
 def build_default_team_settings() -> dict[str, Any]:
@@ -165,7 +172,9 @@ async def delete_team_public(request: DeleteTeamRequest, user_id: int) -> BasicR
 
 
 async def get_waiting_offers_count_for_team_public(request: GetWaitingOffersCountForTeam, user_id: int) -> BasicResponse:
-    offers_count = await get_offers_count_for_team(team_id=request.team_id)
+    async with pg.get().transaction():
+        offers_count = await get_offers_count_for_team(team_id=request.team_id)
+        await set_offer_count_for_team(team_id=request.team_id, offers_count=offers_count)
     return BasicResponse(
         success=True,
         message=f'Количество обьявлений в очереди для команды №{request.team_id} - {offers_count}'

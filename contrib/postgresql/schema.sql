@@ -138,7 +138,9 @@ create table teams
 	lead_id varchar not null,
 	segment segment_type,
 	settings jsonb,
-	team_type team_type_enum not null
+	team_type team_type_enum not null,
+	team_waiting_offers_count int,
+    team_waiting_offers_count_updated_at timestamp with time zone
 );
 
 create table operators

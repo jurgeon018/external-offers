@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Optional
 
 from cian_json import json
@@ -166,6 +167,11 @@ class Team:
     settings: str
     """Настройки команды"""
     team_type: Optional[TeamType] = TeamType.attractor.value
+    """Тип команды"""
+    team_waiting_offers_count: Optional[int] = None
+    """Количество заданий в ожидании в очереди команды"""
+    team_waiting_offers_count_updated_at: Optional[datetime] = None
+    """Время последнего обновления количества заданий в ожидании в очереди команды"""
 
     def get_settings(self) -> dict:
         settings = {}
@@ -245,5 +251,5 @@ class TeamInfo:
 
 @dataclass
 class GetWaitingOffersCountForTeam:
-    team_id: str
+    team_id: int
     """Идентификатор команды"""

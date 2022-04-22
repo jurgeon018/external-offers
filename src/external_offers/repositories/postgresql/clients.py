@@ -19,9 +19,9 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 from external_offers.repositories.postgresql.operators import get_operator_by_id
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.repositories.postgresql.teams import get_team_by_id
+from external_offers.utils.assign_suitable_offers import get_priority_ordering, get_team_type_clauses
 from external_offers.utils.next_call import get_next_call_date_when_draft
 from external_offers.utils.teams import get_team_info
-from external_offers.utils.assign_suitable_offers import get_team_type_clauses, get_priority_ordering
 
 
 _NO_CALLS = 0
