@@ -60,6 +60,7 @@ class AdminOffersListPageHandler(PublicHandler):
         elif client and len(client.client_phones) > 0:
             call_to_phone = client.client_phones[0]
         client_is_calltracking = False
+        client_comment = ''
         if client:
             client_is_calltracking = await get_client_is_calltracking_by_client_id(
                 client_id=client.client_id
