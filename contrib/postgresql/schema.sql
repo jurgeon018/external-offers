@@ -50,6 +50,7 @@ create table clients
 	client_name varchar,
 	client_email varchar(50),
 	operator_user_id bigint,
+	hunter_user_id bigint,
 	status client_status_type,
 	client_phones character varying[] not null,
 	real_phone varchar,

@@ -822,13 +822,14 @@ async def iterate_over_clients_sorted(
 async def return_client_to_waiting_by_client_id(
     *,
     client_id: int,
+    hunter_user_id: int,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
             clients
         ).values(
             status=ClientStatus.waiting.value,
-            # operator_user_id=None,
+            hunter_user_id=hunter_user_id,
             calls_count=0,
         ).where(
             clients.c.client_id == client_id
