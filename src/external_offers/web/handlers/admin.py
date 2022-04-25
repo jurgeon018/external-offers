@@ -60,10 +60,13 @@ class AdminOffersListPageHandler(PublicHandler):
         elif client and len(client.client_phones) > 0:
             call_to_phone = client.client_phones[0]
         client_is_calltracking = False
+        client_comment = ''
         if client:
             client_is_calltracking = await get_client_is_calltracking_by_client_id(
                 client_id=client.client_id
             )
+            client_comment = client.comment or ''
+            client_comment = client_comment.replace('\n', '; ')
         offers = await get_enriched_offers_in_progress_by_operator(
             operator_id=self.realty_user_id,
         )
@@ -88,6 +91,7 @@ class AdminOffersListPageHandler(PublicHandler):
             client_is_calltracking=client_is_calltracking,
             offers=offers,
             client=client,
+            client_comment=client_comment,
             call_to_phone=call_to_phone,
             default_next_call_datetime=next_call_datetime,
             operator_is_tester=self.realty_user_id in runtime_settings.TEST_OPERATOR_IDS,
