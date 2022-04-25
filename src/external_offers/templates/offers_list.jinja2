@@ -373,9 +373,9 @@
             </div>
             {% for offer in offers %}
             <div class="offers-row">
-               <div class="offercolumn offer-column-title" title="Скопируйте эту ссылку и откройте ее в новой вкладке браузера, чтобы у авито небыло возможности отследить что был переход с циана.">
-                {{offer.url}}
-              </div>
+               <div class="offercolumn offer-column-title">
+                  <a rel="noopener noreferrer" target="_blank" href="{{offer.url}}">Ссылка</a>
+               </div>
                <div class="offercolumn offer-column-identifier" onclick="onClickOfferRowIdentifier(this)">{{ offer.id }}</div>
                <div class="offercolumn offer-column-title">{{ offer.title }}</div>
                <div class="offercolumn offer-column-address">{{ offer.address }}</div>
