@@ -1,5 +1,7 @@
+from calendar import c
 import logging
 from datetime import datetime, timedelta
+from tkinter import N
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
@@ -833,6 +835,35 @@ async def return_client_to_waiting_by_client_id(
             calls_count=0,
         ).where(
             clients.c.client_id == client_id
+        )
+    )
+    await pg.get().execute(query, *params)
+
+
+async def get_hunted_numbers_by_operator_id(
+    *,
+    hunter_user_id: int,
+    dt_lower_border: Optional[datetime] = None,
+    dt_upper_border: Optional[datetime] = None,
+) -> int:
+    now = datetime.now()
+    if not dt_upper_border:
+        dt_upper_border = now
+    if not dt_lower_border:
+        dt_lower_border = now.replace(
+            hour=0,
+            minute=0,
+            second=0,
+        )
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.client_id]
+        ).where(
+            and_(
+                clients.c.hunter_user_id == hunter_user_id,
+                clients.c.real_phone_hunted_at >= dt_lower_border,
+                clients.c.real_phone_hunted_at <= dt_upper_border,
+            )
         )
     )
     await pg.get().execute(query, *params)

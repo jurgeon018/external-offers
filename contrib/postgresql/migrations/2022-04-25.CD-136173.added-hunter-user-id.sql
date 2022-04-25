@@ -1,1 +1,1 @@
-alter table clients add columnt hunter_user_id bigint; 
+alter table clients add column hunter_user_id bigint; 

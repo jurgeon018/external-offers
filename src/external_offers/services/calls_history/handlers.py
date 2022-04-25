@@ -1,3 +1,4 @@
+from external_offers.repositories.postgresql.clients import get_hunted_numbers_by_operator_id
 from external_offers.repositories.postgresql.operators import get_enriched_operators
 from external_offers.services.calls_history.helpers import Paginator
 from external_offers.services.calls_history.mappers import calls_history_mapper
@@ -28,12 +29,19 @@ class AdminCallsHistoryPageHandler(PublicHandler):
             total_count=calls_response.total or 0,
             page_size=search.page_size,
         )
+        selected_operator_id = search.operator_id
+        hunted_numbers = await get_hunted_numbers_by_operator_id(
+            hunter_user_id=selected_operator_id,
+            dt_lower_border=search.dt_lower_border,
+            dt_upper_border=search.dt_upper_border,
+        )
         self.write(get_html(
             'operator_calls_history.jinja2',
             current_operator=current_operator,
             operators=operators,
             calls=calls_response.calls,
-            selected_operator_id=search.operator_id,
+            selected_operator_id=selected_operator_id,
+            hunted_numbers=hunted_numbers,
             filter_data=calls_history_mapper.map_to(search),
             paginator=paginator.get_page_items(),
         ))

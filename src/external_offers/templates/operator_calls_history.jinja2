@@ -146,6 +146,14 @@
                 <input type="hidden" name="mcs" value="external-offers">
                 <input type="hidden" name="url" value='/admin/calls-history/'>
             {% endif %}
+            {% if hunted_numbers %}
+            <div class="form-group">
+                <label for="operatorId" class="col-sm-4 col-form-label">Количество совершенных звонков оператором</label>
+                <div class="col-sm-8">
+                    {{hunted_numbers}}
+                </div>
+            </div>
+            {% endif %}
             <button type="submit" class="btn btn-primary button">Искать</button>
         </form>
     </div>
@@ -165,6 +173,11 @@
                     {% endfor %}
                 </ul>
             </nav>
+            {% if paginator.total_count %}
+            <strong>Сумарное количество звонков: {{paginator.total_count}}</strong>
+            <br>
+            <br>
+            {% endif %}
             <table class="table table-striped text-center">
                 <tr>
                     <th class="text-center">ID звонка</th>

@@ -90,6 +90,7 @@ async def test_return_client_by_phone__correct_request__client_and_offers_return
 
     # assert
     assert client['operator_user_id'] == user_id
+    assert client['hunter_user_id'] == user_id
     assert client['status'] == 'inProgress'
     assert before_return_call_missed_offer['status'] == 'inProgress'
     assert before_return_call_missed_offer['last_call_id'] is not None
