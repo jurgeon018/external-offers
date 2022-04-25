@@ -181,6 +181,7 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
         client_is_calltracking=is_calltracking,
         offers=offers,
         client=client,
+        client_comment='',
         call_to_phone=client.client_phones[0],
         default_next_call_datetime=FakeDatetime(2022, 1, 2, 10, 0),
         operator_is_tester=False,
