@@ -91,13 +91,13 @@ async def get_enriched_offers_in_progress_by_operator(
     *,
     operator_id: int,
 ) -> list[EnrichedOffer]:
-    status_query = """ofc.status = 'inProgress'"""
     query = f"""
         SELECT
             ofc.*,
             po.source_object_model->>'title' as title,
             po.source_object_model->>'address' as address,
-            po.source_object_model->>'town' as town
+            po.source_object_model->>'town' as town,
+            po.source_object_model->>'url' as url
         FROM
             offers_for_call as ofc
         INNER JOIN
@@ -110,7 +110,7 @@ async def get_enriched_offers_in_progress_by_operator(
             ofc.parsed_id = po.id
         WHERE
             c.operator_user_id = $1
-            AND {status_query}
+            AND ofc.status = 'inProgress'
     """
 
     rows = await pg.get().fetch(query, operator_id)
