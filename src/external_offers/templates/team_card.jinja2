@@ -388,23 +388,57 @@
         redirect(`/admin/operator-card/${operator_id}/`)
     }
     async function onClickGetWaitingOffers(team_id){
+
         let obj = {
             'teamId': team_id
         }
-        const response = await fetch("/api/admin/v1/get-waiting-offers-count-for-team-public/", {
+        // Получить изначальное время последнего обновления количества заданий в очереди дял команды
+        const team_response = await fetch("/api/admin/v1/get-team-public/", {
             method: 'POST',
             body: getBody(obj)
         });
-        resp = await response.json();
+        resp = await team_response.json();
+        var team = resp.team;
+        var old_team_offers_count_updated_at = team.teamWaitingOffersCountUpdatedAt;
+
+        // Запустить процесс обновления
+        const count_response = await fetch("/api/admin/v1/get-waiting-offers-count-for-team-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await count_response.json();
         if (resp.success === true) {
             alert(resp.message)
-            location.reload()
         } else if (resp.success === false){
             alert(resp.message)
+            return
         }else {
-            alert('Не получить количество заданий в очереди для команды ' + team_id)
+            alert('Не удалось получить количество заданий в очереди для команды ' + team_id)
+            return
         }
-    }
+
+        // Проверять каждые 5 секунд не обновилось ли количество заданий
+        setInterval(() => {
+            let response = fetch("/api/admin/v1/get-team-public/", {
+                method: 'POST',
+                body: getBody(obj)
+            }).then((response) => {
+                return response.json()
+            }).then((data) => {
+                var team = data.team;
+                if(team){
+                    var new_team_offers_count_updated_at = team.teamWaitingOffersCountUpdatedAt
+                    if(new_team_offers_count_updated_at == old_team_offers_count_updated_at){
+                        console.log('Счетчик команды еще не обновился')
+                    }else{
+                        alert(`Количество заданий для команды #${team_id} - ${team.teamWaitingOffersCount}`)
+                        return
+                    }
+                }
+            });
+        }, 5000);
+
+    };
     function validate_values(form_values){
         console.log('form_values', form_values)
         var positions = [
