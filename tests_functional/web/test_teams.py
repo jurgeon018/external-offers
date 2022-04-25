@@ -257,7 +257,6 @@ async def test_update_waiting_offers_count(
     ('2', 'team2', '2', 'attractor');
     """)
     team_id = 1
-    offers_count = 0
     # act
     api_response = await http.request(
         'POST',
@@ -273,7 +272,11 @@ async def test_update_waiting_offers_count(
     response = json.loads(api_response.body.decode('utf-8'))
 
     # assert
-    assert response['message'] == f'Количество обьявлений в очереди для команды №{team_id} - {offers_count}'
+    message = (
+        f'Рассчет количества обьявлений в очереди для команды №{team_id} был запущен. '
+        f'Вы получите уведомление по окончании процесса.'
+    )
+    assert response['message'] == message
     _assert_render_teams(
         http=http, users_mock=users_mock, team_id=team_id,
     )

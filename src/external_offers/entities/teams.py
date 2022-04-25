@@ -253,3 +253,15 @@ class TeamInfo:
 class GetWaitingOffersCountForTeam:
     team_id: int
     """Идентификатор команды"""
+
+
+@dataclass
+class GetTeamRequest:
+    team_id: int
+    """Идентификатор команды"""
+
+
+@dataclass
+class GetTeamResponse:
+    team: Optional[Team] = None
+    """Команда"""

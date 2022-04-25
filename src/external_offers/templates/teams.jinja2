@@ -74,24 +74,15 @@
         <div class="grid">
             <div class="tablerow tablerow-header">
                 <div class="column columnheader">ID</div>
-                <div class="column columnheader">Заданий в очереди</div>
                 <div class="column columnheader">Тип</div>
                 <div class="column columnheader">Название</div>
                 <div class="column columnheader">ID лида</div>
+                <div class="column columnheader">Кол-во заданий в очереди</div>
             </div>
             {% for team in teams %}
             <div class="tablerow">              
                 <div class="column">
                     {{team.team_id}}
-                </div>
-                <div class="column">
-                    {% if team.team_waiting_offers_count or team.team_waiting_offers_count == 0 %}
-                        {{team.team_waiting_offers_count}}(На {{team.team_waiting_offers_count_updated_at.strftime('%Y-%m-%d %H:%M:%S')}})
-                    {% else %}
-                        <button onclick="onClickGetWaitingOffers('{{team.team_id}}')">
-                            Обновить
-                        </button>
-                    {% endif %}
                 </div>
                 <div class=column>
                     {{team.team_type.value}}
@@ -102,7 +93,18 @@
                 <div class="column column-link" onclick="onClickRedirectToOperatorCard('{{team.lead_id}}')">
                     {% if team.lead_id %}{{team.lead_id}}{% else %}-{% endif %}
                 </div>
-                
+                <div class="column">
+                    {% if team.team_waiting_offers_count or team.team_waiting_offers_count == 0 %}
+                        {{team.team_waiting_offers_count}}  (На {{team.team_waiting_offers_count_updated_at.strftime('%Y-%m-%d %H:%M:%S')}})
+                    {% else %}
+                    -
+                    {% endif %}                
+                </div>
+                <div class="column">
+                    <button onclick="onClickGetWaitingOffers('{{team.team_id}}')">
+                        Обновить
+                    </button>
+                </div>
                 <div class=column>
                     {% if current_operator.operator_id|string == team.lead_id|string %}
                     <button style="display:inline" onclick="deleteTeam('{{team.team_id}}')" title="Убирает у выбраного пользователя роль оператора админки">
@@ -273,24 +275,57 @@
         redirect(`/admin/team-card/${team_id}/`)
     }
     async function onClickGetWaitingOffers(team_id){
-        confirm
+
         let obj = {
             'teamId': team_id
         }
-        const response = await fetch("/api/admin/v1/get-waiting-offers-count-for-team-public/", {
+        // Получить изначальное время последнего обновления количества заданий в очереди дял команды
+        const team_response = await fetch("/api/admin/v1/get-team-public/", {
             method: 'POST',
             body: getBody(obj)
         });
-        resp = await response.json();
+        resp = await team_response.json();
+        var team = resp.team;
+        var old_team_offers_count_updated_at = team.teamWaitingOffersCountUpdatedAt;
+
+        // Запустить процесс обновления
+        const count_response = await fetch("/api/admin/v1/get-waiting-offers-count-for-team-public/", {
+            method: 'POST',
+            body: getBody(obj)
+        });
+        resp = await count_response.json();
         if (resp.success === true) {
             alert(resp.message)
-            location.reload()
         } else if (resp.success === false){
             alert(resp.message)
+            return
         }else {
-            alert('Не получить количество заданий в очереди для команды ' + team_id)
+            alert('Не удалось получить количество заданий в очереди для команды ' + team_id)
+            return
         }
-    }
+
+        // Проверять каждые 5 секунд не обновилось ли количество заданий
+        setInterval(() => {
+            let response = fetch("/api/admin/v1/get-team-public/", {
+                method: 'POST',
+                body: getBody(obj)
+            }).then((response) => {
+                return response.json()
+            }).then((data) => {
+                var team = data.team;
+                if(team){
+                    var new_team_offers_count_updated_at = team.teamWaitingOffersCountUpdatedAt
+                    if(new_team_offers_count_updated_at == old_team_offers_count_updated_at){
+                        console.log('Счетчик команды еще не обновился')
+                    }else{
+                        alert(`Количество заданий для команды #${team_id} - ${team.teamWaitingOffersCount}`)
+                        return
+                    }
+                }
+            });
+        }, 5000);
+
+    };
 
     // crud
     async function deleteTeam(id){

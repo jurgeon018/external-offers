@@ -102,4 +102,3 @@ async def get_priority_ordering(
         ]
         priority_ordering = nullslast(offers_for_call.c.priority.asc())
     return priority_ordering, offer_category_clause
-

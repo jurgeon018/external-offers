@@ -1,3 +1,4 @@
+import asyncio
 import json
 from dataclasses import asdict
 from typing import Any
@@ -5,11 +6,12 @@ from typing import Any
 from asyncpg.exceptions import PostgresError, UniqueViolationError
 from cian_core.runtime_settings import runtime_settings
 
-from external_offers import pg
 from external_offers.entities.response import BasicResponse
 from external_offers.entities.teams import (
     CreateTeamRequest,
     DeleteTeamRequest,
+    GetTeamRequest,
+    GetTeamResponse,
     GetWaitingOffersCountForTeam,
     StrTeamSettings,
     TeamSettings,
@@ -22,7 +24,7 @@ from external_offers.repositories.postgresql.teams import (
     create_team,
     delete_team_by_id,
     get_offers_count_for_team,
-    set_offer_count_for_team,
+    get_team_by_id,
     update_team_by_id,
 )
 
@@ -171,11 +173,19 @@ async def delete_team_public(request: DeleteTeamRequest, user_id: int) -> BasicR
     )
 
 
-async def get_waiting_offers_count_for_team_public(request: GetWaitingOffersCountForTeam, user_id: int) -> BasicResponse:
-    async with pg.get().transaction():
-        offers_count = await get_offers_count_for_team(team_id=request.team_id)
-        await set_offer_count_for_team(team_id=request.team_id, offers_count=offers_count)
+async def get_waiting_offers_count_for_team_public(
+    request: GetWaitingOffersCountForTeam, user_id: int
+) -> BasicResponse:
+    asyncio.create_task(get_offers_count_for_team(team_id=request.team_id))
     return BasicResponse(
         success=True,
-        message=f'Количество обьявлений в очереди для команды №{request.team_id} - {offers_count}'
+        message=(
+            f'Рассчет количества обьявлений в очереди для команды №{request.team_id} был запущен. '
+            f'Вы получите уведомление по окончании процесса.'
+        )
     )
+
+
+async def get_team_public(request: GetTeamRequest, user_id: int) -> GetTeamResponse:
+    team = await get_team_by_id(team_id=request.team_id)
+    return GetTeamResponse(team=team)

@@ -140,7 +140,7 @@ create table teams
 	settings jsonb,
 	team_type team_type_enum not null,
 	team_waiting_offers_count int,
-    team_waiting_offers_count_updated_at timestamp with time zone
+    team_waiting_offers_count_updated_at timestamp
 );
 
 create table operators

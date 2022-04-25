@@ -4,6 +4,7 @@ from cian_web import get_handler
 from tornado.web import url
 
 from external_offers import entities
+from external_offers.entities.teams import GetTeamRequest, GetTeamResponse
 from external_offers.repositories.moderation_confidence_index import entities as moderation_confidence_index_entities
 from external_offers.services import admin, operators, teams
 from external_offers.services.calls_history import handlers as call_history_handlers, services as call_history_services
@@ -273,6 +274,13 @@ urlpatterns = base_urls.urlpatterns + [
         base_handler_cls=PublicHandler,
     )),
     # teams
+    url('/api/admin/v1/get-team-public/$', get_handler(
+        service=teams.get_team_public,
+        method='POST',
+        request_schema=GetTeamRequest,
+        response_schema=GetTeamResponse,
+        base_handler_cls=PublicHandler,
+    )),
     url('/api/admin/v1/get-waiting-offers-count-for-team-public/$', get_handler(
         service=teams.get_waiting_offers_count_for_team_public,
         method='POST',
