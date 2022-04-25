@@ -95,5 +95,7 @@ class EnrichedOffer:
     """Название объявления с Авито"""
     town: Optional[str] = None
     """Город объявления"""
+    url: Optional[str] = None
+    """Ссылка на обьявление на внешней площадке"""
     publication_status: Optional[PublicationStatus] = None
     """Статус объявления"""
