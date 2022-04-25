@@ -1,7 +1,5 @@
 import logging
-from calendar import c
 from datetime import datetime, timedelta
-from tkinter import N
 from typing import AsyncGenerator, List, Optional
 
 import asyncpgsa
@@ -866,4 +864,5 @@ async def get_hunted_numbers_by_operator_id(
             )
         )
     )
-    await pg.get().execute(query, *params)
+    client_ids = await pg.get().fetch(query, *params)
+    return len(client_ids)
