@@ -838,7 +838,7 @@ async def return_client_to_waiting_by_client_id(
     await pg.get().execute(query, *params)
 
 
-async def get_hunted_numbers_by_operator_id(
+async def get_hunted_numbers_for_date_by_operator_id(
     *,
     hunter_user_id: int,
     dt_lower_border: Optional[datetime] = None,
@@ -862,6 +862,21 @@ async def get_hunted_numbers_by_operator_id(
                 clients.c.real_phone_hunted_at >= dt_lower_border,
                 clients.c.real_phone_hunted_at <= dt_upper_border,
             )
+        )
+    )
+    client_ids = await pg.get().fetch(query, *params)
+    return len(client_ids)
+
+
+async def get_hunted_numbers_by_operator_id(
+    *,
+    hunter_user_id: int,
+) -> int:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.client_id]
+        ).where(
+            clients.c.hunter_user_id == hunter_user_id
         )
     )
     client_ids = await pg.get().fetch(query, *params)
