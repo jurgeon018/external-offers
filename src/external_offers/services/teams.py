@@ -1,3 +1,4 @@
+import asyncio
 import json
 from dataclasses import asdict
 from typing import Any
@@ -9,6 +10,9 @@ from external_offers.entities.response import BasicResponse
 from external_offers.entities.teams import (
     CreateTeamRequest,
     DeleteTeamRequest,
+    GetTeamRequest,
+    GetTeamResponse,
+    GetWaitingOffersCountForTeam,
     StrTeamSettings,
     TeamSettings,
     UpdateTeamRequest,
@@ -16,7 +20,13 @@ from external_offers.entities.teams import (
 from external_offers.repositories.monolith_cian_service.entities.service_package_strategy_item_model import (
     DurationInDays,
 )
-from external_offers.repositories.postgresql.teams import create_team, delete_team_by_id, update_team_by_id
+from external_offers.repositories.postgresql.teams import (
+    create_team,
+    delete_team_by_id,
+    get_offers_count_for_team,
+    get_team_by_id,
+    update_team_by_id,
+)
 
 
 def build_default_team_settings() -> dict[str, Any]:
@@ -161,3 +171,21 @@ async def delete_team_public(request: DeleteTeamRequest, user_id: int) -> BasicR
         success=success,
         message=message,
     )
+
+
+async def get_waiting_offers_count_for_team_public(
+    request: GetWaitingOffersCountForTeam, user_id: int
+) -> BasicResponse:
+    asyncio.create_task(get_offers_count_for_team(team_id=request.team_id))
+    return BasicResponse(
+        success=True,
+        message=(
+            f'Рассчет количества обьявлений в очереди для команды №{request.team_id} был запущен. '
+            f'Вы получите уведомление по окончании процесса.'
+        )
+    )
+
+
+async def get_team_public(request: GetTeamRequest, user_id: int) -> GetTeamResponse:
+    team = await get_team_by_id(team_id=request.team_id)
+    return GetTeamResponse(team=team)

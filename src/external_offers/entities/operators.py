@@ -50,6 +50,10 @@ class EnrichedOperator:
     """ Имеет ли право быть лидом команд """
     segment: Optional[UserSegment] = None
     """Сегмент пользователей, которых будет обрабатывать команда"""
+    team_waiting_offers_count: Optional[int] = None
+    """Количество заданий в ожидании в очереди команды"""
+    team_waiting_offers_count_updated_at: Optional[datetime] = None
+    """Время последнего обновления количества заданий в ожидании в очереди команды"""
 
 
 @dataclass
