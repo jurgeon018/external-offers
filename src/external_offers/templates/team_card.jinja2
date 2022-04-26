@@ -418,7 +418,7 @@
         }
 
         // Проверять каждые 5 секунд не обновилось ли количество заданий
-        setInterval(() => {
+        const intervalId = setInterval(() => {
             let response = fetch("/api/admin/v1/get-team-public/", {
                 method: 'POST',
                 body: getBody(obj)
@@ -432,13 +432,18 @@
                         console.log('Счетчик команды еще не обновился')
                     }else{
                         alert(`Количество заданий для команды #${team_id} - ${team.teamWaitingOffersCount}`)
-                        return
+                        location.reload()
+                        clearInterval(intervalId
                     }
                 }
             });
         }, 5000);
 
     };
+
+
+
+
     function validate_values(form_values){
         console.log('form_values', form_values)
         var positions = [
