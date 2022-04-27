@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Callable, Optional
 
@@ -531,11 +532,13 @@ async def return_client_to_waiting_public(request: ReturnClientToWaitingRequest,
         )
 
     async with pg.get().transaction():
-        await return_client_to_waiting_by_client_id(
-            client_id=request.client_id,
-            hunter_user_id=user_id,
+        await asyncio.gather(
+            return_client_to_waiting_by_client_id(
+                client_id=request.client_id,
+                hunter_user_id=user_id,
+            ),
+            return_offers_to_waiting_by_client_id(client_id=request.client_id),
         )
-        await return_offers_to_waiting_by_client_id(client_id=request.client_id)
     return BasicResponse(
         success=True,
         message='Клиент был успешно возвращен в очередь на прозвон.',

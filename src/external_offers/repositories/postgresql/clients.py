@@ -865,7 +865,7 @@ async def get_hunted_numbers_for_date_by_operator_id(
         )
     )
     client_ids = await pg.get().fetch(query, *params)
-    return len(client_ids)
+    return len(client_ids) if client_ids else 0
 
 
 async def get_hunted_numbers_by_operator_id(
@@ -880,4 +880,4 @@ async def get_hunted_numbers_by_operator_id(
         )
     )
     client_ids = await pg.get().fetch(query, *params)
-    return len(client_ids)
+    return len(client_ids) if client_ids else 0
