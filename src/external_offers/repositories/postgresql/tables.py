@@ -114,6 +114,8 @@ teams = sa.Table(
     sa.Column('team_type', team_type_enum, nullable=False),
     sa.Column('lead_id', sa.VARCHAR, nullable=False),
     sa.Column('settings', JSONB(), nullable=True),
+    sa.Column('team_waiting_offers_count', sa.INT, nullable=True),
+    sa.Column('team_waiting_offers_count_updated_at', sa.TIMESTAMP, nullable=True),
 )
 
 operators = sa.Table(
