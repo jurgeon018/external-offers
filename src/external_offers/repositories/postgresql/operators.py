@@ -98,7 +98,7 @@ async def update_operator_by_id(
     team_id: Optional[int],
     email: Optional[str] = None,
     is_teamlead: bool = None,
-) -> None:
+) -> Optional[Operator]:
     now = datetime.now(tz=pytz.utc)
     values = {
         'full_name': full_name,
@@ -115,9 +115,12 @@ async def update_operator_by_id(
             operators.c.operator_id == str(operator_id)
         ).values(
             **values
+        ).returning(
+            operators
         )
     )
-    await pg.get().execute(query, *params)
+    row = await pg.get().fetchrow(query, *params)
+    return operators_mapper.map_from(row) if row else None
 
 
 async def delete_operator_by_id(operator_id: str):
