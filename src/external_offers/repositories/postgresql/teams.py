@@ -1,13 +1,21 @@
+from datetime import datetime
 from typing import Any, AsyncGenerator, List, Optional
 
 import asyncpgsa
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.sql import delete, select, update
+from sqlalchemy.sql import and_, delete, nullslast, select, update
 
 from external_offers import pg
 from external_offers.entities.teams import Team, TeamType
+from external_offers.enums.client_status import ClientStatus
+from external_offers.enums.offer_status import OfferStatus
 from external_offers.mappers.teams import teams_mapper
-from external_offers.repositories.postgresql.tables import teams
+from external_offers.repositories.postgresql.tables import clients, offers_for_call, teams
+from external_offers.utils.assign_suitable_offers import get_team_type_clauses
+from external_offers.utils.teams import get_team_info
+
+
+_CLEAR_PRIORITY = 999999999999999999
 
 
 async def get_teams() -> List[Team]:
@@ -106,3 +114,47 @@ async def iterate_over_teams_sorted(
     )
     async for row in cursor:
         yield teams_mapper.map_from(row)
+
+
+async def get_offers_count_for_team(
+    *,
+    team_id: int,
+) -> None:
+    async with pg.get().transaction():
+        team = await get_team_by_id(team_id)
+        team_info = get_team_info(team)
+        joined_tables, team_type_clauses = get_team_type_clauses(
+            team_info=team_info
+        )
+        query, params = asyncpgsa.compile_query(
+            select(
+                [offers_for_call.c.id]
+            ).select_from(
+                joined_tables
+            ).where(
+                and_(
+                    offers_for_call.c.team_priorities[str(team_id)] != str(_CLEAR_PRIORITY),
+                    clients.c.unactivated.is_(False),
+                    offers_for_call.c.publication_status.is_(None),
+                    offers_for_call.c.status == OfferStatus.waiting.value,
+                    clients.c.status == ClientStatus.waiting.value,
+                    clients.c.is_test.is_(False),
+                    *team_type_clauses,
+                ),
+            ).order_by(
+                nullslast(offers_for_call.c.team_priorities[str(team_id)].asc()),
+                offers_for_call.c.created_at.desc()
+            )
+        )
+        offer_ids = await pg.get().fetch(query, *params)
+        query, params = asyncpgsa.compile_query(
+            update(
+                teams
+            ).where(
+                teams.c.team_id == team_id
+            ).values(
+                team_waiting_offers_count_updated_at=datetime.now(),
+                team_waiting_offers_count=len(offer_ids),
+            )
+        )
+        await pg.get().execute(query, *params)
