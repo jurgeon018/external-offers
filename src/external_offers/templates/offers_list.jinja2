@@ -184,7 +184,7 @@
          }
          .call-history {
              vertical-align: top;
-             margin: 7px 0 0 10px;
+             margin: 2px 0 0 -4px;
          }
       </style>
       <title>Задания</title>
@@ -412,10 +412,13 @@
       <div class="caller-block">
         <!-- звонилка -->
         <div
-          data-callComponent="call-buttons-v1" style="display: inline-block"
+          data-callComponent="call-buttons-v1"
+          style="display: inline-block"
           data-town="{% if offers[0] and offers[0].town %}{{offers[0].town}}{% else %}Москва{% endif %}"
           town="{% if offers[0] and offers[0].town %}{{offers[0].town}}{% else %}Москва{% endif %}"
-          taskKey="{{ client.avito_user_id }}" team="external-offers"
+          taskKey="{{ client.avito_user_id }}"
+          team="external-offers"
+          division="{{current_operator.team_name}}"
         ></div>
         <a target="_blank" href="/admin/calls-history/" class="btn btn-sm btn-default call-history" title="История звонков"><span class="glyphicon glyphicon-align-justify"></span></a>
       </div>
