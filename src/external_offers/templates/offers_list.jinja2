@@ -418,7 +418,7 @@
           town="{% if offers[0] and offers[0].town %}{{offers[0].town}}{% else %}Москва{% endif %}"
           taskKey="{{ client.avito_user_id }}"
           team="external-offers"
-          division="{{current_operator.team_name}}"
+          division="{% if current_operator.team_name %}{{current_operator.team_name}}{% endif %}"
         ></div>
         <a target="_blank" href="/admin/calls-history/" class="btn btn-sm btn-default call-history" title="История звонков"><span class="glyphicon glyphicon-align-justify"></span></a>
       </div>
