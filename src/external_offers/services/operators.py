@@ -8,7 +8,7 @@ from external_offers.entities.operators import (
     UpdateOperatorsRequest,
 )
 from external_offers.entities.response import BasicResponse
-from external_offers.queue.producers import operator_producer, build_operator_message
+from external_offers.queue.producers import build_operator_message, operator_producer
 from external_offers.repositories.postgresql.operators import (
     create_operator,
     delete_operator_by_id,
