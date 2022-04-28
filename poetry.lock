@@ -491,7 +491,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-functional-test-utils"
-version = "0.89.0"
+version = "0.89.1"
 description = "Фреймворк функциональных тестов"
 category = "dev"
 optional = false
@@ -841,7 +841,7 @@ pytest-mock = ">=1.11.1,<2.0.0"
 tornado = "*"
 
 [package.extras]
-test = ["aiomssql", "cian-cache", "cian-core[postgres,cache,mssql,es,kafka,cassandra] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
+test = ["aiomssql", "cian-cache", "cian-core[cassandra,kafka,cache,postgres,es,mssql] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
 
 [package.source]
 type = "legacy"
@@ -850,7 +850,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-tools"
-version = "0.17.0"
+version = "0.18.0"
 description = ""
 category = "dev"
 optional = false
@@ -2851,8 +2851,8 @@ cian-features = [
     {file = "cian_features-1.0.0-py3-none-any.whl", hash = "md5:6ea994718d8117100e621151695537a9"},
 ]
 cian-functional-test-utils = [
-    {file = "cian-functional-test-utils-0.89.0.tar.gz", hash = "md5:914c4f3e74eff6f6663e5705834fa5ce"},
-    {file = "cian_functional_test_utils-0.89.0-py3-none-any.whl", hash = "md5:c1370d9f91aa65ef907d2fe7c1a44286"},
+    {file = "cian-functional-test-utils-0.89.1.tar.gz", hash = "md5:22b978862652bbc3ab246a25d0046420"},
+    {file = "cian_functional_test_utils-0.89.1-py3-none-any.whl", hash = "md5:f92bf60f7a04a922b337fca72fa85c38"},
 ]
 cian-helpers = [
     {file = "cian-helpers-1.2.0.tar.gz", hash = "md5:80f6b78eb52d9487d37eeff0141b52f3"},
@@ -2907,8 +2907,8 @@ cian-test-utils = [
     {file = "cian_test_utils-1.14.0-py3-none-any.whl", hash = "md5:75435319ed96379c2022d1542d882e87"},
 ]
 cian-tools = [
-    {file = "cian-tools-0.17.0.tar.gz", hash = "md5:4f09ade37b43572c6ccddc67dd2009b5"},
-    {file = "cian_tools-0.17.0-py3-none-any.whl", hash = "md5:fff4341f2ec6be1a1583a34b0e2c2f02"},
+    {file = "cian-tools-0.18.0.tar.gz", hash = "md5:fce6370639ddd0a0fd9aff2c40bdaa78"},
+    {file = "cian_tools-0.18.0-py3-none-any.whl", hash = "md5:706137c9129da89b5dbff79b8f941900"},
 ]
 cian-web = [
     {file = "cian-web-2.10.0.tar.gz", hash = "md5:f811aa9b01620966d278151fba5dcb88"},
