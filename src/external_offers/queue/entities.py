@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from external_offers.entities.operators import Operator
+from external_offers.entities.operators import EnrichedOperator
 from external_offers.repositories.monolith_cian_announcementapi.entities import ObjectModel
 
 
@@ -36,5 +36,5 @@ class OperatorMessage:
     """Operation id"""
     date: datetime
     """Время отправки"""
-    operator: Optional[Operator] = None
+    operator: Optional[EnrichedOperator] = None
     """Оператор"""

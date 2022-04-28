@@ -112,6 +112,14 @@ async def test_update_operator__success_is_true(http_client, base_url, mocker):
         'external_offers.services.operators.update_operator_by_id',
         return_value=future(None),
     )
+    mocker.patch(
+        'external_offers.services.operators.get_enriched_operator_by_id',
+        return_value=future(None),
+    )
+    mocker.patch(
+        'external_offers.services.operators.operator_producer',
+        return_value=future(None),
+    )
     # act
     result = await http_client.fetch(
         base_url+'/api/admin/v1/update-operator-public/',
