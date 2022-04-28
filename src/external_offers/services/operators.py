@@ -8,7 +8,7 @@ from external_offers.entities.operators import (
     UpdateOperatorsRequest,
 )
 from external_offers.entities.response import BasicResponse
-from external_offers.queue.producers import operator_producer
+from external_offers.queue.producers import operator_producer, build_operator_message
 from external_offers.repositories.postgresql.operators import (
     create_operator,
     delete_operator_by_id,
@@ -65,7 +65,7 @@ async def update_operator_public(request: UpdateOperatorRequest, user_id: int) -
         message = 'Информация про оператора была успешно обновлена.'
         success = True
         operator = await get_enriched_operator_by_id(request.operator_id)
-        await operator_producer(operator)
+        await operator_producer(build_operator_message(operator))
     except PostgresError as e:
         message = f'Во время обновления оператора произошла ошибка: {e}'
     return BasicResponse(
