@@ -30,6 +30,8 @@ class Client:
     """Почтовый ящик клиента, к которому привязана учетная запись Циана"""
     operator_user_id: Optional[str] = None
     """Идентификатор оператора, который взял клиента в работу"""
+    hunter_user_id: Optional[str] = None
+    """Идентификатор оператора, который получил реальные данные клиента"""
     team_id: Optional[int] = None
     """Идентификатор команды, в которой находился оператор"""
     segment: Optional[UserSegment] = None

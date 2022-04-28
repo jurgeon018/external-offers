@@ -740,16 +740,62 @@ async def iterate_over_clients_sorted(
 async def return_client_to_waiting_by_client_id(
     *,
     client_id: int,
+    hunter_user_id: int,
 ) -> None:
     query, params = asyncpgsa.compile_query(
         update(
             clients
         ).values(
             status=ClientStatus.waiting.value,
-            # operator_user_id=None,
+            hunter_user_id=hunter_user_id,
             calls_count=0,
         ).where(
             clients.c.client_id == client_id
         )
     )
     await pg.get().execute(query, *params)
+
+
+async def get_hunted_numbers_for_date_by_operator_id(
+    *,
+    hunter_user_id: int,
+    dt_lower_border: Optional[datetime] = None,
+    dt_upper_border: Optional[datetime] = None,
+) -> int:
+    now = datetime.now()
+    if not dt_upper_border:
+        dt_upper_border = now
+    if not dt_lower_border:
+        dt_lower_border = now.replace(
+            hour=0,
+            minute=0,
+            second=0,
+        )
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.client_id]
+        ).where(
+            and_(
+                clients.c.hunter_user_id == hunter_user_id,
+                clients.c.real_phone_hunted_at >= dt_lower_border,
+                clients.c.real_phone_hunted_at <= dt_upper_border,
+            )
+        )
+    )
+    client_ids = await pg.get().fetch(query, *params)
+    return len(client_ids) if client_ids else 0
+
+
+async def get_hunted_numbers_by_operator_id(
+    *,
+    hunter_user_id: int,
+) -> int:
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.client_id]
+        ).where(
+            clients.c.hunter_user_id == hunter_user_id
+        )
+    )
+    client_ids = await pg.get().fetch(query, *params)
+    return len(client_ids) if client_ids else 0
