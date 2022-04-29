@@ -40,6 +40,7 @@ clients = sa.Table(
     sa.Column('client_email', sa.VARCHAR),
     sa.Column('status', sa.VARCHAR, nullable=False),
     sa.Column('operator_user_id', sa.BIGINT),
+    sa.Column('hunter_user_id', sa.BIGINT),
     sa.Column('segment', sa.VARCHAR, nullable=True),
     sa.Column('subsegment', sa.VARCHAR, nullable=True),
     sa.Column('next_call', sa.TIMESTAMP),

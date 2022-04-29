@@ -44,6 +44,10 @@ class CallsHistorySearch:
     """Минимальная продолжительность разговора"""
     duration_max: Optional[int] = None
     """Максимальная продолжительность разговора"""
+    dt_lower_border: Optional[datetime] = None
+    """Дата хантинга от"""
+    dt_upper_border: Optional[datetime] = None
+    """Дата хантинга до"""
 
     @classmethod
     def from_search_params(cls, data: dict, operator_id: int) -> 'CallsHistorySearch':
