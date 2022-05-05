@@ -1,6 +1,12 @@
 from cian_enum import NoFormat, StrEnum
 
 
+class OperatorV1RoutingKey(StrEnum, value_format=NoFormat):
+
+    updated = 'external-offers.operator.v1.updated'
+    """Обновлен"""
+
+
 class AnnouncementReportingV1RoutingKey(StrEnum):
     __value_format__ = NoFormat
 
