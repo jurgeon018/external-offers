@@ -756,21 +756,17 @@ async def return_client_to_waiting_by_client_id(
     await pg.get().execute(query, *params)
 
 
-async def get_hunted_numbers_for_date_by_operator_id(
+async def get_hunted_numbers_for_today_by_operator_id(
     *,
     hunter_user_id: int,
-    dt_lower_border: Optional[datetime] = None,
-    dt_upper_border: Optional[datetime] = None,
 ) -> int:
     now = datetime.now()
-    if not dt_upper_border:
-        dt_upper_border = now
-    if not dt_lower_border:
-        dt_lower_border = now.replace(
-            hour=0,
-            minute=0,
-            second=0,
-        )
+    dt_upper_border = now
+    dt_lower_border = now.replace(
+        hour=0,
+        minute=0,
+        second=0,
+    )
     query, params = asyncpgsa.compile_query(
         select(
             [clients.c.client_id]
@@ -795,6 +791,31 @@ async def get_hunted_numbers_by_operator_id(
             [clients.c.client_id]
         ).where(
             clients.c.hunter_user_id == hunter_user_id
+        )
+    )
+    client_ids = await pg.get().fetch(query, *params)
+    return len(client_ids) if client_ids else 0
+
+
+async def get_hunted_numbers_for_date_by_operator_id(
+    hunter_user_id: int,
+    dt_lower_border: Optional[datetime] = None,
+    dt_upper_border: Optional[datetime] = None,
+) -> int:
+    clause = [
+        clients.c.hunter_user_id == hunter_user_id
+    ]
+    if dt_lower_border:
+        clause.append(clients.c.real_phone_hunted_at >= dt_lower_border)
+    if dt_upper_border:
+        clause.append(clients.c.real_phone_hunted_at <= dt_upper_border)
+    query, params = asyncpgsa.compile_query(
+        select(
+            [clients.c.client_id]
+        ).where(
+            and_(
+                *clause
+            )
         )
     )
     client_ids = await pg.get().fetch(query, *params)
