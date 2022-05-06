@@ -8,6 +8,7 @@ from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd_timer
 from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
 
@@ -769,7 +770,7 @@ async def get_hunted_numbers_for_today_by_operator_id(
     )
     query, params = asyncpgsa.compile_query(
         select(
-            [clients.c.client_id]
+            [func.count()]
         ).where(
             and_(
                 clients.c.hunter_user_id == hunter_user_id,
@@ -778,8 +779,8 @@ async def get_hunted_numbers_for_today_by_operator_id(
             )
         )
     )
-    client_ids = await pg.get().fetch(query, *params)
-    return len(client_ids) if client_ids else 0
+    count = await pg.get().fetchval(query, *params)
+    return count
 
 
 async def get_hunted_numbers_by_operator_id(
@@ -788,13 +789,13 @@ async def get_hunted_numbers_by_operator_id(
 ) -> int:
     query, params = asyncpgsa.compile_query(
         select(
-            [clients.c.client_id]
+            [func.count()]
         ).where(
             clients.c.hunter_user_id == hunter_user_id
         )
     )
-    client_ids = await pg.get().fetch(query, *params)
-    return len(client_ids) if client_ids else 0
+    count = await pg.get().fetchval(query, *params)
+    return count
 
 
 async def get_hunted_numbers_for_date_by_operator_id(
@@ -811,12 +812,12 @@ async def get_hunted_numbers_for_date_by_operator_id(
         clause.append(clients.c.real_phone_hunted_at <= dt_upper_border)
     query, params = asyncpgsa.compile_query(
         select(
-            [clients.c.client_id]
+            [func.count()]
         ).where(
             and_(
                 *clause
             )
         )
     )
-    client_ids = await pg.get().fetch(query, *params)
-    return len(client_ids) if client_ids else 0
+    count = await pg.get().fetchval(query, *params)
+    return count
