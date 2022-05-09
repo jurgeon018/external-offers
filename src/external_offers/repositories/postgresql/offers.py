@@ -18,6 +18,7 @@ from external_offers.entities.clients import ClientDraftOffersCount
 from external_offers.entities.offers import OfferForPrioritization
 from external_offers.entities.teams import TeamType
 from external_offers.enums import OfferStatus
+from external_offers.enums.client_status import ClientStatus
 from external_offers.mappers import (
     client_draft_offers_count_mapper,
     client_waiting_offers_count_mapper,
@@ -628,6 +629,17 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
         )
         .cte('waiting_offers_without_parsed_cte')
     )
+    unhunted_clients_cte = (
+        select(
+            [clients.c.client_id]
+        ).where(
+            and_(
+                clients.c.status == ClientStatus.waiting.value,
+                clients.c.real_phone.is_(None),
+                clients.c.real_phone_hunted_at.is_(None),
+            ),
+        ).cte('unhunted_clients_cte')
+    )
 
     sql = (
         delete(
@@ -635,7 +647,8 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
         ).where(
             and_(
                 offers_for_call.c.id == waiting_offers_without_parsed_cte.c.id,
-                offers_for_call.c.status == OfferStatus.waiting.value
+                offers_for_call.c.status == OfferStatus.waiting.value,
+                offers_for_call.c.client_id == unhunted_clients_cte.c.client_id,
             )
         )
     )
