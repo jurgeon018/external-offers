@@ -6,7 +6,7 @@ import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd_timer
-from sqlalchemy import and_, any_, delete, exists, nullslast, or_, select, update
+from sqlalchemy import and_, any_, delete, exists, not_, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
@@ -20,6 +20,7 @@ from external_offers.repositories.postgresql.operators import get_operator_by_id
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.repositories.postgresql.teams import get_team_by_id
 from external_offers.utils.assign_suitable_offers import get_priority_ordering, get_team_type_clauses
+from external_offers.utils.iter_utils import iterate_over_list_by_chunks
 from external_offers.utils.next_call import get_next_call_date_when_draft
 from external_offers.utils.teams import get_team_info
 
@@ -714,16 +715,61 @@ async def delete_test_clients() -> None:
     await pg.get().execute(query, *params)
 
 
+async def sync_clients_with_kafka_by_ids(client_ids: list[str]) -> None:
+    non_final_statuses = [
+        ClientStatus.waiting.value,
+        ClientStatus.in_progress.value,
+        ClientStatus.call_missed.value,
+        ClientStatus.call_later.value,
+    ]
+    for client_ids_chunk in iterate_over_list_by_chunks(
+        iterable=client_ids,
+        chunk_size=runtime_settings.SYNC_OFFERS_FOR_CALL_WITH_KAFKA_BY_IDS_CHUNK
+    ):
+        sql = (
+            update(
+                clients
+            ).values(
+                synced_with_kafka=True
+            ).where(
+                and_(
+                    clients.c.client_id.in_(client_ids_chunk),
+                    # проставляет флаг только клиентам в финальных статусах
+                    clients.c.status.notin_(non_final_statuses),
+                )
+            )
+        )
+        query, params = asyncpgsa.compile_query(sql)
+        await pg.get().fetch(query, *params)
+
+
 async def iterate_over_clients_sorted(
     *,
     prefetch: int
 ) -> AsyncGenerator[Client, None]:
-
+    non_final_statuses = [
+        ClientStatus.waiting.value,
+        ClientStatus.in_progress.value,
+        ClientStatus.call_missed.value,
+        ClientStatus.call_later.value,
+    ]
     query, params = asyncpgsa.compile_query(
         select(
             [clients]
         ).where(
-            clients.c.is_test == false()
+            and_(
+                clients.c.is_test == false(),
+                or_(
+                    # все клиенты в нефинальных статусах отправляются в кафку повторно
+                    clients.c.status.in_(non_final_statuses),
+                    # все клиенты с финальным статусом отправляются в кафку единажды
+                    # (отправляются только те, которые еще не были отправлены в кафку)
+                    and_(
+                        clients.c.status.notin_(non_final_statuses),
+                        not_(clients.c.synced_with_kafka),
+                    ),
+                ),
+            )
         ).order_by(
             clients.c.client_id.asc()
         )
