@@ -38,8 +38,9 @@ def get_team_type_clauses(
                 offers_for_call.c.client_id == clients.c.client_id
             )
         if team_type == TeamType.attractor:
-            onlyct_team_ids = runtime_settings.get('ONLY_HUNTED_CT_ATTRACTOR_TEAM_ID', [])
-            if team_info.team_id and int(team_info.team_id) in onlyct_team_ids:
+            only_hunted_ct_team_ids = runtime_settings.get('ONLY_HUNTED_CT_ATTRACTOR_TEAM_ID', [])
+            only_unhunted_ct_team_ids = runtime_settings.get('ONLY_UNHUNTED_CT_ATTRACTOR_TEAM_ID', [])
+            if team_info.team_id and int(team_info.team_id) in only_hunted_ct_team_ids:
                 team_type_clauses = [
                     and_(
                         # все колтрекинговые обьявки, которые прошли через этап хантинга,
@@ -49,6 +50,13 @@ def get_team_type_clauses(
                         clients.c.real_phone_hunted_at <= (datetime.now() - timedelta(
                             days=team_info.team_settings['return_to_queue_days_after_hunted']
                         )),
+                    )
+                ]
+            elif team_info.team_id and int(team_info.team_id) in only_unhunted_ct_team_ids:
+                team_type_clauses = [
+                    and_(
+                        table_with_ct_flag.c.is_calltracking.is_(True),
+                        clients.c.real_phone_hunted_at.is_(None),
                     )
                 ]
             else:
