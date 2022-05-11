@@ -17,6 +17,10 @@ async def test_send_clients__kafka_error__expect_warning(mocker):
     logger_mock = mocker.patch(
         'external_offers.services.send_clients_to_kafka.logger'
     )
+    mocker.patch(
+        'external_offers.services.send_clients_to_kafka.sync_clients_with_kafka_by_ids',
+        return_value=future(None),
+    )
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()
     iterate_return_value.__aiter__.return_value = [
@@ -52,7 +56,10 @@ async def test_send_clients__producer_success_and_failed__expect_statsd_incr(moc
     statsd_incr_mock = mocker.patch(
         'external_offers.services.send_clients_to_kafka.statsd.incr'
     )
-
+    mocker.patch(
+        'external_offers.services.send_clients_to_kafka.sync_clients_with_kafka_by_ids',
+        return_value=future(None),
+    )
     error_sentinel = mocker.sentinel
     iterate_return_value = MagicMock()
     iterate_return_value.__aiter__.return_value = [
