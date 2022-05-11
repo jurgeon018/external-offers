@@ -86,7 +86,9 @@ class AdminOffersListPageHandler(PublicHandler):
         if not runtime_settings.DEBUG:
             operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
-
+        only_unhunted_ct_team_ids = runtime_settings.get('ONLY_UNHUNTED_CT_ATTRACTOR_TEAM_ID', [])
+        team_id = current_operator.team_id
+        operator_can_call_unhunted_ct = team_id and (int(team_id) in only_unhunted_ct_team_ids)
         self.write(get_offers_list_html(
             client_is_calltracking=client_is_calltracking,
             offers=offers,
@@ -99,6 +101,7 @@ class AdminOffersListPageHandler(PublicHandler):
             is_commercial_moderator=is_commercial_moderator,
             current_operator=current_operator,
             default_real_phone_hunted_at=default_real_phone_hunted_at,
+            operator_can_call_unhunted_ct=operator_can_call_unhunted_ct,
             now=now,
         ))
 
