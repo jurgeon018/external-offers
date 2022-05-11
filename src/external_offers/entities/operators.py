@@ -54,6 +54,8 @@ class EnrichedOperator:
     """Количество заданий в ожидании в очереди команды"""
     team_waiting_offers_count_updated_at: Optional[datetime] = None
     """Время последнего обновления количества заданий в ожидании в очереди команды"""
+    team_division: Optional[str] = None
+    """Название групы номеров"""
 
 
 @dataclass

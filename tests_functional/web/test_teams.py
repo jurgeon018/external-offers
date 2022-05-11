@@ -24,6 +24,7 @@ async def test_teams(pg, http, runtime_settings):
         'PROMOCODE_GROUP_NAME': default_promocode_group_name,
     })
     name = 'Команда1'
+    team_division = 'gapk_attractor'
     lead_id = '1'
     new_lead_id = '2'
     new_name = 'Команда2'
@@ -84,6 +85,7 @@ async def test_teams(pg, http, runtime_settings):
         json={
             'teamId': team_id,
             'teamName': new_name,
+            'teamDivision': team_division,
             'leadId': new_lead_id,
             'validDaysAfterCall': new_valid_days_after_call,
             'activationStatusPosition': new_activation_status_position,
@@ -127,6 +129,7 @@ async def test_teams(pg, http, runtime_settings):
     assert teams_after_creation[0]['team_id'] == team_id
     assert teams_after_creation[0]['lead_id'] == lead_id
     assert teams_after_creation[0]['team_name'] == name
+    assert teams_after_creation[0]['team_division'] is None
     assert after_creation_settings['valid_days_after_call'] == default_valid_days_after_call
     assert after_creation_settings['activation_status_position'] == default_activation_status_position
     assert after_creation_settings['promocode_price'] == default_promocode_price
@@ -147,6 +150,7 @@ async def test_teams(pg, http, runtime_settings):
     assert teams_after_update[0]['team_id'] == team_id
     assert teams_after_update[0]['lead_id'] == new_lead_id
     assert teams_after_update[0]['team_name'] == new_name
+    assert teams_after_creation[0]['team_division'] == team_division
     assert after_update_settings['valid_days_after_call'] == new_valid_days_after_call
     assert after_update_settings['activation_status_position'] == new_activation_status_position
     assert after_update_settings['promocode_price'] == new_promocode_price

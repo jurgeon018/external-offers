@@ -66,6 +66,7 @@ async def update_team_by_id(
     *,
     team_id: int,
     team_name: str,
+    team_division: Optional[str] = None,
     lead_id: str,
     settings: Optional[dict] = None,
 ) -> None:
@@ -78,6 +79,7 @@ async def update_team_by_id(
             teams.c.team_id == team_id
         ).values(
             team_name=team_name,
+            team_division=team_division,
             lead_id=lead_id,
             settings=settings,
         )

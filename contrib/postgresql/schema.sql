@@ -31,7 +31,8 @@ create table offers_for_call
 	external_offer_type varchar,
 	team_priorities jsonb,
 	comment varchar,
-	group_id varchar
+	group_id varchar,
+	team_division varchar
 );
 
 create index offers_for_call_offer_cian_id_idx
