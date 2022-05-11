@@ -767,7 +767,7 @@ reference = "cian"
 
 [[package]]
 name = "cian-settings"
-version = "2.4.0"
+version = "2.5.0"
 description = ""
 category = "main"
 optional = false
@@ -841,7 +841,7 @@ pytest-mock = ">=1.11.1,<2.0.0"
 tornado = "*"
 
 [package.extras]
-test = ["aiomssql", "cian-cache", "cian-core[cassandra,kafka,cache,postgres,es,mssql] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
+test = ["aiomssql", "cian-cache", "cian-core[es,mssql,cassandra,postgres,kafka,cache] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
 
 [package.source]
 type = "legacy"
@@ -2895,8 +2895,8 @@ cian-schemas = [
     {file = "cian_schemas-2.17.0-py3-none-any.whl", hash = "md5:715f93bb442d5974e614524dd68bff5f"},
 ]
 cian-settings = [
-    {file = "cian-settings-2.4.0.tar.gz", hash = "md5:96efdd6880486b76cf5678575634844a"},
-    {file = "cian_settings-2.4.0-py3-none-any.whl", hash = "md5:998c32062d24db1f286ddaedd2b40679"},
+    {file = "cian-settings-2.5.0.tar.gz", hash = "md5:8b28d53049ae51e0679309a0258f1cf9"},
+    {file = "cian_settings-2.5.0-py3-none-any.whl", hash = "md5:5459401134924ad4771aac96a8230952"},
 ]
 cian-swagger = [
     {file = "cian-swagger-1.16.0.tar.gz", hash = "md5:c9057fcd999dabc2eb3532c9c7cde1ef"},
