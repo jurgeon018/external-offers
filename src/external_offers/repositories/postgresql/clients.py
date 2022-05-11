@@ -779,6 +779,12 @@ async def get_hunted_numbers_for_today_by_operator_id(
             )
         )
     )
+    if runtime_settings.get('ENABLE_NUMBERS_COUNT_LOGGING', True):
+        logger.warning(
+            '\nЗапрос: %s; \nПараметры: %s',
+            query,
+            params,
+        )
     count = await pg.get().fetchval(query, *params)
     return count
 
@@ -794,6 +800,12 @@ async def get_hunted_numbers_by_operator_id(
             clients.c.hunter_user_id == hunter_user_id
         )
     )
+    if runtime_settings.get('ENABLE_NUMBERS_COUNT_LOGGING', True):
+        logger.warning(
+            '\nЗапрос: %s; \nПараметры: %s',
+            query,
+            params,
+        )
     count = await pg.get().fetchval(query, *params)
     return count
 
@@ -819,5 +831,11 @@ async def get_hunted_numbers_for_date_by_operator_id(
             )
         )
     )
+    if runtime_settings.get('ENABLE_NUMBERS_COUNT_LOGGING', True):
+        logger.warning(
+            '\nЗапрос: %s; \nПараметры: %s',
+            query,
+            params,
+        )
     count = await pg.get().fetchval(query, *params)
     return count
