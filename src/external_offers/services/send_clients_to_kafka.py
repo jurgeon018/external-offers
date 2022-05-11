@@ -43,4 +43,4 @@ async def send_clients_to_kafka():
             statsd.incr(
                 stat='send-clients-to-kafka.success',
             )
-        await sync_clients_with_kafka_by_ids(client_ids)
+    await sync_clients_with_kafka_by_ids(client_ids)
