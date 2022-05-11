@@ -40,7 +40,6 @@ def get_team_type_clauses(
         if team_type == TeamType.attractor:
             only_hunted_ct_team_ids = runtime_settings.get('ONLY_HUNTED_CT_ATTRACTOR_TEAM_ID', [])
             only_unhunted_ct_team_ids = runtime_settings.get('ONLY_UNHUNTED_CT_ATTRACTOR_TEAM_ID', [])
-            print('only_unhunted_ct_team_ids', only_unhunted_ct_team_ids)
             if team_info.team_id and int(team_info.team_id) in only_hunted_ct_team_ids:
                 team_type_clauses = [
                     and_(
