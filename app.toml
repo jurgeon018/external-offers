@@ -21,7 +21,7 @@ alias = "default"
 
 [job.web]
 type = "web"
-memory = 2048
+memory = 3072
 
 [job.web.prod]
 cpu = 0.05

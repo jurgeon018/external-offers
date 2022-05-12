@@ -8,6 +8,7 @@ from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd_timer
 from sqlalchemy import and_, any_, delete, exists, not_, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.sql.functions import coalesce
 
@@ -802,24 +803,20 @@ async def return_client_to_waiting_by_client_id(
     await pg.get().execute(query, *params)
 
 
-async def get_hunted_numbers_for_date_by_operator_id(
+async def get_hunted_numbers_for_today_by_operator_id(
     *,
     hunter_user_id: int,
-    dt_lower_border: Optional[datetime] = None,
-    dt_upper_border: Optional[datetime] = None,
 ) -> int:
     now = datetime.now()
-    if not dt_upper_border:
-        dt_upper_border = now
-    if not dt_lower_border:
-        dt_lower_border = now.replace(
-            hour=0,
-            minute=0,
-            second=0,
-        )
+    dt_upper_border = now
+    dt_lower_border = now.replace(
+        hour=0,
+        minute=0,
+        second=0,
+    )
     query, params = asyncpgsa.compile_query(
         select(
-            [clients.c.client_id]
+            [func.count()]
         ).where(
             and_(
                 clients.c.hunter_user_id == hunter_user_id,
@@ -828,8 +825,14 @@ async def get_hunted_numbers_for_date_by_operator_id(
             )
         )
     )
-    client_ids = await pg.get().fetch(query, *params)
-    return len(client_ids) if client_ids else 0
+    if runtime_settings.get('ENABLE_NUMBERS_COUNT_LOGGING', True):
+        logger.warning(
+            '\nЗапрос: %s; \nПараметры: %s',
+            query,
+            params,
+        )
+    count = await pg.get().fetchval(query, *params)
+    return count
 
 
 async def get_hunted_numbers_by_operator_id(
@@ -838,10 +841,47 @@ async def get_hunted_numbers_by_operator_id(
 ) -> int:
     query, params = asyncpgsa.compile_query(
         select(
-            [clients.c.client_id]
+            [func.count()]
         ).where(
             clients.c.hunter_user_id == hunter_user_id
         )
     )
-    client_ids = await pg.get().fetch(query, *params)
-    return len(client_ids) if client_ids else 0
+    if runtime_settings.get('ENABLE_NUMBERS_COUNT_LOGGING', True):
+        logger.warning(
+            '\nЗапрос: %s; \nПараметры: %s',
+            query,
+            params,
+        )
+    count = await pg.get().fetchval(query, *params)
+    return count
+
+
+async def get_hunted_numbers_for_date_by_operator_id(
+    hunter_user_id: int,
+    dt_lower_border: Optional[datetime] = None,
+    dt_upper_border: Optional[datetime] = None,
+) -> int:
+    clause = [
+        clients.c.hunter_user_id == hunter_user_id
+    ]
+    if dt_lower_border:
+        clause.append(clients.c.real_phone_hunted_at >= dt_lower_border)
+    if dt_upper_border:
+        clause.append(clients.c.real_phone_hunted_at <= dt_upper_border)
+    query, params = asyncpgsa.compile_query(
+        select(
+            [func.count()]
+        ).where(
+            and_(
+                *clause
+            )
+        )
+    )
+    if runtime_settings.get('ENABLE_NUMBERS_COUNT_LOGGING', True):
+        logger.warning(
+            '\nЗапрос: %s; \nПараметры: %s',
+            query,
+            params,
+        )
+    count = await pg.get().fetchval(query, *params)
+    return count
