@@ -150,7 +150,7 @@ async def test_teams(pg, http, runtime_settings):
     assert teams_after_update[0]['team_id'] == team_id
     assert teams_after_update[0]['lead_id'] == new_lead_id
     assert teams_after_update[0]['team_name'] == new_name
-    assert teams_after_creation[0]['team_division'] == team_division
+    assert teams_after_update[0]['team_division'] == team_division
     assert after_update_settings['valid_days_after_call'] == new_valid_days_after_call
     assert after_update_settings['activation_status_position'] == new_activation_status_position
     assert after_update_settings['promocode_price'] == new_promocode_price
