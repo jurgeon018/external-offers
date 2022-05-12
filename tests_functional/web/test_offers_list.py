@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from typing_extensions import runtime
 
 import pytest
 import pytz
@@ -962,6 +963,46 @@ async def test_update_offers_list__exist_no_suitable_client__returns_no_success(
     )
 
     operator = 70024649
+
+    # act
+    resp = await http.request(
+        'POST',
+        '/api/admin/v1/update-offers-list/',
+        headers={
+            'X-Real-UserId': operator
+        },
+        json={},
+        expected_status=200
+    )
+
+    # assert
+    assert not resp.data['success']
+    assert resp.data['errors']
+    assert resp.data['errors'][0]['code'] == 'suitableClientMissing'
+
+
+async def test_update_offers_list__exist_only_invalid_client__returns_no_success(
+        http,
+        users_mock,
+        runtime_settings,
+        pg,
+        offers_and_clients_fixture,
+):
+    # arrange
+    await pg.execute_scripts(offers_and_clients_fixture)    
+    await runtime_settings.set({
+        'ENABLE_CLEARED_PRIORITY_FILTERING': True,
+    })
+    await users_mock.add_stub(
+        method='GET',
+        path='/v1/get-user-roles/',
+        response=MockResponse(
+            body={'roles': []}
+        ),
+    )
+
+    operator = 70024649
+
 
     # act
     resp = await http.request(
