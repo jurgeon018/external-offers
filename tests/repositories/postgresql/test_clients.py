@@ -231,7 +231,7 @@ async def test_assign_suitable_client_to_operator__only_unhunted_ct_attractor_te
     team_id = 58
     await fake_settings.set(
         ENABLE_TEAM_TYPES=True,
-        ONLY_UNHUNTED_CT_ATTRACTOR_TEAM_ID=[team_id]
+        # ONLY_UNHUNTED_CT_ATTRACTOR_TEAM_ID=[team_id]
     )
     operator_id = 1
     # https://www.joydeepdeb.com/tools/line-break.html
@@ -245,6 +245,7 @@ async def test_assign_suitable_client_to_operator__only_unhunted_ct_attractor_te
             team_id=str(team_id),
             team_settings={
                 'return_to_queue_days_after_hunted': 2,
+                'enable_only_unhunted_ct': True,
             },
             team_type=TeamType.attractor,
         ),

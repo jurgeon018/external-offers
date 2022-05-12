@@ -31,8 +31,8 @@ def get_default_team_settings() -> dict[str, Union[str, int]]:
         'regions': runtime_settings.get('OFFER_TASK_CREATION_REGIONS'),
         'segments': runtime_settings.get('OFFER_TASK_CREATION_SEGMENTS'),
         'categories': runtime_settings.get('OFFER_TASK_CREATION_CATEGORIES'),
-        # 'calltracking': False,
         'return_to_queue_days_after_hunted': runtime_settings.get('RETURN_TO_QUEUE_DAYS_AFTER_HUNTED', 2),
+        'enable_only_unhunted_ct': False,
     }
 
 

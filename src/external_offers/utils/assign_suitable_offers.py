@@ -39,7 +39,6 @@ def get_team_type_clauses(
             )
         if team_type == TeamType.attractor:
             only_hunted_ct_team_ids = runtime_settings.get('ONLY_HUNTED_CT_ATTRACTOR_TEAM_ID', [])
-            only_unhunted_ct_team_ids = runtime_settings.get('ONLY_UNHUNTED_CT_ATTRACTOR_TEAM_ID', [])
             if team_info.team_id and int(team_info.team_id) in only_hunted_ct_team_ids:
                 team_type_clauses = [
                     and_(
@@ -52,9 +51,10 @@ def get_team_type_clauses(
                         )),
                     )
                 ]
-            elif team_info.team_id and int(team_info.team_id) in only_unhunted_ct_team_ids:
+            elif team_info.team_settings.get('enable_only_unhunted_ct', False):
                 team_type_clauses = [
                     and_(
+                        # все колтрекинговые обьявки, которые не прошли через этап хантинга
                         table_with_ct_flag.c.is_calltracking.is_(True),
                         clients.c.real_phone_hunted_at.is_(None),
                     )

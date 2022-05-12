@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 import freezegun
 import pytest
@@ -9,6 +10,8 @@ from freezegun.api import FakeDatetime
 
 from external_offers.entities import Client, Offer
 from external_offers.entities.admin import AdminDeleteOfferRequest, AdminUpdateOffersListRequest
+from external_offers.entities.teams import Team
+from external_offers.enums.teams import TeamType
 from external_offers.helpers.errors import USER_ROLES_REQUEST_MAX_TRIES_ERROR, DegradationException
 from external_offers.services.admin import already_published_offer, update_offers_list
 from external_offers.settings.base import EXTERNAL_OFFERS_GET_USER_ROLES_TRIES_COUNT
@@ -141,6 +144,18 @@ async def test_offers_list_page_handler(mocker, http_client, base_url):
     is_calltracking = False
     # client = mocker.MagicMock(value=None)
     offers = mocker.MagicMock(value=[])
+    mocker.patch(
+        'external_offers.web.handlers.admin.get_team_by_id',
+        return_value=future(Team(
+            team_id=1,
+            team_type=TeamType.attractor,
+            team_name='team1',
+            lead_id='1',
+            settings=json.dumps({
+                'enable_only_unhunted_ct': False,
+            })
+        ))
+    )
     mocker.patch(
         'external_offers.web.handlers.admin.get_client_in_progress_by_operator',
         return_value=future(client),
