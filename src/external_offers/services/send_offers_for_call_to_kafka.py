@@ -41,4 +41,4 @@ async def send_offers_for_call_to_kafka():
                 stat='send-offers-for-call-to-kafka.success',
             )
 
-        await sync_offers_for_call_with_kafka_by_ids(offer_ids)
+    await sync_offers_for_call_with_kafka_by_ids(offer_ids)

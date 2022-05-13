@@ -1040,9 +1040,6 @@ async def iterate_over_offers_for_call_sorted(
         OfferStatus.call_missed.value,
         OfferStatus.call_later.value,
     ]
-    non_final_publication_statuses = [
-        PublicationStatus.published.value,
-    ]
     query, params = asyncpgsa.compile_query(
         select(
             [offers_for_call]

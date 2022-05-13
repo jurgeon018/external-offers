@@ -3,6 +3,7 @@ import asyncio
 from external_offers.repositories.postgresql.clients import (
     get_hunted_numbers_by_operator_id,
     get_hunted_numbers_for_date_by_operator_id,
+    get_hunted_numbers_for_today_by_operator_id,
 )
 from external_offers.repositories.postgresql.operators import get_enriched_operators
 from external_offers.services.calls_history.helpers import Paginator
@@ -36,15 +37,18 @@ class AdminCallsHistoryPageHandler(PublicHandler):
             page_size=search.page_size,
         )
         selected_operator_id = search.operator_id
-        hunted_numbers_for_today, all_hunted_numbers = await asyncio.gather(
-            get_hunted_numbers_for_date_by_operator_id(
+        hunted_numbers_for_today, all_hunted_numbers, hunted_numbers_for_date = await asyncio.gather(
+            get_hunted_numbers_for_today_by_operator_id(
                 hunter_user_id=selected_operator_id,
-                dt_lower_border=search.dt_lower_border,
-                dt_upper_border=search.dt_upper_border,
             ),
             get_hunted_numbers_by_operator_id(
                 hunter_user_id=selected_operator_id
-            )
+            ),
+            get_hunted_numbers_for_date_by_operator_id(
+                hunter_user_id=selected_operator_id,
+                dt_lower_border=search.time_from,
+                dt_upper_border=search.time_to,
+            ),
         )
         self.write(get_html(
             'operator_calls_history.jinja2',
@@ -54,6 +58,7 @@ class AdminCallsHistoryPageHandler(PublicHandler):
             selected_operator_id=selected_operator_id,
             hunted_numbers_for_today=hunted_numbers_for_today,
             all_hunted_numbers=all_hunted_numbers,
+            hunted_numbers_for_date=hunted_numbers_for_date,
             filter_data=calls_history_mapper.map_to(search),
             paginator=paginator.get_page_items(),
             total_calls_count=total_calls_count,
