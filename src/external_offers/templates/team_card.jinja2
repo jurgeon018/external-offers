@@ -72,11 +72,13 @@
         {% endif %}
         <br>
         <br>
-        <span title="Получать в очередь для прозвона только колтрекинговых клиентов?">Флаг коллтрекинга:</span>
+        <span title="Получать в очередь для прозвона только несханченых КТ клиентов?">Флаг коллтрекинга:</span>
         <input 
             type="checkbox"
-            disabled
-            {% if team.team_type.value == 'hunter' %} checked {% endif %}
+            name="enableOnlyUnhuntedCt"
+            {% if team_settings.get('enable_only_unhunted_ct') == True %}
+            checked
+            {% endif %}
         />
         <hr>
         <h2>Настройки обьявлений</h2>
