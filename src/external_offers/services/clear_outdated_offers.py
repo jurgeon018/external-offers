@@ -25,12 +25,6 @@ async def check_if_was_update() -> bool:
     return bool(latest_updated_at and latest_updated_at > check_border)
 
 
-def get_updated_at_border() -> datetime:
-    now = datetime.now(pytz.utc)
-    update_border = now - timedelta(days=settings.OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS)
-    return update_border
-
-
 async def clear_outdated_offers() -> None:
     if not settings.ENABLE_OUTDATED_OFFERS_CLEARING:
         logger.warning('Очистка устаревших объявлений отключена')
@@ -44,10 +38,5 @@ async def clear_outdated_offers() -> None:
     else:
         logger.warning('Проверка наличия обновления отключена')
 
-    updated_at_border = get_updated_at_border()
-
-    await delete_outdated_parsed_offers(
-        updated_at_border=updated_at_border
-    )
-
+    await delete_outdated_parsed_offers()
     await delete_waiting_offers_for_call_without_parsed_offers()
