@@ -222,14 +222,18 @@ async def get_latest_updated_at() -> Optional[datetime]:
     return await pg.get().fetchval(query, *params)
 
 
-async def delete_outdated_parsed_offers(
-    *,
-    updated_at_border: datetime
-) -> None:
+async def delete_outdated_parsed_offers() -> None:
     po = tables.parsed_offers.alias()
     ofc = tables.offers_for_call.alias()
-
-    query, params = asyncpgsa.compile_query(select([func.count()]).where(po.c.updated_at > updated_at_border))
+    now = datetime.now(pytz.utc)
+    updated_at_border = now - timedelta(days=settings.OFFER_WITHOUT_UPDATE_MAX_AGE_IN_DAYS)
+    query, params = asyncpgsa.compile_query(
+        select(
+            [func.count()]
+        ).where(
+            po.c.updated_at > updated_at_border
+        )
+    )
     new_parsed_offers_count = await pg.get().fetchval(query, *params)
     if new_parsed_offers_count < settings.NEW_PARSED_OFFERS_COUNT_FOR_DELETE_OLD:
         logger.warning('Очистка устаревших объявлений не была запущена из-за отстутствия новых объявлений')
