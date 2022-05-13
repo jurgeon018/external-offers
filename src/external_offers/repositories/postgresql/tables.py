@@ -150,3 +150,22 @@ clients_priorities = sa.Table(
     sa.Column('created_at', sa.TIMESTAMP, nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP, nullable=False),
 )
+
+hunted_client_logs = sa.Table(
+    'hunted_client_logs',
+    metadata,
+    sa.Column('id', sa.BIGINT, autoincrement=True, primary_key=True),
+    sa.Column('client_id', sa.VARCHAR, nullable=False),
+    sa.Column('is_returned_to_waiting', sa.BOOLEAN, nullable=False),
+    sa.Column('operator_user_id', sa.BIGINT, nullable=False),
+    sa.Column('created_at', sa.TIMESTAMP, nullable=False),
+)
+
+hunted_count_logs = sa.Table(
+    'hunted_count_logs',
+    metadata,
+    sa.Column('id', sa.BIGINT, autoincrement=True, primary_key=True),
+    sa.Column('count', sa.BIGINT, nullable=False),
+    sa.Column('operator_user_id', sa.BIGINT, nullable=False),
+    sa.Column('created_at', sa.TIMESTAMP, nullable=False),
+)

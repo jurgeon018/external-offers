@@ -1,6 +1,7 @@
 from external_offers.entities import BasicResponse
 from external_offers.entities.update_client_real_info import UpdateClientRealInfoRequest
 from external_offers.repositories.postgresql.clients import get_client_by_client_id, set_real_info_by_client_id
+from external_offers.repositories.postgresql.hunted_client_logs import create_hunted_client_log
 
 
 async def update_client_real_info_public(request: UpdateClientRealInfoRequest, user_id: int) -> BasicResponse:
@@ -28,6 +29,10 @@ async def update_client_real_info_public(request: UpdateClientRealInfoRequest, u
         real_phone=real_phone,
         real_phone_hunted_at=request.real_phone_hunted_at,
         real_name=request.real_name,
+    )
+    await create_hunted_client_log(
+        client_id=client_id,
+        operator_user_id=user_id,
     )
     return BasicResponse(
         success=True,
