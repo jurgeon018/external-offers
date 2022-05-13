@@ -11,6 +11,7 @@ from external_offers.queue.consumers import process_announcement_callback, save_
 from external_offers.queue.queues import process_announcements_queue
 from external_offers.queue.schemas import RabbitMQAnnouncementMessageSchema
 from external_offers.services.clear_outdated_offers import clear_outdated_offers
+from external_offers.services.hunted_count_logs import create_hunted_count_logs
 from external_offers.services.offers_creator import create_client_account_statuses, sync_and_create_offers
 from external_offers.services.send_clients_to_kafka import send_clients_to_kafka
 from external_offers.services.send_event_logs_to_kafka import send_event_logs_to_kafka
@@ -110,6 +111,12 @@ def send_event_logs_to_kafka_cron():
 def send_clients_to_kafka_cron():
     """ Отправить записи из таблицы clients в кафку """
     IOLoop.current().run_sync(send_clients_to_kafka)
+
+
+@cli.command()
+def create_hunted_count_logs_cron():
+    """ Отправить записи из таблицы clients в кафку """
+    IOLoop.current().run_sync(create_hunted_count_logs)
 
 
 # [ML] сохранение объявлений с внешних площадок
