@@ -841,7 +841,7 @@ pytest-mock = ">=1.11.1,<2.0.0"
 tornado = "*"
 
 [package.extras]
-test = ["aiomssql", "cian-cache", "cian-core[cache,postgres,mssql,cassandra,kafka,es] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
+test = ["aiomssql", "cian-cache", "cian-core[postgres,es,cache,kafka,cassandra,mssql] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
 
 [package.source]
 type = "legacy"

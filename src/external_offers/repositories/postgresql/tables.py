@@ -57,6 +57,7 @@ clients = sa.Table(
     sa.Column('unactivated', sa.BOOLEAN, nullable=False, default=False),
     sa.Column('drafted_at', sa.TIMESTAMP),
     sa.Column('published_at', sa.TIMESTAMP),
+    sa.Column('synced_with_kafka', sa.BOOLEAN, nullable=True),
 )
 
 offers_for_call = sa.Table(

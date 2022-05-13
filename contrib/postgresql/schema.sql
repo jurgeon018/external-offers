@@ -70,6 +70,7 @@ create table clients
 	additional_numbers varchar,
 	additional_emails varchar,
 	team_id integer,
+	synced_with_kafka boolean null,
 	subsegment varchar
 );
 
