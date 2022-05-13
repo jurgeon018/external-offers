@@ -39,6 +39,7 @@ from external_offers.templates import (
     get_team_card_html,
     get_teams_page_html,
 )
+from external_offers.utils.teams import get_team_info
 from external_offers.web.handlers.base import PublicHandler
 
 
@@ -86,7 +87,10 @@ class AdminOffersListPageHandler(PublicHandler):
         if not runtime_settings.DEBUG:
             operator_roles = await get_operator_roles(operator_id=self.realty_user_id)
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
-
+        team_id = current_operator.team_id
+        team = await get_team_by_id(team_id=team_id)
+        team_info = get_team_info(team=team)
+        operator_can_call_unhunted_ct = team_info.team_settings.get('enable_only_unhunted_ct', False)
         self.write(get_offers_list_html(
             client_is_calltracking=client_is_calltracking,
             offers=offers,
@@ -98,6 +102,7 @@ class AdminOffersListPageHandler(PublicHandler):
             operator_id=self.realty_user_id,
             is_commercial_moderator=is_commercial_moderator,
             current_operator=current_operator,
+            operator_can_call_unhunted_ct=operator_can_call_unhunted_ct,
             default_real_phone_hunted_at=default_real_phone_hunted_at,
             now=now,
         ))
