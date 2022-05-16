@@ -19,6 +19,8 @@ class OffersSettings:
 @dataclass
 class ClientsSettings:
     # Настройки фильтрации клиентов
+    enable_only_unhunted_ct: bool = False
+    """Брать в работу только несханченных КТ клиентов"""
     segments: Optional[list[str]] = None
     """Сегменты пользователей, которых будет обрабатывать команда"""
     subsegments: Optional[list[str]] = None

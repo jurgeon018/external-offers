@@ -98,6 +98,7 @@ async def test_teams(pg, http, runtime_settings):
             'regionsWithPaidPublication': json.dumps(new_regions_with_paid_publication),
             'filling': json.dumps(new_filling),
             'mainRegionsPriority': json.dumps(new_main_regions_priority),
+            'enableOnlyUnhuntedCt': True,
         },
         headers={
             'X-Real-UserId': 1
@@ -141,6 +142,7 @@ async def test_teams(pg, http, runtime_settings):
     assert after_creation_settings['regions_with_paid_publication'] == default_regions_with_paid_publication
     assert after_creation_settings['filling'] == default_filling
     assert after_creation_settings['main_regions_priority'] == default_main_regions_priority
+    assert after_creation_settings['enable_only_unhunted_ct'] is False
     # read
     assert html is not None
     # update
@@ -162,6 +164,7 @@ async def test_teams(pg, http, runtime_settings):
     assert after_update_settings['regions_with_paid_publication'] == new_regions_with_paid_publication
     assert after_update_settings['filling'] == new_filling
     assert after_update_settings['main_regions_priority'] == new_main_regions_priority
+    assert after_update_settings['enable_only_unhunted_ct'] is True
     # delete
     assert delete_response['success'] is True
     assert delete_response['message'] == 'Команда была успешно удалена.'

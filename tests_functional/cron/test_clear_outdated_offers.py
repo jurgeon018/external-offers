@@ -476,7 +476,31 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
         )
         """
     )
-
+    await pg.execute("""
+        INSERT INTO public.clients(
+            real_phone,
+            real_phone_hunted_at,
+            client_id,
+            avito_user_id,
+            client_phones,
+            status,
+            synced_with_grafana,
+            is_test,
+            main_account_chosen,
+            unactivated
+        ) VALUES (
+            NULL,
+            NULL,
+            '7',
+            '7',
+            '{1234567}',
+            'waiting',
+            'f',
+            'f',
+            'f',
+            'f'
+        )
+    """)
     await pg.execute(
         """
         INSERT INTO public.offers_for_call(
@@ -523,6 +547,95 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             )
         """
     )
+    await pg.execute("""
+        INSERT INTO public.clients(
+            real_phone,
+            real_phone_hunted_at,
+            client_id,
+            avito_user_id,
+            client_phones,
+            status,
+            synced_with_grafana,
+            is_test,
+            main_account_chosen,
+            unactivated
+        ) VALUES (
+            NULL,
+            NULL,
+            '8',
+            '8',
+            '{3234567}',
+            'callLater',
+            'f',
+            'f',
+            'f',
+            'f'
+        )
+    """)
+    await pg.execute("""
+        INSERT INTO public.parsed_offers (
+            id,
+            user_segment,
+            source_object_id,
+            source_user_id, source_object_model,
+            is_calltracking,
+            "timestamp",
+            created_at,
+            updated_at
+        ) VALUES (
+            '100c73b8-3057-47cc-b50a-419052da619f',
+            'b',
+            '1_1001442443',
+            '10005f430722c915c498113b16ba0e79',
+            '{}',
+            false,
+            now() - interval '3 day',
+            now() - interval '3 day',
+            now() - interval '3 day'
+        );
+        INSERT INTO public.offers_for_call(
+            id,
+            parsed_id,
+            client_id,
+            offer_cian_id,
+            status,
+            created_at,
+            started_at,
+            synced_at
+        ) VALUES (
+            '100',
+            '100c73b8-3057-47cc-b50a-419052da619f',
+            '100',
+            100,
+            'waiting',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06',
+            '2020-10-12 04:05:06'
+        );
+        INSERT INTO public.clients(
+            real_phone,
+            real_phone_hunted_at,
+            client_id,
+            avito_user_id,
+            client_phones,
+            status,
+            synced_with_grafana,
+            is_test,
+            main_account_chosen,
+            unactivated
+        ) VALUES (
+            NULL,
+            NULL,
+            '100',
+            '100',
+            '{1004567}',
+            'waiting',
+            'f',
+            'f',
+            'f',
+            'f'
+        );
+    """)
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
@@ -539,6 +652,16 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
         """
     )
 
+    expected_call_later_exists = await pg.fetchval("""
+        SELECT 1 FROM offers_for_call WHERE id = '3'
+    """)
+
+    expected_unhunted_missing = await pg.fetchval("""
+        SELECT 1 FROM offers_for_call WHERE id = '100'
+    """)
+
     # assert
     assert expected_exists
     assert not expected_missing
+    assert expected_call_later_exists
+    assert not expected_unhunted_missing

@@ -330,7 +330,7 @@
                      </button>
                      <div class="messages" id="additionalEmailsClientMessages"></div>
                  </div>
-                 {% if current_operator.team_type.value == 'hunter' or not current_operator.team_type %}
+                 {% if current_operator.team_type.value == 'hunter' or not current_operator.team_type or operator_can_call_unhunted_ct %}
                  <div class="additional-info-client-block">
                      <h3>Добытая реальная информация про клиента:</h3>
                      Номер телефона: <br>

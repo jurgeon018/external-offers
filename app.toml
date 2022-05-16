@@ -47,12 +47,17 @@ autoscale.max = 10
 type = "cron"
 command = "create-offers-for-call"
 cron = "0 4 * * *"
-memory = 2048
+memory = 3072
 prod.cpu = 0.1
 
 [job.send-latest-parsed-offers-timestamp-diff-to-graphite]
 type = "cron"
 command = "send-latest-parsed-offers-timestamp-diff-to-graphite"
+cron = "0 */2 * * *"
+
+[job.create-hunted-count-logs-cron]
+type = "cron"
+command = "create-hunted-count-logs-cron"
 cron = "0 */2 * * *"
 
 [job.clear-outdated-offers]

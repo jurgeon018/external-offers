@@ -35,6 +35,7 @@ def build_default_team_settings() -> dict[str, Any]:
         'regions': runtime_settings.OFFER_TASK_CREATION_REGIONS,
     }
     clients_settings = {
+        'enable_only_unhunted_ct': False,
         'segments': runtime_settings.OFFER_TASK_CREATION_SEGMENTS,
         'subsegments': [],
         # TODO: https://jira.cian.tech/browse/CD-116416
