@@ -87,15 +87,13 @@ def get_team_type_clauses(
     return joined_tables, team_type_clauses
 
 
-async def get_priority_ordering(
+async def get_priority_field(
     *,
     team_info: TeamInfo,
     operator_roles: list,
 ):
     if runtime_settings.ENABLE_TEAM_PRIORITIES and team_info.team_id:
-        priority_ordering = (
-            nullslast(offers_for_call.c.team_priorities[str(team_info.team_id)].asc())
-        )
+        priority_field = offers_for_call.c.team_priorities[str(team_info.team_id)]
         offer_category_clause = []
     else:
         is_commercial_moderator = OperatorRole.commercial_prepublication_moderator.value in operator_roles
@@ -108,5 +106,6 @@ async def get_priority_ordering(
             if is_commercial_moderator
             else ~commercial_category_clause
         ]
-        priority_ordering = nullslast(offers_for_call.c.priority.asc())
-    return priority_ordering, offer_category_clause
+        priority_field = offers_for_call.c.priority
+    return priority_field, offer_category_clause
+
