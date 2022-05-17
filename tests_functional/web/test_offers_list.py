@@ -1,6 +1,5 @@
 import json
 from datetime import datetime, timedelta
-from typing_extensions import runtime
 
 import pytest
 import pytz
@@ -981,17 +980,29 @@ async def test_update_offers_list__exist_no_suitable_client__returns_no_success(
     assert resp.data['errors'][0]['code'] == 'suitableClientMissing'
 
 
+@pytest.mark.parametrize(
+    'enable_cleared_priority_filtering',
+    [True, False]
+)
 async def test_update_offers_list__exist_only_invalid_client__returns_no_success(
         http,
         users_mock,
         runtime_settings,
         pg,
         offers_and_clients_fixture,
+        parsed_offers_for_offers_and_clients_fixture,
+        enable_cleared_priority_filtering,
 ):
     # arrange
-    await pg.execute_scripts(offers_and_clients_fixture)    
+    _CLEAR_PRIORITY = 999999999999999999
+    await pg.execute_scripts(offers_and_clients_fixture)
+    await pg.execute_scripts(parsed_offers_for_offers_and_clients_fixture)
+    # делает все обьявки из фикстуры невалидными
+    await pg.execute("""
+        UPDATE offers_for_call SET priority=$1
+    """, [_CLEAR_PRIORITY])
     await runtime_settings.set({
-        'ENABLE_CLEARED_PRIORITY_FILTERING': True,
+        'ENABLE_CLEARED_PRIORITY_FILTERING': enable_cleared_priority_filtering,
     })
     await users_mock.add_stub(
         method='GET',
@@ -1000,25 +1011,23 @@ async def test_update_offers_list__exist_only_invalid_client__returns_no_success
             body={'roles': []}
         ),
     )
-
-    operator = 70024649
-
-
+    operator_without_offers_in_progress = 60024636
     # act
     resp = await http.request(
         'POST',
         '/api/admin/v1/update-offers-list/',
         headers={
-            'X-Real-UserId': operator
+            'X-Real-UserId': operator_without_offers_in_progress
         },
         json={},
         expected_status=200
     )
 
     # assert
-    assert not resp.data['success']
-    assert resp.data['errors']
-    assert resp.data['errors'][0]['code'] == 'suitableClientMissing'
+    assert resp.data['success'] is not enable_cleared_priority_filtering
+    assert bool(resp.data['errors']) is enable_cleared_priority_filtering
+    if enable_cleared_priority_filtering:
+        assert resp.data['errors'][0]['code'] == 'suitableClientMissing'
 
 
 async def test_call_later_client__operator_and_in_progress__next_call_call_later_priority_set(

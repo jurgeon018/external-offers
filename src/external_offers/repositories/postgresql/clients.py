@@ -1,13 +1,12 @@
 import logging
 from datetime import datetime
 from typing import AsyncGenerator, List, Optional
-from typing_extensions import runtime
 
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd_timer
-from sqlalchemy import nullslast, and_, any_, delete, exists, not_, or_, select, update
+from sqlalchemy import and_, any_, delete, exists, not_, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
@@ -73,8 +72,7 @@ async def assign_suitable_client_to_operator(
     call_id: str,
     is_test: bool = False,
     operator_roles: list,
-) -> str:
-    _CLEAR_PRIORITY = 999999999999999999
+) -> Optional[str]:
     now = datetime.now(pytz.utc)
     operator = await get_operator_by_id(operator_id=operator_id)
     if operator:
@@ -176,9 +174,7 @@ async def assign_suitable_client_to_operator(
             select([first_suitable_offer_client_cte.c.offer_priority])
         )
         priority = await pg.get().fetchval(query, *params)
-        print('priority', priority)
         if priority and (int(priority) == _CLEAR_PRIORITY):
-            assert False, 'sdfsdf'
             return None
 
     query, params = asyncpgsa.compile_query(
