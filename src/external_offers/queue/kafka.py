@@ -5,6 +5,7 @@ from external_offers.entities.kafka import (
     AlreadyPublishedKafkaMessage,
     CallsKafkaMessage,
     ClientKafkaMessage,
+    DeletedOfferKafkaMessage,
     DraftAnnouncementsKafkaMessage,
     EventLogKafkaMessage,
     OfferForCallKafkaMessage,
@@ -52,4 +53,8 @@ operators_change_producer: EntityKafkaProducer[OperatorKafkaMessage] = get_kafka
 teams_change_producer: EntityKafkaProducer[TeamKafkaMessage] = get_kafka_entity_producer(
     topic='external-offers-teams.change',
     message_type=TeamKafkaMessage,
+)
+deleted_offers_producer: EntityKafkaProducer[DeletedOfferKafkaMessage] = get_kafka_entity_producer(
+    topic='external-offers.deleted-offers-for-call',
+    message_type=DeletedOfferKafkaMessage,
 )
