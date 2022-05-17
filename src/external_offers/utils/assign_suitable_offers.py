@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from cian_core.runtime_settings import runtime_settings
-from sqlalchemy import and_, nullslast, or_
+from sqlalchemy import and_, or_
 from sqlalchemy.sql.functions import coalesce
 
 from external_offers.entities.teams import TeamInfo
@@ -108,4 +108,3 @@ async def get_priority_field(
         ]
         priority_field = offers_for_call.c.priority
     return priority_field, offer_category_clause
-

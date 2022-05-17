@@ -1,12 +1,13 @@
 import logging
 from datetime import datetime
 from typing import AsyncGenerator, List, Optional
+from typing_extensions import runtime
 
 import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd_timer
-from sqlalchemy import and_, any_, delete, exists, not_, or_, select, update, nullslast
+from sqlalchemy import nullslast, and_, any_, delete, exists, not_, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
@@ -28,7 +29,7 @@ from external_offers.utils.teams import get_team_info
 
 _NO_CALLS = 0
 _ONE_CALL = 1
-
+_CLEAR_PRIORITY = 999999999999999999
 
 
 logger = logging.getLogger(__name__)
@@ -73,7 +74,6 @@ async def assign_suitable_client_to_operator(
     is_test: bool = False,
     operator_roles: list,
 ) -> str:
-    _OFFER_PRIORITY_LABEL = 'offer_priority'
     _CLEAR_PRIORITY = 999999999999999999
     now = datetime.now(pytz.utc)
     operator = await get_operator_by_id(operator_id=operator_id)
@@ -93,7 +93,7 @@ async def assign_suitable_client_to_operator(
         select(
             [
                 clients.c.client_id,
-                priority_field.label(_OFFER_PRIORITY_LABEL)
+                priority_field.label('offer_priority')
             ]
         ).select_from(
             joined_tables
