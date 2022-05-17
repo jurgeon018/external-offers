@@ -202,6 +202,22 @@ async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_
 
     created_at = datetime.now(pytz.utc) - timedelta(weeks=3)
     priority = 1
+    client_id = '1'
+    await pg.execute(
+        """
+        INSERT INTO public.clients (
+            client_id,
+            status,
+            avito_user_id,
+            client_phones,
+            real_phone,
+            real_phone_hunted_at
+        ) VALUES (
+            $1, $2, $3, $4, $5, $6
+        )
+        """,
+        [client_id, 'waiting', '1', [], None, None]
+    )
     await pg.execute(
         """
         INSERT INTO public.offers_for_call (
@@ -218,7 +234,7 @@ async def test_create_offers__exist_old_offer_and_clear_enabled__clears_waiting_
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         """,
-        ['1', 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6', '1',
+        ['1', 'ddd86dec-20f5-4a70-bb3a-077b2754dfe6', client_id,
          'waiting', created_at, created_at, None,
          created_at, priority, None]
     )
