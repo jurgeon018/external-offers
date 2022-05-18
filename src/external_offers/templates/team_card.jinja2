@@ -80,6 +80,16 @@
             checked
             {% endif %}
         />
+        <br>
+        <br>
+        <span title="Запускать приоретизацию для команды?">Флаг приоретизации:</span>
+        <input 
+            type="checkbox"
+            name="enablePrioritization"
+            {% if team.enable_prioritization %}
+            checked
+            {% endif %}
+        />        
         <hr>
         <h2>Настройки обьявлений</h2>
         <button type="button" onclick="toggleBlock(this)">Показать\скрыть настройки обьявлений</button>

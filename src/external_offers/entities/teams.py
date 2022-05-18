@@ -174,6 +174,8 @@ class Team:
     """Количество заданий в ожидании в очереди команды"""
     team_waiting_offers_count_updated_at: Optional[datetime] = None
     """Время последнего обновления количества заданий в ожидании в очереди команды"""
+    enable_prioritization: bool = True
+    """Флаг включения в приоритезацию"""
 
     def get_settings(self) -> dict:
         settings = {}
@@ -221,6 +223,8 @@ class _UpdateTeamRequest:
     """ID лида команды """
     team_name: str
     """Название команды"""
+    enable_prioritization: bool = True
+    """Флаг включения приоритезации"""
 
 
 @dataclass

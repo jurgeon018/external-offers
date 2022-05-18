@@ -145,6 +145,14 @@ async def prepare_teams(*, http, pg, operator_id):
     await update_team_settings(team_id=5, key='sale_priority', value='2', pg=pg)
     await update_team_settings(team_id=5, key='rent_priority', value='1', pg=pg)
 
+    await pg.execute("""
+    INSERT INTO teams (
+        team_id, team_name, enable_prioritization, lead_id, team_type
+    ) VALUES (
+        '100', 'disabled_test_team', 'f', '1', 'attractor'
+    )
+    """)
+
 
 async def prepare_unactivated_clients(*, runner, pg):
     await pg.execute("""
@@ -361,6 +369,8 @@ async def assert_offers_creation(*, runner, pg, cian_user_id):
     assert json.loads(ofc13['team_priorities'])['3'] == 231115223
     assert json.loads(ofc13['team_priorities'])['4'] == 231115221
     assert json.loads(ofc13['team_priorities'])['5'] == 231115213
+
+    assert json.loads(ofc1['team_priorities']).get('100') is None
 
 
 async def assert_offers_updating(*, pg, http, operator_id):

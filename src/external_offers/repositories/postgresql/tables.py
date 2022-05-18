@@ -117,6 +117,7 @@ teams = sa.Table(
     sa.Column('settings', JSONB(), nullable=True),
     sa.Column('team_waiting_offers_count', sa.INT, nullable=True),
     sa.Column('team_waiting_offers_count_updated_at', sa.TIMESTAMP, nullable=True),
+    sa.Column('enable_prioritization', sa.BOOLEAN, nullable=False, default=True),
 )
 
 operators = sa.Table(
