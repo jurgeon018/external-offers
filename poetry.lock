@@ -116,7 +116,7 @@ reference = "cian"
 
 [[package]]
 name = "astroid"
-version = "2.11.2"
+version = "2.11.5"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
@@ -841,7 +841,7 @@ pytest-mock = ">=1.11.1,<2.0.0"
 tornado = "*"
 
 [package.extras]
-test = ["aiomssql", "cian-cache", "cian-core[postgres,es,cache,kafka,cassandra,mssql] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
+test = ["aiomssql", "cian-cache", "cian-core[cassandra,postgres,es,mssql,kafka,cache] (>=1.31,<2)", "cian-elasticsearch", "cian-kafka", "cian-pg", "cian-lint", "coverage", "cython", "freezegun", "graphyte", "isort", "mypy", "pytest-env", "pytest-tornado", "simple-settings", "typing-extensions"]
 
 [package.source]
 type = "legacy"
@@ -1894,14 +1894,14 @@ reference = "cian"
 
 [[package]]
 name = "pylint"
-version = "2.13.5"
+version = "2.13.9"
 description = "python code static checker"
 category = "dev"
 optional = false
 python-versions = ">=3.6.2"
 
 [package.dependencies]
-astroid = ">=2.11.2,<=2.12.0-dev0"
+astroid = ">=2.11.5,<=2.12.0-dev0"
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
 dill = ">=0.2"
 isort = ">=4.2.5,<6"
@@ -2718,8 +2718,8 @@ anyio = [
     {file = "anyio-3.5.0.tar.gz", hash = "sha256:a0aeffe2fb1fdf374a8e4b471444f0f3ac4fb9f5a5b542b48824475e0042a5a6"},
 ]
 astroid = [
-    {file = "astroid-2.11.2-py3-none-any.whl", hash = "sha256:cc8cc0d2d916c42d0a7c476c57550a4557a083081976bf42a73414322a6411d9"},
-    {file = "astroid-2.11.2.tar.gz", hash = "sha256:8d0a30fe6481ce919f56690076eafbb2fb649142a89dc874f1ec0e7a011492d0"},
+    {file = "astroid-2.11.5-py3-none-any.whl", hash = "sha256:14ffbb4f6aa2cf474a0834014005487f7ecd8924996083ab411e7fa0b508ce0b"},
+    {file = "astroid-2.11.5.tar.gz", hash = "sha256:f4e4ec5294c4b07ac38bab9ca5ddd3914d4bf46f9006eb5c0ae755755061044e"},
 ]
 async-http-mocks = [
     {file = "async-http-mocks-1.1.0.tar.gz", hash = "md5:22a72f5a4e7d8420aa0fc3794230644d"},
@@ -3603,8 +3603,8 @@ pygments = [
     {file = "Pygments-2.11.2.tar.gz", hash = "sha256:4e426f72023d88d03b2fa258de560726ce890ff3b630f88c21cbb8b2503b8c6a"},
 ]
 pylint = [
-    {file = "pylint-2.13.5-py3-none-any.whl", hash = "sha256:c149694cfdeaee1aa2465e6eaab84c87a881a7d55e6e93e09466be7164764d1e"},
-    {file = "pylint-2.13.5.tar.gz", hash = "sha256:dab221658368c7a05242e673c275c488670144123f4bd262b2777249c1c0de9b"},
+    {file = "pylint-2.13.9-py3-none-any.whl", hash = "sha256:705c620d388035bdd9ff8b44c5bcdd235bfb49d276d488dd2c8ff1736aa42526"},
+    {file = "pylint-2.13.9.tar.gz", hash = "sha256:095567c96e19e6f57b5b907e67d265ff535e588fe26b12b5ebe1fc5645b2c731"},
 ]
 pylint-quotes = [
     {file = "pylint-quotes-0.2.3.tar.gz", hash = "sha256:2d6bb3fa8a1a85af3af8a0ca875a719ac5bcdb735c45756284699d809c109c95"},
