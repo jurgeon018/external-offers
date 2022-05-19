@@ -11,6 +11,7 @@ from external_offers.repositories.postgresql import (
     delete_waiting_offers_for_call_without_parsed_offers,
     get_latest_updated_at,
 )
+from external_offers.services.send_deleted_offers_to_kafka import send_deleted_offers_to_kafka
 
 
 logger = logging.getLogger(__name__)
@@ -39,4 +40,5 @@ async def clear_outdated_offers() -> None:
         logger.warning('Проверка наличия обновления отключена')
 
     await delete_outdated_parsed_offers()
-    await delete_waiting_offers_for_call_without_parsed_offers()
+    source_object_ids = await delete_waiting_offers_for_call_without_parsed_offers()
+    await send_deleted_offers_to_kafka(source_object_ids)

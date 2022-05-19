@@ -118,3 +118,13 @@ class TeamKafkaMessage:
     """Operation id"""
     date: datetime
     """Время отправки"""
+
+
+@dataclass
+class DeletedOfferKafkaMessage:
+    source_object_id: str
+    """ID обьявления на внешней площадке"""
+    operation_id: str
+    """Operation id"""
+    date: datetime
+    """Время отправки"""
