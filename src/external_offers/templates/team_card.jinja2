@@ -59,6 +59,11 @@
             type='text' name="teamName" placeholder='введите название команды'
         /><br><br>
 
+        Название группы номеров: {% if team.team_division %}{{team.team_division}}{% endif %}
+        <input value="{% if team.team_division %}{{team.team_division}}{% endif %}"
+            type='text' name="teamDivision" placeholder='введите название группы номеров для привязки к звонилке'
+        /><br><br>
+
         {% if team.team_waiting_offers_count or team.team_waiting_offers_count == 0 %}
         Количество заданий в очереди: {{team.team_waiting_offers_count}}(на {{team.team_waiting_offers_count_updated_at.strftime('%Y-%m-%d %H:%M:%S')}})
         <br><br>

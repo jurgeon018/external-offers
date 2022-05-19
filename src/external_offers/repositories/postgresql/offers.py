@@ -723,6 +723,17 @@ async def delete_old_waiting_offers_for_call() -> list[str]:
         datetime.now(pytz.utc)
         - timedelta(days=max_waiting_offer_age_in_days)
     )
+    unhunted_clients_cte = (
+        select(
+            [clients.c.client_id]
+        ).where(
+            and_(
+                clients.c.status == ClientStatus.waiting.value,
+                clients.c.real_phone.is_(None),
+                clients.c.real_phone_hunted_at.is_(None),
+            ),
+        ).cte('unhunted_clients_cte')
+    )
 
     sql = (
         delete(
@@ -730,7 +741,8 @@ async def delete_old_waiting_offers_for_call() -> list[str]:
         ).where(
             and_(
                 offers_for_call.c.parsed_created_at <= clear_border,
-                offers_for_call.c.status == OfferStatus.waiting.value
+                offers_for_call.c.status == OfferStatus.waiting.value,
+                offers_for_call.c.client_id == unhunted_clients_cte,
             )
         ).returning(
             offers_for_call.c.source_object_id,
