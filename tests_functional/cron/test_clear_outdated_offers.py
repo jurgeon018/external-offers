@@ -367,6 +367,7 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
     pg,
     runtime_settings,
     runner,
+    kafka_service,
 ):
     # arrange
     await runtime_settings.set({
@@ -463,7 +464,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             status,
             created_at,
             started_at,
-            synced_at
+            synced_at,
+            source_object_id
         ) VALUES (
             '1',
             '2e6c73b8-3057-47cc-b50a-419052da619f',
@@ -472,7 +474,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             'waiting',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
-            '2020-10-12 04:05:06'
+            '2020-10-12 04:05:06',
+            '1'
         )
         """
     )
@@ -511,7 +514,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             status,
             created_at,
             started_at,
-            synced_at
+            synced_at,
+            source_object_id
         ) VALUES (
             '2',
             '3e6c73b8-3057-47cc-b50a-419052da619f',
@@ -520,7 +524,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             'draft',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
-            '2020-10-12 04:05:06'
+            '2020-10-12 04:05:06',
+            '2'
             )
         """
     )
@@ -534,7 +539,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             status,
             created_at,
             started_at,
-            synced_at
+            synced_at,
+            source_object_id
         ) VALUES (
             '3',
             '4e6c73b8-3057-47cc-b50a-419052da619f',
@@ -543,7 +549,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             'callLater',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
-            '2020-10-12 04:05:06'
+            '2020-10-12 04:05:06',
+            '3'
             )
         """
     )
@@ -601,7 +608,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             status,
             created_at,
             started_at,
-            synced_at
+            synced_at,
+            source_object_id
         ) VALUES (
             '100',
             '100c73b8-3057-47cc-b50a-419052da619f',
@@ -610,7 +618,8 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
             'waiting',
             '2020-10-12 04:05:06',
             '2020-10-12 04:05:06',
-            '2020-10-12 04:05:06'
+            '2020-10-12 04:05:06',
+            '4'
         );
         INSERT INTO public.clients(
             real_phone,
@@ -639,7 +648,11 @@ async def test_clear_offers__exist_offer_before_border__clear_only_waiting_offer
 
     # act
     await runner.run_python_command('clear-outdated-offers-cron')
-
+    await kafka_service.wait_messages(
+        topic='external-offers.deleted-offers-for-call',
+        timeout=2.5,
+        count=2,
+    )
     expected_missing = await pg.fetchval(
         """
         SELECT 1 FROM offers_for_call WHERE id = '1'

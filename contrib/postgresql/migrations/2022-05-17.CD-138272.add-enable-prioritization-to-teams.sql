@@ -1,0 +1,1 @@
+ALTER TABLE teams ADD COLUMN enable_prioritization BOOLEAN NOT NULL DEFAULT TRUE;

@@ -140,6 +140,7 @@ async def update_team_public(request: UpdateTeamRequest, user_id: int) -> BasicR
     del settings['team_id']
     del settings['team_name']
     del settings['lead_id']
+    del settings['team_division']
     for key, value in settings.items():
         if key in asdict(StrTeamSettings()).keys():
             settings[key] = json.loads(value)
@@ -147,6 +148,7 @@ async def update_team_public(request: UpdateTeamRequest, user_id: int) -> BasicR
         await update_team_by_id(
             team_id=request.team_id,
             team_name=request.team_name,
+            team_division=request.team_division,
             lead_id=request.lead_id,
             settings=settings,
         )

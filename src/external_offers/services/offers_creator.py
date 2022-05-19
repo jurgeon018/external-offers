@@ -62,6 +62,7 @@ from external_offers.services.prioritizers import (
     prioritize_smb_client,
 )
 from external_offers.services.prioritizers.prioritize_offer import get_mapping_offer_categories_to_priority
+from external_offers.services.send_deleted_offers_to_kafka import send_deleted_offers_to_kafka
 from external_offers.utils import iterate_over_list_by_chunks
 from external_offers.utils.teams import get_team_info
 
@@ -399,7 +400,8 @@ async def clear_and_prioritize_waiting_offers(is_test: bool) -> None:
 
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
-        await delete_old_waiting_offers_for_call()
+        source_object_ids = await delete_old_waiting_offers_for_call()
+        await send_deleted_offers_to_kafka(source_object_ids)
 
 
 async def create_priorities(
