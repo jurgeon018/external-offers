@@ -6,7 +6,7 @@ import asyncpgsa
 import pytz
 from cian_core.runtime_settings import runtime_settings
 from cian_core.statsd import statsd_timer
-from sqlalchemy import and_, any_, delete, exists, not_, or_, select, update
+from sqlalchemy import and_, any_, delete, exists, not_, nullslast, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
@@ -20,7 +20,7 @@ from external_offers.repositories.monolith_cian_announcementapi.entities.object_
 from external_offers.repositories.postgresql.operators import get_operator_by_id
 from external_offers.repositories.postgresql.tables import clients, offers_for_call, parsed_offers
 from external_offers.repositories.postgresql.teams import get_team_by_id
-from external_offers.utils.assign_suitable_offers import get_priority_ordering, get_team_type_clauses
+from external_offers.utils.assign_suitable_offers import get_priority_field, get_team_type_clauses
 from external_offers.utils.iter_utils import iterate_over_list_by_chunks
 from external_offers.utils.next_call import get_next_call_date_when_draft
 from external_offers.utils.teams import get_team_info
@@ -28,7 +28,7 @@ from external_offers.utils.teams import get_team_info
 
 _NO_CALLS = 0
 _ONE_CALL = 1
-
+_CLEAR_PRIORITY = 999999999999999999
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ async def assign_suitable_client_to_operator(
     call_id: str,
     is_test: bool = False,
     operator_roles: list,
-) -> str:
+) -> Optional[str]:
     now = datetime.now(pytz.utc)
     operator = await get_operator_by_id(operator_id=operator_id)
     if operator:
@@ -83,7 +83,7 @@ async def assign_suitable_client_to_operator(
     joined_tables, team_type_clauses = get_team_type_clauses(
         team_info=team_info
     )
-    priority_ordering, offer_category_clause = await get_priority_ordering(
+    priority_field, offer_category_clause = await get_priority_field(
         team_info=team_info,
         operator_roles=operator_roles,
     )
@@ -91,6 +91,7 @@ async def assign_suitable_client_to_operator(
         select(
             [
                 clients.c.client_id,
+                priority_field.label('offer_priority')
             ]
         ).select_from(
             joined_tables
@@ -160,7 +161,7 @@ async def assign_suitable_client_to_operator(
                 ),
             )
         ).order_by(
-            priority_ordering,
+            nullslast(priority_field.asc()),
             offers_for_call.c.created_at.desc()
         ).limit(
             1
@@ -168,6 +169,14 @@ async def assign_suitable_client_to_operator(
             'first_suitable_offer_client_cte'
         )
     )
+    if runtime_settings.get('ENABLE_CLEARED_PRIORITY_FILTERING', True):
+        query, params = asyncpgsa.compile_query(
+            select([first_suitable_offer_client_cte.c.offer_priority])
+        )
+        priority = await pg.get().fetchval(query, *params)
+        if priority and (int(priority) == _CLEAR_PRIORITY):
+            return None
+
     query, params = asyncpgsa.compile_query(
         update(
             clients

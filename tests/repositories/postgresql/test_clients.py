@@ -134,7 +134,8 @@ async def test_assign_suitable_client_to_operator__only_hunted_ct_attractor_team
         ),
     )
     query = (
-        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFRO'
+        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id, '
+        'offers_for_call.priority AS offer_priority \nFRO'
         'M clients JOIN (offers_for_call JOIN parsed_offers ON offers_for_call.parsed_id = pars'
         'ed_offers.id) ON offers_for_call.client_id = clients.client_id \nWHERE clients.unactiv'
         'ated IS false AND offers_for_call.publication_status IS NULL AND (clients.operator_use'
@@ -252,7 +253,8 @@ async def test_assign_suitable_client_to_operator__only_unhunted_ct_attractor_te
         ),
     )
     query = (
-        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS client_id \nFROM '
+        'WITH first_suitable_offer_client_cte AS \n(SELECT clients.client_id AS '
+        'client_id, offers_for_call.priority AS offer_priority \nFROM '
         'clients JOIN (offers_for_call JOIN parsed_offers ON offers_for_call.parsed_id = '
         'parsed_offers.id) ON offers_for_call.client_id = clients.client_id \nWHERE '
         'clients.unactivated IS false AND offers_for_call.publication_status IS NULL AND '
