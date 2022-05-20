@@ -398,9 +398,6 @@ async def clear_and_prioritize_waiting_offers(is_test: bool) -> None:
         is_test=is_test,
     )
 
-    if runtime_settings.EXCLUDE_CALLTRACKING_FOR_ALL_TEAMS:
-        await delete_calltracking_clients()
-        await delete_calltracking_offers()
 
     if runtime_settings.ENABLE_CLEAR_OLD_WAITING_OFFERS_FOR_CALL:
         source_object_ids = await delete_old_waiting_offers_for_call()
