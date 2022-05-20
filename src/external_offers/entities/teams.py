@@ -176,6 +176,8 @@ class Team:
     """Время последнего обновления количества заданий в ожидании в очереди команды"""
     enable_prioritization: bool = True
     """Флаг включения в приоритезацию"""
+    team_division: Optional[str] = None
+    """Название групы номеров"""
 
     def get_settings(self) -> dict:
         settings = {}
@@ -225,6 +227,8 @@ class _UpdateTeamRequest:
     """Название команды"""
     enable_prioritization: bool = True
     """Флаг включения приоритезации"""
+    team_division: Optional[str] = None
+    """Название групы номеров"""
 
 
 @dataclass

@@ -605,7 +605,7 @@ async def delete_waiting_offers_for_call_by_parsed_ids(*, parsed_ids: list[str])
     await pg.get().execute(query, *params)
 
 
-async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
+async def delete_waiting_offers_for_call_without_parsed_offers() -> list[str]:
     offers_and_parsed_offers = outerjoin(
             left=offers_for_call,
             right=parsed_offers,
@@ -650,12 +650,16 @@ async def delete_waiting_offers_for_call_without_parsed_offers() -> None:
                 offers_for_call.c.status == OfferStatus.waiting.value,
                 offers_for_call.c.client_id == unhunted_clients_cte.c.client_id,
             )
+        ).returning(
+            offers_for_call.c.source_object_id,
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
 
-    await pg.get().execute(query, *params)
+    rows = await pg.get().fetch(query, *params)
+    source_object_ids = [row['source_object_id'] for row in rows] if rows else []
+    return source_object_ids
 
 
 async def delete_calltracking_clients() -> None:
@@ -710,7 +714,7 @@ async def delete_waiting_offers_for_call_with_count_off_limit() -> None:
     await pg.get().execute(query, *params)
 
 
-async def delete_old_waiting_offers_for_call() -> None:
+async def delete_old_waiting_offers_for_call() -> list[str]:
     max_waiting_offer_age_in_days = runtime_settings.get(
         'CLEAR_WAITING_OFFERS_FOR_CALL_AGE_IN_DAYS',
         settings.CLEAR_WAITING_OFFERS_FOR_CALL_AGE_IN_DAYS
@@ -719,6 +723,17 @@ async def delete_old_waiting_offers_for_call() -> None:
         datetime.now(pytz.utc)
         - timedelta(days=max_waiting_offer_age_in_days)
     )
+    unhunted_clients_cte = (
+        select(
+            [clients.c.client_id]
+        ).where(
+            and_(
+                clients.c.status == ClientStatus.waiting.value,
+                clients.c.real_phone.is_(None),
+                clients.c.real_phone_hunted_at.is_(None),
+            ),
+        ).cte('unhunted_clients_cte')
+    )
 
     sql = (
         delete(
@@ -726,14 +741,19 @@ async def delete_old_waiting_offers_for_call() -> None:
         ).where(
             and_(
                 offers_for_call.c.parsed_created_at <= clear_border,
-                offers_for_call.c.status == OfferStatus.waiting.value
+                offers_for_call.c.status == OfferStatus.waiting.value,
+                offers_for_call.c.client_id == unhunted_clients_cte,
             )
+        ).returning(
+            offers_for_call.c.source_object_id,
         )
     )
 
     query, params = asyncpgsa.compile_query(sql)
 
-    await pg.get().execute(query, *params)
+    rows = await pg.get().fetch(query, *params)
+    source_object_ids = [row['source_object_id'] for row in rows] if rows else []
+    return source_object_ids
 
 
 async def delete_waiting_clients_with_count_off_limit() -> None:
