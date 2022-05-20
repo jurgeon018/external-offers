@@ -150,6 +150,7 @@ async def update_team_public(request: UpdateTeamRequest, user_id: int) -> BasicR
             team_name=request.team_name,
             team_division=request.team_division,
             lead_id=request.lead_id,
+            enable_prioritization=request.enable_prioritization,
             settings=settings,
         )
         success = True

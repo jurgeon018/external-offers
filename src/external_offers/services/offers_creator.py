@@ -54,7 +54,7 @@ from external_offers.repositories.postgresql.offers import (
     set_waiting_offers_team_priorities_by_offer_ids,
 )
 from external_offers.repositories.postgresql.parsed_offers import get_parsed_offers_for_account_prioritization
-from external_offers.repositories.postgresql.teams import get_teams
+from external_offers.repositories.postgresql.teams import get_teams_for_prioritization
 from external_offers.services.prioritizers import (
     find_homeowner_account,
     find_smb_account,
@@ -392,7 +392,7 @@ async def clear_and_prioritize_waiting_offers(is_test: bool) -> None:
     # None нужен для того чтобы проставить некомандные приоритеты
     teams = [None, ]
     if runtime_settings.ENABLE_TEAMS_PRIORITIZATION:
-        teams.extend(await get_teams())
+        teams.extend(await get_teams_for_prioritization())
     await prioritize_waiting_offers(
         teams=teams,
         is_test=is_test,

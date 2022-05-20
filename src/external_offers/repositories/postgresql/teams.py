@@ -28,6 +28,18 @@ async def get_teams() -> List[Team]:
     return [teams_mapper.map_from(row) for row in rows]
 
 
+async def get_teams_for_prioritization() -> list[Team]:
+    query, params = asyncpgsa.compile_query(
+        select([
+            teams
+        ]).where(
+            teams.c.enable_prioritization.is_(True)
+        )
+    )
+    rows = await pg.get().fetch(query, *params)
+    return [teams_mapper.map_from(row) for row in rows]
+
+
 async def get_team_by_id(team_id: Optional[int]) -> Optional[Team]:
     query, params = asyncpgsa.compile_query(
         select(
@@ -69,6 +81,7 @@ async def update_team_by_id(
     team_division: Optional[str] = None,
     lead_id: str,
     settings: Optional[dict] = None,
+    enable_prioritization: Optional[bool] = True,
 ) -> None:
     if settings is None:
         settings = {}
@@ -82,6 +95,7 @@ async def update_team_by_id(
             team_division=team_division,
             lead_id=lead_id,
             settings=settings,
+            enable_prioritization=enable_prioritization,
         )
     )
     await pg.get().execute(query, *params)
